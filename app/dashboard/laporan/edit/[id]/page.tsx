@@ -1,0 +1,199 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { useRouter, useParams } from "next/navigation";
+
+type Order = {
+  id: string;
+  no_pesanan: string;
+  customer_id: string;
+  tanggal: string;
+  total: number;
+  dp: number;
+  sisa_pembayaran: number;
+  status: string;
+  alamat_pengiriman: string | null;
+};
+
+export default function EditPesananPage() {
+  const router = useRouter();
+  const params = useParams();
+  const supabase = createClient();
+  const [loading, setLoading] = useState(false);
+  const [fetching, setFetching] = useState(true);
+  const [formData, setFormData] = useState<Order>({
+    id: "",
+    no_pesanan: "",
+    customer_id: "",
+    tanggal: "",
+    total: 0,
+    dp: 0,
+    sisa_pembayaran: 0,
+    status: "Pesanan",
+    alamat_pengiriman: "",
+  });
+
+  useEffect(() => {
+    async function fetchOrder() {
+      const { data, error } = await supabase
+        .from("orders")
+        .select("*")
+        .eq("id", params.id)
+        .single();
+
+      if (error || !data) {
+        alert("Data tidak ditemukan");
+        router.push("/dashboard/laporan");
+        return;
+      }
+
+      setFormData(data);
+      setFetching(false);
+    }
+
+    fetchOrder();
+  }, [params.id, router, supabase]);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    setLoading(true);
+
+    const { error } = await supabase
+      .from("orders")
+      .update({
+        ...formData,
+        total: Number(formData.total),
+        dp: Number(formData.dp),
+        sisa_pembayaran: Number(formData.total) - Number(formData.dp),
+      })
+      .eq("id", params.id);
+
+    if (error) {
+      alert("Gagal update pesanan: " + error.message);
+    } else {
+      alert("Pesanan berhasil diupdate!");
+      router.push("/dashboard/laporan");
+    }
+
+    setLoading(false);
+  }
+
+  if (fetching) {
+    return <div className="text-center py-8 text-djoker-muted">Memuat data...</div>;
+  }
+
+  return (
+    <div>
+      <div className="mb-6">
+        <h1 className="font-display font-bold text-xl">Edit Pesanan</h1>
+        <p className="text-djoker-muted text-sm">
+          Update data pesanan {formData.no_pesanan}.
+        </p>
+      </div>
+
+      <div className="card max-w-2xl">
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="text-xs text-djoker-muted mb-1.5 block">No. Pesanan</label>
+            <input
+              type="text"
+              value={formData.no_pesanan}
+              onChange={(e) => setFormData({ ...formData, no_pesanan: e.target.value })}
+              className="input-field"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="text-xs text-djoker-muted mb-1.5 block">Customer ID</label>
+            <input
+              type="text"
+              value={formData.customer_id}
+              onChange={(e) => setFormData({ ...formData, customer_id: e.target.value })}
+              className="input-field"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="text-xs text-djoker-muted mb-1.5 block">Tanggal</label>
+            <input
+              type="date"
+              value={formData.tanggal}
+              onChange={(e) => setFormData({ ...formData, tanggal: e.target.value })}
+              className="input-field"
+              required
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-xs text-djoker-muted mb-1.5 block">Total (Rp)</label>
+              <input
+                type="number"
+                value={formData.total}
+                onChange={(e) => setFormData({ ...formData, total: Number(e.target.value) })}
+                className="input-field"
+                required
+              />
+            </div>
+            <div>
+              <label className="text-xs text-djoker-muted mb-1.5 block">DP (Rp)</label>
+              <input
+                type="number"
+                value={formData.dp}
+                onChange={(e) => setFormData({ ...formData, dp: Number(e.target.value) })}
+                className="input-field"
+                required
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="text-xs text-djoker-muted mb-1.5 block">Alamat Pengiriman</label>
+            <textarea
+              value={formData.alamat_pengiriman ?? ""}
+              onChange={(e) => setFormData({ ...formData, alamat_pengiriman: e.target.value })}
+              className="input-field"
+              rows={3}
+            />
+          </div>
+
+          <div>
+            <label className="text-xs text-djoker-muted mb-1.5 block">Status</label>
+            <select
+              value={formData.status}
+              onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+              className="input-field"
+            >
+              <option value="Pesanan">Pesanan</option>
+              <option value="Produksi">Produksi</option>
+              <option value="QC">QC</option>
+              <option value="Packing">Packing</option>
+              <option value="Dikirim">Dikirim</option>
+              <option value="Selesai">Selesai</option>
+            </select>
+          </div>
+
+          <div className="flex gap-3 pt-4">
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="btn-outline flex-1"
+            >
+              Batal
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-primary flex-1"
+            >
+              {loading ? "Menyimpan..." : "Update"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
