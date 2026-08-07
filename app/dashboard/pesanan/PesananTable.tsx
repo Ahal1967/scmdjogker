@@ -1,23 +1,33 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
-type Customer = { id: string; nama: string; no_telepon: string | null; alamat: string | null };
+type Customer = {
+  id: string;
+  nama: string | null;
+  no_telepon: string | null;
+  alamat: string | null;
+};
 
-type OrderItem = { id?: string; nama_produk: string; jumlah: number; harga: number };
+type OrderItem = {
+  id?: string;
+  nama_produk: string;
+  jumlah: number;
+  harga: number;
+};
 
 type Order = {
   id: string;
   no_pesanan: string;
-  tanggal: string;
-  total: number;
-  dp: number;
-  sisa_pembayaran: number;
-  status: string;
+  tanggal: string | null;
+  total: number | null;
+  dp: number | null;
+  sisa_pembayaran: number | null;
+  status: string | null;
   alamat_pengiriman: string | null;
-  customers: { nama: string } | null;
-  order_items: OrderItem[];
+  customers: { nama: string | null } | null;
+  order_items: OrderItem[] | null;
 };
 
 const STATUS_OPTIONS = ["Pesanan", "Produksi", "QC", "Packing", "Dikirim", "Selesai"];
@@ -53,23 +63,26 @@ export default function PesananTable() {
   const [dp, setDp] = useState(0);
   const [items, setItems] = useState<OrderItem[]>([{ nama_produk: "", jumlah: 1, harga: 0 }]);
 
-  // Fetch data saat pertama kali render
   useEffect(() => {
     const fetchData = async () => {
-      const { data: ordersData } = await supabase
+      setLoading(true);
+
+      const { data: ordersData, error: ordersError } = await supabase
         .from("orders")
         .select("*, customers(nama), order_items(id, nama_produk, jumlah, harga)")
         .order("created_at", { ascending: false });
 
-      const { data: customersData } = await supabase
+      const { data: customersData, error: customersError } = await supabase
         .from("customers")
         .select("*")
         .order("nama", { ascending: true });
 
-      if (ordersData) setOrders(ordersData);
-      if (customersData) setCustomers(customersData);
+      if (ordersError) console.error(ordersError);
+      if (customersError) console.error(customersError);
 
-      // Hitung next order number dari orders yang ada
+      if (ordersData) setOrders(ordersData as Order[]);
+      if (customersData) setCustomers(customersData as Customer[]);
+
       if (ordersData && ordersData.length > 0) {
         const maxNo = ordersData.reduce((max, o) => {
           const match = o.no_pesanan?.match(/DJ(\d+)/);
@@ -80,7 +93,6 @@ export default function PesananTable() {
         setOrderSeq(maxNo + 1);
       }
 
-      // Hitung next production number dari production
       const { data: prodData } = await supabase
         .from("production")
         .select("no_produksi")
@@ -99,11 +111,11 @@ export default function PesananTable() {
     };
 
     fetchData();
-  }, []);
+  }, [supabase]);
 
   const filtered = orders.filter(
     (o) =>
-      o.no_pesanan.toLowerCase().includes(search.toLowerCase()) ||
+      (o.no_pesanan ?? "").toLowerCase().includes(search.toLowerCase()) ||
       (o.customers?.nama ?? "").toLowerCase().includes(search.toLowerCase())
   );
 
@@ -126,18 +138,14 @@ export default function PesananTable() {
   }
 
   function updateItem(idx: number, field: keyof OrderItem, value: string | number) {
-    setItems((prev) =>
-      prev.map((it, i) => (i === idx ? { ...it, [field]: value } : it))
-    );
+    setItems((prev) => prev.map((it, i) => (i === idx ? { ...it, [field]: value } : it)));
   }
 
-  async function handleSave(e: React.FormEvent) {
+  async function handleSave(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setSaving(true);
 
-    let finalCustomerId = customerId;
-
-    if (!finalCustomerId) {
+    if (!customerId) {
       alert("Pilih pelanggan terlebih dahulu.");
       setSaving(false);
       return;
@@ -150,15 +158,13 @@ export default function PesananTable() {
       return;
     }
 
-    // 1. Generate nomor pesanan
     const noPesanan = "DJ" + String(orderSeq).padStart(5, "0");
 
-    // 2. Insert order
     const { data: orderData, error: orderError } = await supabase
       .from("orders")
       .insert({
         no_pesanan: noPesanan,
-        customer_id: finalCustomerId,
+        customer_id: customerId,
         total,
         dp,
         sisa_pembayaran: total - dp,
@@ -174,7 +180,6 @@ export default function PesananTable() {
       return;
     }
 
-    // 3. Insert order_items
     const { data: itemsData, error: itemsError } = await supabase
       .from("order_items")
       .insert(validItems.map((it) => ({ ...it, order_id: orderData.id })))
@@ -184,14 +189,12 @@ export default function PesananTable() {
       alert("Pesanan tersimpan, tapi item produk gagal disimpan: " + itemsError.message);
     }
 
-    // 4. Insert tracking awal
     await supabase.from("order_tracking").insert({
       order_id: orderData.id,
       tahap: "Pesanan Diterima",
       selesai: true,
     });
 
-    // 5. Otomatis buat entri Produksi
     const noProduksi = "PRO-" + String(productionSeq).padStart(4, "0");
     const { error: prodError } = await supabase.from("production").insert({
       no_produksi: noProduksi,
@@ -199,13 +202,17 @@ export default function PesananTable() {
       status: "Produksi",
       progress: 0,
     });
+
     if (prodError) {
       alert("Pesanan tersimpan, tapi gagal membuat entri produksi otomatis: " + prodError.message);
     } else {
       setProductionSeq((n) => n + 1);
     }
 
-    setOrders((prev) => [{ ...orderData, order_items: itemsData ?? validItems }, ...prev]);
+    setOrders((prev) => [
+      { ...(orderData as Order), order_items: (itemsData as OrderItem[]) ?? validItems },
+      ...prev,
+    ]);
     setOrderSeq((n) => n + 1);
     setShowModal(false);
     setSaving(false);
@@ -218,8 +225,9 @@ export default function PesananTable() {
       .eq("id", order.id)
       .select("*, customers(nama), order_items(id, nama_produk, jumlah, harga)")
       .single();
+
     if (!error && data) {
-      setOrders((prev) => prev.map((o) => (o.id === order.id ? data : o)));
+      setOrders((prev) => prev.map((o) => (o.id === order.id ? (data as Order) : o)));
       await supabase.from("order_tracking").insert({
         order_id: order.id,
         tahap: status,
@@ -232,45 +240,30 @@ export default function PesananTable() {
     if (!confirm("Hapus pesanan ini beserta seluruh itemnya?")) return;
 
     try {
-      // 1. Hapus order_items dulu
-      const { error: itemsError } = await supabase
-        .from("order_items")
-        .delete()
-        .eq("order_id", id);
-
+      const { error: itemsError } = await supabase.from("order_items").delete().eq("order_id", id);
       if (itemsError) {
-        console.error("Error deleting order_items:", itemsError);
         alert("Gagal menghapus item pesanan: " + itemsError.message);
         return;
       }
 
-      // 2. Hapus order
-      const { error: orderError } = await supabase
-        .from("orders")
-        .delete()
-        .eq("id", id);
-
+      const { error: orderError } = await supabase.from("orders").delete().eq("id", id);
       if (orderError) {
-        console.error("Error deleting order:", orderError);
         alert("Gagal menghapus pesanan: " + orderError.message);
         return;
       }
 
-      // 3. Update state
       setOrders((prev) => prev.filter((o) => o.id !== id));
-    } catch (err) {
-      console.error("Unexpected error:", err);
+    } catch {
       alert("Terjadi kesalahan saat menghapus pesanan");
     }
   }
 
   if (loading) {
-    return <div className="text-center text-gray-500 py-8">Memuat data pesanan...</div>;
+    return <div className="py-8 text-center text-gray-500">Memuat data pesanan...</div>;
   }
 
   return (
     <div className="space-y-4">
-      {/* Search & Add */}
       <div className="flex items-center justify-between gap-3">
         <input
           placeholder="Cari no. pesanan / pelanggan..."
@@ -283,7 +276,6 @@ export default function PesananTable() {
         </button>
       </div>
 
-      {/* Table */}
       <div className="overflow-x-auto">
         <table className="table-djoker w-full">
           <thead>
@@ -302,18 +294,20 @@ export default function PesananTable() {
                 <td className="font-semibold text-black">{o.no_pesanan}</td>
                 <td className="text-sm text-gray-800">{o.customers?.nama ?? "-"}</td>
                 <td className="text-sm text-gray-600">
-                  {new Date(o.tanggal).toLocaleDateString("id-ID", {
-                    day: "2-digit",
-                    month: "short",
-                    year: "numeric",
-                  })}
+                  {o.tanggal
+                    ? new Date(o.tanggal).toLocaleDateString("id-ID", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })
+                    : "-"}
                 </td>
-                <td className="text-sm font-medium text-black">{formatRupiah(o.total)}</td>
+                <td className="text-sm font-medium text-black">{formatRupiah(Number(o.total) || 0)}</td>
                 <td>
                   <select
-                    value={o.status}
+                    value={o.status ?? "Pesanan"}
                     onChange={(e) => updateStatus(o, e.target.value)}
-                    className={`badge cursor-pointer ${STATUS_COLORS[o.status] ?? ""}`}
+                    className={`badge cursor-pointer ${STATUS_COLORS[o.status ?? ""] ?? ""}`}
                   >
                     {STATUS_OPTIONS.map((s) => (
                       <option key={s} value={s}>
@@ -340,10 +334,13 @@ export default function PesananTable() {
                 </td>
               </tr>
             ))}
+
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={6} className="text-center text-gray-500 py-8">
-                  Belum ada pesanan.
+                <td colSpan={6} className="p-0">
+                  <div className="flex min-h-[120px] w-full items-center justify-center text-center text-gray-500">
+                    Belum ada pesanan.
+                  </div>
                 </td>
               </tr>
             )}
@@ -351,7 +348,6 @@ export default function PesananTable() {
         </table>
       </div>
 
-      {/* Modal tambah pesanan */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
           <div className="card w-full max-w-lg">
@@ -359,7 +355,6 @@ export default function PesananTable() {
               Pesanan Baru — DJ{String(orderSeq).padStart(5, "0")}
             </h2>
             <form onSubmit={handleSave} className="mt-4 space-y-4">
-              {/* Pelanggan */}
               <div>
                 <label className="text-xs font-medium text-gray-600">Pelanggan</label>
                 <select
@@ -376,7 +371,6 @@ export default function PesananTable() {
                 </select>
               </div>
 
-              {/* Item produk */}
               <div>
                 <label className="text-xs font-medium text-gray-600">Produk Pesanan</label>
                 <div className="mt-2 space-y-2">
@@ -472,7 +466,6 @@ export default function PesananTable() {
         </div>
       )}
 
-      {/* Modal detail pesanan */}
       {detailOrder && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
           <div className="card w-full max-w-md">
@@ -480,16 +473,17 @@ export default function PesananTable() {
               <h2 className="font-display text-lg font-semibold text-black">
                 {detailOrder.no_pesanan}
               </h2>
-              <span className={`badge ${STATUS_COLORS[detailOrder.status] ?? ""}`}>
+              <span className={`badge ${STATUS_COLORS[detailOrder.status ?? ""] ?? ""}`}>
                 {detailOrder.status}
               </span>
             </div>
+
             <p className="mt-3 text-sm font-medium text-gray-600">Pelanggan</p>
             <p className="text-sm text-gray-800">{detailOrder.customers?.nama ?? "-"}</p>
 
             <p className="mt-4 text-sm font-medium text-gray-600">Item Pesanan</p>
             <div className="mt-2 space-y-1.5">
-              {detailOrder.order_items.map((it, i) => (
+              {(detailOrder.order_items ?? []).map((it, i) => (
                 <div key={i} className="flex justify-between text-sm">
                   <span className="text-gray-800">
                     {it.nama_produk} × {it.jumlah}
@@ -501,18 +495,24 @@ export default function PesananTable() {
               ))}
             </div>
 
-            <div className="mt-4 border-t border-gray-200 pt-3 space-y-1 text-sm">
+            <div className="mt-4 space-y-1 border-t border-gray-200 pt-3 text-sm">
               <div className="flex justify-between">
                 <span className="text-gray-600">Total</span>
-                <span className="font-medium text-black">{formatRupiah(detailOrder.total)}</span>
+                <span className="font-medium text-black">
+                  {formatRupiah(Number(detailOrder.total) || 0)}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">DP</span>
-                <span className="text-gray-800">{formatRupiah(detailOrder.dp)}</span>
+                <span className="text-gray-800">
+                  {formatRupiah(Number(detailOrder.dp) || 0)}
+                </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Sisa Pembayaran</span>
-                <span className="text-gray-800">{formatRupiah(detailOrder.sisa_pembayaran)}</span>
+                <span className="text-gray-800">
+                  {formatRupiah(Number(detailOrder.sisa_pembayaran) || 0)}
+                </span>
               </div>
             </div>
 

@@ -8,49 +8,38 @@ export default async function GudangPage() {
     .select("*")
     .order("nama_bahan", { ascending: true });
 
+  const totalJenisBahan = bahan?.length ?? 0;
+  const totalStok = bahan?.reduce((sum, b) => sum + (Number(b.stok) || 0), 0) ?? 0;
+  const stokTerendah =
+    bahan && bahan.length > 0
+      ? Math.min(...bahan.map((b) => Number(b.stok) || 0))
+      : 0;
+
   return (
     <div className="space-y-4 md:space-y-6">
-      {/* Header */}
       <div>
         <h1 className="font-display text-xl font-bold text-black md:text-2xl">Gudang</h1>
-        <p className="mt-1 text-sm text-gray-600">
-          Kelola stok bahan baku produksi.
-        </p>
+        <p className="mt-1 text-sm text-gray-600">Kelola stok bahan baku produksi.</p>
       </div>
 
-      {/* Ringkasan */}
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3 md:gap-4">
         <div className="card">
-          <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
-            Total Jenis Bahan
-          </p>
-          <p className="mt-1 font-display text-3xl font-bold text-black">
-            {bahan?.length ?? 0}
-          </p>
+          <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Total Jenis Bahan</p>
+          <p className="mt-1 font-display text-3xl font-bold text-black">{totalJenisBahan}</p>
         </div>
         <div className="card">
-          <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
-            Total Stok
-          </p>
-          <p className="mt-1 font-display text-3xl font-bold text-black">
-            {bahan?.reduce((sum, b) => sum + (Number(b.stok) || 0), 0) ?? 0}
-          </p>
+          <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Total Stok</p>
+          <p className="mt-1 font-display text-3xl font-bold text-black">{totalStok}</p>
         </div>
         <div className="card">
-          <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
-            Stok Terendah
-          </p>
-          <p className="mt-1 font-display text-3xl font-bold text-black">
-            {Math.min(...(bahan?.map((b) => Number(b.stok) || 0) ?? [0]))}
-          </p>
+          <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Stok Terendah</p>
+          <p className="mt-1 font-display text-3xl font-bold text-black">{stokTerendah}</p>
         </div>
       </div>
 
-      {/* Tabel Bahan */}
       <div className="card overflow-x-auto">
         <div className="mb-3 flex items-center justify-between md:mb-4">
           <h2 className="text-base font-semibold text-black md:text-lg">Daftar Bahan Baku</h2>
-          {/* Kalau nanti ada tombol tambah, bisa ditaruh di sini */}
         </div>
 
         <div className="overflow-x-auto">
@@ -74,10 +63,13 @@ export default async function GudangPage() {
                   </td>
                 </tr>
               ))}
+
               {(!bahan || bahan.length === 0) && (
                 <tr>
-                  <td colSpan={4} className="text-center text-gray-500 py-6 md:py-8">
-                    Belum ada data bahan baku.
+                  <td colSpan={4}>
+                    <div className="flex min-h-[140px] items-center justify-center py-8 text-gray-500">
+                      Belum ada data bahan baku.
+                    </div>
                   </td>
                 </tr>
               )}

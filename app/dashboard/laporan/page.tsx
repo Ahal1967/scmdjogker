@@ -3,16 +3,39 @@ import Link from "next/link";
 
 type Order = {
   id: string;
-  no_pesanan: string;
-  customer_id: string;
-  tanggal: string;
-  total: number;
-  dp: number;
-  sisa_pembayaran: number;
-  status: string;
+  no_pesanan: string | null;
+  tanggal: string | null;
+  total: number | null;
+  dp: number | null;
+  sisa_pembayaran: number | null;
+  status: string | null;
   alamat_pengiriman: string | null;
-  created_at: string;
+  created_at: string | null;
 };
+
+const STATUS_COLORS: Record<string, string> = {
+  Pesanan: "text-blue-600",
+  Produksi: "text-yellow-600",
+  QC: "text-purple-600",
+  Packing: "text-orange-600",
+  Dikirim: "text-cyan-600",
+  Selesai: "text-green-600",
+};
+
+function formatRupiah(n: number) {
+  return "Rp " + n.toLocaleString("id-ID");
+}
+
+function formatTanggal(value: string | null) {
+  if (!value) return "-";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "-";
+  return date.toLocaleDateString("id-ID", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+}
 
 export default async function LaporanPage() {
   const supabase = createClient();
@@ -22,33 +45,20 @@ export default async function LaporanPage() {
     .select("*")
     .order("created_at", { ascending: false });
 
-  const totalOrders = orders?.length ?? 0;
-  const totalRevenue = orders?.reduce((sum, o) => sum + (o.total ?? 0), 0) ?? 0;
-  const totalDP = orders?.reduce((sum, o) => sum + (o.dp ?? 0), 0) ?? 0;
-  const totalSisa = orders?.reduce((sum, o) => sum + (o.sisa_pembayaran ?? 0), 0) ?? 0;
+  const dataOrders = (orders || []) as Order[];
 
-  const STATUS_COLORS: Record<string, string> = {
-    Pesanan: "text-blue-600",
-    Produksi: "text-yellow-600",
-    QC: "text-purple-600",
-    Packing: "text-orange-600",
-    Dikirim: "text-cyan-600",
-    Selesai: "text-green-600",
-  };
-
-  function formatRupiah(n: number) {
-    return "Rp " + n.toLocaleString("id-ID");
-  }
+  const totalOrders = dataOrders.length;
+  const totalRevenue = dataOrders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
+  const totalDP = dataOrders.reduce((sum, o) => sum + (Number(o.dp) || 0), 0);
+  const totalSisa = dataOrders.reduce((sum, o) => sum + (Number(o.sisa_pembayaran) || 0), 0);
 
   return (
     <div className="space-y-4 md:space-y-6">
-      {/* Header */}
       <div>
         <h1 className="font-display text-xl font-bold text-black md:text-2xl">Laporan Pesanan</h1>
         <p className="mt-1 text-sm text-gray-600">Ringkasan dan daftar semua pesanan pelanggan.</p>
       </div>
 
-      {/* Ringkasan */}
       <div className="grid grid-cols-1 gap-3 md:grid-cols-4 md:gap-4">
         <div className="card">
           <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Total Pesanan</p>
@@ -68,12 +78,11 @@ export default async function LaporanPage() {
         </div>
       </div>
 
-      {/* Tabel */}
       <div className="card">
         <div className="mb-3 flex items-center justify-between md:mb-4">
           <div>
             <h2 className="text-base font-semibold text-black md:text-lg">Daftar Pesanan</h2>
-            <p className="text-xs text-gray-500">{orders?.length ?? 0} pesanan ditemukan</p>
+            <p className="text-xs text-gray-500">{dataOrders.length} pesanan ditemukan</p>
           </div>
           <Link href="/dashboard/laporan/tambah" className="btn-primary text-xs md:text-sm">
             + Pesanan Baru
@@ -95,28 +104,22 @@ export default async function LaporanPage() {
               </tr>
             </thead>
             <tbody>
-              {orders?.map((order: Order) => (
+              {dataOrders.map((order) => (
                 <tr key={order.id}>
-                  <td className="font-semibold text-black">{order.no_pesanan}</td>
-                  <td className="text-sm text-gray-600">
-                    {new Date(order.tanggal).toLocaleDateString("id-ID", {
-                      day: "2-digit",
-                      month: "short",
-                      year: "numeric",
-                    })}
-                  </td>
-                  <td className="text-sm font-medium text-black">{formatRupiah(order.total)}</td>
-                  <td className="text-sm text-gray-700">{formatRupiah(order.dp)}</td>
+                  <td className="font-semibold text-black">{order.no_pesanan || "-"}</td>
+                  <td className="text-sm text-gray-600">{formatTanggal(order.tanggal || order.created_at)}</td>
+                  <td className="text-sm font-medium text-black">{formatRupiah(Number(order.total) || 0)}</td>
+                  <td className="text-sm text-gray-700">{formatRupiah(Number(order.dp) || 0)}</td>
                   <td
                     className={`text-sm font-medium ${
-                      order.sisa_pembayaran > 0 ? "text-red-600" : "text-green-600"
+                      (Number(order.sisa_pembayaran) || 0) > 0 ? "text-red-600" : "text-green-600"
                     }`}
                   >
-                    {formatRupiah(order.sisa_pembayaran)}
+                    {formatRupiah(Number(order.sisa_pembayaran) || 0)}
                   </td>
                   <td>
-                    <span className={`badge ${STATUS_COLORS[order.status] ?? "text-gray-600"}`}>
-                      {order.status}
+                    <span className={`badge ${STATUS_COLORS[order.status || ""] ?? "text-gray-600"}`}>
+                      {order.status || "-"}
                     </span>
                   </td>
                   <td className="max-w-[10rem] truncate text-sm text-gray-700 md:max-w-xs">
@@ -140,10 +143,13 @@ export default async function LaporanPage() {
                   </td>
                 </tr>
               ))}
-              {(!orders || orders.length === 0) && (
+
+              {dataOrders.length === 0 && (
                 <tr>
-                  <td colSpan={8} className="text-center text-gray-500 py-6 md:py-8">
-                    Belum ada pesanan.
+                  <td colSpan={8}>
+                    <div className="flex min-h-[140px] items-center justify-center py-8 text-gray-500">
+                      Belum ada pesanan.
+                    </div>
                   </td>
                 </tr>
               )}

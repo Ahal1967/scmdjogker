@@ -1,81 +1,164 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import PesananTable from "./PesananTable";
 
-type Order = any;
-type Customer = any;
+type Customer = {
+  id: string;
+  nama_pelanggan: string | null;
+  no_hp: string | null;
+  alamat: string | null;
+};
+
+type Product = {
+  id: string;
+  nama_produk: string | null;
+  harga: number | null;
+};
+
+type Item = {
+  id: number;
+  product_id: string;
+  jumlah: number;
+  satuan: string;
+  harga: number;
+};
+
+const EMPTY_ITEM: Item = {
+  id: 1,
+  product_id: "",
+  jumlah: 1,
+  satuan: "pcs",
+  harga: 0,
+};
 
 export default function PesananPage() {
-  const [customerType, setCustomerType] = useState<"lama" | "baru">("lama");
-  const [selectedCustomer, setSelectedCustomer] = useState<string | null>(null);
+  const supabase = createClient();
 
+  const [customerType, setCustomerType] = useState<"lama" | "baru">("lama");
+  const [selectedCustomer, setSelectedCustomer] = useState("");
   const [nama_pelanggan, setNamaPelanggan] = useState("");
   const [no_hp, setNoHp] = useState("");
   const [alamat, setAlamat] = useState("");
-
   const [no_pesanan, setNoPesanan] = useState("");
   const [tgl_transaksi, setTglTransaksi] = useState("");
   const [estimasi_selesai, setEstimasiSelesai] = useState("");
   const [catatan, setCatatan] = useState("");
-
-  const [items, setItems] = useState([
-    { id: 1, nama_produk: "", jumlah: 1, satuan: "pcs", harga: 0 },
-  ]);
-
-  const supabase = createClient();
-
+  const [items, setItems] = useState<Item[]>([EMPTY_ITEM]);
   const [pelanggans, setPelanggans] = useState<Customer[]>([]);
-  const [produks, setProduks] = useState<any[]>([]);
+  const [produks, setProduks] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data: plg } = await supabase
-        .from("customers")
-        .select("*")
-        .order("nama_pelanggan", { ascending: true });
+      setLoading(true);
 
-      const { data: prd } = await supabase
-        .from("products")
-        .select("*")
-        .order("nama_produk", { ascending: true });
+      const [{ data: plg, error: plgError }, { data: prd, error: prdError }] =
+        await Promise.all([
+          supabase.from("customers").select("*").order("nama_pelanggan", { ascending: true }),
+          supabase.from("products").select("*").order("nama_produk", { ascending: true }),
+        ]);
 
-      if (plg) setPelanggans(plg);
-      if (prd) setProduks(prd);
+      if (plgError) console.error(plgError);
+      if (prdError) console.error(prdError);
+
+      setPelanggans((plg || []) as Customer[]);
+      setProduks((prd || []) as Product[]);
+      setLoading(false);
     };
 
     fetchData();
-  }, []);
+  }, [supabase]);
 
   const handleAddItem = () => {
     setItems((prev) => [
       ...prev,
-      { id: Date.now(), nama_produk: "", jumlah: 1, satuan: "pcs", harga: 0 },
+      { id: Date.now(), product_id: "", jumlah: 1, satuan: "pcs", harga: 0 },
     ]);
   };
 
   const handleRemoveItem = (id: number) => {
-    if (items.length === 1) return;
-    setItems((prev) => prev.filter((i) => i.id !== id));
+    setItems((prev) => (prev.length === 1 ? prev : prev.filter((i) => i.id !== id)));
   };
 
   const handleItemChange = (
     id: number,
-    field: "nama_produk" | "jumlah" | "satuan" | "harga",
-    value: any
+    field: keyof Omit<Item, "id">,
+    value: string | number
   ) => {
     setItems((prev) =>
       prev.map((i) => (i.id === id ? { ...i, [field]: value } : i))
     );
   };
 
-  const total = items.reduce(
-    (sum, i) => sum + Number(i.harga || 0) * Number(i.jumlah || 0),
-    0
-  );
+  const total = useMemo(() => {
+    return items.reduce(
+      (sum, i) => sum + Number(i.harga || 0) * Number(i.jumlah || 0),
+      0
+    );
+  }, [items]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  async function createCustomer() {
+    const { data, error } = await supabase
+      .from("customers")
+      .insert({
+        nama_pelanggan,
+        no_hp,
+        alamat,
+      })
+      .select("id")
+      .single();
+
+    if (error || !data) return null;
+    return data.id as string;
+  }
+
+  async function createOrder(customerId: string) {
+    const { data, error } = await supabase
+      .from("orders")
+      .insert({
+        customer_id: customerId,
+        no_pesanan,
+        tgl_transaksi,
+        estimasi_selesai,
+        catatan,
+        total_harga: total,
+      })
+      .select("id")
+      .single();
+
+    if (error || !data) return null;
+    return data.id as string;
+  }
+
+  async function createOrderItems(orderId: string) {
+    const orderItems = items.map((i) => ({
+      order_id: orderId,
+      product_id: i.product_id,
+      jumlah: Number(i.jumlah),
+      harga_satuan: Number(i.harga),
+      subtotal: Number(i.jumlah) * Number(i.harga),
+    }));
+
+    const { error } = await supabase.from("order_items").insert(orderItems);
+    return !error;
+  }
+
+  const resetForm = () => {
+    setCustomerType("lama");
+    setSelectedCustomer("");
+    setNamaPelanggan("");
+    setNoHp("");
+    setAlamat("");
+    setNoPesanan("");
+    setTglTransaksi("");
+    setEstimasiSelesai("");
+    setCatatan("");
+    setItems([EMPTY_ITEM]);
+  };
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     if (customerType === "lama" && !selectedCustomer) {
@@ -93,15 +176,13 @@ export default function PesananPage() {
       return;
     }
 
-    if (items.length === 0 || items.some((i) => !i.nama_produk)) {
+    if (items.length === 0 || items.some((i) => !i.product_id)) {
       alert("Lengkapi item pesanan");
       return;
     }
 
     const customerId =
-      customerType === "lama"
-        ? selectedCustomer
-        : await createCustomer();
+      customerType === "lama" ? selectedCustomer : await createCustomer();
 
     if (!customerId) {
       alert("Gagal menyimpan pelanggan");
@@ -114,83 +195,38 @@ export default function PesananPage() {
       return;
     }
 
-    await createOrderItems(orderId);
+    const ok = await createOrderItems(orderId);
+    if (!ok) {
+      alert("Gagal menyimpan item pesanan");
+      return;
+    }
 
     alert("Pesanan berhasil disimpan");
     resetForm();
-  };
+    await (async () => {
+      setLoading(true);
+      const [{ data: plg }, { data: prd }] = await Promise.all([
+        supabase.from("customers").select("*").order("nama_pelanggan", { ascending: true }),
+        supabase.from("products").select("*").order("nama_produk", { ascending: true }),
+      ]);
+      setPelanggans((plg || []) as Customer[]);
+      setProduks((prd || []) as Product[]);
+      setLoading(false);
+    })();
+  }
 
-  const createCustomer = async () => {
-    const { data, error } = await supabase
-      .from("customers")
-      .insert({
-        nama_pelanggan,
-        no_hp,
-        alamat,
-      })
-      .select("id")
-      .single();
-
-    if (error || !data) return null;
-    return data.id;
-  };
-
-  const createOrder = async (customer_id: string) => {
-    const { data, error } = await supabase
-      .from("orders")
-      .insert({
-        customer_id,
-        no_pesanan,
-        tgl_transaksi,
-        estimasi_selesai,
-        catatan,
-        total_harga: total,
-      })
-      .select("id")
-      .single();
-
-    if (error || !data) return null;
-    return data.id;
-  };
-
-  const createOrderItems = async (order_id: string) => {
-    const orderItems = items.map((i) => ({
-      order_id,
-      product_id: i.nama_produk, // asumsi nama_produk = product.id (string)
-      jumlah: Number(i.jumlah),
-      harga_satuan: Number(i.harga),
-      subtotal: Number(i.jumlah) * Number(i.harga),
-    }));
-
-    await supabase.from("order_items").insert(orderItems);
-  };
-
-  const resetForm = () => {
-    setCustomerType("lama");
-    setSelectedCustomer(null);
-    setNamaPelanggan("");
-    setNoHp("");
-    setAlamat("");
-    setNoPesanan("");
-    setTglTransaksi("");
-    setEstimasiSelesai("");
-    setCatatan("");
-    setItems([{ id: 1, nama_produk: "", jumlah: 1, satuan: "pcs", harga: 0 }]);
-  };
+  if (loading) {
+    return <div className="py-8 text-center text-gray-500">Memuat data pesanan...</div>;
+  }
 
   return (
     <div className="space-y-4 md:space-y-6">
-      {/* Header */}
       <div>
         <h1 className="font-display text-xl font-bold text-black md:text-2xl">Pesanan</h1>
-        <p className="mt-1 text-sm text-gray-600">
-          Buat dan kelola pesanan pelanggan.
-        </p>
+        <p className="mt-1 text-sm text-gray-600">Buat dan kelola pesanan pelanggan.</p>
       </div>
 
-      {/* Form */}
       <form onSubmit={handleSubmit} className="card space-y-4 md:space-y-6">
-        {/* Tipe Pelanggan */}
         <div>
           <label className="block text-sm font-medium text-gray-700">Tipe Pelanggan</label>
           <div className="mt-2 flex gap-2">
@@ -198,9 +234,7 @@ export default function PesananPage() {
               type="button"
               onClick={() => setCustomerType("lama")}
               className={`rounded-md px-3 py-2 text-sm font-medium ${
-                customerType === "lama"
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-100 text-gray-700"
+                customerType === "lama" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700"
               }`}
             >
               Pelanggan Lama
@@ -209,9 +243,7 @@ export default function PesananPage() {
               type="button"
               onClick={() => setCustomerType("baru")}
               className={`rounded-md px-3 py-2 text-sm font-medium ${
-                customerType === "baru"
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-100 text-gray-700"
+                customerType === "baru" ? "bg-blue-600 text-white" : "bg-gray-100 text-gray-700"
               }`}
             >
               Pelanggan Baru
@@ -219,24 +251,21 @@ export default function PesananPage() {
           </div>
         </div>
 
-        {/* Form Pelanggan */}
         <div className="rounded-lg border border-gray-200 p-3 md:p-4">
           <h3 className="text-sm font-semibold text-gray-700">Data Pelanggan</h3>
 
           {customerType === "lama" ? (
             <div className="mt-3">
-              <label className="block text-sm font-medium text-gray-700">
-                Pilih Pelanggan
-              </label>
+              <label className="block text-sm font-medium text-gray-700">Pilih Pelanggan</label>
               <select
-                value={selectedCustomer ?? ""}
-                onChange={(e) => setSelectedCustomer(e.target.value || null)}
+                value={selectedCustomer}
+                onChange={(e) => setSelectedCustomer(e.target.value)}
                 className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
               >
                 <option value="">-- Pilih Pelanggan --</option>
                 {pelanggans.map((p) => (
                   <option key={p.id} value={p.id}>
-                    {p.nama_pelanggan} – {p.no_hp}
+                    {p.nama_pelanggan} - {p.no_hp}
                   </option>
                 ))}
               </select>
@@ -244,9 +273,7 @@ export default function PesananPage() {
           ) : (
             <div className="mt-3 space-y-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Nama Pelanggan
-                </label>
+                <label className="block text-sm font-medium text-gray-700">Nama Pelanggan</label>
                 <input
                   type="text"
                   value={nama_pelanggan}
@@ -256,9 +283,7 @@ export default function PesananPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  No. HP
-                </label>
+                <label className="block text-sm font-medium text-gray-700">No. HP</label>
                 <input
                   type="text"
                   value={no_hp}
@@ -268,9 +293,7 @@ export default function PesananPage() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700">
-                  Alamat
-                </label>
+                <label className="block text-sm font-medium text-gray-700">Alamat</label>
                 <textarea
                   value={alamat}
                   onChange={(e) => setAlamat(e.target.value)}
@@ -283,15 +306,12 @@ export default function PesananPage() {
           )}
         </div>
 
-        {/* Data Pesanan */}
         <div className="rounded-lg border border-gray-200 p-3 md:p-4">
           <h3 className="text-sm font-semibold text-gray-700">Data Pesanan</h3>
 
           <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">
-                No. Pesanan
-              </label>
+              <label className="block text-sm font-medium text-gray-700">No. Pesanan</label>
               <input
                 type="text"
                 value={no_pesanan}
@@ -301,9 +321,7 @@ export default function PesananPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Tanggal Transaksi
-              </label>
+              <label className="block text-sm font-medium text-gray-700">Tanggal Transaksi</label>
               <input
                 type="date"
                 value={tgl_transaksi}
@@ -312,9 +330,7 @@ export default function PesananPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Estimasi Selesai
-              </label>
+              <label className="block text-sm font-medium text-gray-700">Estimasi Selesai</label>
               <input
                 type="date"
                 value={estimasi_selesai}
@@ -323,9 +339,7 @@ export default function PesananPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Catatan
-              </label>
+              <label className="block text-sm font-medium text-gray-700">Catatan</label>
               <input
                 type="text"
                 value={catatan}
@@ -337,16 +351,12 @@ export default function PesananPage() {
           </div>
         </div>
 
-        {/* Item Pesanan */}
         <div className="rounded-lg border border-gray-200 p-3 md:p-4">
           <h3 className="text-sm font-semibold text-gray-700">Item Pesanan</h3>
 
           <div className="mt-3 space-y-3">
             {items.map((item, idx) => (
-              <div
-                key={item.id}
-                className="rounded-md border border-gray-200 p-3 md:p-4"
-              >
+              <div key={item.id} className="rounded-md border border-gray-200 p-3 md:p-4">
                 <div className="flex items-center justify-between">
                   <p className="text-sm font-medium text-gray-700">Item #{idx + 1}</p>
                   {items.length > 1 && (
@@ -362,14 +372,10 @@ export default function PesananPage() {
 
                 <div className="mt-2 grid grid-cols-1 gap-3 md:grid-cols-2 md:gap-4">
                   <div>
-                    <label className="block text-xs font-medium text-gray-600">
-                      Produk
-                    </label>
+                    <label className="block text-xs font-medium text-gray-600">Produk</label>
                     <select
-                      value={item.nama_produk}
-                      onChange={(e) =>
-                        handleItemChange(item.id, "nama_produk", e.target.value)
-                      }
+                      value={item.product_id}
+                      onChange={(e) => handleItemChange(item.id, "product_id", e.target.value)}
                       className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     >
                       <option value="">-- Pilih Produk --</option>
@@ -382,9 +388,7 @@ export default function PesananPage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-gray-600">
-                      Jumlah
-                    </label>
+                    <label className="block text-xs font-medium text-gray-600">Jumlah</label>
                     <input
                       type="number"
                       min={1}
@@ -397,14 +401,10 @@ export default function PesananPage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-gray-600">
-                      Satuan
-                    </label>
+                    <label className="block text-xs font-medium text-gray-600">Satuan</label>
                     <select
                       value={item.satuan}
-                      onChange={(e) =>
-                        handleItemChange(item.id, "satuan", e.target.value)
-                      }
+                      onChange={(e) => handleItemChange(item.id, "satuan", e.target.value)}
                       className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
                     >
                       <option value="pcs">Pcs</option>
@@ -415,9 +415,7 @@ export default function PesananPage() {
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-gray-600">
-                      Harga
-                    </label>
+                    <label className="block text-xs font-medium text-gray-600">Harga</label>
                     <input
                       type="number"
                       min={0}
@@ -443,13 +441,10 @@ export default function PesananPage() {
 
           <div className="mt-4 flex items-center justify-between border-t border-gray-200 pt-3">
             <p className="text-sm font-medium text-gray-700">Total</p>
-            <p className="text-base font-bold text-black">
-              Rp {total.toLocaleString("id-ID")}
-            </p>
+            <p className="text-base font-bold text-black">Rp {total.toLocaleString("id-ID")}</p>
           </div>
         </div>
 
-        {/* Tombol Kirim */}
         <div className="flex justify-end">
           <button
             type="submit"
@@ -460,7 +455,6 @@ export default function PesananPage() {
         </div>
       </form>
 
-      {/* Tabel Pesanan */}
       <PesananTable />
     </div>
   );
