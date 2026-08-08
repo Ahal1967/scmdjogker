@@ -27,54 +27,12 @@ export default function DashboardPage() {
   const sliderRef = useRef<HTMLDivElement>(null);
 
   const statsCards = [
-    {
-      title: "Total Pesanan",
-      value: stats.totalPesanan,
-      color: "from-blue-50 to-blue-100",
-      textColor: "text-blue-700",
-      valueColor: "text-blue-900",
-      borderColor: "border-blue-200",
-    },
-    {
-      title: "Total Produksi",
-      value: stats.totalProduksi,
-      color: "from-green-50 to-green-100",
-      textColor: "text-green-700",
-      valueColor: "text-green-900",
-      borderColor: "border-green-200",
-    },
-    {
-      title: "Pelanggan",
-      value: stats.totalPelanggan,
-      color: "from-purple-50 to-purple-100",
-      textColor: "text-purple-700",
-      valueColor: "text-purple-900",
-      borderColor: "border-purple-200",
-    },
-    {
-      title: "Supplier",
-      value: stats.totalSupplier,
-      color: "from-orange-50 to-orange-100",
-      textColor: "text-orange-700",
-      valueColor: "text-orange-900",
-      borderColor: "border-orange-200",
-    },
-    {
-      title: "Total Pendapatan",
-      value: `Rp ${stats.totalPendapatan.toLocaleString("id-ID")}`,
-      color: "from-emerald-50 to-emerald-100",
-      textColor: "text-emerald-700",
-      valueColor: "text-emerald-900",
-      borderColor: "border-emerald-200",
-    },
-    {
-      title: "Pesanan Bulan Ini",
-      value: stats.pesananBulanIni,
-      color: "from-cyan-50 to-cyan-100",
-      textColor: "text-cyan-700",
-      valueColor: "text-cyan-900",
-      borderColor: "border-cyan-200",
-    },
+    { title: "Total Pesanan", value: stats.totalPesanan, color: "from-blue-50 to-blue-100", textColor: "text-blue-700", valueColor: "text-blue-900", borderColor: "border-blue-200" },
+    { title: "Total Produksi", value: stats.totalProduksi, color: "from-green-50 to-green-100", textColor: "text-green-700", valueColor: "text-green-900", borderColor: "border-green-200" },
+    { title: "Pelanggan", value: stats.totalPelanggan, color: "from-purple-50 to-purple-100", textColor: "text-purple-700", valueColor: "text-purple-900", borderColor: "border-purple-200" },
+    { title: "Supplier", value: stats.totalSupplier, color: "from-orange-50 to-orange-100", textColor: "text-orange-700", valueColor: "text-orange-900", borderColor: "border-orange-200" },
+    { title: "Total Pendapatan", value: `Rp ${stats.totalPendapatan.toLocaleString("id-ID")}`, color: "from-emerald-50 to-emerald-100", textColor: "text-emerald-700", valueColor: "text-emerald-900", borderColor: "border-emerald-200" },
+    { title: "Pesanan Bulan Ini", value: stats.pesananBulanIni, color: "from-cyan-50 to-cyan-100", textColor: "text-cyan-700", valueColor: "text-cyan-900", borderColor: "border-cyan-200" },
   ];
 
   useEffect(() => {
@@ -89,26 +47,11 @@ export default function DashboardPage() {
   }, [currentSlide]);
 
   async function fetchStats() {
-    const { count: ordersCount } = await supabase
-      .from("orders")
-      .select("*", { count: "exact", head: true });
-
-    const { count: productionCount } = await supabase
-      .from("production")
-      .select("*", { count: "exact", head: true });
-
-    const { count: customersCount } = await supabase
-      .from("customers")
-      .select("*", { count: "exact", head: true });
-
-    const { count: suppliersCount } = await supabase
-      .from("suppliers")
-      .select("*", { count: "exact", head: true });
-
-    const { data: ordersData } = await supabase
-      .from("orders")
-      .select("total");
-
+    const { count: ordersCount } = await supabase.from("orders").select("*", { count: "exact", head: true });
+    const { count: productionCount } = await supabase.from("production").select("*", { count: "exact", head: true });
+    const { count: customersCount } = await supabase.from("customers").select("*", { count: "exact", head: true });
+    const { count: suppliersCount } = await supabase.from("suppliers").select("*", { count: "exact", head: true });
+    const { data: ordersData } = await supabase.from("orders").select("total");
     const totalPendapatan = ordersData?.reduce((sum, o) => sum + (o.total || 0), 0) || 0;
 
     const now = new Date();
@@ -124,7 +67,7 @@ export default function DashboardPage() {
       .eq("status", "Selesai");
 
     const { data: allOrders } = await supabase.from("orders").select("status");
-    
+
     const statusCount = [
       { status: "Pesanan", count: 0 },
       { status: "Produksi", count: 0 },
@@ -170,82 +113,51 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-4 md:space-y-6">
-      {/* Header */}
       <div>
         <h1 className="font-display text-xl font-bold text-black md:text-2xl">Dashboard</h1>
-        <p className="mt-1 text-sm text-gray-600">
-          Ringkasan aktivitas SCM Djogker.
-        </p>
+        <p className="mt-1 text-sm text-gray-600">Ringkasan aktivitas SCM Djogker.</p>
       </div>
 
-      {/* Stats Carousel - Mobile */}
       <div className="md:hidden">
         <div className="relative">
-          <button
-            onClick={prevSlide}
-            disabled={currentSlide === 0}
-            className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 rounded-full p-2 shadow disabled:opacity-30"
-          >
+          <button onClick={prevSlide} disabled={currentSlide === 0} className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 rounded-full p-2 shadow disabled:opacity-30">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
-          
-          <div
-            ref={sliderRef}
-            className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth gap-3 px-8"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-          >
+
+          <div ref={sliderRef} className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth gap-3 px-8" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             {statsCards.map((card, idx) => (
-              <div
-                key={idx}
-                className={`flex-shrink-0 w-[90%] card bg-gradient-to-br ${card.color} border ${card.borderColor} snap-center`}
-              >
+              <div key={idx} className={`flex-shrink-0 w-[90%] card bg-gradient-to-br ${card.color} border ${card.borderColor} snap-center`}>
                 <p className={`text-xs font-medium uppercase tracking-wide ${card.textColor}`}>{card.title}</p>
                 <p className={`mt-1 font-display text-3xl font-bold ${card.valueColor}`}>{card.value}</p>
               </div>
             ))}
           </div>
 
-          <button
-            onClick={nextSlide}
-            disabled={currentSlide === statsCards.length - 1}
-            className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 rounded-full p-2 shadow disabled:opacity-30"
-          >
+          <button onClick={nextSlide} disabled={currentSlide === statsCards.length - 1} className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 rounded-full p-2 shadow disabled:opacity-30">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </button>
         </div>
 
-        {/* Dots indicator */}
         <div className="flex justify-center gap-2 mt-3">
           {statsCards.map((_, idx) => (
-            <button
-              key={idx}
-              onClick={() => setCurrentSlide(idx)}
-              className={`w-2 h-2 rounded-full transition-all ${
-                idx === currentSlide ? "bg-blue-600 w-4" : "bg-gray-300"
-              }`}
-            />
+            <button key={idx} onClick={() => setCurrentSlide(idx)} className={`w-2 h-2 rounded-full transition-all ${idx === currentSlide ? "bg-blue-600 w-4" : "bg-gray-300"}`} />
           ))}
         </div>
       </div>
 
-      {/* Stats Grid - Desktop */}
       <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-4">
         {statsCards.map((card, idx) => (
-          <div
-            key={idx}
-            className={`card bg-gradient-to-br ${card.color} border ${card.borderColor}`}
-          >
+          <div key={idx} className={`card bg-gradient-to-br ${card.color} border ${card.borderColor}`}>
             <p className={`text-xs font-medium uppercase tracking-wide ${card.textColor}`}>{card.title}</p>
             <p className={`mt-1 font-display text-3xl font-bold ${card.valueColor}`}>{card.value}</p>
           </div>
         ))}
       </div>
 
-      {/* Chart Status Pesanan */}
       <div className="card">
         <h2 className="text-base font-semibold text-black md:text-lg mb-4">Status Pesanan</h2>
         <div className="space-y-3">
@@ -273,27 +185,14 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Progress Produksi */}
       <div className="card">
         <h2 className="text-base font-semibold text-black md:text-lg mb-4">Progress Produksi</h2>
         <div className="flex items-center justify-center mb-4">
           <div className="relative w-32 h-32 md:w-40 md:h-40">
             <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="45" fill="none" stroke="#e5e7eb" strokeWidth="10" />
               <circle
-                cx="50"
-                cy="50"
-                r="45"
-                fill="none"
-                stroke="#e5e7eb"
-                strokeWidth="10"
-              />
-              <circle
-                cx="50"
-                cy="50"
-                r="45"
-                fill="none"
-                stroke="#10b981"
-                strokeWidth="10"
+                cx="50" cy="50" r="45" fill="none" stroke="#10b981" strokeWidth="10"
                 strokeDasharray={`${2 * Math.PI * 45}`}
                 strokeDashoffset={`${2 * Math.PI * 45 * (1 - (stats.totalProduksi > 0 ? stats.produksiSelesai / stats.totalProduksi : 0))}`}
                 strokeLinecap="round"
@@ -313,7 +212,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Info */}
       <div className="card">
         <h2 className="text-base font-semibold text-black md:text-lg">Selamat Datang</h2>
         <p className="mt-2 text-sm text-gray-600">

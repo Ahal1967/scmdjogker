@@ -19,10 +19,35 @@ type QcRecord = {
 };
 
 const HASIL_COLORS: Record<string, string> = {
-  Lolos: "bg-green-500/15 text-green-400",
-  Perbaikan: "bg-yellow-500/15 text-yellow-400",
-  Gagal: "bg-red-500/15 text-red-400",
+  Lolos: "bg-green-100 text-green-700",
+  Perbaikan: "bg-yellow-100 text-yellow-700",
+  Gagal: "bg-red-100 text-red-700",
 };
+
+function EmptyState({ title, subtitle }: { title: string; subtitle: string }) {
+  return (
+    <div className="card flex min-h-[16rem] items-center justify-center">
+      <div className="text-center">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-50">
+          <svg
+            viewBox="0 0 24 24"
+            className="h-8 w-8 text-blue-600"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <polyline points="22 4 12 14.01 9 11.01" />
+          </svg>
+        </div>
+        <p className="text-base font-medium text-black">{title}</p>
+        <p className="mt-1 text-sm text-gray-600">{subtitle}</p>
+      </div>
+    </div>
+  );
+}
 
 export default function QcTable({
   pendingProduction,
@@ -81,13 +106,11 @@ export default function QcTable({
     setQcSeq((n) => n + 1);
 
     if (hasil === "Lolos") {
-      // Update produksi -> Packing, buat entri packing otomatis
       await supabase
         .from("production")
         .update({ status: "Packing", progress: 90 })
         .eq("id", activeProduction.id);
 
-      // Ambil order_id dan total qty dari order_items untuk entri packing
       const { data: prodFull } = await supabase
         .from("production")
         .select("order_id, orders(order_items(jumlah))")
@@ -121,7 +144,6 @@ export default function QcTable({
 
       setPending((prev) => prev.filter((p) => p.id !== activeProduction.id));
     } else {
-      // Perbaikan / Gagal -> kembalikan ke tahap Produksi untuk rework
       await supabase
         .from("production")
         .update({ status: "Produksi", progress: 40 })
@@ -134,47 +156,50 @@ export default function QcTable({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-6">
       {/* Antrian QC */}
-      <div className="card">
-        <p className="font-medium text-sm mb-3">Menunggu Pemeriksaan</p>
-        <table className="table-djoker">
-          <thead>
-            <tr>
-              <th>No. Produksi</th>
-              <th>No. Pesanan</th>
-              <th>Pelanggan</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {pending.map((p) => (
-              <tr key={p.id}>
-                <td className="font-medium">{p.no_produksi}</td>
-                <td>{p.orders?.no_pesanan ?? "-"}</td>
-                <td>{p.orders?.customers?.nama ?? "-"}</td>
-                <td>
-                  <button onClick={() => openCheck(p)} className="text-djoker-red text-xs hover:underline">
-                    Periksa
-                  </button>
-                </td>
-              </tr>
-            ))}
-            {pending.length === 0 && (
+      {pending.length === 0 ? (
+        <EmptyState
+          title="Tidak ada produksi yang menunggu QC saat ini"
+          subtitle="Semua pesanan sudah melewati tahap QC atau belum ada produksi."
+        />
+      ) : (
+        <div className="card overflow-x-auto">
+          <h2 className="mb-4 text-base font-semibold text-black md:text-lg">Menunggu Pemeriksaan</h2>
+          <table className="table-djoker w-full">
+            <thead>
               <tr>
-                <td colSpan={4} className="text-center text-djoker-muted py-6">
-                  Tidak ada produksi yang menunggu QC saat ini.
-                </td>
+                <th>No. Produksi</th>
+                <th>No. Pesanan</th>
+                <th>Pelanggan</th>
+                <th className="text-right">Aksi</th>
               </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {pending.map((p) => (
+                <tr key={p.id}>
+                  <td className="font-semibold text-black">{p.no_produksi}</td>
+                  <td className="text-sm text-gray-700">{p.orders?.no_pesanan ?? "-"}</td>
+                  <td className="text-sm text-gray-700">{p.orders?.customers?.nama ?? "-"}</td>
+                  <td className="text-right">
+                    <button
+                      onClick={() => openCheck(p)}
+                      className="text-blue-600 hover:text-blue-700 hover:underline text-sm font-medium"
+                    >
+                      Periksa
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {/* Riwayat QC */}
-      <div className="card">
-        <p className="font-medium text-sm mb-3">Riwayat Pemeriksaan</p>
-        <table className="table-djoker">
+      <div className="card overflow-x-auto">
+        <h2 className="mb-4 text-base font-semibold text-black md:text-lg">Riwayat Pemeriksaan</h2>
+        <table className="table-djoker w-full">
           <thead>
             <tr>
               <th>No. QC</th>
@@ -187,19 +212,27 @@ export default function QcTable({
           <tbody>
             {records.map((r) => (
               <tr key={r.id}>
-                <td className="font-medium">{r.no_qc}</td>
-                <td>{r.production?.no_produksi ?? "-"}</td>
-                <td>{new Date(r.tanggal).toLocaleDateString("id-ID")}</td>
+                <td className="font-semibold text-black">{r.no_qc}</td>
+                <td className="text-sm text-gray-700">{r.production?.no_produksi ?? "-"}</td>
+                <td className="text-sm text-gray-600">
+                  {new Date(r.tanggal).toLocaleDateString("id-ID", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                  })}
+                </td>
                 <td>
                   <span className={`badge ${HASIL_COLORS[r.hasil]}`}>{r.hasil}</span>
                 </td>
-                <td className="text-djoker-muted">{r.catatan || "-"}</td>
+                <td className="text-sm text-gray-600">{r.catatan || "-"}</td>
               </tr>
             ))}
             {records.length === 0 && (
               <tr>
-                <td colSpan={5} className="text-center text-djoker-muted py-6">
-                  Belum ada riwayat QC.
+                <td colSpan={5}>
+                  <div className="flex min-h-[100px] items-center justify-center text-gray-500">
+                    Belum ada riwayat QC.
+                  </div>
                 </td>
               </tr>
             )}
@@ -210,13 +243,15 @@ export default function QcTable({
       {showModal && activeProduction && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
           <div className="card w-full max-w-md">
-            <h2 className="font-display font-semibold text-lg mb-1">Periksa {activeProduction.no_produksi}</h2>
-            <p className="text-xs text-djoker-muted mb-4">
+            <h2 className="font-display font-semibold text-lg mb-1 text-black">
+              Periksa {activeProduction.no_produksi}
+            </h2>
+            <p className="text-xs text-gray-500 mb-4">
               {activeProduction.orders?.no_pesanan} — {activeProduction.orders?.customers?.nama}
             </p>
             <form onSubmit={handleSubmit} className="space-y-3">
               <div>
-                <label className="text-xs text-djoker-muted mb-1.5 block">Hasil Pemeriksaan</label>
+                <label className="text-sm font-medium text-gray-700 mb-1.5 block">Hasil Pemeriksaan</label>
                 <select
                   value={hasil}
                   onChange={(e) => setHasil(e.target.value as any)}
@@ -234,7 +269,7 @@ export default function QcTable({
                 className="input-field"
                 rows={3}
               />
-              <p className="text-xs text-djoker-muted">
+              <p className="text-xs text-gray-500">
                 {hasil === "Lolos"
                   ? "Produksi akan otomatis lanjut ke tahap Packing."
                   : "Produksi akan dikembalikan ke tahap Produksi untuk perbaikan."}

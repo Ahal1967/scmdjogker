@@ -31,7 +31,6 @@ export default async function PengaturanPage() {
 
   return (
     <div className="space-y-4 md:space-y-6">
-      {/* Header */}
       <div>
         <h1 className="font-display text-xl font-bold text-black md:text-2xl">Pengaturan</h1>
         <p className="mt-1 text-sm text-gray-600">
@@ -39,7 +38,6 @@ export default async function PengaturanPage() {
         </p>
       </div>
 
-      {/* Info User Login */}
       <div className="card">
         <h2 className="mb-3 text-base font-semibold text-black md:text-lg">Profil Anda</h2>
         <div className="flex items-center gap-4">
@@ -60,14 +58,10 @@ export default async function PengaturanPage() {
         </div>
       </div>
 
-      {/* Tabel Profiles */}
       <div className="card overflow-x-auto">
         <div className="mb-4 flex items-center justify-between">
           <h2 className="text-base font-semibold text-black md:text-lg">Daftar Pengguna</h2>
-          <Link
-            href="/dashboard/pengaturan/tambah"
-            className="btn-primary text-sm"
-          >
+          <Link href="/dashboard/pengaturan/tambah" className="btn-primary text-sm">
             + Tambah Pengguna
           </Link>
         </div>
@@ -91,9 +85,7 @@ export default async function PengaturanPage() {
                   </td>
                   <td className="font-medium text-black">{profile.full_name || "-"}</td>
                   <td>
-                    <span className={formatRoleBadge(profile.role)}>
-                      {profile.role}
-                    </span>
+                    <span className={formatRoleBadge(profile.role)}>{profile.role}</span>
                   </td>
                   <td className="text-sm text-gray-600">
                     {new Date(profile.created_at).toLocaleDateString("id-ID")}

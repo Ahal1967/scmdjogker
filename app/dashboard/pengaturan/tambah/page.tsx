@@ -1,14 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 
 export default function TambahProfilePage() {
   const router = useRouter();
-  const supabase = createClient();
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [formData, setFormData] = useState({
+    email: "",
+    password: "",
     full_name: "",
     role: "staff",
     avatar_url: "",
@@ -16,41 +17,70 @@ export default function TambahProfilePage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setErrorMsg(null);
     setLoading(true);
 
-    // Generate UUID baru untuk user
-    const newId = crypto.randomUUID();
-
-    const { error } = await supabase.from("profiles").insert({
-      id: newId,
-      full_name: formData.full_name,
-      role: formData.role,
-      avatar_url: formData.avatar_url || null,
+    const res = await fetch("/api/admin/create-user", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(formData),
     });
 
-    if (error) {
-      alert("Gagal menambah pengguna: " + error.message);
-    } else {
-      alert("Pengguna berhasil ditambahkan!");
-      router.push("/dashboard/pengaturan");
+    const result = await res.json().catch(() => null);
+    setLoading(false);
+
+    if (!res.ok) {
+      setErrorMsg(result?.error ?? "Gagal menambah pengguna.");
+      return;
     }
 
-    setLoading(false);
+    alert("Pengguna berhasil ditambahkan!");
+    router.push("/dashboard/pengaturan");
   }
 
   return (
     <div>
       <div className="mb-6">
-        <h1 className="font-display font-bold text-xl">Tambah Pengguna Baru</h1>
-        <p className="text-djoker-muted text-sm">
-          Isi form di bawah untuk menambah pengguna baru.
+        <h1 className="font-display font-bold text-xl text-black">Tambah Pengguna Baru</h1>
+        <p className="text-gray-600 text-sm">
+          Akun login baru akan langsung dibuat lewat Supabase Auth.
         </p>
       </div>
 
       <div className="card max-w-2xl">
         <form onSubmit={handleSubmit} className="space-y-4">
+          {errorMsg && (
+            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+              {errorMsg}
+            </div>
+          )}
+
           <div>
-            <label className="text-xs text-djoker-muted mb-1.5 block">Nama Lengkap</label>
+            <label className="text-sm font-medium text-gray-700 mb-1.5 block">Email</label>
+            <input
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              className="input-field"
+              placeholder="email@djoker.com"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-gray-700 mb-1.5 block">Password</label>
+            <input
+              type="password"
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              className="input-field"
+              placeholder="Minimal 6 karakter"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-gray-700 mb-1.5 block">Nama Lengkap</label>
             <input
               type="text"
               value={formData.full_name}
@@ -62,7 +92,7 @@ export default function TambahProfilePage() {
           </div>
 
           <div>
-            <label className="text-xs text-djoker-muted mb-1.5 block">Role</label>
+            <label className="text-sm font-medium text-gray-700 mb-1.5 block">Role</label>
             <select
               value={formData.role}
               onChange={(e) => setFormData({ ...formData, role: e.target.value })}
@@ -75,7 +105,7 @@ export default function TambahProfilePage() {
           </div>
 
           <div>
-            <label className="text-xs text-djoker-muted mb-1.5 block">Avatar URL (Opsional)</label>
+            <label className="text-sm font-medium text-gray-700 mb-1.5 block">Avatar URL (Opsional)</label>
             <input
               type="url"
               value={formData.avatar_url}
@@ -83,24 +113,14 @@ export default function TambahProfilePage() {
               className="input-field"
               placeholder="https://example.com/avatar.jpg"
             />
-            <p className="text-xs text-djoker-muted mt-1">
-              Kosongkan jika tidak ada avatar.
-            </p>
+            <p className="text-xs text-gray-500 mt-1">Kosongkan jika tidak ada avatar.</p>
           </div>
 
           <div className="flex gap-3 pt-4">
-            <button
-              type="button"
-              onClick={() => router.back()}
-              className="btn-outline flex-1"
-            >
+            <button type="button" onClick={() => router.back()} className="btn-outline flex-1">
               Batal
             </button>
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-primary flex-1"
-            >
+            <button type="submit" disabled={loading} className="btn-primary flex-1">
               {loading ? "Menyimpan..." : "Simpan"}
             </button>
           </div>

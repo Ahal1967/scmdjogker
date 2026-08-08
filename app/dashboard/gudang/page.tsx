@@ -1,19 +1,18 @@
 import { createClient } from "@/lib/supabase/server";
+import GudangTable from "./GudangTable";
 
 export default async function GudangPage() {
   const supabase = createClient();
 
-  const { data: bahan } = await supabase
-    .from("raw_materials")
-    .select("*")
-    .order("nama_bahan", { ascending: true });
+  const [{ data: bahan }, { data: suppliers }] = await Promise.all([
+    supabase.from("raw_materials").select("*, suppliers(nama_supplier)").order("nama_bahan", { ascending: true }),
+    supabase.from("suppliers").select("id, nama_supplier").order("nama_supplier"),
+  ]);
 
   const totalJenisBahan = bahan?.length ?? 0;
   const totalStok = bahan?.reduce((sum, b) => sum + (Number(b.stok) || 0), 0) ?? 0;
   const stokTerendah =
-    bahan && bahan.length > 0
-      ? Math.min(...bahan.map((b) => Number(b.stok) || 0))
-      : 0;
+    bahan && bahan.length > 0 ? Math.min(...bahan.map((b) => Number(b.stok) || 0)) : 0;
 
   return (
     <div className="space-y-4 md:space-y-6">
@@ -37,46 +36,7 @@ export default async function GudangPage() {
         </div>
       </div>
 
-      <div className="card overflow-x-auto">
-        <div className="mb-3 flex items-center justify-between md:mb-4">
-          <h2 className="text-base font-semibold text-black md:text-lg">Daftar Bahan Baku</h2>
-        </div>
-
-        <div className="overflow-x-auto">
-          <table className="table-djoker w-full">
-            <thead>
-              <tr>
-                <th>Nama Bahan</th>
-                <th>Stok</th>
-                <th>Satuan</th>
-                <th>Keterangan</th>
-              </tr>
-            </thead>
-            <tbody>
-              {bahan?.map((b: any) => (
-                <tr key={b.id}>
-                  <td className="font-semibold text-black">{b.nama_bahan || "-"}</td>
-                  <td className="text-sm text-gray-700">{Number(b.stok) || 0}</td>
-                  <td className="text-sm text-gray-600">{b.satuan || "-"}</td>
-                  <td className="max-w-[10rem] truncate text-sm text-gray-600 md:max-w-xs">
-                    {b.keterangan || "-"}
-                  </td>
-                </tr>
-              ))}
-
-              {(!bahan || bahan.length === 0) && (
-                <tr>
-                  <td colSpan={4}>
-                    <div className="flex min-h-[140px] items-center justify-center py-8 text-gray-500">
-                      Belum ada data bahan baku.
-                    </div>
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <GudangTable initialMaterials={bahan ?? []} suppliers={suppliers ?? []} />
     </div>
   );
 }

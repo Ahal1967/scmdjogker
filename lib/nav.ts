@@ -1,5 +1,6 @@
 export const navItems = [
   { label: "Dashboard", href: "/dashboard" },
+  { label: "Alur Supply Chain", href: "/dashboard/alur" },
   { label: "Supplier", href: "/dashboard/supplier" },
   { label: "Gudang", href: "/dashboard/gudang" },
   { label: "Pesanan", href: "/dashboard/pesanan" },

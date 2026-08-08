@@ -13,6 +13,32 @@ type Packing = {
   orders: { no_pesanan: string; customers: { nama: string } | null } | null;
 };
 
+function EmptyState() {
+  return (
+    <div className="card flex min-h-[16rem] items-center justify-center">
+      <div className="text-center">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-50">
+          <svg
+            viewBox="0 0 24 24"
+            className="h-8 w-8 text-blue-600"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+            <polyline points="3.27 6.96 12 12.01 20.73 6.96" />
+            <line x1="12" y1="22.08" x2="12" y2="12" />
+          </svg>
+        </div>
+        <p className="text-base font-medium text-black">Belum ada entri packing</p>
+        <p className="mt-1 text-sm text-gray-600">Muncul otomatis saat QC lolos.</p>
+      </div>
+    </div>
+  );
+}
+
 export default function PackingTable({ initialPacking }: { initialPacking: Packing[] }) {
   const supabase = createClient();
   const [packingList, setPackingList] = useState<Packing[]>(initialPacking);
@@ -32,10 +58,12 @@ export default function PackingTable({ initialPacking }: { initialPacking: Packi
       .select("*, orders(no_pesanan, customers(nama))")
       .single();
 
-    if (error || !data) return;
+    if (error || !data) {
+      alert("Gagal update packing: " + error?.message);
+      return;
+    }
     setPackingList((prev) => prev.map((item) => (item.id === p.id ? data : item)));
 
-    // Otomatis buat entri pengiriman kalau belum ada
     const { data: existing } = await supabase
       .from("shipments")
       .select("id")
@@ -57,8 +85,12 @@ export default function PackingTable({ initialPacking }: { initialPacking: Packi
     });
   }
 
+  if (packingList.length === 0) {
+    return <EmptyState />;
+  }
+
   return (
-    <div className="card">
+    <div className="card overflow-x-auto">
       <div className="mb-4">
         <input
           placeholder="Cari no. packing / no. pesanan..."
@@ -68,7 +100,7 @@ export default function PackingTable({ initialPacking }: { initialPacking: Packi
         />
       </div>
 
-      <table className="table-djoker">
+      <table className="table-djoker w-full">
         <thead>
           <tr>
             <th>No. Packing</th>
@@ -77,31 +109,40 @@ export default function PackingTable({ initialPacking }: { initialPacking: Packi
             <th>Tanggal</th>
             <th>Jumlah</th>
             <th>Status</th>
-            <th></th>
+            <th className="text-right">Aksi</th>
           </tr>
         </thead>
         <tbody>
           {filtered.map((p) => (
             <tr key={p.id}>
-              <td className="font-medium">{p.no_packing}</td>
-              <td>{p.orders?.no_pesanan ?? "-"}</td>
-              <td>{p.orders?.customers?.nama ?? "-"}</td>
-              <td>{new Date(p.tanggal).toLocaleDateString("id-ID")}</td>
-              <td>{p.jumlah} pcs</td>
+              <td className="font-semibold text-black">{p.no_packing}</td>
+              <td className="text-sm text-gray-700">{p.orders?.no_pesanan ?? "-"}</td>
+              <td className="text-sm text-gray-700">{p.orders?.customers?.nama ?? "-"}</td>
+              <td className="text-sm text-gray-600">
+                {new Date(p.tanggal).toLocaleDateString("id-ID", {
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                })}
+              </td>
+              <td className="text-sm text-gray-700">{p.jumlah} pcs</td>
               <td>
                 <span
                   className={`badge ${
                     p.status === "Siap Kirim"
-                      ? "bg-green-500/15 text-green-400"
-                      : "bg-yellow-500/15 text-yellow-400"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-yellow-100 text-yellow-700"
                   }`}
                 >
                   {p.status}
                 </span>
               </td>
-              <td>
+              <td className="text-right">
                 {p.status === "Diproses" && (
-                  <button onClick={() => markReady(p)} className="text-djoker-red text-xs hover:underline">
+                  <button
+                    onClick={() => markReady(p)}
+                    className="text-blue-600 hover:text-blue-700 hover:underline text-xs font-medium"
+                  >
                     Tandai Siap Kirim
                   </button>
                 )}
@@ -110,8 +151,10 @@ export default function PackingTable({ initialPacking }: { initialPacking: Packi
           ))}
           {filtered.length === 0 && (
             <tr>
-              <td colSpan={7} className="text-center text-djoker-muted py-8">
-                Belum ada entri packing. Muncul otomatis saat QC lolos.
+              <td colSpan={7}>
+                <div className="flex min-h-[100px] items-center justify-center text-gray-500">
+                  Tidak ditemukan.
+                </div>
               </td>
             </tr>
           )}

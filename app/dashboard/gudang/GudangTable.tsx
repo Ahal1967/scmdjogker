@@ -129,8 +129,8 @@ export default function GudangTable({
   }
 
   return (
-    <div className="card">
-      <div className="flex items-center justify-between mb-4 gap-3">
+    <div className="card overflow-x-auto">
+      <div className="mb-4 flex items-center justify-between gap-3">
         <input
           placeholder="Cari bahan..."
           value={search}
@@ -142,7 +142,7 @@ export default function GudangTable({
         </button>
       </div>
 
-      <table className="table-djoker">
+      <table className="table-djoker w-full">
         <thead>
           <tr>
             <th>Nama Bahan</th>
@@ -152,51 +152,51 @@ export default function GudangTable({
             <th>Minimum</th>
             <th>Supplier</th>
             <th>Status</th>
-            <th></th>
+            <th className="text-right">Aksi</th>
           </tr>
         </thead>
         <tbody>
           {filtered.map((m) => (
             <tr key={m.id}>
-              <td className="font-medium">{m.nama_bahan}</td>
-              <td>{m.kategori}</td>
-              <td>{m.satuan}</td>
+              <td className="font-semibold text-black">{m.nama_bahan}</td>
+              <td className="text-sm text-gray-700">{m.kategori}</td>
+              <td className="text-sm text-gray-700">{m.satuan}</td>
               <td>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => quickAdjustStock(m, -1)}
-                    className="w-6 h-6 rounded border border-djoker-border text-xs hover:border-djoker-red"
+                    className="w-6 h-6 rounded border border-gray-300 text-xs hover:border-blue-600"
                   >
                     −
                   </button>
-                  <span className="w-8 text-center">{m.stok}</span>
+                  <span className="w-8 text-center text-sm text-gray-800">{m.stok}</span>
                   <button
                     onClick={() => quickAdjustStock(m, 1)}
-                    className="w-6 h-6 rounded border border-djoker-border text-xs hover:border-djoker-red"
+                    className="w-6 h-6 rounded border border-gray-300 text-xs hover:border-blue-600"
                   >
                     +
                   </button>
                 </div>
               </td>
-              <td>{m.stok_minimum}</td>
-              <td>{m.suppliers?.nama_supplier ?? "-"}</td>
+              <td className="text-sm text-gray-700">{m.stok_minimum}</td>
+              <td className="text-sm text-gray-700">{m.suppliers?.nama_supplier ?? "-"}</td>
               <td>
                 <span
                   className={`badge ${
                     m.status === "Aman"
-                      ? "bg-green-500/15 text-green-400"
-                      : "bg-red-500/15 text-red-400"
+                      ? "bg-green-100 text-green-700"
+                      : "bg-red-100 text-red-700"
                   }`}
                 >
                   {m.status}
                 </span>
               </td>
-              <td>
-                <div className="flex gap-3 text-xs">
-                  <button onClick={() => openEdit(m)} className="text-blue-400 hover:underline">
+              <td className="text-right">
+                <div className="flex justify-end gap-3 text-xs">
+                  <button onClick={() => openEdit(m)} className="text-blue-600 hover:text-blue-700 hover:underline">
                     Edit
                   </button>
-                  <button onClick={() => handleDelete(m.id)} className="text-djoker-red hover:underline">
+                  <button onClick={() => handleDelete(m.id)} className="text-red-600 hover:text-red-700 hover:underline">
                     Hapus
                   </button>
                 </div>
@@ -205,8 +205,10 @@ export default function GudangTable({
           ))}
           {filtered.length === 0 && (
             <tr>
-              <td colSpan={8} className="text-center text-djoker-muted py-8">
-                Belum ada data bahan baku.
+              <td colSpan={8}>
+                <div className="flex min-h-[140px] items-center justify-center text-gray-500">
+                  Belum ada data bahan baku.
+                </div>
               </td>
             </tr>
           )}
@@ -216,7 +218,7 @@ export default function GudangTable({
       {showModal && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
           <div className="card w-full max-w-md">
-            <h2 className="font-display font-semibold text-lg mb-4">
+            <h2 className="font-display font-semibold text-lg mb-4 text-black">
               {editing ? "Edit Bahan" : "Bahan Masuk"}
             </h2>
             <form onSubmit={handleSave} className="space-y-3">
@@ -255,7 +257,7 @@ export default function GudangTable({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-xs text-djoker-muted mb-1.5 block">Stok Awal</label>
+                  <label className="text-sm font-medium text-gray-700 mb-1.5 block">Stok Awal</label>
                   <input
                     type="number"
                     min={0}
@@ -266,7 +268,7 @@ export default function GudangTable({
                   />
                 </div>
                 <div>
-                  <label className="text-xs text-djoker-muted mb-1.5 block">Stok Minimum</label>
+                  <label className="text-sm font-medium text-gray-700 mb-1.5 block">Stok Minimum</label>
                   <input
                     type="number"
                     min={0}
@@ -279,7 +281,7 @@ export default function GudangTable({
               </div>
 
               <div>
-                <label className="text-xs text-djoker-muted mb-1.5 block">Supplier</label>
+                <label className="text-sm font-medium text-gray-700 mb-1.5 block">Supplier</label>
                 <select
                   value={form.supplier_id}
                   onChange={(e) => setForm({ ...form, supplier_id: e.target.value })}

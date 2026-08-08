@@ -1,13 +1,22 @@
-import { createClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
 
 export async function POST(request: Request) {
   const supabase = createClient();
 
-  const { id } = await request.json();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-  if (!id) {
-    return NextResponse.json({ error: "ID produksi wajib diisi" }, { status: 400 });
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const body = await request.json().catch(() => null);
+  const id = body?.id;
+
+  if (!id || typeof id !== "string") {
+    return NextResponse.json({ error: "id wajib diisi" }, { status: 400 });
   }
 
   const { error } = await supabase.from("production").delete().eq("id", id);

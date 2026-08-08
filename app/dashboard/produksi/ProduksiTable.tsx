@@ -27,6 +27,8 @@ const STATUS_COLORS: Record<string, string> = {
   Selesai: "text-green-600",
 };
 
+// "Sablon" adalah status valid di tabel orders (lihat migrasi SQL yang perlu kamu jalankan).
+
 export default function ProduksiTable({
   initialProductions,
 }: {
@@ -69,8 +71,7 @@ export default function ProduksiTable({
       );
 
       if (p.order_id) {
-        const orderStatus =
-          status === "Selesai" ? "Selesai" : status;
+        const orderStatus = status;
 
         await supabase.from("orders").update({ status: orderStatus }).eq("id", p.order_id);
 
@@ -80,6 +81,8 @@ export default function ProduksiTable({
           selesai: true,
         });
       }
+    } else if (error) {
+      alert("Gagal mengubah status: " + error.message);
     }
   }
 
@@ -112,7 +115,8 @@ export default function ProduksiTable({
     if (res.ok) {
       setProductions((prev) => prev.filter((p) => p.id !== id));
     } else {
-      alert("Gagal menghapus produksi");
+      const body = await res.json().catch(() => null);
+      alert("Gagal menghapus produksi" + (body?.error ? `: ${body.error}` : ""));
     }
   }
 

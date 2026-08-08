@@ -20,10 +20,7 @@ export default function LoginPage() {
     setErrorMsg(null);
     setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
 
     if (error) {
       setErrorMsg(error.message);
@@ -39,7 +36,6 @@ export default function LoginPage() {
       <div className="mx-auto flex min-h-[calc(100vh-2rem)] max-w-7xl overflow-hidden rounded-[32px] border border-blue-200 bg-white shadow-2xl">
         {/* Left - Form */}
         <div className="flex w-full flex-col justify-center px-6 py-12 md:w-1/2 md:px-12 lg:px-16">
-          {/* Logo mobile */}
           <div className="mb-6 flex items-center gap-3 md:hidden">
             <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl border border-blue-200 bg-white shadow">
               <Image
@@ -57,7 +53,7 @@ export default function LoginPage() {
             </div>
           </div>
 
-          <h1 className="mb-2 text-3xl font-bold text-black md:text-4xl">
+          <h1 className="mb-2 text-3xl font-bold text-black md:text-4xl font-display">
             Selamat Datang!
           </h1>
           <p className="mb-8 text-sm text-gray-600 md:text-base">
@@ -72,9 +68,7 @@ export default function LoginPage() {
 
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700">
-                Email
-              </label>
+              <label className="mb-2 block text-sm font-medium text-gray-700">Email</label>
               <input
                 type="email"
                 value={email}
@@ -86,9 +80,7 @@ export default function LoginPage() {
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700">
-                Password
-              </label>
+              <label className="mb-2 block text-sm font-medium text-gray-700">Password</label>
               <input
                 type="password"
                 value={password}
@@ -101,26 +93,16 @@ export default function LoginPage() {
 
             <div className="flex items-center justify-between text-sm">
               <label className="flex items-center gap-2 text-gray-600">
-                <input
-                  type="checkbox"
-                  className="h-4 w-4 accent-blue-600"
-                />
+                <input type="checkbox" className="h-4 w-4 accent-blue-600" />
                 Ingat saya
               </label>
 
-              <Link
-                href="/auth/forgot-password"
-                className="text-blue-600 hover:text-blue-700 hover:underline"
-              >
+              <Link href="/auth/forgot-password" className="text-blue-600 hover:text-blue-700 hover:underline">
                 Lupa password?
               </Link>
             </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn-primary mt-2 w-full"
-            >
+            <button type="submit" disabled={loading} className="btn-primary mt-2 w-full">
               {loading ? "Memproses..." : "Login"}
             </button>
           </form>
@@ -128,16 +110,20 @@ export default function LoginPage() {
           <p className="mt-8 text-center text-xs text-gray-500">
             Belum punya akun? Hubungi Administrator
           </p>
+
+          <p className="mt-3 text-center text-xs">
+            <Link href="/tracking" className="text-blue-600 hover:underline font-medium">
+              Lacak Pesanan Kamu →
+            </Link>
+          </p>
         </div>
 
         {/* Right - Visual */}
         <div className="relative hidden w-1/2 items-center justify-center overflow-hidden bg-gradient-to-br from-blue-100 via-blue-50 to-white md:flex">
-          {/* Decorative circles */}
           <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-blue-200/30 blur-3xl" />
           <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-blue-300/20 blur-3xl" />
 
           <div className="relative z-10 flex flex-col items-center gap-8 px-10 text-center">
-            {/* Logo besar */}
             <div className="relative flex h-80 w-80 items-center justify-center overflow-hidden rounded-full border border-blue-200 bg-white shadow-2xl shadow-blue-200/50">
               <Image
                 src="/images/logodjogker1.jpeg"
@@ -148,24 +134,21 @@ export default function LoginPage() {
               />
             </div>
 
-            {/* Teks */}
             <div>
               <h2 className="font-display text-3xl font-bold tracking-[0.15em] text-black">
                 DJOGKER
               </h2>
               <p className="mt-3 text-sm font-medium italic text-gray-600">
-                "Kualitas Terbaik untuk Hasil Sablon Maksimal"
+                &ldquo;Kualitas Terbaik untuk Hasil Sablon Maksimal&rdquo;
               </p>
             </div>
 
-            {/* Address */}
             <div className="mt-2 text-sm text-gray-500">
               <p>Jl. Wates Km 4,5 Gg. Ablar No 5</p>
               <p>Gamping Kidul RT 03/17 Ambarketawang Sleman</p>
               <p>Yogyakarta 55294</p>
             </div>
 
-            {/* Decorative line */}
             <div className="mt-4 h-1 w-24 rounded-full bg-gradient-to-r from-blue-400 to-blue-600" />
           </div>
         </div>

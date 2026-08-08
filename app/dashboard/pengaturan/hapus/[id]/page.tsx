@@ -36,13 +36,16 @@ export default function HapusProfilePage() {
 
     setLoading(true);
 
-    const { error } = await supabase
-      .from("profiles")
-      .delete()
-      .eq("id", params.id);
+    const res = await fetch("/api/admin/delete-user", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: params.id }),
+    });
 
-    if (error) {
-      alert("Gagal menghapus: " + error.message);
+    const result = await res.json().catch(() => null);
+
+    if (!res.ok) {
+      alert("Gagal menghapus: " + (result?.error ?? "Terjadi kesalahan"));
     } else {
       alert("Pengguna berhasil dihapus!");
       router.push("/dashboard/pengaturan");
@@ -52,27 +55,25 @@ export default function HapusProfilePage() {
   }
 
   if (!profile) {
-    return <div className="text-center py-8 text-djoker-muted">Memuat data...</div>;
+    return <div className="text-center py-8 text-gray-500">Memuat data...</div>;
   }
 
   return (
     <div>
       <div className="mb-6">
-        <h1 className="font-display font-bold text-xl">Hapus Pengguna</h1>
-        <p className="text-djoker-muted text-sm">
-          Konfirmasi penghapusan pengguna.
-        </p>
+        <h1 className="font-display font-bold text-xl text-black">Hapus Pengguna</h1>
+        <p className="text-gray-600 text-sm">Konfirmasi penghapusan pengguna.</p>
       </div>
 
       <div className="card max-w-md">
         <div className="mb-6">
-          <p className="text-djoker-muted text-sm mb-2">Apakah Anda yakin ingin menghapus:</p>
-          <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4">
-            <p className="font-medium text-lg">{profile.full_name || "User"}</p>
-            <p className="text-sm text-djoker-muted">Role: {profile.role}</p>
-            <p className="text-xs text-djoker-muted mt-1 font-mono">{profile.id}</p>
+          <p className="text-gray-600 text-sm mb-2">Apakah Anda yakin ingin menghapus:</p>
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <p className="font-medium text-lg text-black">{profile.full_name || "User"}</p>
+            <p className="text-sm text-gray-600">Role: {profile.role}</p>
+            <p className="text-xs text-gray-500 mt-1 font-mono">{profile.id}</p>
           </div>
-          <p className="text-xs text-red-400 mt-3">
+          <p className="text-xs text-red-600 mt-3">
             ⚠️ Data yang dihapus tidak dapat dikembalikan!
           </p>
         </div>

@@ -81,68 +81,117 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
 
   return (
     <div className="card">
-      <div className="flex items-center justify-between mb-4 gap-3">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-5">
         <input
           placeholder="Cari supplier..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="input-field max-w-xs"
+          className="input-field md:max-w-xs"
         />
         <button onClick={openAdd} className="btn-primary whitespace-nowrap">
           + Tambah Supplier
         </button>
       </div>
 
-      <table className="table-djoker">
-        <thead>
-          <tr>
-            <th>Nama Supplier</th>
-            <th>Kontak</th>
-            <th>No. Telepon</th>
-            <th>Alamat</th>
-            <th>Status</th>
-            <th></th>
-          </tr>
-        </thead>
-        <tbody>
-          {filtered.map((s) => (
-            <tr key={s.id}>
-              <td className="font-medium">{s.nama_supplier}</td>
-              <td>{s.kontak}</td>
-              <td>{s.no_telepon}</td>
-              <td>{s.alamat}</td>
-              <td>
+      {/* Desktop table */}
+      <div className="hidden md:block overflow-x-auto">
+        <table className="table-djoker">
+          <thead>
+            <tr>
+              <th>Nama Supplier</th>
+              <th>Kontak</th>
+              <th>No. Telepon</th>
+              <th>Alamat</th>
+              <th>Status</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((s) => (
+              <tr key={s.id}>
+                <td className="font-semibold text-black">{s.nama_supplier}</td>
+                <td className="text-gray-700">{s.kontak || "-"}</td>
+                <td className="text-gray-700">{s.no_telepon || "-"}</td>
+                <td className="text-gray-600 max-w-xs truncate">{s.alamat || "-"}</td>
+                <td>
+                  <span
+                    className={`badge ${
+                      s.status === "Aktif"
+                        ? "bg-green-100 text-green-700"
+                        : "bg-gray-100 text-gray-600"
+                    }`}
+                  >
+                    {s.status}
+                  </span>
+                </td>
+                <td>
+                  <div className="flex justify-end gap-3 text-xs">
+                    <button onClick={() => openEdit(s)} className="text-blue-600 hover:text-blue-700 hover:underline">
+                      Edit
+                    </button>
+                    <button onClick={() => handleDelete(s.id)} className="text-red-600 hover:text-red-700 hover:underline">
+                      Hapus
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+            {filtered.length === 0 && (
+              <tr>
+                <td colSpan={6}>
+                  <div className="flex min-h-[140px] items-center justify-center text-gray-500">
+                    Belum ada data supplier.
+                  </div>
+                </td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Mobile card list */}
+      <div className="space-y-3 md:hidden">
+        {filtered.length === 0 ? (
+          <div className="flex min-h-[140px] items-center justify-center text-gray-500">
+            Belum ada data supplier.
+          </div>
+        ) : (
+          filtered.map((s) => (
+            <div key={s.id} className="rounded-2xl border border-djoker-border p-4 space-y-3">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-base font-semibold text-black">{s.nama_supplier}</p>
+                  <p className="text-sm text-gray-600">{s.kontak || "-"}</p>
+                </div>
                 <span
-                  className={`badge ${
-                    s.status === "Aktif"
-                      ? "bg-green-500/15 text-green-400"
-                      : "bg-djoker-muted/15 text-djoker-muted"
+                  className={`badge shrink-0 ${
+                    s.status === "Aktif" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"
                   }`}
                 >
                   {s.status}
                 </span>
-              </td>
-              <td>
-                <div className="flex gap-3 text-xs">
-                  <button onClick={() => openEdit(s)} className="text-blue-400 hover:underline">
-                    Edit
-                  </button>
-                  <button onClick={() => handleDelete(s.id)} className="text-djoker-red hover:underline">
-                    Hapus
-                  </button>
-                </div>
-              </td>
-            </tr>
-          ))}
-          {filtered.length === 0 && (
-            <tr>
-              <td colSpan={6} className="text-center text-djoker-muted py-8">
-                Belum ada data supplier.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+              </div>
+
+              <div className="text-sm text-gray-700">
+                <p><span className="font-medium text-gray-900">No. Telepon:</span> {s.no_telepon || "-"}</p>
+                <p className="mt-1"><span className="font-medium text-gray-900">Alamat:</span> {s.alamat || "-"}</p>
+              </div>
+
+              <div className="flex gap-3 pt-1">
+                <button onClick={() => openEdit(s)} className="btn-outline flex-1 !py-2 text-sm">
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(s.id)}
+                  className="flex-1 rounded-lg border border-red-200 px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors"
+                >
+                  Hapus
+                </button>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
 
       {showModal && (
         <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
