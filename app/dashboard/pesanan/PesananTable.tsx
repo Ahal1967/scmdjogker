@@ -375,8 +375,8 @@ export default function PesananTable() {
       </div>
 
       {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="card w-full max-w-lg">
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 p-4 overflow-y-auto">
+          <div className="card w-full max-w-lg my-8 max-h-[90vh] overflow-y-auto">
             <h2 className="font-display text-lg font-semibold text-black">
               Pesanan Baru — DJ{String(orderSeq).padStart(5, "0")}
             </h2>
@@ -527,8 +527,8 @@ export default function PesananTable() {
       )}
 
       {detailOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="card w-full max-w-md">
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 p-4 overflow-y-auto">
+          <div className="card w-full max-w-md my-8 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between">
               <h2 className="font-display text-lg font-semibold text-black">
                 {detailOrder.no_pesanan}

@@ -110,12 +110,6 @@ export default function LoginPage() {
           <p className="mt-8 text-center text-xs text-gray-500">
             Belum punya akun? Hubungi Administrator
           </p>
-
-          <p className="mt-3 text-center text-xs">
-            <Link href="/tracking" className="text-blue-600 hover:underline font-medium">
-              Lacak Pesanan Kamu →
-            </Link>
-          </p>
         </div>
 
         {/* Right - Visual */}
