@@ -160,7 +160,7 @@ export default function TrackingPage() {
             </div>
 
             <a
-              href={`https://wa.me/628812798005?text=${encodeURIComponent(
+              href={`https://wa.me/6288127980npm run buid05?text=${encodeURIComponent(
                 `Halo, saya mau tanya soal pesanan ${order.no_pesanan}`
               )}`}
               target="_blank"

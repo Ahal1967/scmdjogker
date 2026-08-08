@@ -152,6 +152,12 @@ export default function UploadDesainPage() {
             </button>
           </form>
         )}
+
+        <p className="mt-6 text-center text-xs">
+          <a href="/tracking" className="text-blue-600 hover:underline font-medium">
+            Lacak Status Pesanan Kamu →
+          </a>
+        </p>
       </div>
     </div>
   );
