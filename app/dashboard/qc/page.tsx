@@ -4,7 +4,7 @@ import QcTable from "./QcTable";
 export default async function QCPage() {
   const supabase = createClient();
 
-  const [{ data: pendingProduction }, { data: qcRecords }, { count: qcCount }, { count: packingCount }] =
+  const [{ data: pendingRaw }, { data: qcRaw }, { count: qcCount }, { count: packingCount }] =
     await Promise.all([
       supabase
         .from("production")
@@ -19,6 +19,40 @@ export default async function QCPage() {
       supabase.from("packing").select("*", { count: "exact", head: true }),
     ]);
 
+  // Supabase mengembalikan relasi nested sebagai array secara default di level
+  // type-nya (walau isinya sebenarnya cuma 1 row karena foreign key one-to-one).
+  // Di-flatten manual di sini supaya cocok sama tipe yang QcTable harapkan.
+  const pendingProduction = (pendingRaw ?? []).map((p: any) => ({
+    id: p.id,
+    no_produksi: p.no_produksi,
+    orders: Array.isArray(p.orders) ? p.orders[0] ?? null : p.orders,
+  })).map((p: any) => ({
+    ...p,
+    orders: p.orders
+      ? {
+          no_pesanan: p.orders.no_pesanan,
+          customers: Array.isArray(p.orders.customers)
+            ? p.orders.customers[0] ?? null
+            : p.orders.customers,
+        }
+      : null,
+  }));
+
+  const qcRecords = (qcRaw ?? []).map((r: any) => ({
+    ...r,
+    production: Array.isArray(r.production) ? r.production[0] ?? null : r.production,
+  })).map((r: any) => ({
+    ...r,
+    production: r.production
+      ? {
+          no_produksi: r.production.no_produksi,
+          orders: Array.isArray(r.production.orders)
+            ? r.production.orders[0] ?? null
+            : r.production.orders,
+        }
+      : null,
+  }));
+
   return (
     <div className="space-y-4 md:space-y-6">
       <div>
@@ -29,8 +63,8 @@ export default async function QCPage() {
       </div>
 
       <QcTable
-        pendingProduction={pendingProduction ?? []}
-        initialRecords={qcRecords ?? []}
+        pendingProduction={pendingProduction}
+        initialRecords={qcRecords}
         nextQcNumber={(qcCount ?? 0) + 1}
         nextPackingNumber={(packingCount ?? 0) + 1}
       />

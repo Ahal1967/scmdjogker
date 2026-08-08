@@ -4,10 +4,15 @@ import GudangTable from "./GudangTable";
 export default async function GudangPage() {
   const supabase = createClient();
 
-  const [{ data: bahan }, { data: suppliers }] = await Promise.all([
+  const [{ data: bahanRaw }, { data: suppliers }] = await Promise.all([
     supabase.from("raw_materials").select("*, suppliers(nama_supplier)").order("nama_bahan", { ascending: true }),
     supabase.from("suppliers").select("id, nama_supplier").order("nama_supplier"),
   ]);
+
+  const bahan = (bahanRaw ?? []).map((b: any) => ({
+    ...b,
+    suppliers: Array.isArray(b.suppliers) ? b.suppliers[0] ?? null : b.suppliers,
+  }));
 
   const totalJenisBahan = bahan?.length ?? 0;
   const totalStok = bahan?.reduce((sum, b) => sum + (Number(b.stok) || 0), 0) ?? 0;

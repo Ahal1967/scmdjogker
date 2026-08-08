@@ -118,8 +118,11 @@ export default function QcTable({
         .single();
 
       const orderId = prodFull?.order_id;
-      const totalQty =
-        (prodFull as any)?.orders?.order_items?.reduce(
+      const orderRaw = Array.isArray((prodFull as any)?.orders)
+        ? (prodFull as any).orders[0]
+        : (prodFull as any)?.orders;
+      const orderItemsRaw = Array.isArray(orderRaw?.order_items) ? orderRaw.order_items : [];
+      const totalQty = orderItemsRaw.reduce(
           (sum: number, it: any) => sum + Number(it.jumlah ?? 0),
           0
         ) ?? 0;

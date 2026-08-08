@@ -4,12 +4,27 @@ import ProduksiTable, { type ProductionRow } from "./ProduksiTable";
 export default async function ProduksiPage() {
   const supabase = createClient();
 
-  const { data: produksis } = await supabase
+  const { data: produksiRaw } = await supabase
     .from("production")
     .select("*, orders(no_pesanan, customers(nama))")
     .order("created_at", { ascending: false });
 
-  const dataProduksi = (produksis || []) as ProductionRow[];
+  // Flatten relasi nested (Supabase mengetik-kan foreign join sebagai array
+  // walau sebenarnya cuma 1 row per foreign key).
+  const dataProduksi: ProductionRow[] = (produksiRaw ?? []).map((p: any) => {
+    const orderRaw = Array.isArray(p.orders) ? p.orders[0] ?? null : p.orders;
+    return {
+      ...p,
+      orders: orderRaw
+        ? {
+            no_pesanan: orderRaw.no_pesanan,
+            customers: Array.isArray(orderRaw.customers)
+              ? orderRaw.customers[0] ?? null
+              : orderRaw.customers,
+          }
+        : null,
+    };
+  });
 
   const totalProduksi = dataProduksi.length;
   const sedangDiproses = dataProduksi.filter(
