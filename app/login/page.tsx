@@ -6,6 +6,12 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
+// Paksa halaman ini selalu di-generate ulang di server tiap request,
+// bukan disimpan sebagai file statis tetap. Ini nyelesain bug "halaman
+// lama nongol lagi" di akarnya (cache Next.js/Vercel di level build,
+// bukan cuma cache browser).
+export const dynamic = "force-dynamic";
+
 export default function LoginPage() {
   const supabase = createClient();
   const router = useRouter();
@@ -110,6 +116,16 @@ export default function LoginPage() {
           <p className="mt-8 text-center text-xs text-gray-500">
             Belum punya akun? Hubungi Administrator
           </p>
+
+          <div className="mt-4 flex items-center justify-center gap-4 text-xs">
+            <Link href="/tracking" className="text-blue-600 hover:underline font-medium">
+              Lacak Pesanan →
+            </Link>
+            <span className="text-gray-300">|</span>
+            <Link href="/upload" className="text-blue-600 hover:underline font-medium">
+              Upload Desain →
+            </Link>
+          </div>
         </div>
 
         {/* Right - Visual */}

@@ -3,6 +3,8 @@
 import { useState, useRef } from "react";
 import Image from "next/image";
 
+export const dynamic = "force-dynamic";
+
 export default function UploadDesainPage() {
   const [noPesanan, setNoPesanan] = useState("");
   const [file, setFile] = useState<File | null>(null);

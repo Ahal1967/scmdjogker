@@ -3,6 +3,8 @@
 import { useState } from "react";
 import Image from "next/image";
 
+export const dynamic = "force-dynamic";
+
 type TrackingStep = { tahap: string; waktu: string; selesai: boolean };
 type OrderItem = { nama_produk: string; jumlah: number; harga: number };
 type OrderInfo = {
@@ -160,7 +162,7 @@ export default function TrackingPage() {
             </div>
 
             <a
-              href={`https://wa.me/6288127980npm run buid05?text=${encodeURIComponent(
+              href={`https://wa.me/628812798805?text=${encodeURIComponent(
                 `Halo, saya mau tanya soal pesanan ${order.no_pesanan}`
               )}`}
               target="_blank"
