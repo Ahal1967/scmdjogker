@@ -4,20 +4,27 @@ import QcTable from "./QcTable";
 export default async function QCPage() {
   const supabase = createClient();
 
-  const [{ data: pendingRaw }, { data: qcRaw }, { count: qcCount }, { count: packingCount }] =
-    await Promise.all([
-      supabase
-        .from("production")
-        .select("id, no_produksi, orders(no_pesanan, customers(nama))")
-        .eq("status", "QC")
-        .order("updated_at", { ascending: false }),
-      supabase
-        .from("quality_control")
-        .select("*, production(no_produksi, orders(no_pesanan))")
-        .order("created_at", { ascending: false }),
-      supabase.from("quality_control").select("*", { count: "exact", head: true }),
-      supabase.from("packing").select("*", { count: "exact", head: true }),
-    ]);
+  const [
+    { data: pendingRaw, error: pendingError },
+    { data: qcRaw, error: qcError },
+    { count: qcCount },
+    { count: packingCount },
+  ] = await Promise.all([
+    supabase
+      .from("production")
+      .select("id, no_produksi, orders(no_pesanan, customers(nama))")
+      .eq("status", "QC")
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("quality_control")
+      .select("*, production(no_produksi, orders(no_pesanan))")
+      .order("created_at", { ascending: false }),
+    supabase.from("quality_control").select("*", { count: "exact", head: true }),
+    supabase.from("packing").select("*", { count: "exact", head: true }),
+  ]);
+
+  if (pendingError) console.error("QC pendingProduction fetch error:", pendingError.message);
+  if (qcError) console.error("QC qcRecords fetch error:", qcError.message);
 
   // Supabase mengembalikan relasi nested sebagai array secara default di level
   // type-nya (walau isinya sebenarnya cuma 1 row karena foreign key one-to-one).
