@@ -22,6 +22,7 @@ export default function DashboardPage() {
     { status: "Dikirim", count: 0 },
     { status: "Selesai", count: 0 },
   ]);
+  const [monthlyRevenue, setMonthlyRevenue] = useState<{ bulan: string; pendapatan: number }[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentSlide, setCurrentSlide] = useState(0);
   const sliderRef = useRef<HTMLDivElement>(null);
@@ -83,6 +84,32 @@ export default function DashboardPage() {
     });
 
     setStatusOrders(statusCount);
+
+    // Tren pendapatan 6 bulan terakhir
+    const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1).toISOString();
+    const { data: recentOrders } = await supabase
+      .from("orders")
+      .select("total, tanggal, created_at")
+      .gte("created_at", sixMonthsAgo);
+
+    const monthLabels: { key: string; label: string; pendapatan: number }[] = [];
+    for (let i = 5; i >= 0; i--) {
+      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      monthLabels.push({
+        key: `${d.getFullYear()}-${d.getMonth()}`,
+        label: d.toLocaleDateString("id-ID", { month: "short", year: "2-digit" }),
+        pendapatan: 0,
+      });
+    }
+
+    recentOrders?.forEach((o: any) => {
+      const d = new Date(o.tanggal || o.created_at);
+      const key = `${d.getFullYear()}-${d.getMonth()}`;
+      const bucket = monthLabels.find((m) => m.key === key);
+      if (bucket) bucket.pendapatan += Number(o.total) || 0;
+    });
+
+    setMonthlyRevenue(monthLabels.map((m) => ({ bulan: m.label, pendapatan: m.pendapatan })));
 
     setStats({
       totalPesanan: ordersCount || 0,
@@ -209,6 +236,36 @@ export default function DashboardPage() {
         <div className="flex items-center justify-between text-sm">
           <span className="text-gray-600">Produksi Selesai</span>
           <span className="font-medium text-black">{stats.produksiSelesai} / {stats.totalProduksi}</span>
+        </div>
+      </div>
+
+      <div className="card">
+        <h2 className="text-base font-semibold text-black md:text-lg mb-4">
+          Tren Pendapatan (6 Bulan Terakhir)
+        </h2>
+        <div className="space-y-3">
+          {monthlyRevenue.map((m) => {
+            const maxRevenue = Math.max(...monthlyRevenue.map((x) => x.pendapatan), 1);
+            return (
+              <div key={m.bulan}>
+                <div className="flex items-center justify-between text-sm mb-1">
+                  <span className="text-gray-700 font-medium">{m.bulan}</span>
+                  <span className="text-gray-900 font-bold">
+                    Rp {m.pendapatan.toLocaleString("id-ID")}
+                  </span>
+                </div>
+                <div className="h-4 bg-gray-200 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-blue-600 transition-all"
+                    style={{ width: `${(m.pendapatan / maxRevenue) * 100}%` }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+          {monthlyRevenue.every((m) => m.pendapatan === 0) && (
+            <p className="text-sm text-gray-500">Belum ada data pendapatan 6 bulan terakhir.</p>
+          )}
         </div>
       </div>
 

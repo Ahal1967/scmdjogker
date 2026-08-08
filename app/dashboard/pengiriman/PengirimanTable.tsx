@@ -125,6 +125,14 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
       tahap: "Terkirim",
       selesai: true,
     });
+
+    // Sinkronkan balik ke tabel production, supaya statistik "Progress Produksi"
+    // di dashboard ikut kehitung benar (sebelumnya production.status nyangkut
+    // di "Packing" selamanya walau order sudah Selesai).
+    await supabase
+      .from("production")
+      .update({ status: "Selesai", progress: 100 })
+      .eq("order_id", s.order_id);
   }
 
   if (shipments.length === 0) {
