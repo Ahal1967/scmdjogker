@@ -59,6 +59,8 @@ export default function PesananTable() {
   const [saving, setSaving] = useState(false);
 
   const [customerId, setCustomerId] = useState("");
+  const [isNewCustomer, setIsNewCustomer] = useState(false);
+  const [newCustomer, setNewCustomer] = useState({ nama: "", no_telepon: "", alamat: "" });
   const [alamatPengiriman, setAlamatPengiriman] = useState("");
   const [dp, setDp] = useState(0);
   const [items, setItems] = useState<OrderItem[]>([{ nama_produk: "", jumlah: 1, harga: 0 }]);
@@ -122,7 +124,9 @@ export default function PesananTable() {
   const total = items.reduce((sum, it) => sum + Number(it.jumlah || 0) * Number(it.harga || 0), 0);
 
   function openAdd() {
+    setIsNewCustomer(customers.length === 0);
     setCustomerId(customers[0]?.id ?? "");
+    setNewCustomer({ nama: "", no_telepon: "", alamat: "" });
     setAlamatPengiriman("");
     setDp(0);
     setItems([{ nama_produk: "", jumlah: 1, harga: 0 }]);
@@ -145,7 +149,29 @@ export default function PesananTable() {
     e.preventDefault();
     setSaving(true);
 
-    if (!customerId) {
+    let finalCustomerId = customerId;
+
+    if (isNewCustomer) {
+      if (!newCustomer.nama.trim()) {
+        alert("Nama pelanggan wajib diisi.");
+        setSaving(false);
+        return;
+      }
+      const { data: custData, error: custError } = await supabase
+        .from("customers")
+        .insert(newCustomer)
+        .select()
+        .single();
+      if (custError || !custData) {
+        alert("Gagal menyimpan pelanggan baru: " + custError?.message);
+        setSaving(false);
+        return;
+      }
+      finalCustomerId = custData.id;
+      setCustomers((prev) => [...prev, custData]);
+    }
+
+    if (!finalCustomerId) {
       alert("Pilih pelanggan terlebih dahulu.");
       setSaving(false);
       return;
@@ -164,7 +190,7 @@ export default function PesananTable() {
       .from("orders")
       .insert({
         no_pesanan: noPesanan,
-        customer_id: customerId,
+        customer_id: finalCustomerId,
         total,
         dp,
         sisa_pembayaran: total - dp,
@@ -356,19 +382,53 @@ export default function PesananTable() {
             </h2>
             <form onSubmit={handleSave} className="mt-4 space-y-4">
               <div>
-                <label className="text-xs font-medium text-gray-600">Pelanggan</label>
-                <select
-                  value={customerId}
-                  onChange={(e) => setCustomerId(e.target.value)}
-                  className="mt-2 input-field"
-                >
-                  <option value="">- Pilih Pelanggan -</option>
-                  {customers.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.nama}
-                    </option>
-                  ))}
-                </select>
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-medium text-gray-600">Pelanggan</label>
+                  <button
+                    type="button"
+                    onClick={() => setIsNewCustomer((v) => !v)}
+                    className="text-xs text-blue-600 hover:underline"
+                  >
+                    {isNewCustomer ? "Pilih pelanggan lama" : "+ Pelanggan baru"}
+                  </button>
+                </div>
+
+                {isNewCustomer ? (
+                  <div className="mt-2 space-y-2">
+                    <input
+                      required
+                      placeholder="Nama Pelanggan"
+                      value={newCustomer.nama}
+                      onChange={(e) => setNewCustomer({ ...newCustomer, nama: e.target.value })}
+                      className="input-field"
+                    />
+                    <input
+                      placeholder="No. Telepon"
+                      value={newCustomer.no_telepon}
+                      onChange={(e) => setNewCustomer({ ...newCustomer, no_telepon: e.target.value })}
+                      className="input-field"
+                    />
+                    <input
+                      placeholder="Alamat"
+                      value={newCustomer.alamat}
+                      onChange={(e) => setNewCustomer({ ...newCustomer, alamat: e.target.value })}
+                      className="input-field"
+                    />
+                  </div>
+                ) : (
+                  <select
+                    value={customerId}
+                    onChange={(e) => setCustomerId(e.target.value)}
+                    className="mt-2 input-field"
+                  >
+                    <option value="">- Pilih Pelanggan -</option>
+                    {customers.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.nama}
+                      </option>
+                    ))}
+                  </select>
+                )}
               </div>
 
               <div>
