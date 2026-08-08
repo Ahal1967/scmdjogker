@@ -90,7 +90,7 @@ body {
   .card {
     background: var(--djoker-surface);
     border: 1px solid var(--djoker-border);
-    border-left: 3px solid var(--djoker-blue);
+    border-left: 1px solid var(--djoker-blue);
     border-radius: 12px;
     padding: 20px 24px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
@@ -199,15 +199,16 @@ body {
     background: var(--djoker-surface-2);
   }
 
-  /* Sidebar link - lebih tebal */
+  /* Sidebar link - font size & weight sesuai skala body text (14px),
+     tidak tebal lagi biar tidak kelihatan kegedean */
   .sidebar-link {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 10px 16px;
+    padding: 9px 16px;
     border-radius: 10px;
-    font-size: 0.9rem;
-    font-weight: 600;
+    font-size: 0.875rem;
+    font-weight: 400;
     color: var(--djoker-text);
     transition: all 0.2s ease;
   }
@@ -222,10 +223,10 @@ body {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 10px 16px;
+    padding: 9px 16px;
     border-radius: 10px;
-    font-size: 0.9rem;
-    font-weight: 700;
+    font-size: 0.875rem;
+    font-weight: 600;
     background: var(--djoker-blue);
     color: white;
     border: 1px solid var(--djoker-blue);
@@ -236,7 +237,7 @@ body {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
-    font-size: 0.875rem;
+    font-size: 0.75rem; /* 12px */
     text-align: left;
   }
 
@@ -244,7 +245,7 @@ body {
     background: #eff6ff;
     color: var(--djoker-blue-dark);
     font-weight: 700;
-    font-size: 0.75rem;
+    font-size: 0.625rem !important; /* 10px, paksa menang atas class Tailwind */
     text-transform: uppercase;
     letter-spacing: 0.05em;
     padding: 12px 16px;
@@ -265,6 +266,7 @@ body {
   .table-djoker tbody td {
     padding: 14px 16px;
     color: var(--djoker-text);
+    font-size: 0.75rem !important; /* 12px, paksa menang atas class Tailwind di tiap sel */
   }
 
   .table-djoker tbody td:first-child {

@@ -61,7 +61,7 @@ export default function HapusProfilePage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="font-display font-bold text-xl text-black">Hapus Pengguna</h1>
+        <h1 className="font-display font-bold text-2xl text-black">Hapus Pengguna</h1>
         <p className="text-gray-600 text-sm">Konfirmasi penghapusan pengguna.</p>
       </div>
 

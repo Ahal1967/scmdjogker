@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Menu } from "@headlessui/react";
+import { User, Settings, LogOut } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { navItems } from "@/lib/nav";
 
@@ -193,16 +194,17 @@ export default function DashboardLayout({
               </svg>
             </Menu.Button>
 
-            <Menu.Items className="absolute right-0 z-50 mt-3 w-56 origin-top-right rounded-2xl border bg-white p-2 shadow-xl focus:outline-none"
+            <Menu.Items className="absolute right-0 z-50 mt-3 w-56 origin-top-right rounded-xl border bg-white p-2 shadow-xl focus:outline-none"
               style={{ borderColor: "var(--djoker-border)" }}>
               <Menu.Item>
                 {({ active }) => (
                   <Link
                     href="/dashboard/profile"
-                    className={`block rounded-xl px-3 py-2 text-sm transition ${
+                    className={`flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm transition ${
                       active ? "bg-blue-50 text-blue-600" : "text-gray-800 hover:bg-gray-50"
                     }`}
                   >
+                    <User size={16} strokeWidth={2} />
                     Profile
                   </Link>
                 )}
@@ -212,10 +214,11 @@ export default function DashboardLayout({
                 {({ active }) => (
                   <Link
                     href="/dashboard/settings"
-                    className={`block rounded-xl px-3 py-2 text-sm transition ${
+                    className={`flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm transition ${
                       active ? "bg-blue-50 text-blue-600" : "text-gray-800 hover:bg-gray-50"
                     }`}
                   >
+                    <Settings size={16} strokeWidth={2} />
                     Settings
                   </Link>
                 )}
@@ -228,10 +231,11 @@ export default function DashboardLayout({
                   <button
                     type="button"
                     onClick={handleLogout}
-                    className={`block w-full rounded-xl px-3 py-2 text-left text-sm transition ${
-                      active ? "bg-blue-50 text-blue-600" : "text-gray-800 hover:bg-gray-50"
+                    className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-sm transition ${
+                      active ? "bg-red-50 text-red-600" : "text-red-500 hover:bg-red-50"
                     }`}
                   >
+                    <LogOut size={16} strokeWidth={2} />
                     Logout
                   </button>
                 )}

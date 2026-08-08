@@ -79,11 +79,14 @@ export default function SettingsPage() {
   return (
     <div className="mx-auto max-w-xl space-y-4 md:space-y-6">
       <div>
-        <h1 className="font-display text-xl font-bold text-black md:text-2xl">Settings</h1>
+        <span className="mb-2 inline-flex items-center rounded-full bg-blue-50 border border-blue-100 px-3 py-1 text-xs font-semibold tracking-wide text-blue-700">
+          PREFERENSI
+        </span>
+        <h1 className="font-display text-2xl font-bold text-black">Settings</h1>
         <p className="mt-1 text-sm text-gray-600">Atur preferensi dan konfigurasi sistem.</p>
       </div>
 
-      <div className="rounded-2xl border border-gray-200 bg-white p-4 md:p-6">
+      <div className="rounded-xl border border-gray-200 bg-white p-4 md:p-6" style={{ borderLeft: "1px solid #3b82f6" }}>
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700">Display name</label>
@@ -115,7 +118,7 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-gray-200 bg-white p-4 md:p-6">
+      <div className="rounded-xl border border-gray-200 bg-white p-4 md:p-6" style={{ borderLeft: "1px solid #94a3b8" }}>
         <h2 className="text-base font-semibold text-black md:text-lg">Account</h2>
         <div className="mt-4 space-y-4">
           <div className="flex items-center justify-between">

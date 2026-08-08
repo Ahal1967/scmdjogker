@@ -168,7 +168,7 @@ export default function QcTable({
         />
       ) : (
         <div className="card overflow-x-auto">
-          <h2 className="mb-4 text-base font-semibold text-black md:text-lg">Menunggu Pemeriksaan</h2>
+          <h2 className="mb-4 text-base font-semibold text-black">Menunggu Pemeriksaan</h2>
           <table className="table-djoker w-full">
             <thead>
               <tr>
@@ -201,7 +201,7 @@ export default function QcTable({
 
       {/* Riwayat QC */}
       <div className="card overflow-x-auto">
-        <h2 className="mb-4 text-base font-semibold text-black md:text-lg">Riwayat Pemeriksaan</h2>
+        <h2 className="mb-4 text-base font-semibold text-black">Riwayat Pemeriksaan</h2>
         <table className="table-djoker w-full">
           <thead>
             <tr>
@@ -246,7 +246,7 @@ export default function QcTable({
       {showModal && activeProduction && (
         <div className="fixed inset-0 bg-black/60 flex items-start justify-center z-50 p-4 overflow-y-auto">
           <div className="card w-full max-w-md my-8 max-h-[90vh] overflow-y-auto">
-            <h2 className="font-display font-semibold text-lg mb-1 text-black">
+            <h2 className="font-display font-semibold text-base mb-1 text-black">
               Periksa {activeProduction.no_produksi}
             </h2>
             <p className="text-xs text-gray-500 mb-4">

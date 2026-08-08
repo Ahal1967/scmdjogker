@@ -75,7 +75,7 @@ export default function EditProfilePage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="font-display font-bold text-xl text-black">Edit Profil</h1>
+        <h1 className="font-display font-bold text-2xl text-black">Edit Profil</h1>
         <p className="text-gray-600 text-sm">
           Update data pengguna {formData.id.split("-")[0]}...
         </p>

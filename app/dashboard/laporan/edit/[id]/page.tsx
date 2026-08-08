@@ -86,7 +86,7 @@ export default function EditPesananPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="font-display font-bold text-xl text-black">Edit Pesanan</h1>
+        <h1 className="font-display font-bold text-2xl text-black">Edit Pesanan</h1>
         <p className="text-gray-600 text-sm">Update data pesanan {formData.no_pesanan}.</p>
       </div>
 

@@ -41,7 +41,7 @@ export default function TambahProfilePage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="font-display font-bold text-xl text-black">Tambah Pengguna Baru</h1>
+        <h1 className="font-display font-bold text-2xl text-black">Tambah Pengguna Baru</h1>
         <p className="text-gray-600 text-sm">
           Akun login baru akan langsung dibuat lewat Supabase Auth.
         </p>

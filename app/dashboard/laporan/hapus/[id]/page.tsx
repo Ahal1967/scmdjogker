@@ -62,7 +62,7 @@ export default function HapusPesananPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="font-display font-bold text-xl text-black">Hapus Pesanan</h1>
+        <h1 className="font-display font-bold text-2xl text-black">Hapus Pesanan</h1>
         <p className="text-gray-600 text-sm">Konfirmasi penghapusan pesanan.</p>
       </div>
 

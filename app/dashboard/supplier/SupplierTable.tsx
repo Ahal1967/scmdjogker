@@ -80,7 +80,7 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
   }
 
   return (
-    <div className="card">
+    <div className="card" style={{ borderLeft: "1px solid #3b82f6" }}>
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-5">
         <input
           placeholder="Cari supplier..."
@@ -196,7 +196,7 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
       {showModal && (
         <div className="fixed inset-0 bg-black/60 flex items-start justify-center z-50 p-4 overflow-y-auto">
           <div className="card w-full max-w-md my-8 max-h-[90vh] overflow-y-auto">
-            <h2 className="font-display font-semibold text-lg mb-4">
+            <h2 className="font-display font-semibold text-base text-black mb-4">
               {editing ? "Edit Supplier" : "Tambah Supplier"}
             </h2>
             <form onSubmit={handleSave} className="space-y-3">

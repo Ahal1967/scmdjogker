@@ -54,18 +54,21 @@ export default async function AlurPage() {
   return (
     <div className="space-y-4 md:space-y-6">
       <div>
-        <h1 className="font-display text-xl font-bold text-black md:text-2xl">Alur Supply Chain</h1>
+        <span className="mb-2 inline-flex items-center rounded-full bg-blue-50 border border-blue-100 px-3 py-1 text-xs font-semibold tracking-wide text-blue-700">
+          END-TO-END TRACKING
+        </span>
+        <h1 className="font-display text-2xl font-bold text-black">Alur Supply Chain</h1>
         <p className="mt-1 text-sm text-gray-600">
           Ringkasan tiap tahap dari bahan baku sampai produk diterima pelanggan.
         </p>
       </div>
 
-      <div className="card">
+      <div className="card" style={{ borderLeft: "1px solid #3b82f6" }}>
         <div className="relative">
           {STAGES.map((stage, idx) => (
             <div key={stage.key} className="flex gap-4">
               <div className="flex flex-col items-center">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white font-display font-bold text-sm">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white font-display font-bold text-sm shadow-md ring-4 ring-blue-50">
                   {idx + 1}
                 </div>
                 {idx < STAGES.length - 1 && (
@@ -75,7 +78,7 @@ export default async function AlurPage() {
               <div className="pb-6 flex-1">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
                   <div>
-                    <p className="font-semibold text-black">{stage.label}</p>
+                    <p className="text-base font-semibold text-black">{stage.label}</p>
                     <p className="text-xs text-gray-500">{stage.desc}</p>
                   </div>
                   <div className="text-left sm:text-right">

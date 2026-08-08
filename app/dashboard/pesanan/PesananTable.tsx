@@ -377,7 +377,7 @@ export default function PesananTable() {
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 p-4 overflow-y-auto">
           <div className="card w-full max-w-lg my-8 max-h-[90vh] overflow-y-auto">
-            <h2 className="font-display text-lg font-semibold text-black">
+            <h2 className="font-display text-base font-semibold text-black">
               Pesanan Baru — DJ{String(orderSeq).padStart(5, "0")}
             </h2>
             <form onSubmit={handleSave} className="mt-4 space-y-4">
@@ -501,7 +501,7 @@ export default function PesananTable() {
               <div className="border-t border-gray-200 pt-3">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-gray-600">Total Pesanan</span>
-                  <span className="font-display text-lg font-bold text-black">
+                  <span className="font-display text-xl font-bold text-black">
                     {formatRupiah(total)}
                   </span>
                 </div>
@@ -530,7 +530,7 @@ export default function PesananTable() {
         <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 p-4 overflow-y-auto">
           <div className="card w-full max-w-md my-8 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between">
-              <h2 className="font-display text-lg font-semibold text-black">
+              <h2 className="font-display text-base font-semibold text-black">
                 {detailOrder.no_pesanan}
               </h2>
               <span className={`badge ${STATUS_COLORS[detailOrder.status ?? ""] ?? ""}`}>

@@ -29,9 +29,14 @@ export default function ProfilePage() {
 
   return (
     <div className="mx-auto max-w-xl space-y-4 md:space-y-6">
-      <h1 className="font-display text-xl font-bold text-black md:text-2xl">Profile</h1>
+      <div>
+        <span className="mb-2 inline-flex items-center rounded-full bg-blue-50 border border-blue-100 px-3 py-1 text-xs font-semibold tracking-wide text-blue-700">
+          AKUN SAYA
+        </span>
+        <h1 className="font-display text-2xl font-bold text-black">Profile</h1>
+      </div>
 
-      <div className="rounded-2xl border border-gray-200 bg-white p-4 md:p-6">
+      <div className="rounded-xl border border-gray-200 bg-white p-4 md:p-6" style={{ borderLeft: "1px solid #3b82f6" }}>
         <div className="space-y-4">
           <div>
             <label className="block text-sm text-gray-600">Email</label>

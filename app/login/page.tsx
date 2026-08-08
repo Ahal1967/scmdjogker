@@ -7,9 +7,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
 // Paksa halaman ini selalu di-generate ulang di server tiap request,
-// bukan disimpan sebagai file statis tetap. Ini nyelesain bug "halaman
-// lama nongol lagi" di akarnya (cache Next.js/Vercel di level build,
-// bukan cuma cache browser).
+// bukan disimpan sebagai file statis tetap.
 export const dynamic = "force-dynamic";
 
 export default function LoginPage() {
@@ -38,129 +36,112 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-white p-4 md:p-6">
-      <div className="mx-auto flex min-h-[calc(100vh-2rem)] max-w-7xl overflow-hidden rounded-[32px] border border-blue-200 bg-white shadow-2xl">
-        {/* Left - Form */}
-        <div className="flex w-full flex-col justify-center px-6 py-12 md:w-1/2 md:px-12 lg:px-16">
-          <div className="mb-6 flex items-center gap-3 md:hidden">
-            <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl border border-blue-200 bg-white shadow">
-              <Image
-                src="/images/logodjogker.jpeg"
-                alt="Logo DJOKER"
-                width={48}
-                height={48}
-                className="object-contain p-2"
-                priority
-              />
-            </div>
-            <div>
-              <p className="font-display text-sm font-bold text-black">DJOKER</p>
-              <p className="text-[10px] tracking-widest text-gray-500">SCM SYSTEM</p>
-            </div>
+    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex items-center justify-center px-4 py-10">
+      <div className="w-full max-w-md rounded-xl border border-blue-100 bg-white p-6 shadow-lg md:p-8">
+        {/* Logo, nama, badge, semua nyatu di dalam 1 card */}
+        <div className="mb-6 flex flex-col items-center text-center">
+          <span className="mb-3 inline-flex items-center rounded-full bg-blue-50 border border-blue-100 px-3 py-1 text-xs font-semibold tracking-wide text-black">
+            SUPPLY CHAIN MANAGEMENT
+          </span>
+
+          <div
+            className="mb-3 h-20 w-20 overflow-hidden rounded-full border-2 border-gray-200 shadow-md"
+            style={{ backgroundColor: "#ffffff" }}
+          >
+            <Image
+              src="/images/logodjogker1.jpeg"
+              alt="Logo DJOKER"
+              width={80}
+              height={80}
+              className="h-full w-full object-contain p-1"
+              priority
+            />
           </div>
 
-          <h1 className="mb-2 text-3xl font-bold text-black md:text-4xl font-display">
-            Selamat Datang!
-          </h1>
-          <p className="mb-8 text-sm text-gray-600 md:text-base">
-            Silakan login untuk melanjutkan ke dashboard.
+          <h2 className="font-display text-xl font-bold tracking-[0.1em] text-black">DJOGKER</h2>
+          <p className="mt-1 text-xs italic text-gray-500">
+            &ldquo;Kualitas Terbaik untuk Hasil Sablon Maksimal&rdquo;
           </p>
-
-          {errorMsg && (
-            <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-              {errorMsg}
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700">Email</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="contoh@email.com"
-                className="input-field"
-                required
-              />
-            </div>
-
-            <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700">Password</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="input-field"
-                required
-              />
-            </div>
-
-            <div className="flex items-center justify-between text-sm">
-              <label className="flex items-center gap-2 text-gray-600">
-                <input type="checkbox" className="h-4 w-4 accent-blue-600" />
-                Ingat saya
-              </label>
-
-              <Link href="/auth/forgot-password" className="text-blue-600 hover:text-blue-700 hover:underline">
-                Lupa password?
-              </Link>
-            </div>
-
-            <button type="submit" disabled={loading} className="btn-primary mt-2 w-full">
-              {loading ? "Memproses..." : "Login"}
-            </button>
-          </form>
-
-          <p className="mt-8 text-center text-xs text-gray-500">
-            Belum punya akun? Hubungi Administrator
-          </p>
-
-          <div className="mt-4 flex items-center justify-center gap-4 text-xs">
-            <Link href="/tracking" className="text-blue-600 hover:underline font-medium">
-              Lacak Pesanan →
-            </Link>
-            <span className="text-gray-300">|</span>
-            <Link href="/upload" className="text-blue-600 hover:underline font-medium">
-              Upload Desain →
-            </Link>
-          </div>
         </div>
 
-        {/* Right - Visual */}
-        <div className="relative hidden w-1/2 items-center justify-center overflow-hidden bg-gradient-to-br from-blue-100 via-blue-50 to-white md:flex">
-          <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-blue-200/30 blur-3xl" />
-          <div className="absolute -bottom-20 -left-20 h-64 w-64 rounded-full bg-blue-300/20 blur-3xl" />
+        <div className="mb-6 border-t border-gray-100 pt-6 text-center">
+          <h1 className="text-2xl font-bold text-black font-display">Selamat Datang!</h1>
+          <p className="mt-1 text-sm text-gray-600">
+            Silakan login untuk melanjutkan ke dashboard.
+          </p>
+        </div>
 
-          <div className="relative z-10 flex flex-col items-center gap-8 px-10 text-center">
-            <div className="relative flex h-80 w-80 items-center justify-center overflow-hidden rounded-full border border-blue-200 bg-white shadow-2xl shadow-blue-200/50">
-              <Image
-                src="/images/logodjogker1.jpeg"
-                alt="Logo DJOKER"
-                fill
-                className="object-contain p-8"
-                priority
-              />
-            </div>
-
-            <div>
-              <h2 className="font-display text-3xl font-bold tracking-[0.15em] text-black">
-                DJOGKER
-              </h2>
-              <p className="mt-3 text-sm font-medium italic text-gray-600">
-                &ldquo;Kualitas Terbaik untuk Hasil Sablon Maksimal&rdquo;
-              </p>
-            </div>
-
-            <div className="mt-2 text-sm text-gray-500">
-              <p>Jl. Wates Km 4,5 Gg. Ablar No 5</p>
-              <p>Gamping Kidul RT 03/17 Ambarketawang Sleman</p>
-              <p>Yogyakarta 55294</p>
-            </div>
-
-            <div className="mt-4 h-1 w-24 rounded-full bg-gradient-to-r from-blue-400 to-blue-600" />
+        {errorMsg && (
+          <div className="mb-5 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            {errorMsg}
           </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div>
+            <label className="mb-2 block text-xs font-medium text-gray-700">Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="contoh@email.com"
+              className="input-field"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="mb-2 block text-xs font-medium text-gray-700">Password</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••"
+              className="input-field"
+              required
+            />
+          </div>
+
+          <div className="flex items-center justify-between text-xs">
+            <label className="flex items-center gap-2 text-gray-600">
+              <input type="checkbox" className="h-4 w-4 accent-blue-600" />
+              Ingat saya
+            </label>
+
+            <Link href="/auth/forgot-password" className="text-blue-600 hover:text-blue-700 hover:underline">
+              Lupa password?
+            </Link>
+          </div>
+
+          <button type="submit" disabled={loading} className="btn-primary mt-2 w-full">
+            {loading ? "Memproses..." : "Login"}
+          </button>
+        </form>
+
+        <p className="mt-6 text-center text-xs text-gray-500">
+          Belum punya akun? Hubungi Administrator
+        </p>
+
+        <div className="mt-4 flex items-center justify-center gap-2">
+          <Link
+            href="/tracking"
+            className="inline-flex items-center gap-1.5 rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100 transition-colors"
+          >
+            <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+            Lacak Pesanan
+          </Link>
+          <Link
+            href="/upload"
+            className="inline-flex items-center gap-1.5 rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 hover:bg-blue-100 transition-colors"
+          >
+            <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+            Upload Desain
+          </Link>
+        </div>
+
+        <div className="mt-6 border-t border-gray-100 pt-4 text-center text-[11px] text-gray-400">
+          <p>Jl. Wates Km 4,5 Gg. Ablar No 5</p>
+          <p>Gamping Kidul RT 03/17 Ambarketawang Sleman, Yogyakarta 55294</p>
         </div>
       </div>
     </div>

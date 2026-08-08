@@ -2,6 +2,14 @@
 
 import { useState, useEffect, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
+import {
+  ShoppingCart,
+  Factory,
+  Users,
+  Truck,
+  Wallet,
+  CalendarDays,
+} from "lucide-react";
 
 export default function DashboardPage() {
   const supabase = createClient();
@@ -28,12 +36,12 @@ export default function DashboardPage() {
   const sliderRef = useRef<HTMLDivElement>(null);
 
   const statsCards = [
-    { title: "Total Pesanan", value: stats.totalPesanan, color: "from-blue-50 to-blue-100", textColor: "text-blue-700", valueColor: "text-blue-900", borderColor: "border-blue-200" },
-    { title: "Total Produksi", value: stats.totalProduksi, color: "from-green-50 to-green-100", textColor: "text-green-700", valueColor: "text-green-900", borderColor: "border-green-200" },
-    { title: "Pelanggan", value: stats.totalPelanggan, color: "from-purple-50 to-purple-100", textColor: "text-purple-700", valueColor: "text-purple-900", borderColor: "border-purple-200" },
-    { title: "Supplier", value: stats.totalSupplier, color: "from-orange-50 to-orange-100", textColor: "text-orange-700", valueColor: "text-orange-900", borderColor: "border-orange-200" },
-    { title: "Total Pendapatan", value: `Rp ${stats.totalPendapatan.toLocaleString("id-ID")}`, color: "from-emerald-50 to-emerald-100", textColor: "text-emerald-700", valueColor: "text-emerald-900", borderColor: "border-emerald-200" },
-    { title: "Pesanan Bulan Ini", value: stats.pesananBulanIni, color: "from-cyan-50 to-cyan-100", textColor: "text-cyan-700", valueColor: "text-cyan-900", borderColor: "border-cyan-200" },
+    { title: "Total Pesanan", value: stats.totalPesanan, color: "from-blue-50 to-blue-100", textColor: "text-blue-700", valueColor: "text-blue-900", accent: "#2563eb", icon: ShoppingCart, iconBg: "bg-blue-600" },
+    { title: "Total Produksi", value: stats.totalProduksi, color: "from-green-50 to-green-100", textColor: "text-green-700", valueColor: "text-green-900", accent: "#16a34a", icon: Factory, iconBg: "bg-green-600" },
+    { title: "Pelanggan", value: stats.totalPelanggan, color: "from-purple-50 to-purple-100", textColor: "text-purple-700", valueColor: "text-purple-900", accent: "#9333ea", icon: Users, iconBg: "bg-purple-600" },
+    { title: "Supplier", value: stats.totalSupplier, color: "from-orange-50 to-orange-100", textColor: "text-orange-700", valueColor: "text-orange-900", accent: "#ea580c", icon: Truck, iconBg: "bg-orange-600" },
+    { title: "Total Pendapatan", value: `Rp ${stats.totalPendapatan.toLocaleString("id-ID")}`, color: "from-emerald-50 to-emerald-100", textColor: "text-emerald-700", valueColor: "text-emerald-900", accent: "#059669", icon: Wallet, iconBg: "bg-emerald-600" },
+    { title: "Pesanan Bulan Ini", value: stats.pesananBulanIni, color: "from-cyan-50 to-cyan-100", textColor: "text-cyan-700", valueColor: "text-cyan-900", accent: "#0891b2", icon: CalendarDays, iconBg: "bg-cyan-600" },
   ];
 
   useEffect(() => {
@@ -141,7 +149,10 @@ export default function DashboardPage() {
   return (
     <div className="space-y-4 md:space-y-6">
       <div>
-        <h1 className="font-display text-xl font-bold text-black md:text-2xl">Dashboard</h1>
+        <span className="mb-2 inline-flex items-center rounded-full bg-blue-50 border border-blue-100 px-3 py-1 text-xs font-semibold tracking-wide text-blue-700">
+          RINGKASAN HARI INI
+        </span>
+        <h1 className="font-display text-2xl font-bold text-black">Dashboard</h1>
         <p className="mt-1 text-sm text-gray-600">Ringkasan aktivitas SCM Djogker.</p>
       </div>
 
@@ -154,12 +165,22 @@ export default function DashboardPage() {
           </button>
 
           <div ref={sliderRef} className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth gap-3 px-8" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-            {statsCards.map((card, idx) => (
-              <div key={idx} className={`flex-shrink-0 w-[90%] card bg-gradient-to-br ${card.color} border ${card.borderColor} snap-center`}>
-                <p className={`text-xs font-medium uppercase tracking-wide ${card.textColor}`}>{card.title}</p>
-                <p className={`mt-1 font-display text-3xl font-bold ${card.valueColor}`}>{card.value}</p>
-              </div>
-            ))}
+            {statsCards.map((card, idx) => {
+              const Icon = card.icon;
+              return (
+                <div
+                  key={idx}
+                  className={`flex-shrink-0 w-[90%] card bg-gradient-to-br ${card.color} snap-center`}
+                  style={{ borderLeft: `1px solid ${card.accent}` }}
+                >
+                  <div className={`mb-3 flex h-9 w-9 items-center justify-center rounded-lg ${card.iconBg}`}>
+                    <Icon className="text-white" size={18} />
+                  </div>
+                  <p className={`text-xs font-medium uppercase tracking-wide ${card.textColor}`}>{card.title}</p>
+                  <p className={`mt-1 font-display text-3xl font-bold ${card.valueColor}`}>{card.value}</p>
+                </div>
+              );
+            })}
           </div>
 
           <button onClick={nextSlide} disabled={currentSlide === statsCards.length - 1} className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 rounded-full p-2 shadow disabled:opacity-30">
@@ -177,16 +198,26 @@ export default function DashboardPage() {
       </div>
 
       <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {statsCards.map((card, idx) => (
-          <div key={idx} className={`card bg-gradient-to-br ${card.color} border ${card.borderColor}`}>
-            <p className={`text-xs font-medium uppercase tracking-wide ${card.textColor}`}>{card.title}</p>
-            <p className={`mt-1 font-display text-3xl font-bold ${card.valueColor}`}>{card.value}</p>
-          </div>
-        ))}
+        {statsCards.map((card, idx) => {
+          const Icon = card.icon;
+          return (
+            <div
+              key={idx}
+              className={`card bg-gradient-to-br ${card.color}`}
+              style={{ borderLeft: `1px solid ${card.accent}` }}
+            >
+              <div className={`mb-3 flex h-9 w-9 items-center justify-center rounded-lg ${card.iconBg}`}>
+                <Icon className="text-white" size={18} />
+              </div>
+              <p className={`text-xs font-medium uppercase tracking-wide ${card.textColor}`}>{card.title}</p>
+              <p className={`mt-1 font-display text-3xl font-bold ${card.valueColor}`}>{card.value}</p>
+            </div>
+          );
+        })}
       </div>
 
-      <div className="card">
-        <h2 className="text-base font-semibold text-black md:text-lg mb-4">Status Pesanan</h2>
+      <div className="card" style={{ borderLeft: "1px solid #2563eb" }}>
+        <h2 className="text-base font-semibold text-black mb-4">Status Pesanan</h2>
         <div className="space-y-3">
           {statusOrders.map((s) => (
             <div key={s.status}>
@@ -212,8 +243,8 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="card">
-        <h2 className="text-base font-semibold text-black md:text-lg mb-4">Progress Produksi</h2>
+      <div className="card" style={{ borderLeft: "1px solid #16a34a" }}>
+        <h2 className="text-base font-semibold text-black mb-4">Progress Produksi</h2>
         <div className="flex items-center justify-center mb-4">
           <div className="relative w-32 h-32 md:w-40 md:h-40">
             <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
@@ -239,8 +270,8 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="card">
-        <h2 className="text-base font-semibold text-black md:text-lg mb-4">
+      <div className="card" style={{ borderLeft: "1px solid #059669" }}>
+        <h2 className="text-base font-semibold text-black mb-4">
           Tren Pendapatan (6 Bulan Terakhir)
         </h2>
         <div className="space-y-3">
@@ -269,8 +300,8 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="card">
-        <h2 className="text-base font-semibold text-black md:text-lg">Selamat Datang</h2>
+      <div className="card" style={{ borderLeft: "1px solid #94a3b8" }}>
+        <h2 className="text-base font-semibold text-black">Selamat Datang</h2>
         <p className="mt-2 text-sm text-gray-600">
           Gunakan menu di sidebar untuk mengelola pesanan, produksi, dan laporan.
         </p>
