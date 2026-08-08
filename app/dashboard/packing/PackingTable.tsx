@@ -32,8 +32,8 @@ function EmptyState() {
             <line x1="12" y1="22.08" x2="12" y2="12" />
           </svg>
         </div>
-        <p className="text-base font-medium text-black">Belum ada entri packing</p>
-        <p className="mt-1 text-sm text-gray-600">Muncul otomatis saat QC lolos.</p>
+        <p className="text-base font-medium text-black dark:text-white">Belum ada entri packing</p>
+        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">Muncul otomatis saat QC lolos.</p>
       </div>
     </div>
   );
@@ -115,23 +115,23 @@ export default function PackingTable({ initialPacking }: { initialPacking: Packi
         <tbody>
           {filtered.map((p) => (
             <tr key={p.id}>
-              <td className="font-semibold text-black">{p.no_packing}</td>
-              <td className="text-sm text-gray-700">{p.orders?.no_pesanan ?? "-"}</td>
-              <td className="text-sm text-gray-700">{p.orders?.customers?.nama ?? "-"}</td>
-              <td className="text-sm text-gray-600">
+              <td className="font-semibold text-black dark:text-white">{p.no_packing}</td>
+              <td className="text-sm text-gray-700 dark:text-gray-300">{p.orders?.no_pesanan ?? "-"}</td>
+              <td className="text-sm text-gray-700 dark:text-gray-300">{p.orders?.customers?.nama ?? "-"}</td>
+              <td className="text-sm text-gray-600 dark:text-gray-400">
                 {new Date(p.tanggal).toLocaleDateString("id-ID", {
                   day: "2-digit",
                   month: "short",
                   year: "numeric",
                 })}
               </td>
-              <td className="text-sm text-gray-700">{p.jumlah} pcs</td>
+              <td className="text-sm text-gray-700 dark:text-gray-300">{p.jumlah} pcs</td>
               <td>
                 <span
                   className={`badge ${
                     p.status === "Siap Kirim"
-                      ? "bg-green-100 text-green-700"
-                      : "bg-yellow-100 text-yellow-700"
+                      ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300"
+                      : "bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300"
                   }`}
                 >
                   {p.status}
@@ -141,7 +141,7 @@ export default function PackingTable({ initialPacking }: { initialPacking: Packi
                 {p.status === "Diproses" && (
                   <button
                     onClick={() => markReady(p)}
-                    className="text-blue-600 hover:text-blue-700 hover:underline text-xs font-medium"
+                    className="text-blue-600 hover:text-blue-700 dark:text-blue-300 hover:underline text-xs font-medium"
                   >
                     Tandai Siap Kirim
                   </button>
@@ -152,7 +152,7 @@ export default function PackingTable({ initialPacking }: { initialPacking: Packi
           {filtered.length === 0 && (
             <tr>
               <td colSpan={7}>
-                <div className="flex min-h-[100px] items-center justify-center text-gray-500">
+                <div className="flex min-h-[100px] items-center justify-center text-gray-500 dark:text-gray-400">
                   Tidak ditemukan.
                 </div>
               </td>

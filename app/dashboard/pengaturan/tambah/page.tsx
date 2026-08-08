@@ -41,8 +41,8 @@ export default function TambahProfilePage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="font-display font-bold text-2xl text-black">Tambah Pengguna Baru</h1>
-        <p className="text-gray-600 text-sm">
+        <h1 className="font-display font-bold text-2xl text-black dark:text-white">Tambah Pengguna Baru</h1>
+        <p className="text-gray-600 dark:text-gray-400 text-sm">
           Akun login baru akan langsung dibuat lewat Supabase Auth.
         </p>
       </div>
@@ -56,7 +56,7 @@ export default function TambahProfilePage() {
           )}
 
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-1.5 block">Email</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">Email</label>
             <input
               type="email"
               value={formData.email}
@@ -68,7 +68,7 @@ export default function TambahProfilePage() {
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-1.5 block">Password</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">Password</label>
             <input
               type="password"
               value={formData.password}
@@ -80,7 +80,7 @@ export default function TambahProfilePage() {
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-1.5 block">Nama Lengkap</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">Nama Lengkap</label>
             <input
               type="text"
               value={formData.full_name}
@@ -92,7 +92,7 @@ export default function TambahProfilePage() {
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-1.5 block">Role</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">Role</label>
             <select
               value={formData.role}
               onChange={(e) => setFormData({ ...formData, role: e.target.value })}
@@ -105,7 +105,7 @@ export default function TambahProfilePage() {
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-1.5 block">Avatar URL (Opsional)</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">Avatar URL (Opsional)</label>
             <input
               type="url"
               value={formData.avatar_url}
@@ -113,7 +113,7 @@ export default function TambahProfilePage() {
               className="input-field"
               placeholder="https://example.com/avatar.jpg"
             />
-            <p className="text-xs text-gray-500 mt-1">Kosongkan jika tidak ada avatar.</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Kosongkan jika tidak ada avatar.</p>
           </div>
 
           <div className="flex gap-3 pt-4">

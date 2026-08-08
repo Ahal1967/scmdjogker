@@ -141,7 +141,7 @@ export default function DashboardPage() {
   }
 
   if (loading) {
-    return <div className="text-center text-gray-500 py-8">Memuat dashboard...</div>;
+    return <div className="text-center text-gray-500 dark:text-gray-400 py-8">Memuat dashboard...</div>;
   }
 
   const maxCount = Math.max(...statusOrders.map(s => s.count), 1);
@@ -152,13 +152,13 @@ export default function DashboardPage() {
         <span className="mb-2 inline-flex items-center rounded-full bg-blue-50 border border-blue-100 px-3 py-1 text-xs font-semibold tracking-wide text-blue-700">
           RINGKASAN HARI INI
         </span>
-        <h1 className="font-display text-2xl font-bold text-black">Dashboard</h1>
-        <p className="mt-1 text-sm text-gray-600">Ringkasan aktivitas SCM Djogker.</p>
+        <h1 className="font-display text-2xl font-bold text-black dark:text-white">Dashboard</h1>
+        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">Ringkasan aktivitas SCM Djogker.</p>
       </div>
 
       <div className="md:hidden">
         <div className="relative">
-          <button onClick={prevSlide} disabled={currentSlide === 0} className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 rounded-full p-2 shadow disabled:opacity-30">
+          <button onClick={prevSlide} disabled={currentSlide === 0} className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white dark:bg-gray-800/80 rounded-full p-2 shadow disabled:opacity-30">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
@@ -183,7 +183,7 @@ export default function DashboardPage() {
             })}
           </div>
 
-          <button onClick={nextSlide} disabled={currentSlide === statsCards.length - 1} className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 rounded-full p-2 shadow disabled:opacity-30">
+          <button onClick={nextSlide} disabled={currentSlide === statsCards.length - 1} className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white dark:bg-gray-800/80 rounded-full p-2 shadow disabled:opacity-30">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
@@ -217,13 +217,13 @@ export default function DashboardPage() {
       </div>
 
       <div className="card" style={{ borderLeft: "1px solid #2563eb" }}>
-        <h2 className="text-base font-semibold text-black mb-4">Status Pesanan</h2>
+        <h2 className="text-base font-semibold text-black dark:text-white mb-4">Status Pesanan</h2>
         <div className="space-y-3">
           {statusOrders.map((s) => (
             <div key={s.status}>
               <div className="flex items-center justify-between text-sm mb-1">
-                <span className="text-gray-700 font-medium">{s.status}</span>
-                <span className="text-gray-900 font-bold">{s.count}</span>
+                <span className="text-gray-700 dark:text-gray-300 font-medium">{s.status}</span>
+                <span className="text-gray-900 dark:text-gray-100 font-bold">{s.count}</span>
               </div>
               <div className="h-4 bg-gray-200 rounded-full overflow-hidden">
                 <div
@@ -244,7 +244,7 @@ export default function DashboardPage() {
       </div>
 
       <div className="card" style={{ borderLeft: "1px solid #16a34a" }}>
-        <h2 className="text-base font-semibold text-black mb-4">Progress Produksi</h2>
+        <h2 className="text-base font-semibold text-black dark:text-white mb-4">Progress Produksi</h2>
         <div className="flex items-center justify-center mb-4">
           <div className="relative w-32 h-32 md:w-40 md:h-40">
             <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
@@ -257,21 +257,21 @@ export default function DashboardPage() {
               />
             </svg>
             <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <p className="text-2xl md:text-3xl font-bold text-black">
+              <p className="text-2xl md:text-3xl font-bold text-black dark:text-white">
                 {stats.totalProduksi > 0 ? Math.round((stats.produksiSelesai / stats.totalProduksi) * 100) : 0}%
               </p>
-              <p className="text-xs text-gray-600">Selesai</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400">Selesai</p>
             </div>
           </div>
         </div>
         <div className="flex items-center justify-between text-sm">
-          <span className="text-gray-600">Produksi Selesai</span>
-          <span className="font-medium text-black">{stats.produksiSelesai} / {stats.totalProduksi}</span>
+          <span className="text-gray-600 dark:text-gray-400">Produksi Selesai</span>
+          <span className="font-medium text-black dark:text-white">{stats.produksiSelesai} / {stats.totalProduksi}</span>
         </div>
       </div>
 
       <div className="card" style={{ borderLeft: "1px solid #059669" }}>
-        <h2 className="text-base font-semibold text-black mb-4">
+        <h2 className="text-base font-semibold text-black dark:text-white mb-4">
           Tren Pendapatan (6 Bulan Terakhir)
         </h2>
         <div className="space-y-3">
@@ -280,8 +280,8 @@ export default function DashboardPage() {
             return (
               <div key={m.bulan}>
                 <div className="flex items-center justify-between text-sm mb-1">
-                  <span className="text-gray-700 font-medium">{m.bulan}</span>
-                  <span className="text-gray-900 font-bold">
+                  <span className="text-gray-700 dark:text-gray-300 font-medium">{m.bulan}</span>
+                  <span className="text-gray-900 dark:text-gray-100 font-bold">
                     Rp {m.pendapatan.toLocaleString("id-ID")}
                   </span>
                 </div>
@@ -295,14 +295,14 @@ export default function DashboardPage() {
             );
           })}
           {monthlyRevenue.every((m) => m.pendapatan === 0) && (
-            <p className="text-sm text-gray-500">Belum ada data pendapatan 6 bulan terakhir.</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Belum ada data pendapatan 6 bulan terakhir.</p>
           )}
         </div>
       </div>
 
       <div className="card" style={{ borderLeft: "1px solid #94a3b8" }}>
-        <h2 className="text-base font-semibold text-black">Selamat Datang</h2>
-        <p className="mt-2 text-sm text-gray-600">
+        <h2 className="text-base font-semibold text-black dark:text-white">Selamat Datang</h2>
+        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
           Gunakan menu di sidebar untuk mengelola pesanan, produksi, dan laporan.
         </p>
       </div>

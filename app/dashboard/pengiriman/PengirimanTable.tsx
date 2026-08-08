@@ -17,11 +17,11 @@ type Shipment = {
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  Diproses: "bg-yellow-100 text-yellow-700",
-  "Dalam Proses": "bg-yellow-100 text-yellow-700",
-  Dikirim: "bg-blue-100 text-blue-700",
-  Terkirim: "bg-green-100 text-green-700",
-  Diterima: "bg-green-100 text-green-700",
+  Diproses: "bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300",
+  "Dalam Proses": "bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300",
+  Dikirim: "bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300",
+  Terkirim: "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300",
+  Diterima: "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300",
 };
 
 function EmptyState() {
@@ -44,8 +44,8 @@ function EmptyState() {
             <circle cx="18.5" cy="18.5" r="2.5" />
           </svg>
         </div>
-        <p className="text-base font-medium text-black">Belum ada pengiriman</p>
-        <p className="mt-1 text-sm text-gray-600">
+        <p className="text-base font-medium text-black dark:text-white">Belum ada pengiriman</p>
+        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
           Entri muncul otomatis saat packing ditandai siap kirim.
         </p>
       </div>
@@ -156,13 +156,13 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
         <tbody>
           {shipments.map((s) => (
             <tr key={s.id}>
-              <td className="font-semibold text-black">{s.orders?.no_pesanan ?? "-"}</td>
-              <td className="text-sm text-gray-700">{s.orders?.customers?.nama ?? "-"}</td>
-              <td className="text-sm text-gray-600 max-w-xs truncate">
+              <td className="font-semibold text-black dark:text-white">{s.orders?.no_pesanan ?? "-"}</td>
+              <td className="text-sm text-gray-700 dark:text-gray-300">{s.orders?.customers?.nama ?? "-"}</td>
+              <td className="text-sm text-gray-600 dark:text-gray-400 max-w-xs truncate">
                 {s.orders?.alamat_pengiriman ?? "-"}
               </td>
-              <td className="text-sm text-gray-700">{s.kurir || "-"}</td>
-              <td className="text-sm text-gray-700">{s.no_resi || "-"}</td>
+              <td className="text-sm text-gray-700 dark:text-gray-300">{s.kurir || "-"}</td>
+              <td className="text-sm text-gray-700 dark:text-gray-300">{s.no_resi || "-"}</td>
               <td>
                 <span className={`badge ${STATUS_COLORS[s.status] ?? ""}`}>{s.status}</span>
               </td>
@@ -170,7 +170,7 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
                 {s.status === "Diproses" && (
                   <button
                     onClick={() => openEdit(s)}
-                    className="text-blue-600 hover:text-blue-700 hover:underline text-xs font-medium"
+                    className="text-blue-600 hover:text-blue-700 dark:text-blue-300 hover:underline text-xs font-medium"
                   >
                     Isi Kurir & Resi
                   </button>
@@ -178,7 +178,7 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
                 {s.status === "Dikirim" && (
                   <button
                     onClick={() => markTerkirim(s)}
-                    className="text-blue-600 hover:text-blue-700 hover:underline text-xs font-medium"
+                    className="text-blue-600 hover:text-blue-700 dark:text-blue-300 hover:underline text-xs font-medium"
                   >
                     Tandai Terkirim
                   </button>
@@ -192,13 +192,13 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
       {showModal && activeShipment && (
         <div className="fixed inset-0 bg-black/60 flex items-start justify-center z-50 p-4 overflow-y-auto">
           <div className="card w-full max-w-md my-8 max-h-[90vh] overflow-y-auto">
-            <h2 className="font-display font-semibold text-base mb-1 text-black">
+            <h2 className="font-display font-semibold text-base mb-1 text-black dark:text-white">
               Update Pengiriman {activeShipment.orders?.no_pesanan}
             </h2>
-            <p className="text-xs text-gray-500 mb-4">{activeShipment.orders?.customers?.nama}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">{activeShipment.orders?.customers?.nama}</p>
             <form onSubmit={handleSubmit} className="space-y-3">
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-1.5 block">Nama Kurir</label>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">Nama Kurir</label>
                 <input
                   value={kurir}
                   onChange={(e) => setKurir(e.target.value)}
@@ -208,7 +208,7 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-1.5 block">No. Resi</label>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">No. Resi</label>
                 <input
                   value={noResi}
                   onChange={(e) => setNoResi(e.target.value)}
@@ -217,7 +217,7 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
                   required
                 />
               </div>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-gray-500 dark:text-gray-400">
                 Status akan berubah menjadi &quot;Dikirim&quot; setelah data disimpan.
               </p>
               <div className="flex gap-3 pt-2">

@@ -285,7 +285,7 @@ export default function PesananTable() {
   }
 
   if (loading) {
-    return <div className="py-8 text-center text-gray-500">Memuat data pesanan...</div>;
+    return <div className="py-8 text-center text-gray-500 dark:text-gray-400">Memuat data pesanan...</div>;
   }
 
   return (
@@ -317,9 +317,9 @@ export default function PesananTable() {
           <tbody>
             {filtered.map((o) => (
               <tr key={o.id}>
-                <td className="font-semibold text-black">{o.no_pesanan}</td>
-                <td className="text-sm text-gray-800">{o.customers?.nama ?? "-"}</td>
-                <td className="text-sm text-gray-600">
+                <td className="font-semibold text-black dark:text-white">{o.no_pesanan}</td>
+                <td className="text-sm text-gray-800 dark:text-gray-200">{o.customers?.nama ?? "-"}</td>
+                <td className="text-sm text-gray-600 dark:text-gray-400">
                   {o.tanggal
                     ? new Date(o.tanggal).toLocaleDateString("id-ID", {
                         day: "2-digit",
@@ -328,7 +328,7 @@ export default function PesananTable() {
                       })
                     : "-"}
                 </td>
-                <td className="text-sm font-medium text-black">{formatRupiah(Number(o.total) || 0)}</td>
+                <td className="text-sm font-medium text-black dark:text-white">{formatRupiah(Number(o.total) || 0)}</td>
                 <td>
                   <select
                     value={o.status ?? "Pesanan"}
@@ -346,13 +346,13 @@ export default function PesananTable() {
                   <div className="flex justify-end gap-3 text-xs">
                     <button
                       onClick={() => setDetailOrder(o)}
-                      className="text-blue-600 hover:text-blue-700 hover:underline"
+                      className="text-blue-600 hover:text-blue-700 dark:text-blue-300 hover:underline"
                     >
                       Detail
                     </button>
                     <button
                       onClick={() => handleDelete(o.id)}
-                      className="text-red-600 hover:text-red-700 hover:underline"
+                      className="text-red-600 hover:text-red-700 dark:text-red-300 hover:underline"
                     >
                       Hapus
                     </button>
@@ -364,7 +364,7 @@ export default function PesananTable() {
             {filtered.length === 0 && (
               <tr>
                 <td colSpan={6} className="p-0">
-                  <div className="flex min-h-[120px] w-full items-center justify-center text-center text-gray-500">
+                  <div className="flex min-h-[120px] w-full items-center justify-center text-center text-gray-500 dark:text-gray-400">
                     Belum ada pesanan.
                   </div>
                 </td>
@@ -377,13 +377,13 @@ export default function PesananTable() {
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 p-4 overflow-y-auto">
           <div className="card w-full max-w-lg my-8 max-h-[90vh] overflow-y-auto">
-            <h2 className="font-display text-base font-semibold text-black">
+            <h2 className="font-display text-base font-semibold text-black dark:text-white">
               Pesanan Baru — DJ{String(orderSeq).padStart(5, "0")}
             </h2>
             <form onSubmit={handleSave} className="mt-4 space-y-4">
               <div>
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-medium text-gray-600">Pelanggan</label>
+                  <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Pelanggan</label>
                   <button
                     type="button"
                     onClick={() => setIsNewCustomer((v) => !v)}
@@ -432,7 +432,7 @@ export default function PesananTable() {
               </div>
 
               <div>
-                <label className="text-xs font-medium text-gray-600">Produk Pesanan</label>
+                <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Produk Pesanan</label>
                 <div className="mt-2 space-y-2">
                   {items.map((it, idx) => (
                     <div key={idx} className="flex items-start gap-2">
@@ -462,7 +462,7 @@ export default function PesananTable() {
                         <button
                           type="button"
                           onClick={() => removeItemRow(idx)}
-                          className="px-2 py-2.5 text-xs text-red-600 hover:text-red-700"
+                          className="px-2 py-2.5 text-xs text-red-600 hover:text-red-700 dark:text-red-300"
                         >
                           ✕
                         </button>
@@ -488,7 +488,7 @@ export default function PesananTable() {
               />
 
               <div>
-                <label className="text-xs font-medium text-gray-600">DP (Uang Muka)</label>
+                <label className="text-xs font-medium text-gray-600 dark:text-gray-400">DP (Uang Muka)</label>
                 <input
                   type="number"
                   min={0}
@@ -498,16 +498,16 @@ export default function PesananTable() {
                 />
               </div>
 
-              <div className="border-t border-gray-200 pt-3">
+              <div className="border-t border-gray-200 dark:border-gray-700 pt-3">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600">Total Pesanan</span>
-                  <span className="font-display text-xl font-bold text-black">
+                  <span className="text-gray-600 dark:text-gray-400">Total Pesanan</span>
+                  <span className="font-display text-xl font-bold text-black dark:text-white">
                     {formatRupiah(total)}
                   </span>
                 </div>
                 <div className="mt-1 flex items-center justify-between text-sm">
-                  <span className="text-gray-600">Sisa Pembayaran</span>
-                  <span className="font-medium text-gray-800">
+                  <span className="text-gray-600 dark:text-gray-400">Sisa Pembayaran</span>
+                  <span className="font-medium text-gray-800 dark:text-gray-200">
                     {formatRupiah(total - dp)}
                   </span>
                 </div>
@@ -530,7 +530,7 @@ export default function PesananTable() {
         <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 p-4 overflow-y-auto">
           <div className="card w-full max-w-md my-8 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between">
-              <h2 className="font-display text-base font-semibold text-black">
+              <h2 className="font-display text-base font-semibold text-black dark:text-white">
                 {detailOrder.no_pesanan}
               </h2>
               <span className={`badge ${STATUS_COLORS[detailOrder.status ?? ""] ?? ""}`}>
@@ -538,39 +538,39 @@ export default function PesananTable() {
               </span>
             </div>
 
-            <p className="mt-3 text-sm font-medium text-gray-600">Pelanggan</p>
-            <p className="text-sm text-gray-800">{detailOrder.customers?.nama ?? "-"}</p>
+            <p className="mt-3 text-sm font-medium text-gray-600 dark:text-gray-400">Pelanggan</p>
+            <p className="text-sm text-gray-800 dark:text-gray-200">{detailOrder.customers?.nama ?? "-"}</p>
 
-            <p className="mt-4 text-sm font-medium text-gray-600">Item Pesanan</p>
+            <p className="mt-4 text-sm font-medium text-gray-600 dark:text-gray-400">Item Pesanan</p>
             <div className="mt-2 space-y-1.5">
               {(detailOrder.order_items ?? []).map((it, i) => (
                 <div key={i} className="flex justify-between text-sm">
-                  <span className="text-gray-800">
+                  <span className="text-gray-800 dark:text-gray-200">
                     {it.nama_produk} × {it.jumlah}
                   </span>
-                  <span className="font-medium text-gray-900">
+                  <span className="font-medium text-gray-900 dark:text-gray-100">
                     {formatRupiah(it.jumlah * it.harga)}
                   </span>
                 </div>
               ))}
             </div>
 
-            <div className="mt-4 space-y-1 border-t border-gray-200 pt-3 text-sm">
+            <div className="mt-4 space-y-1 border-t border-gray-200 dark:border-gray-700 pt-3 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-600">Total</span>
-                <span className="font-medium text-black">
+                <span className="text-gray-600 dark:text-gray-400">Total</span>
+                <span className="font-medium text-black dark:text-white">
                   {formatRupiah(Number(detailOrder.total) || 0)}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">DP</span>
-                <span className="text-gray-800">
+                <span className="text-gray-600 dark:text-gray-400">DP</span>
+                <span className="text-gray-800 dark:text-gray-200">
                   {formatRupiah(Number(detailOrder.dp) || 0)}
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">Sisa Pembayaran</span>
-                <span className="text-gray-800">
+                <span className="text-gray-600 dark:text-gray-400">Sisa Pembayaran</span>
+                <span className="text-gray-800 dark:text-gray-200">
                   {formatRupiah(Number(detailOrder.sisa_pembayaran) || 0)}
                 </span>
               </div>

@@ -23,22 +23,22 @@ export default async function GudangPage() {
     <div className="space-y-4 md:space-y-6">
       <div>
         <span className="mb-2 inline-flex items-center rounded-full bg-blue-50 border border-blue-100 px-3 py-1 text-xs font-semibold tracking-wide text-blue-700">INVENTORI</span>
-        <h1 className="font-display text-2xl font-bold text-black">Gudang</h1>
-        <p className="mt-1 text-sm text-gray-600">Kelola stok bahan baku produksi.</p>
+        <h1 className="font-display text-2xl font-bold text-black dark:text-white">Gudang</h1>
+        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">Kelola stok bahan baku produksi.</p>
       </div>
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3 md:gap-4">
         <div className="card">
-          <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Total Jenis Bahan</p>
-          <p className="mt-1 font-display text-3xl font-bold text-black">{totalJenisBahan}</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Total Jenis Bahan</p>
+          <p className="mt-1 font-display text-3xl font-bold text-black dark:text-white">{totalJenisBahan}</p>
         </div>
         <div className="card">
-          <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Total Stok</p>
-          <p className="mt-1 font-display text-3xl font-bold text-black">{totalStok}</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Total Stok</p>
+          <p className="mt-1 font-display text-3xl font-bold text-black dark:text-white">{totalStok}</p>
         </div>
         <div className="card">
-          <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Stok Terendah</p>
-          <p className="mt-1 font-display text-3xl font-bold text-black">{stokTerendah}</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Stok Terendah</p>
+          <p className="mt-1 font-display text-3xl font-bold text-black dark:text-white">{stokTerendah}</p>
         </div>
       </div>
 

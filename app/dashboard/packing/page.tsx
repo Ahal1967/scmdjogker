@@ -28,8 +28,8 @@ export default async function PackingPage() {
     <div className="space-y-4 md:space-y-6">
       <div>
         <span className="mb-2 inline-flex items-center rounded-full bg-blue-50 border border-blue-100 px-3 py-1 text-xs font-semibold tracking-wide text-blue-700">LOGISTIK</span>
-        <h1 className="font-display text-2xl font-bold text-black">Packing</h1>
-        <p className="mt-1 text-sm text-gray-600">
+        <h1 className="font-display text-2xl font-bold text-black dark:text-white">Packing</h1>
+        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
           Packing – siapkan pesanan untuk dikirim ke pelanggan.
         </p>
       </div>

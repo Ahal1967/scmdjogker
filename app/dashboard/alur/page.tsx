@@ -57,8 +57,8 @@ export default async function AlurPage() {
         <span className="mb-2 inline-flex items-center rounded-full bg-blue-50 border border-blue-100 px-3 py-1 text-xs font-semibold tracking-wide text-blue-700">
           END-TO-END TRACKING
         </span>
-        <h1 className="font-display text-2xl font-bold text-black">Alur Supply Chain</h1>
-        <p className="mt-1 text-sm text-gray-600">
+        <h1 className="font-display text-2xl font-bold text-black dark:text-white">Alur Supply Chain</h1>
+        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
           Ringkasan tiap tahap dari bahan baku sampai produk diterima pelanggan.
         </p>
       </div>
@@ -78,14 +78,14 @@ export default async function AlurPage() {
               <div className="pb-6 flex-1">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
                   <div>
-                    <p className="text-base font-semibold text-black">{stage.label}</p>
-                    <p className="text-xs text-gray-500">{stage.desc}</p>
+                    <p className="text-base font-semibold text-black dark:text-white">{stage.label}</p>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">{stage.desc}</p>
                   </div>
                   <div className="text-left sm:text-right">
                     <p className="font-display text-xl font-bold text-blue-600">
                       {VALUES[stage.key].value}
                     </p>
-                    <p className="text-[11px] text-gray-500">{VALUES[stage.key].hint}</p>
+                    <p className="text-[11px] text-gray-500 dark:text-gray-400">{VALUES[stage.key].hint}</p>
                   </div>
                 </div>
               </div>

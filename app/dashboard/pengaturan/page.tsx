@@ -20,36 +20,36 @@ export default async function PengaturanPage() {
   const ROLE_COLORS: Record<string, string> = {
     admin: "text-blue-600",
     staff: "text-blue-600",
-    user: "text-gray-600",
+    user: "text-gray-600 dark:text-gray-400",
   };
 
   function formatRoleBadge(role: string) {
     const base = "badge";
-    const color = ROLE_COLORS[role] ?? "text-gray-600";
+    const color = ROLE_COLORS[role] ?? "text-gray-600 dark:text-gray-400";
     return `${base} ${color}`;
   }
 
   return (
     <div className="space-y-4 md:space-y-6">
       <div>
-        <span className="mb-2 inline-flex items-center rounded-full bg-blue-50 border border-blue-100 px-3 py-1 text-xs font-semibold tracking-wide text-blue-700">MANAJEMEN AKUN</span>
-        <h1 className="font-display text-2xl font-bold text-black">Pengaturan</h1>
-        <p className="mt-1 text-sm text-gray-600">
+        <span className="mb-2 inline-flex items-center rounded-full bg-blue-50 border border-blue-100 px-3 py-1 text-xs font-semibold tracking-wide text-blue-700 dark:text-blue-300">MANAJEMEN AKUN</span>
+        <h1 className="font-display text-2xl font-bold text-black dark:text-white">Pengaturan</h1>
+        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
           Manajemen profil pengguna dan role akses.
         </p>
       </div>
 
       <div className="card">
-        <h2 className="mb-3 text-base font-semibold text-black md:text-lg">Profil Anda</h2>
+        <h2 className="mb-3 text-base font-semibold text-black dark:text-white md:text-lg">Profil Anda</h2>
         <div className="flex items-center gap-4">
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-blue-600 text-white font-bold">
             {profiles?.[0]?.full_name?.[0]?.toUpperCase() || "A"}
           </div>
           <div>
-            <p className="font-medium text-black">
+            <p className="font-medium text-black dark:text-white">
               {profiles?.[0]?.full_name || "Admin"}
             </p>
-            <p className="text-xs text-gray-600">
+            <p className="text-xs text-gray-600 dark:text-gray-400">
               Role:{" "}
               <span className={formatRoleBadge(profiles?.[0]?.role || "admin")}>
                 {profiles?.[0]?.role || "admin"}
@@ -61,7 +61,7 @@ export default async function PengaturanPage() {
 
       <div className="card overflow-x-auto">
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-base font-semibold text-black md:text-lg">Daftar Pengguna</h2>
+          <h2 className="text-base font-semibold text-black dark:text-white md:text-lg">Daftar Pengguna</h2>
           <Link href="/dashboard/pengaturan/tambah" className="btn-primary text-sm">
             + Tambah Pengguna
           </Link>
@@ -81,27 +81,27 @@ export default async function PengaturanPage() {
             <tbody>
               {profiles?.map((profile: Profile) => (
                 <tr key={profile.id}>
-                  <td className="font-mono text-xs text-gray-500">
+                  <td className="font-mono text-xs text-gray-500 dark:text-gray-400">
                     {profile.id.split("-")[0]}...
                   </td>
-                  <td className="font-medium text-black">{profile.full_name || "-"}</td>
+                  <td className="font-medium text-black dark:text-white">{profile.full_name || "-"}</td>
                   <td>
                     <span className={formatRoleBadge(profile.role)}>{profile.role}</span>
                   </td>
-                  <td className="text-sm text-gray-600">
+                  <td className="text-sm text-gray-600 dark:text-gray-400">
                     {new Date(profile.created_at).toLocaleDateString("id-ID")}
                   </td>
                   <td className="text-right">
                     <div className="flex justify-end gap-2 text-xs">
                       <Link
                         href={`/dashboard/pengaturan/edit/${profile.id}`}
-                        className="text-blue-600 hover:text-blue-700 hover:underline"
+                        className="text-blue-600 hover:text-blue-700 dark:text-blue-300 hover:underline"
                       >
                         Edit
                       </Link>
                       <Link
                         href={`/dashboard/pengaturan/hapus/${profile.id}`}
-                        className="text-red-600 hover:text-red-700 hover:underline"
+                        className="text-red-600 hover:text-red-700 dark:text-red-300 hover:underline"
                       >
                         Hapus
                       </Link>
@@ -111,7 +111,7 @@ export default async function PengaturanPage() {
               ))}
               {(!profiles || profiles.length === 0) && (
                 <tr>
-                  <td colSpan={5} className="text-center text-gray-500 py-6 md:py-8">
+                  <td colSpan={5} className="text-center text-gray-500 dark:text-gray-400 py-6 md:py-8">
                     Belum ada data pengguna.
                   </td>
                 </tr>

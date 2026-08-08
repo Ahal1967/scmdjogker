@@ -24,7 +24,7 @@ export default function ProfilePage() {
   }, [router, supabase.auth]);
 
   if (loading) {
-    return <div className="p-6 text-gray-500">Loading profile...</div>;
+    return <div className="p-6 text-gray-500 dark:text-gray-400">Loading profile...</div>;
   }
 
   return (
@@ -33,14 +33,14 @@ export default function ProfilePage() {
         <span className="mb-2 inline-flex items-center rounded-full bg-blue-50 border border-blue-100 px-3 py-1 text-xs font-semibold tracking-wide text-blue-700">
           AKUN SAYA
         </span>
-        <h1 className="font-display text-2xl font-bold text-black">Profile</h1>
+        <h1 className="font-display text-2xl font-bold text-black dark:text-white">Profile</h1>
       </div>
 
-      <div className="rounded-xl border border-gray-200 bg-white p-4 md:p-6" style={{ borderLeft: "1px solid #3b82f6" }}>
+      <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 md:p-6" style={{ borderLeft: "1px solid #3b82f6" }}>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm text-gray-600">Email</label>
-            <div className="mt-1 rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-black md:text-base">
+            <label className="block text-sm text-gray-600 dark:text-gray-400">Email</label>
+            <div className="mt-1 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-black dark:text-white md:text-base">
               {email ?? "-"}
             </div>
           </div>

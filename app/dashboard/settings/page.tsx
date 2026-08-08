@@ -73,7 +73,7 @@ export default function SettingsPage() {
   }
 
   if (loading) {
-    return <div className="py-8 text-center text-gray-500">Memuat pengaturan...</div>;
+    return <div className="py-8 text-center text-gray-500 dark:text-gray-400">Memuat pengaturan...</div>;
   }
 
   return (
@@ -82,18 +82,18 @@ export default function SettingsPage() {
         <span className="mb-2 inline-flex items-center rounded-full bg-blue-50 border border-blue-100 px-3 py-1 text-xs font-semibold tracking-wide text-blue-700">
           PREFERENSI
         </span>
-        <h1 className="font-display text-2xl font-bold text-black">Settings</h1>
-        <p className="mt-1 text-sm text-gray-600">Atur preferensi dan konfigurasi sistem.</p>
+        <h1 className="font-display text-2xl font-bold text-black dark:text-white">Settings</h1>
+        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">Atur preferensi dan konfigurasi sistem.</p>
       </div>
 
-      <div className="rounded-xl border border-gray-200 bg-white p-4 md:p-6" style={{ borderLeft: "1px solid #3b82f6" }}>
+      <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 md:p-6" style={{ borderLeft: "1px solid #3b82f6" }}>
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">Display name</label>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Display name</label>
             <input
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="mt-1 w-full rounded-xl border border-gray-200 bg-white px-3 py-2 text-sm text-black outline-none focus:border-blue-600 md:text-base"
+              className="mt-1 w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3 py-2 text-sm text-black dark:text-white outline-none focus:border-blue-600 md:text-base"
             />
           </div>
 
@@ -110,7 +110,7 @@ export default function SettingsPage() {
             <button
               onClick={handleReset}
               disabled={name === originalName}
-              className="w-full rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed md:w-auto"
+              className="w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 transition hover:bg-gray-50 dark:bg-gray-700 disabled:opacity-40 disabled:cursor-not-allowed md:w-auto"
             >
               Reset
             </button>
@@ -118,13 +118,13 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-gray-200 bg-white p-4 md:p-6" style={{ borderLeft: "1px solid #94a3b8" }}>
-        <h2 className="text-base font-semibold text-black md:text-lg">Account</h2>
+      <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 md:p-6" style={{ borderLeft: "1px solid #94a3b8" }}>
+        <h2 className="text-base font-semibold text-black dark:text-white md:text-lg">Account</h2>
         <div className="mt-4 space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-black">Role</p>
-              <p className="text-xs text-gray-600">Ditentukan oleh administrator sistem</p>
+              <p className="text-sm font-medium text-black dark:text-white">Role</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400">Ditentukan oleh administrator sistem</p>
             </div>
             <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-700 capitalize">
               {role}

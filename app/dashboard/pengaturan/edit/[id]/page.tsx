@@ -69,14 +69,14 @@ export default function EditProfilePage() {
   }
 
   if (fetching) {
-    return <div className="text-center py-8 text-gray-500">Memuat data...</div>;
+    return <div className="text-center py-8 text-gray-500 dark:text-gray-400">Memuat data...</div>;
   }
 
   return (
     <div>
       <div className="mb-6">
-        <h1 className="font-display font-bold text-2xl text-black">Edit Profil</h1>
-        <p className="text-gray-600 text-sm">
+        <h1 className="font-display font-bold text-2xl text-black dark:text-white">Edit Profil</h1>
+        <p className="text-gray-600 dark:text-gray-400 text-sm">
           Update data pengguna {formData.id.split("-")[0]}...
         </p>
       </div>
@@ -84,18 +84,18 @@ export default function EditProfilePage() {
       <div className="card max-w-2xl">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-1.5 block">ID User</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">ID User</label>
             <input
               type="text"
               value={formData.id}
               disabled
-              className="input-field bg-gray-100 text-gray-500"
+              className="input-field bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400"
             />
-            <p className="text-xs text-gray-500 mt-1">ID tidak dapat diubah.</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">ID tidak dapat diubah.</p>
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-1.5 block">Nama Lengkap</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">Nama Lengkap</label>
             <input
               type="text"
               value={formData.full_name ?? ""}
@@ -107,7 +107,7 @@ export default function EditProfilePage() {
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-1.5 block">Role</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">Role</label>
             <select
               value={formData.role}
               onChange={(e) => setFormData({ ...formData, role: e.target.value })}
@@ -120,7 +120,7 @@ export default function EditProfilePage() {
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-1.5 block">Avatar URL (Opsional)</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">Avatar URL (Opsional)</label>
             <input
               type="url"
               value={formData.avatar_url ?? ""}

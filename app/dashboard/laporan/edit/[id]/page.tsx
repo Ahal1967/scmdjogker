@@ -80,20 +80,20 @@ export default function EditPesananPage() {
   }
 
   if (fetching) {
-    return <div className="text-center py-8 text-gray-500">Memuat data...</div>;
+    return <div className="text-center py-8 text-gray-500 dark:text-gray-400">Memuat data...</div>;
   }
 
   return (
     <div>
       <div className="mb-6">
-        <h1 className="font-display font-bold text-2xl text-black">Edit Pesanan</h1>
-        <p className="text-gray-600 text-sm">Update data pesanan {formData.no_pesanan}.</p>
+        <h1 className="font-display font-bold text-2xl text-black dark:text-white">Edit Pesanan</h1>
+        <p className="text-gray-600 dark:text-gray-400 text-sm">Update data pesanan {formData.no_pesanan}.</p>
       </div>
 
       <div className="card max-w-2xl">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-1.5 block">No. Pesanan</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">No. Pesanan</label>
             <input
               type="text"
               value={formData.no_pesanan}
@@ -104,7 +104,7 @@ export default function EditPesananPage() {
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-1.5 block">Customer ID</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">Customer ID</label>
             <input
               type="text"
               value={formData.customer_id}
@@ -112,13 +112,13 @@ export default function EditPesananPage() {
               className="input-field"
               required
             />
-            <p className="text-xs text-gray-500 mt-1">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
               UUID pelanggan — lihat di halaman Pesanan kalau perlu dicocokkan.
             </p>
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-1.5 block">Tanggal</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">Tanggal</label>
             <input
               type="date"
               value={formData.tanggal}
@@ -130,7 +130,7 @@ export default function EditPesananPage() {
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-sm font-medium text-gray-700 mb-1.5 block">Total (Rp)</label>
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">Total (Rp)</label>
               <input
                 type="number"
                 value={formData.total}
@@ -140,7 +140,7 @@ export default function EditPesananPage() {
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700 mb-1.5 block">DP (Rp)</label>
+              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">DP (Rp)</label>
               <input
                 type="number"
                 value={formData.dp}
@@ -152,7 +152,7 @@ export default function EditPesananPage() {
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-1.5 block">Alamat Pengiriman</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">Alamat Pengiriman</label>
             <textarea
               value={formData.alamat_pengiriman ?? ""}
               onChange={(e) => setFormData({ ...formData, alamat_pengiriman: e.target.value })}
@@ -162,7 +162,7 @@ export default function EditPesananPage() {
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-700 mb-1.5 block">Status</label>
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">Status</label>
             <select
               value={formData.status}
               onChange={(e) => setFormData({ ...formData, status: e.target.value })}

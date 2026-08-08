@@ -158,34 +158,34 @@ export default function GudangTable({
         <tbody>
           {filtered.map((m) => (
             <tr key={m.id}>
-              <td className="font-semibold text-black">{m.nama_bahan}</td>
-              <td className="text-sm text-gray-700">{m.kategori}</td>
-              <td className="text-sm text-gray-700">{m.satuan}</td>
+              <td className="font-semibold text-black dark:text-white">{m.nama_bahan}</td>
+              <td className="text-sm text-gray-700 dark:text-gray-300">{m.kategori}</td>
+              <td className="text-sm text-gray-700 dark:text-gray-300">{m.satuan}</td>
               <td>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => quickAdjustStock(m, -1)}
-                    className="w-6 h-6 rounded border border-gray-300 text-xs hover:border-blue-600"
+                    className="w-6 h-6 rounded border border-gray-300 dark:border-gray-600 text-xs hover:border-blue-600"
                   >
                     −
                   </button>
-                  <span className="w-8 text-center text-sm text-gray-800">{m.stok}</span>
+                  <span className="w-8 text-center text-sm text-gray-800 dark:text-gray-200">{m.stok}</span>
                   <button
                     onClick={() => quickAdjustStock(m, 1)}
-                    className="w-6 h-6 rounded border border-gray-300 text-xs hover:border-blue-600"
+                    className="w-6 h-6 rounded border border-gray-300 dark:border-gray-600 text-xs hover:border-blue-600"
                   >
                     +
                   </button>
                 </div>
               </td>
-              <td className="text-sm text-gray-700">{m.stok_minimum}</td>
-              <td className="text-sm text-gray-700">{m.suppliers?.nama_supplier ?? "-"}</td>
+              <td className="text-sm text-gray-700 dark:text-gray-300">{m.stok_minimum}</td>
+              <td className="text-sm text-gray-700 dark:text-gray-300">{m.suppliers?.nama_supplier ?? "-"}</td>
               <td>
                 <span
                   className={`badge ${
                     m.status === "Aman"
-                      ? "bg-green-100 text-green-700"
-                      : "bg-red-100 text-red-700"
+                      ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300"
+                      : "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300"
                   }`}
                 >
                   {m.status}
@@ -193,10 +193,10 @@ export default function GudangTable({
               </td>
               <td className="text-right">
                 <div className="flex justify-end gap-3 text-xs">
-                  <button onClick={() => openEdit(m)} className="text-blue-600 hover:text-blue-700 hover:underline">
+                  <button onClick={() => openEdit(m)} className="text-blue-600 hover:text-blue-700 dark:text-blue-300 hover:underline">
                     Edit
                   </button>
-                  <button onClick={() => handleDelete(m.id)} className="text-red-600 hover:text-red-700 hover:underline">
+                  <button onClick={() => handleDelete(m.id)} className="text-red-600 hover:text-red-700 dark:text-red-300 hover:underline">
                     Hapus
                   </button>
                 </div>
@@ -206,7 +206,7 @@ export default function GudangTable({
           {filtered.length === 0 && (
             <tr>
               <td colSpan={8}>
-                <div className="flex min-h-[140px] items-center justify-center text-gray-500">
+                <div className="flex min-h-[140px] items-center justify-center text-gray-500 dark:text-gray-400">
                   Belum ada data bahan baku.
                 </div>
               </td>
@@ -218,7 +218,7 @@ export default function GudangTable({
       {showModal && (
         <div className="fixed inset-0 bg-black/60 flex items-start justify-center z-50 p-4 overflow-y-auto">
           <div className="card w-full max-w-md my-8 max-h-[90vh] overflow-y-auto">
-            <h2 className="font-display font-semibold text-base mb-4 text-black">
+            <h2 className="font-display font-semibold text-base mb-4 text-black dark:text-white">
               {editing ? "Edit Bahan" : "Bahan Masuk"}
             </h2>
             <form onSubmit={handleSave} className="space-y-3">
@@ -257,7 +257,7 @@ export default function GudangTable({
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-1.5 block">Stok Awal</label>
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">Stok Awal</label>
                   <input
                     type="number"
                     min={0}
@@ -268,7 +268,7 @@ export default function GudangTable({
                   />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-700 mb-1.5 block">Stok Minimum</label>
+                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">Stok Minimum</label>
                   <input
                     type="number"
                     min={0}
@@ -281,7 +281,7 @@ export default function GudangTable({
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-1.5 block">Supplier</label>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">Supplier</label>
                 <select
                   value={form.supplier_id}
                   onChange={(e) => setForm({ ...form, supplier_id: e.target.value })}

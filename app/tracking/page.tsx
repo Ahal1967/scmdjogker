@@ -61,73 +61,75 @@ export default function TrackingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-white px-4 py-10 md:py-16">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-white dark:from-gray-900 dark:via-gray-900 dark:to-gray-900 px-4 py-10 md:py-16">
       <div className="mx-auto max-w-2xl">
-        <div className="mb-8 text-center">
-          <p className="font-display text-xs font-bold tracking-widest text-blue-600">DJOKER SABLON KAOS</p>
-          <h1 className="mt-2 font-display text-2xl font-bold text-black md:text-3xl">Lacak Pesanan</h1>
-          <p className="mt-2 text-sm text-gray-600">
-            Masukkan nomor pesanan kamu untuk melihat status terbaru.
-          </p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="flex gap-2 mb-8">
-          <input
-            value={noPesanan}
-            onChange={(e) => setNoPesanan(e.target.value)}
-            placeholder="Contoh: DJ00125"
-            className="input-field flex-1"
-            required
-          />
-          <button type="submit" disabled={loading} className="btn-primary whitespace-nowrap">
-            {loading ? "Mencari..." : "Lacak"}
-          </button>
-        </form>
-
-        {error && (
-          <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 text-center mb-6">
-            {error}
+        <div className="rounded-xl border border-blue-100 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-lg md:p-8 mb-6">
+          <div className="mb-6 text-center">
+            <p className="font-display text-xs font-bold tracking-widest text-blue-600">DJOKER SABLON KAOS</p>
+            <h1 className="mt-2 font-display text-2xl font-bold text-black dark:text-white">Lacak Pesanan</h1>
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+              Masukkan nomor pesanan kamu untuk melihat status terbaru.
+            </p>
           </div>
-        )}
+
+          <form onSubmit={handleSubmit} className="flex gap-2">
+            <input
+              value={noPesanan}
+              onChange={(e) => setNoPesanan(e.target.value)}
+              placeholder="Contoh: DJ00125"
+              className="input-field flex-1"
+              required
+            />
+            <button type="submit" disabled={loading} className="btn-primary whitespace-nowrap">
+              {loading ? "Mencari..." : "Lacak"}
+            </button>
+          </form>
+
+          {error && (
+            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 text-center mt-4">
+              {error}
+            </div>
+          )}
+        </div>
 
         {order && (
           <div className="space-y-4">
             <div className="card">
               <div className="flex items-center justify-between mb-1">
-                <h2 className="font-display font-bold text-lg text-black">{order.no_pesanan}</h2>
+                <h2 className="font-display font-bold text-lg text-black dark:text-white">{order.no_pesanan}</h2>
                 <span className="badge text-blue-600">{order.status}</span>
               </div>
-              <p className="text-sm text-gray-600">{order.pelanggan ?? "-"}</p>
+              <p className="text-sm text-gray-600 dark:text-gray-400">{order.pelanggan ?? "-"}</p>
 
               <div className="mt-4 space-y-1.5">
                 {order.items.map((it, i) => (
                   <div key={i} className="flex justify-between text-sm">
-                    <span className="text-gray-800">
+                    <span className="text-gray-800 dark:text-gray-200">
                       {it.nama_produk} × {it.jumlah}
                     </span>
-                    <span className="font-medium text-gray-900">
+                    <span className="font-medium text-gray-900 dark:text-gray-100">
                       {formatRupiah(it.jumlah * it.harga)}
                     </span>
                   </div>
                 ))}
               </div>
 
-              <div className="mt-3 flex justify-between border-t border-gray-200 pt-3 text-sm">
-                <span className="text-gray-600">Total</span>
-                <span className="font-bold text-black">{formatRupiah(order.total)}</span>
+              <div className="mt-3 flex justify-between border-t border-gray-200 dark:border-gray-700 pt-3 text-sm">
+                <span className="text-gray-600 dark:text-gray-400">Total</span>
+                <span className="font-bold text-black dark:text-white">{formatRupiah(order.total)}</span>
               </div>
 
               {order.alamat_pengiriman && (
                 <div className="mt-3 text-sm">
-                  <p className="text-gray-600">Alamat Pengiriman</p>
-                  <p className="text-gray-800">{order.alamat_pengiriman}</p>
+                  <p className="text-gray-600 dark:text-gray-400">Alamat Pengiriman</p>
+                  <p className="text-gray-800 dark:text-gray-200">{order.alamat_pengiriman}</p>
                 </div>
               )}
 
               {order.desain_url && (
                 <div className="mt-4">
-                  <p className="text-sm text-gray-600 mb-2">Desain Terupload</p>
-                  <div className="relative w-32 h-32 rounded-lg overflow-hidden border border-gray-200">
+                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Desain Terupload</p>
+                  <div className="relative w-32 h-32 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
                     <Image src={order.desain_url} alt="Desain" fill className="object-contain" />
                   </div>
                 </div>
@@ -135,14 +137,14 @@ export default function TrackingPage() {
             </div>
 
             <div className="card">
-              <h3 className="font-semibold text-black mb-4">Riwayat Status</h3>
+              <h3 className="font-semibold text-black dark:text-white mb-4">Riwayat Status</h3>
               <div className="space-y-0">
                 {tracking.map((t, i) => (
                   <div key={i} className="flex gap-3">
                     <div className="flex flex-col items-center">
                       <div
                         className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                          t.selesai ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-500"
+                          t.selesai ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-500 dark:text-gray-400"
                         }`}
                       >
                         {t.selesai ? "✓" : ""}
@@ -150,13 +152,13 @@ export default function TrackingPage() {
                       {i < tracking.length - 1 && <div className="w-0.5 flex-1 bg-gray-200 min-h-[24px]" />}
                     </div>
                     <div className="pb-4">
-                      <p className="text-sm font-medium text-black">{t.tahap}</p>
-                      <p className="text-xs text-gray-500">{formatWaktu(t.waktu)}</p>
+                      <p className="text-sm font-medium text-black dark:text-white">{t.tahap}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">{formatWaktu(t.waktu)}</p>
                     </div>
                   </div>
                 ))}
                 {tracking.length === 0 && (
-                  <p className="text-sm text-gray-500">Belum ada riwayat status.</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Belum ada riwayat status.</p>
                 )}
               </div>
             </div>

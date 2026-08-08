@@ -109,16 +109,16 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
           <tbody>
             {filtered.map((s) => (
               <tr key={s.id}>
-                <td className="font-semibold text-black">{s.nama_supplier}</td>
-                <td className="text-gray-700">{s.kontak || "-"}</td>
-                <td className="text-gray-700">{s.no_telepon || "-"}</td>
-                <td className="text-gray-600 max-w-xs truncate">{s.alamat || "-"}</td>
+                <td className="font-semibold text-black dark:text-white">{s.nama_supplier}</td>
+                <td className="text-gray-700 dark:text-gray-300">{s.kontak || "-"}</td>
+                <td className="text-gray-700 dark:text-gray-300">{s.no_telepon || "-"}</td>
+                <td className="text-gray-600 dark:text-gray-400 max-w-xs truncate">{s.alamat || "-"}</td>
                 <td>
                   <span
                     className={`badge ${
                       s.status === "Aktif"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-gray-100 text-gray-600"
+                        ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300"
+                        : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
                     }`}
                   >
                     {s.status}
@@ -126,10 +126,10 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
                 </td>
                 <td>
                   <div className="flex justify-end gap-3 text-xs">
-                    <button onClick={() => openEdit(s)} className="text-blue-600 hover:text-blue-700 hover:underline">
+                    <button onClick={() => openEdit(s)} className="text-blue-600 hover:text-blue-700 dark:text-blue-300 hover:underline">
                       Edit
                     </button>
-                    <button onClick={() => handleDelete(s.id)} className="text-red-600 hover:text-red-700 hover:underline">
+                    <button onClick={() => handleDelete(s.id)} className="text-red-600 hover:text-red-700 dark:text-red-300 hover:underline">
                       Hapus
                     </button>
                   </div>
@@ -139,7 +139,7 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
             {filtered.length === 0 && (
               <tr>
                 <td colSpan={6}>
-                  <div className="flex min-h-[140px] items-center justify-center text-gray-500">
+                  <div className="flex min-h-[140px] items-center justify-center text-gray-500 dark:text-gray-400">
                     Belum ada data supplier.
                   </div>
                 </td>
@@ -152,7 +152,7 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
       {/* Mobile card list */}
       <div className="space-y-3 md:hidden">
         {filtered.length === 0 ? (
-          <div className="flex min-h-[140px] items-center justify-center text-gray-500">
+          <div className="flex min-h-[140px] items-center justify-center text-gray-500 dark:text-gray-400">
             Belum ada data supplier.
           </div>
         ) : (
@@ -160,21 +160,21 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
             <div key={s.id} className="rounded-2xl border border-djoker-border p-4 space-y-3">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="text-base font-semibold text-black">{s.nama_supplier}</p>
-                  <p className="text-sm text-gray-600">{s.kontak || "-"}</p>
+                  <p className="text-base font-semibold text-black dark:text-white">{s.nama_supplier}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{s.kontak || "-"}</p>
                 </div>
                 <span
                   className={`badge shrink-0 ${
-                    s.status === "Aktif" ? "bg-green-100 text-green-700" : "bg-gray-100 text-gray-600"
+                    s.status === "Aktif" ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300" : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
                   }`}
                 >
                   {s.status}
                 </span>
               </div>
 
-              <div className="text-sm text-gray-700">
-                <p><span className="font-medium text-gray-900">No. Telepon:</span> {s.no_telepon || "-"}</p>
-                <p className="mt-1"><span className="font-medium text-gray-900">Alamat:</span> {s.alamat || "-"}</p>
+              <div className="text-sm text-gray-700 dark:text-gray-300">
+                <p><span className="font-medium text-gray-900 dark:text-gray-100">No. Telepon:</span> {s.no_telepon || "-"}</p>
+                <p className="mt-1"><span className="font-medium text-gray-900 dark:text-gray-100">Alamat:</span> {s.alamat || "-"}</p>
               </div>
 
               <div className="flex gap-3 pt-1">
@@ -196,7 +196,7 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
       {showModal && (
         <div className="fixed inset-0 bg-black/60 flex items-start justify-center z-50 p-4 overflow-y-auto">
           <div className="card w-full max-w-md my-8 max-h-[90vh] overflow-y-auto">
-            <h2 className="font-display font-semibold text-base text-black mb-4">
+            <h2 className="font-display font-semibold text-base text-black dark:text-white mb-4">
               {editing ? "Edit Supplier" : "Tambah Supplier"}
             </h2>
             <form onSubmit={handleSave} className="space-y-3">

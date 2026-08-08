@@ -36,26 +36,26 @@ export default async function ProduksiPage() {
     <div className="space-y-4 md:space-y-6">
       <div>
         <span className="mb-2 inline-flex items-center rounded-full bg-blue-50 border border-blue-100 px-3 py-1 text-xs font-semibold tracking-wide text-blue-700">PROSES PRODUKSI</span>
-        <h1 className="font-display text-2xl font-bold text-black">Produksi</h1>
-        <p className="mt-1 text-sm text-gray-600">
+        <h1 className="font-display text-2xl font-bold text-black dark:text-white">Produksi</h1>
+        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
           Kelola dan pantau proses produksi pesanan.
         </p>
       </div>
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3 md:gap-4">
         <div className="card">
-          <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Total Produksi</p>
-          <p className="mt-1 font-display text-3xl font-bold text-black">{totalProduksi}</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Total Produksi</p>
+          <p className="mt-1 font-display text-3xl font-bold text-black dark:text-white">{totalProduksi}</p>
         </div>
         <div className="card">
-          <p className="text-xs font-medium uppercase tracking-wide text-gray-500">
+          <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
             Sedang Diproses
           </p>
-          <p className="mt-1 font-display text-3xl font-bold text-black">{sedangDiproses}</p>
+          <p className="mt-1 font-display text-3xl font-bold text-black dark:text-white">{sedangDiproses}</p>
         </div>
         <div className="card">
-          <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Selesai</p>
-          <p className="mt-1 font-display text-3xl font-bold text-black">{selesai}</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Selesai</p>
+          <p className="mt-1 font-display text-3xl font-bold text-black dark:text-white">{selesai}</p>
         </div>
       </div>
 

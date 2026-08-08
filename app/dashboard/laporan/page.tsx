@@ -56,34 +56,34 @@ export default async function LaporanPage() {
     <div className="space-y-4 md:space-y-6">
       <div>
         <span className="mb-2 inline-flex items-center rounded-full bg-blue-50 border border-blue-100 px-3 py-1 text-xs font-semibold tracking-wide text-blue-700">ANALITIK</span>
-        <h1 className="font-display text-2xl font-bold text-black">Laporan Pesanan</h1>
-        <p className="mt-1 text-sm text-gray-600">Ringkasan dan daftar semua pesanan pelanggan.</p>
+        <h1 className="font-display text-2xl font-bold text-black dark:text-white">Laporan Pesanan</h1>
+        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">Ringkasan dan daftar semua pesanan pelanggan.</p>
       </div>
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-4 md:gap-4">
         <div className="card">
-          <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Total Pesanan</p>
-          <p className="mt-1 font-display text-3xl font-bold text-black">{totalOrders}</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Total Pesanan</p>
+          <p className="mt-1 font-display text-3xl font-bold text-black dark:text-white">{totalOrders}</p>
         </div>
         <div className="card">
-          <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Total Pendapatan</p>
-          <p className="mt-1 font-display text-2xl font-bold text-black">{formatRupiah(totalRevenue)}</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Total Pendapatan</p>
+          <p className="mt-1 font-display text-2xl font-bold text-black dark:text-white">{formatRupiah(totalRevenue)}</p>
         </div>
         <div className="card">
-          <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Total DP Diterima</p>
-          <p className="mt-1 font-display text-2xl font-bold text-black">{formatRupiah(totalDP)}</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Total DP Diterima</p>
+          <p className="mt-1 font-display text-2xl font-bold text-black dark:text-white">{formatRupiah(totalDP)}</p>
         </div>
         <div className="card">
-          <p className="text-xs font-medium uppercase tracking-wide text-gray-500">Sisa Belum Dibayar</p>
-          <p className="mt-1 font-display text-2xl font-bold text-black">{formatRupiah(totalSisa)}</p>
+          <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Sisa Belum Dibayar</p>
+          <p className="mt-1 font-display text-2xl font-bold text-black dark:text-white">{formatRupiah(totalSisa)}</p>
         </div>
       </div>
 
       <div className="card">
         <div className="mb-3 flex items-center justify-between md:mb-4">
           <div>
-            <h2 className="text-base font-semibold text-black md:text-lg">Daftar Pesanan</h2>
-            <p className="text-xs text-gray-500">{dataOrders.length} pesanan ditemukan</p>
+            <h2 className="text-base font-semibold text-black dark:text-white md:text-lg">Daftar Pesanan</h2>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{dataOrders.length} pesanan ditemukan</p>
           </div>
           <Link href="/dashboard/laporan/tambah" className="btn-primary text-xs md:text-sm">
             + Pesanan Baru
@@ -107,10 +107,10 @@ export default async function LaporanPage() {
             <tbody>
               {dataOrders.map((order) => (
                 <tr key={order.id}>
-                  <td className="font-semibold text-black">{order.no_pesanan || "-"}</td>
-                  <td className="text-sm text-gray-600">{formatTanggal(order.tanggal || order.created_at)}</td>
-                  <td className="text-sm font-medium text-black">{formatRupiah(Number(order.total) || 0)}</td>
-                  <td className="text-sm text-gray-700">{formatRupiah(Number(order.dp) || 0)}</td>
+                  <td className="font-semibold text-black dark:text-white">{order.no_pesanan || "-"}</td>
+                  <td className="text-sm text-gray-600 dark:text-gray-400">{formatTanggal(order.tanggal || order.created_at)}</td>
+                  <td className="text-sm font-medium text-black dark:text-white">{formatRupiah(Number(order.total) || 0)}</td>
+                  <td className="text-sm text-gray-700 dark:text-gray-300">{formatRupiah(Number(order.dp) || 0)}</td>
                   <td
                     className={`text-sm font-medium ${
                       (Number(order.sisa_pembayaran) || 0) > 0 ? "text-red-600" : "text-green-600"
@@ -119,11 +119,11 @@ export default async function LaporanPage() {
                     {formatRupiah(Number(order.sisa_pembayaran) || 0)}
                   </td>
                   <td>
-                    <span className={`badge ${STATUS_COLORS[order.status || ""] ?? "text-gray-600"}`}>
+                    <span className={`badge ${STATUS_COLORS[order.status || ""] ?? "text-gray-600 dark:text-gray-400"}`}>
                       {order.status || "-"}
                     </span>
                   </td>
-                  <td className="max-w-[10rem] truncate text-sm text-gray-700 md:max-w-xs">
+                  <td className="max-w-[10rem] truncate text-sm text-gray-700 dark:text-gray-300 md:max-w-xs">
                     {order.alamat_pengiriman || "-"}
                   </td>
                   <td className="text-right">
@@ -148,7 +148,7 @@ export default async function LaporanPage() {
               {dataOrders.length === 0 && (
                 <tr>
                   <td colSpan={8}>
-                    <div className="flex min-h-[140px] items-center justify-center py-8 text-gray-500">
+                    <div className="flex min-h-[140px] items-center justify-center py-8 text-gray-500 dark:text-gray-400">
                       Belum ada pesanan.
                     </div>
                   </td>

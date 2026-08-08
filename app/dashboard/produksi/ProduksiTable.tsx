@@ -145,9 +145,9 @@ export default function ProduksiTable({
         <tbody>
           {filtered.map((p) => (
             <tr key={p.id}>
-              <td className="font-semibold text-black">{p.no_produksi || "-"}</td>
-              <td className="text-sm text-gray-700">{p.orders?.no_pesanan ?? "-"}</td>
-              <td className="text-sm text-gray-800">{p.orders?.customers?.nama ?? "-"}</td>
+              <td className="font-semibold text-black dark:text-white">{p.no_produksi || "-"}</td>
+              <td className="text-sm text-gray-700 dark:text-gray-300">{p.orders?.no_pesanan ?? "-"}</td>
+              <td className="text-sm text-gray-800 dark:text-gray-200">{p.orders?.customers?.nama ?? "-"}</td>
               <td>
                 <select
                   value={p.status || "Produksi"}
@@ -161,7 +161,7 @@ export default function ProduksiTable({
                   ))}
                 </select>
               </td>
-              <td className="text-sm text-gray-700">
+              <td className="text-sm text-gray-700 dark:text-gray-300">
                 <div className="flex items-center gap-2">
                   <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-200">
                     <div
@@ -175,9 +175,9 @@ export default function ProduksiTable({
                     max={100}
                     value={Number(p.progress || 0)}
                     onChange={(e) => updateProgress(p, Number(e.target.value))}
-                    className="w-14 rounded border border-gray-300 py-1 text-center text-xs"
+                    className="w-14 rounded border border-gray-300 dark:border-gray-600 py-1 text-center text-xs"
                   />
-                  <span className="text-xs text-gray-600">%</span>
+                  <span className="text-xs text-gray-600 dark:text-gray-400">%</span>
                 </div>
               </td>
               <td className="text-right">
@@ -194,7 +194,7 @@ export default function ProduksiTable({
           {filtered.length === 0 && (
             <tr>
               <td colSpan={6}>
-                <div className="flex min-h-[140px] items-center justify-center py-8 text-gray-500">
+                <div className="flex min-h-[140px] items-center justify-center py-8 text-gray-500 dark:text-gray-400">
                   Belum ada antrian produksi. Entri akan muncul otomatis saat ada pesanan baru.
                 </div>
               </td>

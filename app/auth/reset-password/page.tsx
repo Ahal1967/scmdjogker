@@ -63,8 +63,8 @@ export default function ResetPasswordPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-white p-4 md:p-6 flex items-center justify-center">
-      <div className="w-full max-w-md rounded-[32px] border border-blue-200 bg-white shadow-2xl p-8 md:p-10">
-        <h1 className="mb-2 text-2xl font-bold text-black md:text-3xl font-display">
+      <div className="w-full max-w-md rounded-[32px] border border-blue-200 bg-white dark:bg-gray-800 shadow-2xl p-8 md:p-10">
+        <h1 className="mb-2 text-2xl font-bold text-black dark:text-white md:text-3xl font-display">
           Atur Password Baru
         </h1>
 
@@ -73,7 +73,7 @@ export default function ResetPasswordPage() {
             Password berhasil diperbarui. Mengarahkan ke halaman login...
           </div>
         ) : !ready ? (
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
             Memverifikasi tautan reset password... Kalau halaman ini tidak berubah
             dalam beberapa detik, kemungkinan tautan sudah kedaluwarsa —{" "}
             <Link href="/auth/forgot-password" className="text-blue-600 hover:underline">
@@ -90,7 +90,7 @@ export default function ResetPasswordPage() {
             )}
 
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700">Password Baru</label>
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Password Baru</label>
               <input
                 type="password"
                 required
@@ -102,7 +102,7 @@ export default function ResetPasswordPage() {
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700">Konfirmasi Password</label>
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Konfirmasi Password</label>
               <input
                 type="password"
                 required

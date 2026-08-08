@@ -19,9 +19,9 @@ type QcRecord = {
 };
 
 const HASIL_COLORS: Record<string, string> = {
-  Lolos: "bg-green-100 text-green-700",
-  Perbaikan: "bg-yellow-100 text-yellow-700",
-  Gagal: "bg-red-100 text-red-700",
+  Lolos: "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300",
+  Perbaikan: "bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300",
+  Gagal: "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300",
 };
 
 function EmptyState({ title, subtitle }: { title: string; subtitle: string }) {
@@ -42,8 +42,8 @@ function EmptyState({ title, subtitle }: { title: string; subtitle: string }) {
             <polyline points="22 4 12 14.01 9 11.01" />
           </svg>
         </div>
-        <p className="text-base font-medium text-black">{title}</p>
-        <p className="mt-1 text-sm text-gray-600">{subtitle}</p>
+        <p className="text-base font-medium text-black dark:text-white">{title}</p>
+        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{subtitle}</p>
       </div>
     </div>
   );
@@ -168,7 +168,7 @@ export default function QcTable({
         />
       ) : (
         <div className="card overflow-x-auto">
-          <h2 className="mb-4 text-base font-semibold text-black">Menunggu Pemeriksaan</h2>
+          <h2 className="mb-4 text-base font-semibold text-black dark:text-white">Menunggu Pemeriksaan</h2>
           <table className="table-djoker w-full">
             <thead>
               <tr>
@@ -181,13 +181,13 @@ export default function QcTable({
             <tbody>
               {pending.map((p) => (
                 <tr key={p.id}>
-                  <td className="font-semibold text-black">{p.no_produksi}</td>
-                  <td className="text-sm text-gray-700">{p.orders?.no_pesanan ?? "-"}</td>
-                  <td className="text-sm text-gray-700">{p.orders?.customers?.nama ?? "-"}</td>
+                  <td className="font-semibold text-black dark:text-white">{p.no_produksi}</td>
+                  <td className="text-sm text-gray-700 dark:text-gray-300">{p.orders?.no_pesanan ?? "-"}</td>
+                  <td className="text-sm text-gray-700 dark:text-gray-300">{p.orders?.customers?.nama ?? "-"}</td>
                   <td className="text-right">
                     <button
                       onClick={() => openCheck(p)}
-                      className="text-blue-600 hover:text-blue-700 hover:underline text-sm font-medium"
+                      className="text-blue-600 hover:text-blue-700 dark:text-blue-300 hover:underline text-sm font-medium"
                     >
                       Periksa
                     </button>
@@ -201,7 +201,7 @@ export default function QcTable({
 
       {/* Riwayat QC */}
       <div className="card overflow-x-auto">
-        <h2 className="mb-4 text-base font-semibold text-black">Riwayat Pemeriksaan</h2>
+        <h2 className="mb-4 text-base font-semibold text-black dark:text-white">Riwayat Pemeriksaan</h2>
         <table className="table-djoker w-full">
           <thead>
             <tr>
@@ -215,9 +215,9 @@ export default function QcTable({
           <tbody>
             {records.map((r) => (
               <tr key={r.id}>
-                <td className="font-semibold text-black">{r.no_qc}</td>
-                <td className="text-sm text-gray-700">{r.production?.no_produksi ?? "-"}</td>
-                <td className="text-sm text-gray-600">
+                <td className="font-semibold text-black dark:text-white">{r.no_qc}</td>
+                <td className="text-sm text-gray-700 dark:text-gray-300">{r.production?.no_produksi ?? "-"}</td>
+                <td className="text-sm text-gray-600 dark:text-gray-400">
                   {new Date(r.tanggal).toLocaleDateString("id-ID", {
                     day: "2-digit",
                     month: "short",
@@ -227,13 +227,13 @@ export default function QcTable({
                 <td>
                   <span className={`badge ${HASIL_COLORS[r.hasil]}`}>{r.hasil}</span>
                 </td>
-                <td className="text-sm text-gray-600">{r.catatan || "-"}</td>
+                <td className="text-sm text-gray-600 dark:text-gray-400">{r.catatan || "-"}</td>
               </tr>
             ))}
             {records.length === 0 && (
               <tr>
                 <td colSpan={5}>
-                  <div className="flex min-h-[100px] items-center justify-center text-gray-500">
+                  <div className="flex min-h-[100px] items-center justify-center text-gray-500 dark:text-gray-400">
                     Belum ada riwayat QC.
                   </div>
                 </td>
@@ -246,15 +246,15 @@ export default function QcTable({
       {showModal && activeProduction && (
         <div className="fixed inset-0 bg-black/60 flex items-start justify-center z-50 p-4 overflow-y-auto">
           <div className="card w-full max-w-md my-8 max-h-[90vh] overflow-y-auto">
-            <h2 className="font-display font-semibold text-base mb-1 text-black">
+            <h2 className="font-display font-semibold text-base mb-1 text-black dark:text-white">
               Periksa {activeProduction.no_produksi}
             </h2>
-            <p className="text-xs text-gray-500 mb-4">
+            <p className="text-xs text-gray-500 dark:text-gray-400 mb-4">
               {activeProduction.orders?.no_pesanan} — {activeProduction.orders?.customers?.nama}
             </p>
             <form onSubmit={handleSubmit} className="space-y-3">
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-1.5 block">Hasil Pemeriksaan</label>
+                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">Hasil Pemeriksaan</label>
                 <select
                   value={hasil}
                   onChange={(e) => setHasil(e.target.value as any)}
@@ -272,7 +272,7 @@ export default function QcTable({
                 className="input-field"
                 rows={3}
               />
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-gray-500 dark:text-gray-400">
                 {hasil === "Lolos"
                   ? "Produksi akan otomatis lanjut ke tahap Packing."
                   : "Produksi akan dikembalikan ke tahap Produksi untuk perbaikan."}

@@ -32,11 +32,11 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-white p-4 md:p-6 flex items-center justify-center">
-      <div className="w-full max-w-md rounded-[32px] border border-blue-200 bg-white shadow-2xl p-8 md:p-10">
-        <h1 className="mb-2 text-2xl font-bold text-black md:text-3xl font-display">
+      <div className="w-full max-w-md rounded-[32px] border border-blue-200 bg-white dark:bg-gray-800 shadow-2xl p-8 md:p-10">
+        <h1 className="mb-2 text-2xl font-bold text-black dark:text-white md:text-3xl font-display">
           Lupa Password?
         </h1>
-        <p className="mb-8 text-sm text-gray-600">
+        <p className="mb-8 text-sm text-gray-600 dark:text-gray-400">
           Masukkan email akun kamu, kami akan kirimkan tautan untuk reset password.
         </p>
 
@@ -54,7 +54,7 @@ export default function ForgotPasswordPage() {
             )}
 
             <div>
-              <label className="mb-2 block text-sm font-medium text-gray-700">Email</label>
+              <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Email</label>
               <input
                 type="email"
                 required
@@ -71,7 +71,7 @@ export default function ForgotPasswordPage() {
           </form>
         )}
 
-        <p className="mt-8 text-center text-xs text-gray-500">
+        <p className="mt-8 text-center text-xs text-gray-500 dark:text-gray-400">
           <Link href="/login" className="text-blue-600 hover:underline">
             &larr; Kembali ke Login
           </Link>

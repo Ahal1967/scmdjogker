@@ -56,23 +56,23 @@ export default function HapusPesananPage() {
   }
 
   if (!order) {
-    return <div className="text-center py-8 text-gray-500">Memuat data...</div>;
+    return <div className="text-center py-8 text-gray-500 dark:text-gray-400">Memuat data...</div>;
   }
 
   return (
     <div>
       <div className="mb-6">
-        <h1 className="font-display font-bold text-2xl text-black">Hapus Pesanan</h1>
-        <p className="text-gray-600 text-sm">Konfirmasi penghapusan pesanan.</p>
+        <h1 className="font-display font-bold text-2xl text-black dark:text-white">Hapus Pesanan</h1>
+        <p className="text-gray-600 dark:text-gray-400 text-sm">Konfirmasi penghapusan pesanan.</p>
       </div>
 
       <div className="card max-w-md">
         <div className="mb-6">
-          <p className="text-gray-600 text-sm mb-2">Apakah Anda yakin ingin menghapus:</p>
+          <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">Apakah Anda yakin ingin menghapus:</p>
           <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <p className="font-medium text-lg text-black">{order.no_pesanan}</p>
-            <p className="text-sm text-gray-600">{formatRupiah(Number(order.total) || 0)}</p>
-            <p className="text-xs text-gray-500 mt-1">Status: {order.status}</p>
+            <p className="font-medium text-lg text-black dark:text-white">{order.no_pesanan}</p>
+            <p className="text-sm text-gray-600 dark:text-gray-400">{formatRupiah(Number(order.total) || 0)}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Status: {order.status}</p>
           </div>
           <p className="text-xs text-red-600 mt-3">
             ⚠️ Item pesanan dan riwayat tracking terkait akan ikut terhapus. Tidak dapat dikembalikan!
