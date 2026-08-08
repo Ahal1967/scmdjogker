@@ -3,9 +3,10 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { Menu } from "@headlessui/react";
 import { User, Settings, LogOut } from "lucide-react";
+import ThemeToggle from "@/components/ThemeToggle";
 import { createClient } from "@/lib/supabase/client";
 import { navItems } from "@/lib/nav";
 
@@ -15,6 +16,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const router = useRouter();
+  const pathname = usePathname();
   const supabase = createClient();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -81,7 +83,7 @@ export default function DashboardLayout({
 
   return (
     <div
-      className="relative flex min-h-screen bg-white"
+      className="relative flex min-h-screen bg-djoker-bg"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -98,7 +100,7 @@ export default function DashboardLayout({
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
         style={{
-          background: "#ffffff",
+          background: "var(--djoker-surface)",
           borderColor: "var(--djoker-border)",
         }}
       >
@@ -117,7 +119,7 @@ export default function DashboardLayout({
             />
           </div>
           <div className="leading-tight">
-            <p className="font-display text-xs font-bold tracking-wide text-black">
+            <p className="font-display text-xs font-bold tracking-wide text-black dark:text-white">
               DJOKER
             </p>
             <p className="text-[9px] tracking-widest" style={{ color: "var(--djoker-muted)" }}>
@@ -127,21 +129,28 @@ export default function DashboardLayout({
         </div>
 
         <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
-          {navItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={() => isMobile && setSidebarOpen(false)}
-              className="sidebar-link"
-            >
-              {item.label}
-            </Link>
-          ))}
+          {navItems.map((item) => {
+            const isActive =
+              item.href === "/dashboard"
+                ? pathname === "/dashboard"
+                : pathname?.startsWith(item.href);
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => isMobile && setSidebarOpen(false)}
+                className={isActive ? "sidebar-link-active" : "sidebar-link"}
+              >
+                {item.label}
+              </Link>
+            );
+          })}
         </nav>
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="relative z-50 flex h-16 items-center justify-between border-b bg-white px-4 md:justify-end md:px-6"
+        <header className="relative z-50 flex h-16 items-center justify-between border-b bg-djoker-bg px-4 md:justify-end md:px-6"
           style={{ borderColor: "var(--djoker-border)" }}>
           <button
             type="button"
@@ -162,8 +171,11 @@ export default function DashboardLayout({
             </svg>
           </button>
 
-          <Menu as="div" className="relative">
-            <Menu.Button className="flex items-center gap-3 rounded-full border bg-white px-2 py-1.5 shadow-sm transition hover:bg-gray-50"
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+
+            <Menu as="div" className="relative">
+            <Menu.Button className="flex items-center gap-3 rounded-full border bg-djoker-panel px-2 py-1.5 shadow-sm transition hover:bg-gray-50 dark:hover:bg-gray-700"
               style={{ borderColor: "var(--djoker-border)" }}>
               <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border bg-white">
                 <Image
@@ -176,7 +188,7 @@ export default function DashboardLayout({
               </div>
 
               <div className="hidden leading-tight text-left sm:block">
-                <p className="text-sm font-medium text-black">Administrator</p>
+                <p className="text-sm font-medium text-black dark:text-white">Administrator</p>
                 <p className="text-[11px]" style={{ color: "var(--djoker-muted)" }}>Admin</p>
               </div>
 
@@ -194,14 +206,14 @@ export default function DashboardLayout({
               </svg>
             </Menu.Button>
 
-            <Menu.Items className="absolute right-0 z-50 mt-3 w-56 origin-top-right rounded-xl border bg-white p-2 shadow-xl focus:outline-none"
+            <Menu.Items className="absolute right-0 z-50 mt-3 w-56 origin-top-right rounded-xl border bg-djoker-panel p-2 shadow-xl focus:outline-none"
               style={{ borderColor: "var(--djoker-border)" }}>
               <Menu.Item>
                 {({ active }) => (
                   <Link
                     href="/dashboard/profile"
                     className={`flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm transition ${
-                      active ? "bg-blue-50 text-blue-600" : "text-gray-800 hover:bg-gray-50"
+                      active ? "bg-blue-50 text-blue-600" : "text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
                     }`}
                   >
                     <User size={16} strokeWidth={2} />
@@ -215,7 +227,7 @@ export default function DashboardLayout({
                   <Link
                     href="/dashboard/settings"
                     className={`flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm transition ${
-                      active ? "bg-blue-50 text-blue-600" : "text-gray-800 hover:bg-gray-50"
+                      active ? "bg-blue-50 text-blue-600" : "text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
                     }`}
                   >
                     <Settings size={16} strokeWidth={2} />
@@ -242,6 +254,7 @@ export default function DashboardLayout({
               </Menu.Item>
             </Menu.Items>
           </Menu>
+          </div>
         </header>
 
         <main className="flex-1 overflow-y-auto p-6">{children}</main>

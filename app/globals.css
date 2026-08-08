@@ -25,18 +25,37 @@
   --djoker-text: #111827;
   --djoker-text-2: #374151;
   --djoker-muted: #6b7280;
+  --djoker-hover-bg: #eff6ff; /* blue-50, dipakai buat hover/thead */
+}
+
+/* Versi gelap: cuma ganti isi variable-nya, semua class yang sudah pakai
+   var(--djoker-*) (.card, .input-field, .sidebar-link, .table-djoker, dll)
+   otomatis ikut berubah tanpa perlu disentuh satu-satu. */
+.dark {
+  --djoker-bg: #0f1420;
+  --djoker-bg-2: #161d2e;
+  --djoker-surface: #161d2e;
+  --djoker-surface-2: #1e2740;
+
+  --djoker-border: #2a3350;
+  --djoker-border-blue: #2563eb;
+
+  --djoker-text: #e5e9f5;
+  --djoker-text-2: #c7cfe6;
+  --djoker-muted: #8b93b0;
+  --djoker-hover-bg: rgba(59, 130, 246, 0.12);
 }
 
 
 html {
-  font-family: var(--font-poppins), sans-serif;
+  font-family: var(--font-inter), sans-serif;
   overflow-x: hidden;
 }
 
 
 /* Judul: Montserrat */
 h1, h2, h3, h4, h5, h6, .font-display {
-  font-family: var(--font-montserrat), sans-serif;
+  font-family: var(--font-inter), sans-serif;
 }
 
 
@@ -166,7 +185,7 @@ body {
   .btn-outline:hover {
     border-color: var(--djoker-blue);
     color: var(--djoker-blue);
-    background: #eff6ff; /* blue-50 */
+    background: var(--djoker-hover-bg);
     transform: translateY(-1px);
   }
 
@@ -208,13 +227,13 @@ body {
     padding: 9px 16px;
     border-radius: 10px;
     font-size: 0.875rem;
-    font-weight: 400;
+    font-weight: 600;
     color: var(--djoker-text);
     transition: all 0.2s ease;
   }
 
   .sidebar-link:hover {
-    background: #eff6ff; /* blue-50 */
+    background: var(--djoker-hover-bg);
     color: var(--djoker-blue);
     border: 1px solid var(--djoker-border-blue);
   }
@@ -226,10 +245,10 @@ body {
     padding: 9px 16px;
     border-radius: 10px;
     font-size: 0.875rem;
-    font-weight: 600;
-    background: var(--djoker-blue);
+    font-weight: 700;
+    background: var(--djoker-blue-dark);
     color: white;
-    border: 1px solid var(--djoker-blue);
+    border: 1px solid var(--djoker-blue-dark);
   }
 
   /* Table */
@@ -242,7 +261,7 @@ body {
   }
 
   .table-djoker thead th {
-    background: #eff6ff;
+    background: var(--djoker-hover-bg);
     color: var(--djoker-blue-dark);
     font-weight: 700;
     font-size: 0.625rem !important; /* 10px, paksa menang atas class Tailwind */
@@ -259,7 +278,7 @@ body {
   }
 
   .table-djoker tbody tr:hover {
-    background: #eff6ff;
+    background: var(--djoker-hover-bg);
     border-left: 3px solid var(--djoker-blue);
   }
 
@@ -310,7 +329,7 @@ body {
 }
 
 .font-display {
-  font-family: var(--font-montserrat), sans-serif;
+  font-family: var(--font-inter), sans-serif;
 }
 
 

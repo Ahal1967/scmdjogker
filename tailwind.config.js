@@ -9,19 +9,21 @@ module.exports = {
     extend: {
       colors: {
         djoker: {
-          bg: "#0d0d0d",
-          panel: "#161616",
-          panel2: "#1e1e1e",
-          border: "#2a2a2a",
-          red: "#e11d2e",
-          redDark: "#b3121f",
-          text: "#f2f2f2",
-          muted: "#9a9a9a",
+          // Disambungkan ke CSS variable di globals.css, bukan hex tetap,
+          // supaya otomatis ikut berubah waktu class "dark" aktif.
+          bg: "var(--djoker-bg)",
+          panel: "var(--djoker-surface)",
+          panel2: "var(--djoker-surface-2)",
+          border: "var(--djoker-border)",
+          red: "var(--djoker-blue)",
+          redDark: "var(--djoker-blue-dark)",
+          text: "var(--djoker-text)",
+          muted: "var(--djoker-muted)",
         },
       },
       fontFamily: {
-        display: ["Poppins", "sans-serif"],
-        body: ["Inter", "sans-serif"],
+        display: ["var(--font-inter)", "sans-serif"],
+        body: ["var(--font-inter)", "sans-serif"],
       },
       borderRadius: {
         xl2: "1rem",
