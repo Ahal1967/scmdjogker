@@ -73,12 +73,12 @@ export default async function AlurPage() {
                 )}
               </div>
               <div className="pb-6 flex-1">
-                <div className="flex items-center justify-between flex-wrap gap-2">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
                   <div>
                     <p className="font-semibold text-black">{stage.label}</p>
                     <p className="text-xs text-gray-500">{stage.desc}</p>
                   </div>
-                  <div className="text-right">
+                  <div className="text-left sm:text-right">
                     <p className="font-display text-xl font-bold text-blue-600">
                       {VALUES[stage.key].value}
                     </p>
