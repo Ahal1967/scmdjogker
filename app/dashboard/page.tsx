@@ -35,6 +35,7 @@ const STATUS_PIE_COLORS: Record<string, string> = {
 
 export default function DashboardPage() {
   const supabase = createClient();
+  const [adminName, setAdminName] = useState("Administrator");
   const [stats, setStats] = useState({
     totalPesanan: 0,
     totalProduksi: 0,
@@ -78,6 +79,20 @@ export default function DashboardPage() {
   }, [currentSlide]);
 
   async function fetchStats() {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
+    if (user) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("id", user.id)
+        .single();
+
+      if (profile?.full_name) setAdminName(profile.full_name);
+    }
+
     const { count: ordersCount } = await supabase.from("orders").select("*", { count: "exact", head: true });
     const { count: productionCount } = await supabase.from("production").select("*", { count: "exact", head: true });
     const { count: customersCount } = await supabase.from("customers").select("*", { count: "exact", head: true });
@@ -178,12 +193,22 @@ export default function DashboardPage() {
       </div>
 
       <div
-        className="relative overflow-hidden rounded-2xl p-6 md:p-8 shadow-lg border border-blue-100 dark:border-blue-900"
-        style={{ background: "#eff6ff" }}
+        className="relative overflow-hidden rounded-2xl p-6 md:p-8 border border-blue-100 dark:border-blue-900"
+        style={{
+          background: "#eff6ff",
+          boxShadow: "0 1px 2px rgba(37,99,235,0.06), 0 12px 32px -8px rgba(37,99,235,0.18)",
+        }}
       >
+        {/* Elemen dekoratif halus, bukan logo/ikon */}
+        <div className="pointer-events-none absolute -right-10 -top-16 h-48 w-48 rounded-full bg-blue-200/30 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-16 left-1/3 h-40 w-40 rounded-full bg-blue-100/40 blur-3xl" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-blue-400 to-transparent opacity-60" />
+
         <div className="relative z-10">
-          <h2 className="font-display text-xl font-bold text-black dark:text-black">Selamat Datang, Administrator</h2>
-          <p className="mt-1.5 text-sm text-gray-700 max-w-xl">
+          <h2 className="font-display text-xl font-bold tracking-tight text-black dark:text-black">
+            Selamat Datang, {adminName}
+          </h2>
+          <p className="mt-1.5 text-sm text-gray-700 max-w-xl leading-relaxed">
             Pantau seluruh alur supply chain DJOKER dari satu tempat — mulai dari pesanan masuk
             sampai produk diterima pelanggan.
           </p>
@@ -191,19 +216,19 @@ export default function DashboardPage() {
           <div className="mt-5 flex flex-wrap gap-2">
             <Link
               href="/dashboard/pesanan"
-              className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3.5 py-2 text-xs font-semibold text-white hover:bg-blue-700 transition-colors"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3.5 py-2 text-xs font-semibold text-white shadow-sm shadow-blue-600/30 hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-md hover:shadow-blue-600/40 transition-all duration-200"
             >
               + Pesanan Baru
             </Link>
             <Link
               href="/dashboard/laporan"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 px-3.5 py-2 text-xs font-semibold text-blue-700 hover:bg-blue-100 transition-colors"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-white/60 px-3.5 py-2 text-xs font-semibold text-blue-700 hover:bg-white hover:-translate-y-0.5 hover:shadow-sm transition-all duration-200"
             >
               Lihat Laporan
             </Link>
             <Link
               href="/dashboard/alur"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 px-3.5 py-2 text-xs font-semibold text-blue-700 hover:bg-blue-100 transition-colors"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-white/60 px-3.5 py-2 text-xs font-semibold text-blue-700 hover:bg-white hover:-translate-y-0.5 hover:shadow-sm transition-all duration-200"
             >
               Alur Supply Chain
             </Link>
