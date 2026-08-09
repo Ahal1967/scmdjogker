@@ -5,10 +5,39 @@ import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { Menu } from "@headlessui/react";
-import { User, Settings, LogOut } from "lucide-react";
+import {
+  User,
+  Settings,
+  LogOut,
+  LayoutDashboard,
+  Share2,
+  Users2,
+  Warehouse,
+  FileText,
+  Factory,
+  ShieldCheck,
+  PackageCheck,
+  Truck,
+  BarChart3,
+  ChevronRight,
+} from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 import { createClient } from "@/lib/supabase/client";
 import { navItems } from "@/lib/nav";
+
+const NAV_ICONS: Record<string, any> = {
+  "/dashboard": LayoutDashboard,
+  "/dashboard/alur": Share2,
+  "/dashboard/supplier": Users2,
+  "/dashboard/gudang": Warehouse,
+  "/dashboard/pesanan": FileText,
+  "/dashboard/produksi": Factory,
+  "/dashboard/qc": ShieldCheck,
+  "/dashboard/packing": PackageCheck,
+  "/dashboard/pengiriman": Truck,
+  "/dashboard/laporan": BarChart3,
+  "/dashboard/pengaturan": Settings,
+};
 
 export default function DashboardLayout({
   children,
@@ -134,15 +163,42 @@ export default function DashboardLayout({
               item.href === "/dashboard"
                 ? pathname === "/dashboard"
                 : pathname?.startsWith(item.href);
+            const Icon = NAV_ICONS[item.href] ?? LayoutDashboard;
 
             return (
               <Link
                 key={item.href}
                 href={item.href}
                 onClick={() => isMobile && setSidebarOpen(false)}
-                className={isActive ? "sidebar-link-active" : "sidebar-link"}
+                className={`group flex items-center justify-between gap-2.5 rounded-xl px-3 py-2.5 text-sm transition-all duration-200 ${
+                  isActive
+                    ? "bg-blue-600 text-white font-semibold shadow-sm shadow-blue-600/30"
+                    : "text-gray-700 dark:text-gray-300 font-medium hover:bg-blue-50 dark:hover:bg-blue-900/30"
+                }`}
               >
-                {item.label}
+                <span className="flex items-center gap-2.5">
+                  <span
+                    className={`flex h-7 w-7 items-center justify-center rounded-lg ${
+                      isActive ? "bg-white/20" : "bg-blue-50 dark:bg-blue-900/40"
+                    }`}
+                  >
+                    <Icon
+                      size={15}
+                      strokeWidth={2.2}
+                      className={isActive ? "text-white" : "text-blue-600 dark:text-blue-400"}
+                    />
+                  </span>
+                  {item.label}
+                </span>
+                <ChevronRight
+                  size={14}
+                  strokeWidth={2.5}
+                  className={
+                    isActive
+                      ? "text-white/70"
+                      : "text-gray-300 dark:text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                  }
+                />
               </Link>
             );
           })}
@@ -175,9 +231,11 @@ export default function DashboardLayout({
             <ThemeToggle />
 
             <Menu as="div" className="relative">
-            <Menu.Button className="flex items-center gap-3 rounded-full border bg-djoker-panel px-2 py-1.5 shadow-sm transition hover:bg-gray-50 dark:hover:bg-gray-700"
-              style={{ borderColor: "var(--djoker-border)" }}>
-              <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border bg-white dark:bg-gray-700">
+            <Menu.Button className="flex items-center gap-3 rounded-full border border-blue-100 dark:border-blue-900 bg-white dark:bg-gray-800 px-2 py-1.5 shadow-sm shadow-blue-600/5 transition-all duration-200 hover:shadow-md hover:shadow-blue-600/10 hover:-translate-y-0.5">
+              <div
+                className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full text-white"
+                style={{ background: "linear-gradient(135deg, #3b82f6, #2563eb)" }}
+              >
                 <Image
                   src="/images/logodjogker1.jpeg"
                   alt="Avatar DJOKER"
@@ -188,14 +246,13 @@ export default function DashboardLayout({
               </div>
 
               <div className="hidden leading-tight text-left sm:block">
-                <p className="text-sm font-medium text-black dark:text-white">Administrator</p>
-                <p className="text-[11px]" style={{ color: "var(--djoker-muted)" }}>Admin</p>
+                <p className="text-sm font-semibold text-black dark:text-white">Administrator</p>
+                <p className="text-[11px] text-blue-600 dark:text-blue-400 font-medium">Admin</p>
               </div>
 
               <svg
                 viewBox="0 0 24 24"
-                className="h-4 w-4"
-                style={{ color: "var(--djoker-muted)" }}
+                className="h-4 w-4 text-gray-400"
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2"

@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Mail, Lock, Eye, EyeOff, LogIn, FileSearch, UploadCloud, MapPin } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPage() {
@@ -12,6 +13,7 @@ export default function LoginPage() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
@@ -32,12 +34,27 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white flex items-center justify-center px-4 py-10">
-      <div className="w-full max-w-md rounded-xl border border-blue-100 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-lg md:p-8">
-        {/* Logo, nama, badge, semua nyatu di dalam 1 card */}
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-blue-50 via-white to-blue-50 flex items-center justify-center px-4 py-10">
+      {/* Blob dekoratif organik di background */}
+      <div className="pointer-events-none absolute -left-24 -top-24 h-96 w-96 rounded-full bg-blue-100 opacity-70 blur-2xl" />
+      <div className="pointer-events-none absolute -right-32 top-1/4 h-[28rem] w-[28rem] rounded-full bg-blue-200/50 blur-3xl" />
+      <div className="pointer-events-none absolute -bottom-32 left-1/4 h-80 w-80 rounded-full bg-blue-100/60 blur-3xl" />
+
+      {/* Pola titik dekoratif mengambang */}
+      <div className="pointer-events-none absolute right-[8%] top-1/2 hidden -translate-y-1/2 grid-cols-3 gap-2 opacity-40 md:grid">
+        {Array.from({ length: 12 }).map((_, i) => (
+          <span key={i} className="h-1.5 w-1.5 rounded-full bg-blue-400" />
+        ))}
+      </div>
+
+      <div
+        className="relative z-10 w-full max-w-md rounded-3xl border border-blue-100 bg-white p-6 md:p-8"
+        style={{ boxShadow: "0 1px 2px rgba(37,99,235,0.06), 0 24px 48px -12px rgba(37,99,235,0.25)" }}
+      >
+        {/* Logo, nama, badge */}
         <div className="mb-6 flex flex-col items-center text-center">
           <div
-            className="mb-3 h-20 w-20 overflow-hidden rounded-full border-2 border-gray-200 dark:border-gray-700 shadow-md"
+            className="mb-3 h-20 w-20 overflow-hidden rounded-full border-2 border-gray-200 shadow-md"
             style={{ backgroundColor: "#ffffff" }}
           >
             <Image
@@ -50,16 +67,16 @@ export default function LoginPage() {
             />
           </div>
 
-          <h2 className="font-display text-xl font-bold tracking-[0.1em] text-black dark:text-white">DJOGKER</h2>
+          <h2 className="font-display text-xl font-bold tracking-[0.1em] text-black">DJOGKER</h2>
 
-          <p className="mt-3 text-xs italic text-gray-500 dark:text-gray-400">
+          <p className="mt-3 text-xs italic text-gray-500">
             &ldquo;Kualitas Terbaik untuk Hasil Sablon Maksimal&rdquo;
           </p>
         </div>
 
         <div className="mb-6 border-t border-gray-100 pt-6 text-center">
-          <h1 className="text-2xl font-bold text-black dark:text-white font-display">Selamat Datang!</h1>
-          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+          <h1 className="text-2xl font-bold text-black font-display">Selamat Datang!</h1>
+          <p className="mt-1 text-sm text-gray-600">
             Silakan login untuk melanjutkan ke dashboard.
           </p>
         </div>
@@ -72,31 +89,45 @@ export default function LoginPage() {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="mb-2 block text-xs font-medium text-gray-700 dark:text-gray-300">Email</label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="contoh@email.com"
-              className="input-field"
-              required
-            />
+            <label className="mb-2 block text-xs font-medium text-gray-700">Email</label>
+            <div className="relative">
+              <Mail size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="contoh@email.com"
+                className="input-field pl-10"
+                required
+              />
+            </div>
           </div>
 
           <div>
-            <label className="mb-2 block text-xs font-medium text-gray-700 dark:text-gray-300">Password</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-              className="input-field"
-              required
-            />
+            <label className="mb-2 block text-xs font-medium text-gray-700">Password</label>
+            <div className="relative">
+              <Lock size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="input-field pl-10 pr-10"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((v) => !v)}
+                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                tabIndex={-1}
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
           </div>
 
           <div className="flex items-center justify-between text-xs">
-            <label className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
+            <label className="flex items-center gap-2 text-gray-600">
               <input type="checkbox" className="h-4 w-4 accent-blue-600" />
               Ingat saya
             </label>
@@ -106,35 +137,43 @@ export default function LoginPage() {
             </Link>
           </div>
 
-          <button type="submit" disabled={loading} className="btn-primary mt-2 w-full">
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn-primary mt-2 flex w-full items-center justify-center gap-2"
+          >
+            <LogIn size={16} />
             {loading ? "Memproses..." : "Login"}
           </button>
         </form>
 
-        <p className="mt-6 text-center text-xs text-gray-500 dark:text-gray-400">
+        <p className="mt-6 text-center text-xs text-gray-500">
           Belum punya akun? Hubungi Administrator
         </p>
 
         <div className="mt-4 flex items-center justify-center gap-2">
           <Link
             href="/tracking"
-            className="inline-flex items-center gap-1.5 rounded-full border border-blue-100 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/40 px-3 py-1 text-xs font-medium text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700 hover:bg-blue-100 transition-colors"
           >
-            <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+            <FileSearch size={13} />
             Lacak Pesanan
           </Link>
           <Link
             href="/upload"
-            className="inline-flex items-center gap-1.5 rounded-full border border-blue-100 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/40 px-3 py-1 text-xs font-medium text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-full border border-blue-100 bg-blue-50 px-3 py-1.5 text-xs font-medium text-blue-700 hover:bg-blue-100 transition-colors"
           >
-            <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+            <UploadCloud size={13} />
             Upload Desain
           </Link>
         </div>
 
-        <div className="mt-6 border-t border-gray-100 pt-4 text-center text-[11px] text-gray-400">
-          <p>Jl. Wates Km 4,5 Gg. Ablar No 5</p>
-          <p>Gamping Kidul RT 03/17 Ambarketawang Sleman, Yogyakarta 55294</p>
+        <div className="mt-6 flex items-start justify-center gap-1.5 border-t border-gray-100 pt-4 text-center text-[11px] text-gray-400">
+          <MapPin size={12} className="mt-0.5 shrink-0" />
+          <div>
+            <p>Jl. Wates Km 4,5 Gg. Ablar No 5</p>
+            <p>Gamping Kidul RT 03/17 Ambarketawang Sleman, Yogyakarta 55294</p>
+          </div>
         </div>
       </div>
     </div>
