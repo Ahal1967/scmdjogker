@@ -10,8 +10,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "DJOKER Sablon Kaos — Supply Chain Management",
-  description: "Sistem terintegrasi untuk mengelola seluruh alur supply chain DJOKER Sablon Kaos.",
+  title: "DJOGKER Sablon Kaos — Supply Chain Management",
+  description: "Sistem terintegrasi untuk mengelola seluruh alur supply chain DJOGKER Sablon Kaos.",
 };
 
 export default function RootLayout({

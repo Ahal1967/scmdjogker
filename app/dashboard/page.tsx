@@ -199,13 +199,6 @@ export default function DashboardPage() {
           boxShadow: "0 1px 2px rgba(37,99,235,0.06), 0 12px 32px -8px rgba(37,99,235,0.18)",
         }}
       >
-        {/* Titik-titik dekoratif pojok kiri atas */}
-        <div className="absolute left-6 top-6 grid grid-cols-3 gap-1.5 opacity-40">
-          {Array.from({ length: 9 }).map((_, i) => (
-            <span key={i} className="h-1.5 w-1.5 rounded-full bg-blue-500" />
-          ))}
-        </div>
-
         <div className="pointer-events-none absolute -right-10 -top-16 h-48 w-48 rounded-full bg-blue-200/30 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-16 left-1/3 h-40 w-40 rounded-full bg-blue-100/40 blur-3xl" />
 
@@ -215,7 +208,7 @@ export default function DashboardPage() {
               Selamat Datang, {adminName}
             </h2>
             <p className="mt-2 text-sm text-gray-700 leading-relaxed">
-              Pantau seluruh alur supply chain DJOKER dari satu tempat — mulai dari pesanan masuk
+              Pantau seluruh alur supply chain DJOGKER dari satu tempat — mulai dari pesanan masuk
               sampai produk diterima pelanggan.
             </p>
 

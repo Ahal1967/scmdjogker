@@ -140,7 +140,7 @@ export default function DashboardLayout({
           <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg border bg-white dark:bg-gray-700 shadow">
             <Image
               src="/images/logodjogker1.jpeg"
-              alt="Logo DJOKER"
+              alt="Logo DJOGKER"
               width={40}
               height={40}
               className="object-contain p-1"
@@ -149,7 +149,7 @@ export default function DashboardLayout({
           </div>
           <div className="leading-tight">
             <p className="font-display text-xs font-bold tracking-wide text-black dark:text-white">
-              DJOKER
+              DJOGKER
             </p>
             <p className="text-[9px] tracking-widest" style={{ color: "var(--djoker-muted)" }}>
               SCM SYSTEM
@@ -236,7 +236,7 @@ export default function DashboardLayout({
               <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border bg-white dark:bg-gray-700">
                 <Image
                   src="/images/logodjogker1.jpeg"
-                  alt="Avatar DJOKER"
+                  alt="Avatar DJOGKER"
                   width={32}
                   height={32}
                   className="object-contain p-1"

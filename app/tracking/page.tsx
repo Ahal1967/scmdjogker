@@ -75,7 +75,7 @@ export default function TrackingPage() {
 
         <div className="rounded-xl border border-blue-100 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-lg md:p-8 mb-6">
           <div className="mb-6 text-center">
-            <p className="font-display text-xs font-bold tracking-widest text-blue-600">DJOKER SABLON KAOS</p>
+            <p className="font-display text-xs font-bold tracking-widest text-blue-600">DJOGKER SABLON KAOS</p>
             <h1 className="mt-2 font-display text-2xl font-bold text-black dark:text-white">Lacak Pesanan</h1>
             <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
               Masukkan nomor pesanan kamu untuk melihat status terbaru.

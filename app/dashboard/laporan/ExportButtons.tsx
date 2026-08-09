@@ -53,7 +53,7 @@ export default function ExportButtons({ orders }: { orders: Order[] }) {
     const doc = new jsPDF({ orientation: "landscape" });
 
     doc.setFontSize(14);
-    doc.text("Laporan Pesanan — DJOKER Sablon Kaos", 14, 15);
+    doc.text("Laporan Pesanan — DJOGKER Sablon Kaos", 14, 15);
     doc.setFontSize(9);
     doc.text(`Dicetak: ${new Date().toLocaleDateString("id-ID")}`, 14, 21);
 
