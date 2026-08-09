@@ -108,7 +108,7 @@ export default function DashboardLayout({
           className="flex h-16 items-center gap-3 border-b px-5"
           style={{ borderColor: "var(--djoker-border)" }}
         >
-          <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg border bg-white shadow">
+          <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg border bg-white dark:bg-gray-700 shadow">
             <Image
               src="/images/logodjogker1.jpeg"
               alt="Logo DJOKER"
@@ -154,7 +154,7 @@ export default function DashboardLayout({
           style={{ borderColor: "var(--djoker-border)" }}>
           <button
             type="button"
-            className="rounded-lg p-2 hover:bg-gray-100 md:hidden"
+            className="rounded-lg p-2 hover:bg-gray-100 dark:hover:bg-gray-700 md:hidden"
             onClick={() => setSidebarOpen((s) => !s)}
             aria-label="Toggle sidebar"
           >
@@ -177,7 +177,7 @@ export default function DashboardLayout({
             <Menu as="div" className="relative">
             <Menu.Button className="flex items-center gap-3 rounded-full border bg-djoker-panel px-2 py-1.5 shadow-sm transition hover:bg-gray-50 dark:hover:bg-gray-700"
               style={{ borderColor: "var(--djoker-border)" }}>
-              <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border bg-white">
+              <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border bg-white dark:bg-gray-700">
                 <Image
                   src="/images/logodjogker1.jpeg"
                   alt="Avatar DJOKER"

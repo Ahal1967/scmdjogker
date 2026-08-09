@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -63,6 +65,14 @@ export default function TrackingPage() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-white dark:from-gray-900 dark:via-gray-900 dark:to-gray-900 px-4 py-10 md:py-16">
       <div className="mx-auto max-w-2xl">
+        <Link
+          href="/login"
+          className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3.5 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 shadow-sm hover:border-blue-200 hover:text-blue-600 hover:shadow transition-all"
+        >
+          <ArrowLeft size={15} strokeWidth={2.5} />
+          Kembali ke Login
+        </Link>
+
         <div className="rounded-xl border border-blue-100 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-lg md:p-8 mb-6">
           <div className="mb-6 text-center">
             <p className="font-display text-xs font-bold tracking-widest text-blue-600">DJOKER SABLON KAOS</p>

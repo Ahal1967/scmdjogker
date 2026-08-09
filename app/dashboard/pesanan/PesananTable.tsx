@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 
 type Customer = {
@@ -26,6 +27,7 @@ type Order = {
   sisa_pembayaran: number | null;
   status: string | null;
   alamat_pengiriman: string | null;
+  desain_url: string | null;
   customers: { nama: string | null } | null;
   order_items: OrderItem[] | null;
 };
@@ -575,6 +577,41 @@ export default function PesananTable() {
                 </span>
               </div>
             </div>
+
+            {detailOrder.desain_url && (
+              <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+                <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
+                  Desain Diupload Pelanggan
+                </p>
+                {detailOrder.desain_url.toLowerCase().endsWith(".pdf") ? (
+                  <a
+                    href={detailOrder.desain_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-outline w-full text-center block"
+                  >
+                    Buka File PDF
+                  </a>
+                ) : (
+                  <>
+                    <a
+                      href={detailOrder.desain_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block relative w-full h-48 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900"
+                    >
+                      <Image
+                        src={detailOrder.desain_url}
+                        alt="Desain dari pelanggan"
+                        fill
+                        className="object-contain"
+                      />
+                    </a>
+                    <p className="text-xs text-gray-400 mt-1">Klik gambar untuk buka ukuran penuh.</p>
+                  </>
+                )}
+              </div>
+            )}
 
             <button onClick={() => setDetailOrder(null)} className="btn-outline mt-4 w-full">
               Tutup

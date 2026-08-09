@@ -86,7 +86,7 @@ export default function SettingsPage() {
         <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">Atur preferensi dan konfigurasi sistem.</p>
       </div>
 
-      <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 md:p-6" style={{ borderLeft: "1px solid #3b82f6" }}>
+      <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 md:p-6 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300" style={{ borderLeft: "1px solid #3b82f6" }}>
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Display name</label>
@@ -118,7 +118,7 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 md:p-6" style={{ borderLeft: "1px solid #94a3b8" }}>
+      <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 md:p-6 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300" style={{ borderLeft: "1px solid #94a3b8" }}>
         <h2 className="text-base font-semibold text-black dark:text-white md:text-lg">Account</h2>
         <div className="mt-4 space-y-4">
           <div className="flex items-center justify-between">

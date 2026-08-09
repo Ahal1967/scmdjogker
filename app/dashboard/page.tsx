@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import {
   ShoppingCart,
@@ -10,6 +11,27 @@ import {
   Wallet,
   CalendarDays,
 } from "lucide-react";
+import {
+  AreaChart,
+  Area,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+
+const STATUS_PIE_COLORS: Record<string, string> = {
+  Pesanan: "#3b82f6",
+  Produksi: "#eab308",
+  QC: "#a855f7",
+  Packing: "#f97316",
+  Dikirim: "#06b6d4",
+  Selesai: "#22c55e",
+};
 
 export default function DashboardPage() {
   const supabase = createClient();
@@ -36,12 +58,12 @@ export default function DashboardPage() {
   const sliderRef = useRef<HTMLDivElement>(null);
 
   const statsCards = [
-    { title: "Total Pesanan", value: stats.totalPesanan, color: "from-blue-50 to-blue-100", textColor: "text-blue-700", valueColor: "text-blue-900", accent: "#2563eb", icon: ShoppingCart, iconBg: "bg-blue-600" },
-    { title: "Total Produksi", value: stats.totalProduksi, color: "from-green-50 to-green-100", textColor: "text-green-700", valueColor: "text-green-900", accent: "#16a34a", icon: Factory, iconBg: "bg-green-600" },
-    { title: "Pelanggan", value: stats.totalPelanggan, color: "from-purple-50 to-purple-100", textColor: "text-purple-700", valueColor: "text-purple-900", accent: "#9333ea", icon: Users, iconBg: "bg-purple-600" },
-    { title: "Supplier", value: stats.totalSupplier, color: "from-orange-50 to-orange-100", textColor: "text-orange-700", valueColor: "text-orange-900", accent: "#ea580c", icon: Truck, iconBg: "bg-orange-600" },
-    { title: "Total Pendapatan", value: `Rp ${stats.totalPendapatan.toLocaleString("id-ID")}`, color: "from-emerald-50 to-emerald-100", textColor: "text-emerald-700", valueColor: "text-emerald-900", accent: "#059669", icon: Wallet, iconBg: "bg-emerald-600" },
-    { title: "Pesanan Bulan Ini", value: stats.pesananBulanIni, color: "from-cyan-50 to-cyan-100", textColor: "text-cyan-700", valueColor: "text-cyan-900", accent: "#0891b2", icon: CalendarDays, iconBg: "bg-cyan-600" },
+    { title: "Total Pesanan", value: stats.totalPesanan, color: "from-blue-50 to-blue-100 dark:from-blue-950/40 dark:to-blue-900/20", textColor: "text-blue-700 dark:text-blue-300", valueColor: "text-blue-900 dark:text-blue-100", accent: "#2563eb", icon: ShoppingCart, iconBg: "bg-blue-600", href: "/dashboard/pesanan" },
+    { title: "Total Produksi", value: stats.totalProduksi, color: "from-green-50 to-green-100 dark:from-green-950/40 dark:to-green-900/20", textColor: "text-green-700 dark:text-green-300", valueColor: "text-green-900 dark:text-green-100", accent: "#16a34a", icon: Factory, iconBg: "bg-green-600", href: "/dashboard/produksi" },
+    { title: "Pelanggan", value: stats.totalPelanggan, color: "from-purple-50 to-purple-100 dark:from-purple-950/40 dark:to-purple-900/20", textColor: "text-purple-700 dark:text-purple-300", valueColor: "text-purple-900 dark:text-purple-100", accent: "#9333ea", icon: Users, iconBg: "bg-purple-600", href: "/dashboard/pesanan" },
+    { title: "Supplier", value: stats.totalSupplier, color: "from-orange-50 to-orange-100 dark:from-orange-950/40 dark:to-orange-900/20", textColor: "text-orange-700 dark:text-orange-300", valueColor: "text-orange-900 dark:text-orange-100", accent: "#ea580c", icon: Truck, iconBg: "bg-orange-600", href: "/dashboard/supplier" },
+    { title: "Total Pendapatan", value: `Rp ${stats.totalPendapatan.toLocaleString("id-ID")}`, color: "from-emerald-50 to-emerald-100 dark:from-emerald-950/40 dark:to-emerald-900/20", textColor: "text-emerald-700 dark:text-emerald-300", valueColor: "text-emerald-900 dark:text-emerald-100", accent: "#059669", icon: Wallet, iconBg: "bg-emerald-600", href: "/dashboard/laporan" },
+    { title: "Pesanan Bulan Ini", value: stats.pesananBulanIni, color: "from-cyan-50 to-cyan-100 dark:from-cyan-950/40 dark:to-cyan-900/20", textColor: "text-cyan-700 dark:text-cyan-300", valueColor: "text-cyan-900 dark:text-cyan-100", accent: "#0891b2", icon: CalendarDays, iconBg: "bg-cyan-600", href: "/dashboard/laporan" },
   ];
 
   useEffect(() => {
@@ -144,7 +166,6 @@ export default function DashboardPage() {
     return <div className="text-center text-gray-500 dark:text-gray-400 py-8">Memuat dashboard...</div>;
   }
 
-  const maxCount = Math.max(...statusOrders.map(s => s.count), 1);
 
   return (
     <div className="space-y-4 md:space-y-6">
@@ -154,6 +175,40 @@ export default function DashboardPage() {
         </span>
         <h1 className="font-display text-2xl font-bold text-black dark:text-white">Dashboard</h1>
         <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">Ringkasan aktivitas SCM Djogker.</p>
+      </div>
+
+      <div
+        className="relative overflow-hidden rounded-2xl p-6 md:p-8 shadow-lg border border-blue-100 dark:border-blue-900"
+        style={{ background: "#eff6ff" }}
+      >
+        <div className="relative z-10">
+          <h2 className="font-display text-xl font-bold text-black dark:text-black">Selamat Datang, Administrator</h2>
+          <p className="mt-1.5 text-sm text-gray-700 max-w-xl">
+            Pantau seluruh alur supply chain DJOKER dari satu tempat — mulai dari pesanan masuk
+            sampai produk diterima pelanggan.
+          </p>
+
+          <div className="mt-5 flex flex-wrap gap-2">
+            <Link
+              href="/dashboard/pesanan"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3.5 py-2 text-xs font-semibold text-white hover:bg-blue-700 transition-colors"
+            >
+              + Pesanan Baru
+            </Link>
+            <Link
+              href="/dashboard/laporan"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 px-3.5 py-2 text-xs font-semibold text-blue-700 hover:bg-blue-100 transition-colors"
+            >
+              Lihat Laporan
+            </Link>
+            <Link
+              href="/dashboard/alur"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 px-3.5 py-2 text-xs font-semibold text-blue-700 hover:bg-blue-100 transition-colors"
+            >
+              Alur Supply Chain
+            </Link>
+          </div>
+        </div>
       </div>
 
       <div className="md:hidden">
@@ -168,9 +223,10 @@ export default function DashboardPage() {
             {statsCards.map((card, idx) => {
               const Icon = card.icon;
               return (
-                <div
+                <Link
                   key={idx}
-                  className={`flex-shrink-0 w-[90%] card bg-gradient-to-br ${card.color} snap-center`}
+                  href={card.href}
+                  className={`flex-shrink-0 w-[90%] card bg-gradient-to-br ${card.color} snap-center block cursor-pointer`}
                   style={{ borderLeft: `1px solid ${card.accent}` }}
                 >
                   <div className={`mb-3 flex h-9 w-9 items-center justify-center rounded-lg ${card.iconBg}`}>
@@ -178,7 +234,7 @@ export default function DashboardPage() {
                   </div>
                   <p className={`text-xs font-medium uppercase tracking-wide ${card.textColor}`}>{card.title}</p>
                   <p className={`mt-1 font-display text-3xl font-bold ${card.valueColor}`}>{card.value}</p>
-                </div>
+                </Link>
               );
             })}
           </div>
@@ -201,9 +257,10 @@ export default function DashboardPage() {
         {statsCards.map((card, idx) => {
           const Icon = card.icon;
           return (
-            <div
+            <Link
               key={idx}
-              className={`card bg-gradient-to-br ${card.color}`}
+              href={card.href}
+              className={`card bg-gradient-to-br ${card.color} block cursor-pointer`}
               style={{ borderLeft: `1px solid ${card.accent}` }}
             >
               <div className={`mb-3 flex h-9 w-9 items-center justify-center rounded-lg ${card.iconBg}`}>
@@ -211,35 +268,56 @@ export default function DashboardPage() {
               </div>
               <p className={`text-xs font-medium uppercase tracking-wide ${card.textColor}`}>{card.title}</p>
               <p className={`mt-1 font-display text-3xl font-bold ${card.valueColor}`}>{card.value}</p>
-            </div>
+            </Link>
           );
         })}
       </div>
 
       <div className="card" style={{ borderLeft: "1px solid #2563eb" }}>
         <h2 className="text-base font-semibold text-black dark:text-white mb-4">Status Pesanan</h2>
-        <div className="space-y-3">
-          {statusOrders.map((s) => (
-            <div key={s.status}>
-              <div className="flex items-center justify-between text-sm mb-1">
-                <span className="text-gray-700 dark:text-gray-300 font-medium">{s.status}</span>
+        <div className="flex flex-col md:flex-row items-center gap-4">
+          <div className="w-full md:w-1/2">
+            <ResponsiveContainer width="100%" height={180}>
+              <PieChart>
+                <Pie
+                  data={statusOrders}
+                  dataKey="count"
+                  nameKey="status"
+                  innerRadius={45}
+                  outerRadius={75}
+                  paddingAngle={3}
+                  strokeWidth={0}
+                >
+                  {statusOrders.map((s) => (
+                    <Cell key={s.status} fill={STATUS_PIE_COLORS[s.status] ?? "#94a3b8"} />
+                  ))}
+                </Pie>
+                <Tooltip
+                  contentStyle={{
+                    background: "var(--djoker-surface)",
+                    border: "1px solid var(--djoker-border)",
+                    borderRadius: 8,
+                    fontSize: 12,
+                  }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+
+          <div className="w-full md:w-1/2 space-y-2.5">
+            {statusOrders.map((s) => (
+              <div key={s.status} className="flex items-center justify-between text-sm">
+                <div className="flex items-center gap-2">
+                  <span
+                    className="h-2.5 w-2.5 rounded-full shrink-0"
+                    style={{ backgroundColor: STATUS_PIE_COLORS[s.status] ?? "#94a3b8" }}
+                  />
+                  <span className="text-gray-700 dark:text-gray-300 font-medium">{s.status}</span>
+                </div>
                 <span className="text-gray-900 dark:text-gray-100 font-bold">{s.count}</span>
               </div>
-              <div className="h-4 bg-gray-200 rounded-full overflow-hidden">
-                <div
-                  className={`h-full transition-all ${
-                    s.status === "Pesanan" ? "bg-blue-500" :
-                    s.status === "Produksi" ? "bg-yellow-500" :
-                    s.status === "QC" ? "bg-purple-500" :
-                    s.status === "Packing" ? "bg-orange-500" :
-                    s.status === "Dikirim" ? "bg-cyan-500" :
-                    "bg-green-500"
-                  }`}
-                  style={{ width: `${(s.count / maxCount) * 100}%` }}
-                />
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
 
@@ -274,37 +352,45 @@ export default function DashboardPage() {
         <h2 className="text-base font-semibold text-black dark:text-white mb-4">
           Tren Pendapatan (6 Bulan Terakhir)
         </h2>
-        <div className="space-y-3">
-          {monthlyRevenue.map((m) => {
-            const maxRevenue = Math.max(...monthlyRevenue.map((x) => x.pendapatan), 1);
-            return (
-              <div key={m.bulan}>
-                <div className="flex items-center justify-between text-sm mb-1">
-                  <span className="text-gray-700 dark:text-gray-300 font-medium">{m.bulan}</span>
-                  <span className="text-gray-900 dark:text-gray-100 font-bold">
-                    Rp {m.pendapatan.toLocaleString("id-ID")}
-                  </span>
-                </div>
-                <div className="h-4 bg-gray-200 rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-blue-600 transition-all"
-                    style={{ width: `${(m.pendapatan / maxRevenue) * 100}%` }}
-                  />
-                </div>
-              </div>
-            );
-          })}
-          {monthlyRevenue.every((m) => m.pendapatan === 0) && (
-            <p className="text-sm text-gray-500 dark:text-gray-400">Belum ada data pendapatan 6 bulan terakhir.</p>
-          )}
-        </div>
-      </div>
-
-      <div className="card" style={{ borderLeft: "1px solid #94a3b8" }}>
-        <h2 className="text-base font-semibold text-black dark:text-white">Selamat Datang</h2>
-        <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-          Gunakan menu di sidebar untuk mengelola pesanan, produksi, dan laporan.
-        </p>
+        {monthlyRevenue.every((m) => m.pendapatan === 0) ? (
+          <p className="text-sm text-gray-500 dark:text-gray-400">Belum ada data pendapatan 6 bulan terakhir.</p>
+        ) : (
+          <ResponsiveContainer width="100%" height={220}>
+            <AreaChart data={monthlyRevenue}>
+              <defs>
+                <linearGradient id="colorPendapatan" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#059669" stopOpacity={0.35} />
+                  <stop offset="95%" stopColor="#059669" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
+              <XAxis dataKey="bulan" stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
+              <YAxis
+                stroke="#6b7280"
+                fontSize={11}
+                tickLine={false}
+                axisLine={false}
+                tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
+              />
+              <Tooltip
+                formatter={(value: number) => [`Rp ${value.toLocaleString("id-ID")}`, "Pendapatan"]}
+                contentStyle={{
+                  background: "var(--djoker-surface)",
+                  border: "1px solid var(--djoker-border)",
+                  borderRadius: 8,
+                  fontSize: 12,
+                }}
+              />
+              <Area
+                type="monotone"
+                dataKey="pendapatan"
+                stroke="#059669"
+                strokeWidth={2}
+                fill="url(#colorPendapatan)"
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        )}
       </div>
     </div>
   );

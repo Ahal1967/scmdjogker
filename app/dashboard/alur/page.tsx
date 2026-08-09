@@ -1,15 +1,27 @@
 import { createClient } from "@/lib/supabase/server";
+import Link from "next/link";
+import {
+  Truck,
+  PackagePlus,
+  Warehouse,
+  ShoppingCart,
+  Factory,
+  CheckCircle2,
+  Package,
+  Send,
+  UserCheck,
+} from "lucide-react";
 
 const STAGES = [
-  { key: "supplier", label: "Supplier", desc: "Pemasok bahan baku" },
-  { key: "bahan", label: "Bahan Masuk", desc: "Bahan baku diterima" },
-  { key: "gudang", label: "Gudang", desc: "Penyimpanan bahan baku" },
-  { key: "pesanan", label: "Pesanan", desc: "Pelanggan membuat pesanan" },
-  { key: "produksi", label: "Produksi", desc: "Proses produksi sablon" },
-  { key: "qc", label: "QC (Quality Control)", desc: "Pemeriksaan kualitas produk" },
-  { key: "packing", label: "Packing", desc: "Pengemasan produk" },
-  { key: "pengiriman", label: "Pengiriman", desc: "Produk dikirim ke konsumen" },
-  { key: "konsumen", label: "Konsumen", desc: "Produk diterima pelanggan" },
+  { key: "supplier", label: "Supplier", desc: "Pemasok bahan baku", icon: Truck, accent: "#2563eb", iconBg: "bg-blue-600", href: "/dashboard/supplier" },
+  { key: "bahan", label: "Bahan Masuk", desc: "Bahan baku diterima", icon: PackagePlus, accent: "#0891b2", iconBg: "bg-cyan-600", href: "/dashboard/gudang" },
+  { key: "gudang", label: "Gudang", desc: "Penyimpanan bahan baku", icon: Warehouse, accent: "#16a34a", iconBg: "bg-green-600", href: "/dashboard/gudang" },
+  { key: "pesanan", label: "Pesanan", desc: "Pelanggan membuat pesanan", icon: ShoppingCart, accent: "#9333ea", iconBg: "bg-purple-600", href: "/dashboard/pesanan" },
+  { key: "produksi", label: "Produksi", desc: "Proses produksi sablon", icon: Factory, accent: "#ea580c", iconBg: "bg-orange-600", href: "/dashboard/produksi" },
+  { key: "qc", label: "QC (Quality Control)", desc: "Pemeriksaan kualitas produk", icon: CheckCircle2, accent: "#7c3aed", iconBg: "bg-violet-600", href: "/dashboard/qc" },
+  { key: "packing", label: "Packing", desc: "Pengemasan produk", icon: Package, accent: "#d97706", iconBg: "bg-amber-600", href: "/dashboard/packing" },
+  { key: "pengiriman", label: "Pengiriman", desc: "Produk dikirim ke konsumen", icon: Send, accent: "#0d9488", iconBg: "bg-teal-600", href: "/dashboard/pengiriman" },
+  { key: "konsumen", label: "Konsumen", desc: "Produk diterima pelanggan", icon: UserCheck, accent: "#059669", iconBg: "bg-emerald-600", href: "/dashboard/laporan" },
 ] as const;
 
 export default async function AlurPage() {
@@ -63,35 +75,38 @@ export default async function AlurPage() {
         </p>
       </div>
 
-      <div className="card" style={{ borderLeft: "1px solid #3b82f6" }}>
-        <div className="relative">
-          {STAGES.map((stage, idx) => (
-            <div key={stage.key} className="flex gap-4">
-              <div className="flex flex-col items-center">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white font-display font-bold text-sm shadow-md ring-4 ring-blue-50">
-                  {idx + 1}
-                </div>
-                {idx < STAGES.length - 1 && (
-                  <div className="w-0.5 flex-1 bg-blue-100 min-h-[32px]" />
-                )}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {STAGES.map((stage, idx) => {
+          const Icon = stage.icon;
+          return (
+            <Link
+              key={stage.key}
+              href={stage.href}
+              className="card relative block cursor-pointer"
+              style={{ borderLeft: `1px solid ${stage.accent}` }}
+            >
+              <span className="absolute top-4 right-4 text-xs font-display font-bold text-gray-300 dark:text-gray-600">
+                {String(idx + 1).padStart(2, "0")}
+              </span>
+
+              <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-lg ${stage.iconBg} shadow-sm`}>
+                <Icon className="text-white" size={19} />
               </div>
-              <div className="pb-6 flex-1">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 sm:gap-2">
-                  <div>
-                    <p className="text-base font-semibold text-black dark:text-white">{stage.label}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{stage.desc}</p>
-                  </div>
-                  <div className="text-left sm:text-right">
-                    <p className="font-display text-xl font-bold text-blue-600">
-                      {VALUES[stage.key].value}
-                    </p>
-                    <p className="text-[11px] text-gray-500 dark:text-gray-400">{VALUES[stage.key].hint}</p>
-                  </div>
-                </div>
+
+              <p className="text-base font-semibold text-black dark:text-white">{stage.label}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">{stage.desc}</p>
+
+              <div className="pt-3 border-t border-gray-100 dark:border-gray-700 flex items-end justify-between">
+                <p className="font-display text-2xl font-bold" style={{ color: stage.accent }}>
+                  {VALUES[stage.key].value}
+                </p>
+                <p className="text-[11px] text-gray-500 dark:text-gray-400 text-right">
+                  {VALUES[stage.key].hint}
+                </p>
               </div>
-            </div>
-          ))}
-        </div>
+            </Link>
+          );
+        })}
       </div>
     </div>
   );

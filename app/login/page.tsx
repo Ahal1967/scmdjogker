@@ -40,10 +40,6 @@ export default function LoginPage() {
       <div className="w-full max-w-md rounded-xl border border-blue-100 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-lg md:p-8">
         {/* Logo, nama, badge, semua nyatu di dalam 1 card */}
         <div className="mb-6 flex flex-col items-center text-center">
-          <span className="mb-3 inline-flex items-center rounded-full bg-blue-50 dark:bg-blue-900/40 border border-blue-100 dark:border-blue-800 px-3 py-1 text-xs font-semibold tracking-wide text-black dark:text-white">
-            SUPPLY CHAIN MANAGEMENT
-          </span>
-
           <div
             className="mb-3 h-20 w-20 overflow-hidden rounded-full border-2 border-gray-200 dark:border-gray-700 shadow-md"
             style={{ backgroundColor: "#ffffff" }}
@@ -59,7 +55,8 @@ export default function LoginPage() {
           </div>
 
           <h2 className="font-display text-xl font-bold tracking-[0.1em] text-black dark:text-white">DJOGKER</h2>
-          <p className="mt-1 text-xs italic text-gray-500 dark:text-gray-400">
+
+          <p className="mt-3 text-xs italic text-gray-500 dark:text-gray-400">
             &ldquo;Kualitas Terbaik untuk Hasil Sablon Maksimal&rdquo;
           </p>
         </div>

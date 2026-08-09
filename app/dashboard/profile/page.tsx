@@ -36,7 +36,7 @@ export default function ProfilePage() {
         <h1 className="font-display text-2xl font-bold text-black dark:text-white">Profile</h1>
       </div>
 
-      <div className="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 md:p-6" style={{ borderLeft: "1px solid #3b82f6" }}>
+      <div className="rounded-2xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-4 md:p-6 shadow-sm hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300" style={{ borderLeft: "1px solid #3b82f6" }}>
         <div className="space-y-4">
           <div>
             <label className="block text-sm text-gray-600 dark:text-gray-400">Email</label>

@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
+import ExportButtons from "./ExportButtons";
 
 type Order = {
   id: string;
@@ -55,7 +56,7 @@ export default async function LaporanPage() {
   return (
     <div className="space-y-4 md:space-y-6">
       <div>
-        <span className="mb-2 inline-flex items-center rounded-full bg-blue-50 border border-blue-100 px-3 py-1 text-xs font-semibold tracking-wide text-blue-700">ANALITIK</span>
+        <span className="mb-2 inline-flex items-center rounded-full bg-blue-50 border border-blue-100 px-3 py-1 text-xs font-semibold tracking-wide text-blue-700">ANALISIS</span>
         <h1 className="font-display text-2xl font-bold text-black dark:text-white">Laporan Pesanan</h1>
         <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">Ringkasan dan daftar semua pesanan pelanggan.</p>
       </div>
@@ -85,9 +86,12 @@ export default async function LaporanPage() {
             <h2 className="text-base font-semibold text-black dark:text-white md:text-lg">Daftar Pesanan</h2>
             <p className="text-xs text-gray-500 dark:text-gray-400">{dataOrders.length} pesanan ditemukan</p>
           </div>
-          <Link href="/dashboard/laporan/tambah" className="btn-primary text-xs md:text-sm">
-            + Pesanan Baru
-          </Link>
+          <div className="flex items-center gap-2">
+            <ExportButtons orders={dataOrders} />
+            <Link href="/dashboard/laporan/tambah" className="btn-primary text-xs md:text-sm">
+              + Pesanan Baru
+            </Link>
+          </div>
         </div>
 
         <div className="overflow-x-auto">
