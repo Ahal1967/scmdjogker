@@ -231,11 +231,9 @@ export default function DashboardLayout({
             <ThemeToggle />
 
             <Menu as="div" className="relative">
-            <Menu.Button className="flex items-center gap-3 rounded-full border border-blue-100 dark:border-blue-900 bg-white dark:bg-gray-800 px-2 py-1.5 shadow-sm shadow-blue-600/5 transition-all duration-200 hover:shadow-md hover:shadow-blue-600/10 hover:-translate-y-0.5">
-              <div
-                className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full text-white"
-                style={{ background: "linear-gradient(135deg, #3b82f6, #2563eb)" }}
-              >
+            <Menu.Button className="flex items-center gap-3 rounded-full border bg-djoker-panel px-2 py-1.5 shadow-sm transition hover:bg-gray-50 dark:hover:bg-gray-700"
+              style={{ borderColor: "var(--djoker-border)" }}>
+              <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border bg-white dark:bg-gray-700">
                 <Image
                   src="/images/logodjogker1.jpeg"
                   alt="Avatar DJOKER"
@@ -246,13 +244,14 @@ export default function DashboardLayout({
               </div>
 
               <div className="hidden leading-tight text-left sm:block">
-                <p className="text-sm font-semibold text-black dark:text-white">Administrator</p>
-                <p className="text-[11px] text-blue-600 dark:text-blue-400 font-medium">Admin</p>
+                <p className="text-sm font-medium text-black dark:text-white">Administrator</p>
+                <p className="text-[11px]" style={{ color: "var(--djoker-muted)" }}>Admin</p>
               </div>
 
               <svg
                 viewBox="0 0 24 24"
-                className="h-4 w-4 text-gray-400"
+                className="h-4 w-4"
+                style={{ color: "var(--djoker-muted)" }}
                 fill="none"
                 stroke="currentColor"
                 strokeWidth="2"

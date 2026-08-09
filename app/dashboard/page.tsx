@@ -10,7 +10,6 @@ import {
   Truck,
   Wallet,
   CalendarDays,
-  Package,
 } from "lucide-react";
 import {
   AreaChart,
@@ -240,26 +239,6 @@ export default function DashboardPage() {
                 Alur Supply Chain
               </Link>
             </div>
-          </div>
-
-          {/* Ilustrasi sederhana ala referensi: lingkaran lembut + ikon tengah */}
-          <div className="relative hidden shrink-0 md:block">
-            <div
-              className="flex h-36 w-36 items-center justify-center rounded-full"
-              style={{ background: "radial-gradient(circle, #bfdbfe 0%, #eff6ff 70%)" }}
-            >
-              <div
-                className="flex h-16 w-16 items-center justify-center rounded-2xl text-white"
-                style={{
-                  background: "linear-gradient(135deg, #3b82f6, #2563eb)",
-                  boxShadow: "0 8px 20px rgba(37,99,235,0.35)",
-                }}
-              >
-                <Package size={30} strokeWidth={1.8} />
-              </div>
-            </div>
-            <span className="absolute -right-1 top-2 h-3 w-3 rounded-full bg-blue-300" />
-            <span className="absolute -left-2 bottom-4 h-2 w-2 rounded-full bg-blue-400" />
           </div>
         </div>
       </div>
