@@ -10,6 +10,7 @@ import {
   Truck,
   Wallet,
   CalendarDays,
+  Package,
 } from "lucide-react";
 import {
   AreaChart,
@@ -193,45 +194,72 @@ export default function DashboardPage() {
       </div>
 
       <div
-        className="relative overflow-hidden rounded-2xl p-6 md:p-8 border border-blue-100 dark:border-blue-900"
+        className="relative overflow-hidden rounded-2xl border border-blue-100 dark:border-blue-900"
         style={{
-          background: "#eff6ff",
+          background: "linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)",
           boxShadow: "0 1px 2px rgba(37,99,235,0.06), 0 12px 32px -8px rgba(37,99,235,0.18)",
         }}
       >
-        {/* Elemen dekoratif halus, bukan logo/ikon */}
+        {/* Titik-titik dekoratif pojok kiri atas */}
+        <div className="absolute left-6 top-6 grid grid-cols-3 gap-1.5 opacity-40">
+          {Array.from({ length: 9 }).map((_, i) => (
+            <span key={i} className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+          ))}
+        </div>
+
         <div className="pointer-events-none absolute -right-10 -top-16 h-48 w-48 rounded-full bg-blue-200/30 blur-3xl" />
         <div className="pointer-events-none absolute -bottom-16 left-1/3 h-40 w-40 rounded-full bg-blue-100/40 blur-3xl" />
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-blue-400 to-transparent opacity-60" />
 
-        <div className="relative z-10">
-          <h2 className="font-display text-xl font-bold tracking-tight text-black dark:text-black">
-            Selamat Datang, {adminName}
-          </h2>
-          <p className="mt-1.5 text-sm text-gray-700 max-w-xl leading-relaxed">
-            Pantau seluruh alur supply chain DJOKER dari satu tempat — mulai dari pesanan masuk
-            sampai produk diterima pelanggan.
-          </p>
+        <div className="relative z-10 flex items-center justify-between gap-6 p-6 md:p-8">
+          <div className="max-w-xl">
+            <h2 className="font-display text-xl font-bold tracking-tight text-black md:text-2xl">
+              Selamat Datang, {adminName}
+            </h2>
+            <p className="mt-2 text-sm text-gray-700 leading-relaxed">
+              Pantau seluruh alur supply chain DJOKER dari satu tempat — mulai dari pesanan masuk
+              sampai produk diterima pelanggan.
+            </p>
 
-          <div className="mt-5 flex flex-wrap gap-2">
-            <Link
-              href="/dashboard/pesanan"
-              className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3.5 py-2 text-xs font-semibold text-white shadow-sm shadow-blue-600/30 hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-md hover:shadow-blue-600/40 transition-all duration-200"
+            <div className="mt-6 flex flex-wrap gap-2">
+              <Link
+                href="/dashboard/pesanan"
+                className="inline-flex items-center gap-1.5 rounded-full bg-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-sm shadow-blue-600/30 hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-md hover:shadow-blue-600/40 transition-all duration-200"
+              >
+                + Pesanan Baru
+              </Link>
+              <Link
+                href="/dashboard/laporan"
+                className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-white/70 px-4 py-2 text-xs font-semibold text-blue-700 hover:bg-white hover:-translate-y-0.5 hover:shadow-sm transition-all duration-200"
+              >
+                Lihat Laporan
+              </Link>
+              <Link
+                href="/dashboard/alur"
+                className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-white/70 px-4 py-2 text-xs font-semibold text-blue-700 hover:bg-white hover:-translate-y-0.5 hover:shadow-sm transition-all duration-200"
+              >
+                Alur Supply Chain
+              </Link>
+            </div>
+          </div>
+
+          {/* Ilustrasi sederhana ala referensi: lingkaran lembut + ikon tengah */}
+          <div className="relative hidden shrink-0 md:block">
+            <div
+              className="flex h-36 w-36 items-center justify-center rounded-full"
+              style={{ background: "radial-gradient(circle, #bfdbfe 0%, #eff6ff 70%)" }}
             >
-              + Pesanan Baru
-            </Link>
-            <Link
-              href="/dashboard/laporan"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-white/60 px-3.5 py-2 text-xs font-semibold text-blue-700 hover:bg-white hover:-translate-y-0.5 hover:shadow-sm transition-all duration-200"
-            >
-              Lihat Laporan
-            </Link>
-            <Link
-              href="/dashboard/alur"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 bg-white/60 px-3.5 py-2 text-xs font-semibold text-blue-700 hover:bg-white hover:-translate-y-0.5 hover:shadow-sm transition-all duration-200"
-            >
-              Alur Supply Chain
-            </Link>
+              <div
+                className="flex h-16 w-16 items-center justify-center rounded-2xl text-white"
+                style={{
+                  background: "linear-gradient(135deg, #3b82f6, #2563eb)",
+                  boxShadow: "0 8px 20px rgba(37,99,235,0.35)",
+                }}
+              >
+                <Package size={30} strokeWidth={1.8} />
+              </div>
+            </div>
+            <span className="absolute -right-1 top-2 h-3 w-3 rounded-full bg-blue-300" />
+            <span className="absolute -left-2 bottom-4 h-2 w-2 rounded-full bg-blue-400" />
           </div>
         </div>
       </div>
@@ -241,6 +269,7 @@ export default function DashboardPage() {
           <button onClick={prevSlide} disabled={currentSlide === 0} className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white dark:bg-gray-800/80 rounded-full p-2 shadow disabled:opacity-30">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            </svg>
             </svg>
           </button>
 
