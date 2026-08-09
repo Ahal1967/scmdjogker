@@ -6,10 +6,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
-// Paksa halaman ini selalu di-generate ulang di server tiap request,
-// bukan disimpan sebagai file statis tetap.
-export const dynamic = "force-dynamic";
-
 export default function LoginPage() {
   const supabase = createClient();
   const router = useRouter();
