@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Search, Package, Clock, CheckCircle2, ChevronLeft, ChevronRight, Send } from "lucide-react";
 
@@ -30,6 +31,7 @@ function EmptyState() {
 
 export default function PackingTable({ initialPacking }: { initialPacking: Packing[] }) {
   const supabase = createClient();
+  const router = useRouter();
   const [packingList, setPackingList] = useState<Packing[]>(initialPacking);
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -80,6 +82,8 @@ export default function PackingTable({ initialPacking }: { initialPacking: Packi
       tahap: "Siap Kirim",
       selesai: true,
     });
+
+    router.push("/dashboard/pengiriman");
   }
 
   if (packingList.length === 0) {

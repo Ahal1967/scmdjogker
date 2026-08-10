@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Search, ShieldCheck, ClipboardCheck, CheckCircle2, XCircle, ChevronLeft, ChevronRight, Eye } from "lucide-react";
 
@@ -51,6 +52,7 @@ export default function QcTable({
   nextPackingNumber: number;
 }) {
   const supabase = createClient();
+  const router = useRouter();
   const [pending, setPending] = useState(pendingProduction);
   const [records, setRecords] = useState<QcRecord[]>(initialRecords);
   const [qcSeq, setQcSeq] = useState(nextQcNumber);
@@ -165,6 +167,10 @@ export default function QcTable({
 
     setShowModal(false);
     setSaving(false);
+
+    if (hasil === "Lolos") {
+      router.push("/dashboard/packing");
+    }
   }
 
   return (

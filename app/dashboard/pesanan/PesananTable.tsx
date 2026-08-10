@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { Search, Plus, FileText, ShoppingBag, CheckCircle2, TrendingUp, ChevronLeft, ChevronRight, Eye, Trash2, User } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -50,6 +51,7 @@ function formatRupiah(n: number) {
 
 export default function PesananTable() {
   const supabase = createClient();
+  const router = useRouter();
   const [orders, setOrders] = useState<Order[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [orderSeq, setOrderSeq] = useState(1);
@@ -272,6 +274,10 @@ export default function PesananTable() {
         tahap: status,
         selesai: true,
       });
+
+      if (status === "Produksi") {
+        router.push("/dashboard/produksi");
+      }
     }
   }
 

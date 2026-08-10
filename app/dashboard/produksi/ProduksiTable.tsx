@@ -1,13 +1,14 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Search, Factory, Activity, CheckCircle2, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
 
 export type ProductionRow = {
   id: string;
   no_produksi: string | null;
-  status: "Produksi" | "QC" | "Packing" | "Selesai" | string | null;
+  status: "Produksi" | "Sablon" | "QC" | "Packing" | "Selesai" | string | null;
   progress: number | null;
   order_id: string | null;
   orders?: {
@@ -18,14 +19,17 @@ export type ProductionRow = {
   } | null;
 };
 
-const STATUS_OPTIONS = ["Produksi", "QC", "Packing", "Selesai"] as const;
+const STATUS_OPTIONS = ["Produksi", "Sablon", "QC", "Packing", "Selesai"] as const;
 
 const STATUS_COLORS: Record<string, string> = {
   Produksi: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
+  Sablon: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300",
   QC: "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300",
   Packing: "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300",
   Selesai: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300",
 };
+
+// "Sablon" adalah status valid di tabel orders (lihat migrasi SQL yang perlu kamu jalankan).
 
 export default function ProduksiTable({
   initialProductions,
@@ -33,6 +37,7 @@ export default function ProduksiTable({
   initialProductions: ProductionRow[];
 }) {
   const supabase = createClient();
+  const router = useRouter();
   const [productions, setProductions] = useState<ProductionRow[]>(initialProductions);
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -57,7 +62,8 @@ export default function ProduksiTable({
   async function updateStatus(p: ProductionRow, status: string) {
     const progressMap: Record<string, number> = {
       Produksi: 20,
-      QC: 60,
+      Sablon: 50,
+      QC: 75,
       Packing: 90,
       Selesai: 100,
     };
@@ -86,6 +92,10 @@ export default function ProduksiTable({
           tahap: status === "Selesai" ? "Produksi Selesai" : status,
           selesai: true,
         });
+      }
+
+      if (status === "QC") {
+        router.push("/dashboard/qc");
       }
     } else if (error) {
       alert("Gagal mengubah status: " + error.message);

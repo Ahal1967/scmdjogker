@@ -1,8 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
-import Link from "next/link";
 import ExportButtons from "./ExportButtons";
 import LaporanTable from "./LaporanTable";
-import { ShoppingBag, Wallet, HandCoins, AlertCircle, Plus } from "lucide-react";
+import { ShoppingBag, Wallet, HandCoins, AlertCircle } from "lucide-react";
 
 type Order = {
   id: string;
@@ -45,13 +44,6 @@ export default async function LaporanPage() {
         </div>
         <div className="flex items-center gap-2">
           <ExportButtons orders={dataOrders} />
-          <Link
-            href="/dashboard/laporan/tambah"
-            className="inline-flex items-center justify-center gap-1.5 rounded-full bg-blue-600 px-4 py-2 text-xs md:text-sm font-semibold text-white shadow-sm shadow-blue-600/30 hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 whitespace-nowrap"
-          >
-            <Plus size={15} />
-            Pesanan Baru
-          </Link>
         </div>
       </div>
 
