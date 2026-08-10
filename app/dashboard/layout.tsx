@@ -137,7 +137,7 @@ export default function DashboardLayout({
           className="flex h-16 items-center gap-3 border-b px-5"
           style={{ borderColor: "var(--djoker-border)" }}
         >
-          <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg border bg-white dark:bg-gray-700 shadow">
+          <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg border bg-white shadow">
             <Image
               src="/images/logodjogker1.jpeg"
               alt="Logo DJOGKER"
@@ -233,7 +233,7 @@ export default function DashboardLayout({
             <Menu as="div" className="relative">
             <Menu.Button className="flex items-center gap-3 rounded-full border bg-djoker-panel px-2 py-1.5 shadow-sm transition hover:bg-gray-50 dark:hover:bg-gray-700"
               style={{ borderColor: "var(--djoker-border)" }}>
-              <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border bg-white dark:bg-gray-700">
+              <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border bg-white">
                 <Image
                   src="/images/logodjogker1.jpeg"
                   alt="Avatar DJOGKER"
