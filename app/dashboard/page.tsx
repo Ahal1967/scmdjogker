@@ -196,7 +196,7 @@ export default function DashboardPage() {
       <div
         className="relative rounded-2xl border border-blue-100 dark:border-blue-900"
         style={{
-          background: "#ffffff",
+          background: "var(--djoker-surface)",
           boxShadow: "0 1px 2px rgba(37,99,235,0.06), 0 12px 32px -8px rgba(37,99,235,0.18)",
         }}
       >
@@ -206,16 +206,16 @@ export default function DashboardPage() {
         </div>
 
         <div className="relative z-10 p-6 md:p-8">
-          <span className="inline-flex items-center rounded-full bg-white/70 px-2.5 py-1 text-[11px] font-semibold text-blue-700">
+          <span className="inline-flex items-center rounded-full bg-blue-50 dark:bg-blue-900/40 px-2.5 py-1 text-[11px] font-semibold text-blue-700 dark:text-blue-300">
             SCM
           </span>
-          <h2 className="mt-2 font-display text-xl font-bold tracking-tight text-black md:text-2xl">
+          <h2 className="mt-2 font-display text-xl font-bold tracking-tight text-black dark:text-white md:text-2xl">
             Dashboard Supply Chain
           </h2>
-          <p className="font-display text-base font-bold tracking-tight text-black md:text-lg">
+          <p className="font-display text-base font-bold tracking-tight text-black dark:text-white md:text-lg">
             Selamat Datang, {adminName}
           </p>
-          <p className="mt-2 text-sm text-gray-700 leading-relaxed max-w-xl">
+          <p className="mt-2 text-sm text-gray-700 dark:text-gray-300 leading-relaxed max-w-xl">
             Pantau seluruh alur supply chain DJOGKER dari satu tempat — mulai dari pesanan masuk
             sampai produk diterima pelanggan.
           </p>
