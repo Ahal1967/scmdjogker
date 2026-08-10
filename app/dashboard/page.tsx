@@ -9,6 +9,7 @@ import {
   Users,
   Truck,
   Wallet,
+  TrendingUp,
   CalendarDays,
 } from "lucide-react";
 import {
@@ -193,44 +194,54 @@ export default function DashboardPage() {
       </div>
 
       <div
-        className="relative overflow-hidden rounded-2xl border border-blue-100 dark:border-blue-900"
+        className="relative rounded-2xl border border-blue-100 dark:border-blue-900"
         style={{
-          background: "linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%)",
+          background: "#ffffff",
           boxShadow: "0 1px 2px rgba(37,99,235,0.06), 0 12px 32px -8px rgba(37,99,235,0.18)",
         }}
       >
-        <div className="pointer-events-none absolute -right-10 -top-16 h-48 w-48 rounded-full bg-blue-200/30 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-16 left-1/3 h-40 w-40 rounded-full bg-blue-100/40 blur-3xl" />
+        <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl">
+          <div className="absolute -right-10 -top-16 h-48 w-48 rounded-full bg-blue-200/30 blur-3xl" />
+          <div className="absolute -bottom-16 left-1/3 h-40 w-40 rounded-full bg-blue-100/40 blur-3xl" />
+        </div>
 
-        <div className="relative z-10 flex items-center justify-between gap-6 p-6 md:p-8">
-          <div className="max-w-xl">
-            <h2 className="font-display text-xl font-bold tracking-tight text-black md:text-2xl">
-              Selamat Datang, {adminName}
-            </h2>
-            <p className="mt-2 text-sm text-gray-700 leading-relaxed">
-              Pantau seluruh alur supply chain DJOGKER dari satu tempat — mulai dari pesanan masuk
-              sampai produk diterima pelanggan.
-            </p>
+        <div className="relative z-10 p-6 md:p-8">
+          <span className="inline-flex items-center rounded-full bg-white/70 px-2.5 py-1 text-[11px] font-semibold text-blue-700">
+            SCM
+          </span>
+          <h2 className="mt-2 font-display text-xl font-bold tracking-tight text-black md:text-2xl">
+            Dashboard Supply Chain
+          </h2>
+          <p className="font-display text-base font-bold tracking-tight text-black md:text-lg">
+            Selamat Datang, {adminName}
+          </p>
+          <p className="mt-2 text-sm text-gray-700 leading-relaxed max-w-xl">
+            Pantau seluruh alur supply chain DJOGKER dari satu tempat — mulai dari pesanan masuk
+            sampai produk diterima pelanggan.
+          </p>
 
-            <div className="mt-6 flex flex-wrap gap-2">
-              <Link
-                href="/dashboard/pesanan"
-                className="inline-flex items-center gap-1.5 rounded-full bg-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-sm shadow-blue-600/30 hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-md hover:shadow-blue-600/40 transition-all duration-200"
-              >
-                + Pesanan Baru
-              </Link>
-              <Link
-                href="/dashboard/laporan"
-                className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-white/70 px-4 py-2 text-xs font-semibold text-blue-700 hover:bg-white hover:-translate-y-0.5 hover:shadow-sm transition-all duration-200"
-              >
-                Lihat Laporan
-              </Link>
-              <Link
-                href="/dashboard/alur"
-                className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-white/70 px-4 py-2 text-xs font-semibold text-blue-700 hover:bg-white hover:-translate-y-0.5 hover:shadow-sm transition-all duration-200"
-              >
-                Alur Supply Chain
-              </Link>
+          {/* Card statistik, sekarang di dalam alur normal card, tidak ngambang */}
+          <div className="mt-6 grid grid-cols-1 gap-2.5 sm:grid-cols-3">
+            <div className="rounded-xl bg-blue-50/60 dark:bg-blue-900/20 px-4 py-3 border border-blue-100 dark:border-blue-900">
+              <div className="flex items-center gap-1.5 text-sm font-bold text-black dark:text-white">
+                <TrendingUp size={14} className="text-blue-600" />
+                {`Rp ${stats.totalPendapatan.toLocaleString("id-ID")}`}
+              </div>
+              <p className="text-[11px] text-gray-500 dark:text-gray-400">Total Pendapatan</p>
+            </div>
+            <div className="rounded-xl bg-blue-50/60 dark:bg-blue-900/20 px-4 py-3 border border-blue-100 dark:border-blue-900">
+              <div className="flex items-center gap-1.5 text-sm font-bold text-black dark:text-white">
+                <Users size={14} className="text-green-600" />
+                {stats.totalPelanggan}
+              </div>
+              <p className="text-[11px] text-gray-500 dark:text-gray-400">Pelanggan Aktif</p>
+            </div>
+            <div className="rounded-xl bg-blue-50/60 dark:bg-blue-900/20 px-4 py-3 border border-blue-100 dark:border-blue-900">
+              <div className="flex items-center gap-1.5 text-sm font-bold text-black dark:text-white">
+                <ShoppingCart size={14} className="text-orange-600" />
+                {stats.totalPesanan - stats.produksiSelesai}
+              </div>
+              <p className="text-[11px] text-gray-500 dark:text-gray-400">Pesanan Berjalan</p>
             </div>
           </div>
         </div>

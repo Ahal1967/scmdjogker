@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { Search, Plus, Truck, Users2, CheckCircle2, Ban, ChevronLeft, ChevronRight, Pencil, Trash2 } from "lucide-react";
 
 type Supplier = {
   id: string;
@@ -16,6 +17,8 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
   const supabase = createClient();
   const [suppliers, setSuppliers] = useState<Supplier[]>(initialSuppliers);
   const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [showModal, setShowModal] = useState(false);
   const [editing, setEditing] = useState<Supplier | null>(null);
   const [form, setForm] = useState({
@@ -29,6 +32,12 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
   const filtered = suppliers.filter((s) =>
     s.nama_supplier.toLowerCase().includes(search.toLowerCase())
   );
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const paginated = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  const totalSupplier = suppliers.length;
+  const totalAktif = suppliers.filter((s) => s.status === "Aktif").length;
+  const totalNonaktif = suppliers.filter((s) => s.status === "Nonaktif").length;
 
   function openAdd() {
     setEditing(null);
@@ -80,126 +89,185 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
   }
 
   return (
-    <div className="card" style={{ borderLeft: "1px solid #3b82f6" }}>
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between mb-5">
-        <input
-          placeholder="Cari supplier..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="input-field md:max-w-xs"
-        />
-        <button onClick={openAdd} className="btn-primary whitespace-nowrap">
-          + Tambah Supplier
+    <div className="space-y-4">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative flex-1">
+          <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            placeholder="Cari supplier..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="input-field rounded-full pl-10"
+          />
+        </div>
+        <button
+          onClick={openAdd}
+          className="inline-flex items-center justify-center gap-1.5 rounded-full bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm shadow-blue-600/30 hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 whitespace-nowrap"
+        >
+          <Plus size={16} />
+          Tambah Supplier
         </button>
       </div>
 
-      {/* Desktop table */}
-      <div className="hidden md:block overflow-x-auto">
-        <table className="table-djoker">
-          <thead>
-            <tr>
-              <th>Nama Supplier</th>
-              <th>Kontak</th>
-              <th>No. Telepon</th>
-              <th>Alamat</th>
-              <th>Status</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((s) => (
-              <tr key={s.id}>
-                <td className="font-semibold text-black dark:text-white">{s.nama_supplier}</td>
-                <td className="text-gray-700 dark:text-gray-300">{s.kontak || "-"}</td>
-                <td className="text-gray-700 dark:text-gray-300">{s.no_telepon || "-"}</td>
-                <td className="text-gray-600 dark:text-gray-400 max-w-xs truncate">{s.alamat || "-"}</td>
-                <td>
-                  <span
-                    className={`badge ${
-                      s.status === "Aktif"
-                        ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300"
-                        : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
-                    }`}
-                  >
-                    {s.status}
-                  </span>
-                </td>
-                <td>
-                  <div className="flex justify-end gap-3 text-xs">
-                    <button onClick={() => openEdit(s)} className="text-blue-600 hover:text-blue-700 dark:text-blue-300 hover:underline">
-                      Edit
-                    </button>
-                    <button onClick={() => handleDelete(s.id)} className="text-red-600 hover:text-red-700 dark:text-red-300 hover:underline">
-                      Hapus
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-            {filtered.length === 0 && (
+      <div className="card overflow-hidden p-0" style={{ border: "1px solid #e5e7eb" }}>
+        <div className="overflow-x-auto">
+          <table className="table-djoker w-full">
+            <thead>
               <tr>
-                <td colSpan={6}>
-                  <div className="flex min-h-[140px] items-center justify-center text-gray-500 dark:text-gray-400">
-                    Belum ada data supplier.
-                  </div>
-                </td>
+                <th className="w-10"></th>
+                <th>Nama Supplier</th>
+                <th>Kontak</th>
+                <th>No. Telepon</th>
+                <th>Alamat</th>
+                <th>Status</th>
+                <th className="text-right">Aksi</th>
               </tr>
-            )}
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              {paginated.map((s) => (
+                <tr key={s.id}>
+                  <td>
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/40">
+                      <Truck size={15} className="text-blue-600 dark:text-blue-400" />
+                    </span>
+                  </td>
+                  <td className="font-semibold text-black dark:text-white">{s.nama_supplier}</td>
+                  <td className="text-gray-700 dark:text-gray-300">{s.kontak || "-"}</td>
+                  <td className="text-gray-700 dark:text-gray-300">{s.no_telepon || "-"}</td>
+                  <td className="text-gray-600 dark:text-gray-400 max-w-xs truncate">{s.alamat || "-"}</td>
+                  <td>
+                    <span
+                      className={`badge ${
+                        s.status === "Aktif"
+                          ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300"
+                          : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
+                      }`}
+                    >
+                      {s.status}
+                    </span>
+                  </td>
+                  <td className="text-right">
+                    <div className="flex justify-end gap-1.5">
+                      <button
+                        onClick={() => openEdit(s)}
+                        title="Edit"
+                        className="flex h-8 w-8 items-center justify-center rounded-lg text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/40 transition-colors"
+                      >
+                        <Pencil size={15} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(s.id)}
+                        title="Hapus"
+                        className="flex h-8 w-8 items-center justify-center rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/40 transition-colors"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {filtered.length === 0 && (
+                <tr>
+                  <td colSpan={7}>
+                    <div className="flex min-h-[140px] items-center justify-center text-gray-500 dark:text-gray-400">
+                      Belum ada data supplier.
+                    </div>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
 
-      {/* Mobile card list */}
-      <div className="space-y-3 md:hidden">
-        {filtered.length === 0 ? (
-          <div className="flex min-h-[140px] items-center justify-center text-gray-500 dark:text-gray-400">
-            Belum ada data supplier.
-          </div>
-        ) : (
-          filtered.map((s) => (
-            <div key={s.id} className="rounded-2xl border border-djoker-border p-4 space-y-3">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-base font-semibold text-black dark:text-white">{s.nama_supplier}</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">{s.kontak || "-"}</p>
-                </div>
-                <span
-                  className={`badge shrink-0 ${
-                    s.status === "Aktif" ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300" : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
-                  }`}
-                >
-                  {s.status}
-                </span>
-              </div>
-
-              <div className="text-sm text-gray-700 dark:text-gray-300">
-                <p><span className="font-medium text-gray-900 dark:text-gray-100">No. Telepon:</span> {s.no_telepon || "-"}</p>
-                <p className="mt-1"><span className="font-medium text-gray-900 dark:text-gray-100">Alamat:</span> {s.alamat || "-"}</p>
-              </div>
-
-              <div className="flex gap-3 pt-1">
-                <button onClick={() => openEdit(s)} className="btn-outline flex-1 !py-2 text-sm">
-                  Edit
-                </button>
+        {filtered.length > 0 && (
+          <div className="flex flex-col gap-3 border-t border-gray-100 dark:border-gray-700 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Menampilkan {paginated.length} dari {filtered.length} supplier
+            </p>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1">
                 <button
-                  onClick={() => handleDelete(s.id)}
-                  className="flex-1 rounded-lg border border-red-200 px-3 py-2 text-sm font-semibold text-red-600 hover:bg-red-50 transition-colors"
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-gray-700"
                 >
-                  Hapus
+                  <ChevronLeft size={14} />
+                </button>
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-600 text-xs font-semibold text-white">
+                  {currentPage}
+                </span>
+                <button
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-gray-700"
+                >
+                  <ChevronRight size={14} />
                 </button>
               </div>
+              <select
+                value={pageSize}
+                onChange={(e) => {
+                  setPageSize(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2 py-1 text-xs text-gray-600 dark:text-gray-300"
+              >
+                <option value={10}>10 / halaman</option>
+                <option value={25}>25 / halaman</option>
+                <option value={50}>50 / halaman</option>
+              </select>
             </div>
-          ))
+          </div>
         )}
       </div>
 
+      <div className="card p-0 overflow-hidden" style={{ border: "1px solid #e5e7eb" }}>
+        <div className="grid grid-cols-1 divide-y divide-gray-100 dark:divide-gray-700 sm:grid-cols-3 sm:divide-y-0 sm:divide-x">
+          <div className="flex items-center gap-3 p-5">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-900/40">
+              <Users2 size={20} className="text-blue-600 dark:text-blue-400" />
+            </span>
+            <div>
+              <p className="font-display text-xl font-bold text-black dark:text-white">{totalSupplier}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Total Supplier</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 p-5">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-green-50 dark:bg-green-900/40">
+              <CheckCircle2 size={20} className="text-green-600 dark:text-green-400" />
+            </span>
+            <div>
+              <p className="font-display text-xl font-bold text-black dark:text-white">{totalAktif}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Supplier Aktif</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 p-5">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-700">
+              <Ban size={20} className="text-gray-500 dark:text-gray-400" />
+            </span>
+            <div>
+              <p className="font-display text-xl font-bold text-black dark:text-white">{totalNonaktif}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Nonaktif</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {showModal && (
-        <div className="fixed inset-0 bg-black/60 flex items-start justify-center z-50 p-4 overflow-y-auto">
-          <div className="card w-full max-w-md my-8 max-h-[90vh] overflow-y-auto">
-            <h2 className="font-display font-semibold text-base text-black dark:text-white mb-4">
-              {editing ? "Edit Supplier" : "Tambah Supplier"}
-            </h2>
-            <form onSubmit={handleSave} className="space-y-3">
+        <div className="fixed inset-0 bg-black/60 flex items-start justify-center z-50 p-4 overflow-y-auto backdrop-blur-sm">
+          <div className="card w-full max-w-md my-8 max-h-[90vh] overflow-y-auto p-0" style={{ border: "1px solid #e5e7eb" }}>
+            <div className="rounded-t-2xl bg-blue-50 dark:bg-blue-900/30 px-6 py-5 flex items-center gap-3">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 shadow-sm shadow-blue-600/30">
+                <Truck size={18} className="text-white" />
+              </span>
+              <h2 className="font-display font-bold text-base text-black dark:text-white">
+                {editing ? "Edit Supplier" : "Tambah Supplier"}
+              </h2>
+            </div>
+            <form onSubmit={handleSave} className="space-y-3 px-6 py-5">
               <input
                 required
                 placeholder="Nama Supplier"

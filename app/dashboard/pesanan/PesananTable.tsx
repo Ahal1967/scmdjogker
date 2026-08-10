@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
+import { Search, Plus, FileText, ShoppingBag, CheckCircle2, TrendingUp, ChevronLeft, ChevronRight, Eye, Trash2, User } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 type Customer = {
@@ -35,12 +36,12 @@ type Order = {
 const STATUS_OPTIONS = ["Pesanan", "Produksi", "QC", "Packing", "Dikirim", "Selesai"];
 
 const STATUS_COLORS: Record<string, string> = {
-  Pesanan: "text-blue-600",
-  Produksi: "text-yellow-600",
-  QC: "text-purple-600",
-  Packing: "text-orange-600",
-  Dikirim: "text-cyan-600",
-  Selesai: "text-green-600",
+  Pesanan: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
+  Produksi: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300",
+  QC: "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300",
+  Packing: "bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300",
+  Dikirim: "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/40 dark:text-cyan-300",
+  Selesai: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300",
 };
 
 function formatRupiah(n: number) {
@@ -56,6 +57,8 @@ export default function PesananTable() {
   const [loading, setLoading] = useState(true);
 
   const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
   const [showModal, setShowModal] = useState(false);
   const [detailOrder, setDetailOrder] = useState<Order | null>(null);
   const [saving, setSaving] = useState(false);
@@ -122,6 +125,14 @@ export default function PesananTable() {
       (o.no_pesanan ?? "").toLowerCase().includes(search.toLowerCase()) ||
       (o.customers?.nama ?? "").toLowerCase().includes(search.toLowerCase())
   );
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const paginated = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+
+  const summaryTotalPesanan = orders.length;
+  const summarySelesai = orders.filter((o) => o.status === "Selesai").length;
+  const summaryPersenSelesai = summaryTotalPesanan > 0 ? Math.round((summarySelesai / summaryTotalPesanan) * 100) : 0;
+  const summaryPendapatan = orders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
 
   const total = items.reduce((sum, it) => sum + Number(it.jumlah || 0) * Number(it.harga || 0), 0);
 
@@ -292,88 +303,188 @@ export default function PesananTable() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-3">
-        <input
-          placeholder="Cari no. pesanan / pelanggan..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="input-field max-w-xs"
-        />
-        <button onClick={openAdd} className="btn-primary whitespace-nowrap">
-          + Pesanan Baru
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative flex-1">
+          <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            placeholder="Cari no. pesanan / pelanggan..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="input-field rounded-full pl-10"
+          />
+        </div>
+        <button
+          onClick={openAdd}
+          className="inline-flex items-center justify-center gap-1.5 rounded-full bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm shadow-blue-600/30 hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 whitespace-nowrap"
+        >
+          <Plus size={16} />
+          Pesanan Baru
         </button>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="table-djoker w-full">
-          <thead>
-            <tr>
-              <th>No. Pesanan</th>
-              <th>Pelanggan</th>
-              <th>Tanggal</th>
-              <th>Total</th>
-              <th>Status</th>
-              <th className="text-right">Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((o) => (
-              <tr key={o.id}>
-                <td className="font-semibold text-black dark:text-white">{o.no_pesanan}</td>
-                <td className="text-sm text-gray-800 dark:text-gray-200">{o.customers?.nama ?? "-"}</td>
-                <td className="text-sm text-gray-600 dark:text-gray-400">
-                  {o.tanggal
-                    ? new Date(o.tanggal).toLocaleDateString("id-ID", {
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric",
-                      })
-                    : "-"}
-                </td>
-                <td className="text-sm font-medium text-black dark:text-white">{formatRupiah(Number(o.total) || 0)}</td>
-                <td>
-                  <select
-                    value={o.status ?? "Pesanan"}
-                    onChange={(e) => updateStatus(o, e.target.value)}
-                    className={`badge cursor-pointer ${STATUS_COLORS[o.status ?? ""] ?? ""}`}
-                  >
-                    {STATUS_OPTIONS.map((s) => (
-                      <option key={s} value={s}>
-                        {s}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-                <td className="text-right">
-                  <div className="flex justify-end gap-3 text-xs">
-                    <button
-                      onClick={() => setDetailOrder(o)}
-                      className="text-blue-600 hover:text-blue-700 dark:text-blue-300 hover:underline"
-                    >
-                      Detail
-                    </button>
-                    <button
-                      onClick={() => handleDelete(o.id)}
-                      className="text-red-600 hover:text-red-700 dark:text-red-300 hover:underline"
-                    >
-                      Hapus
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-
-            {filtered.length === 0 && (
+      <div className="card overflow-hidden p-0" style={{ border: "1px solid #e5e7eb" }}>
+        <div className="overflow-x-auto">
+          <table className="table-djoker w-full">
+            <thead>
               <tr>
-                <td colSpan={6} className="p-0">
-                  <div className="flex min-h-[120px] w-full items-center justify-center text-center text-gray-500 dark:text-gray-400">
-                    Belum ada pesanan.
-                  </div>
-                </td>
+                <th className="w-10"></th>
+                <th>No. Pesanan</th>
+                <th>Pelanggan</th>
+                <th>Tanggal</th>
+                <th>Total</th>
+                <th className="text-right">Aksi</th>
               </tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {paginated.map((o) => (
+                <tr key={o.id}>
+                  <td>
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/40">
+                      <FileText size={15} className="text-blue-600 dark:text-blue-400" />
+                    </span>
+                  </td>
+                  <td className="font-semibold text-black dark:text-white">{o.no_pesanan}</td>
+                  <td className="text-sm text-gray-800 dark:text-gray-200">{o.customers?.nama ?? "-"}</td>
+                  <td className="text-sm text-gray-600 dark:text-gray-400">
+                    {o.tanggal
+                      ? new Date(o.tanggal).toLocaleDateString("id-ID", {
+                          day: "2-digit",
+                          month: "short",
+                          year: "numeric",
+                        })
+                      : "-"}
+                  </td>
+                  <td>
+                    <p className="text-sm font-medium text-black dark:text-white">{formatRupiah(Number(o.total) || 0)}</p>
+                    <select
+                      value={o.status ?? "Pesanan"}
+                      onChange={(e) => updateStatus(o, e.target.value)}
+                      className={`badge cursor-pointer mt-1 ${STATUS_COLORS[o.status ?? ""] ?? ""}`}
+                    >
+                      {STATUS_OPTIONS.map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
+                    </select>
+                  </td>
+                  <td className="text-right">
+                    <div className="flex justify-end gap-1.5">
+                      <button
+                        onClick={() => setDetailOrder(o)}
+                        title="Lihat Detail"
+                        className="flex h-8 w-8 items-center justify-center rounded-lg text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/40 transition-colors"
+                      >
+                        <Eye size={15} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(o.id)}
+                        title="Hapus Pesanan"
+                        className="flex h-8 w-8 items-center justify-center rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/40 transition-colors"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+
+              {filtered.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="p-0">
+                    <div className="flex min-h-[120px] w-full items-center justify-center text-center text-gray-500 dark:text-gray-400">
+                      Belum ada pesanan.
+                    </div>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {filtered.length > 0 && (
+          <div className="flex flex-col gap-3 border-t border-gray-100 dark:border-gray-700 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Menampilkan {paginated.length} dari {filtered.length} pesanan
+            </p>
+
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-gray-700"
+                >
+                  <ChevronLeft size={14} />
+                </button>
+                <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-blue-600 text-xs font-semibold text-white">
+                  {currentPage}
+                </span>
+                <button
+                  onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-gray-700"
+                >
+                  <ChevronRight size={14} />
+                </button>
+              </div>
+
+              <select
+                value={pageSize}
+                onChange={(e) => {
+                  setPageSize(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2 py-1 text-xs text-gray-600 dark:text-gray-300"
+              >
+                <option value={10}>10 / halaman</option>
+                <option value={25}>25 / halaman</option>
+                <option value={50}>50 / halaman</option>
+              </select>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Ringkasan bawah, digabung jadi 1 card seperti referensi */}
+      <div className="card p-0 overflow-hidden" style={{ border: "1px solid #e5e7eb" }}>
+        <div className="grid grid-cols-1 divide-y divide-gray-100 dark:divide-gray-700 sm:grid-cols-3 sm:divide-y-0 sm:divide-x">
+          <div className="flex items-center gap-3 p-5">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-900/40">
+              <ShoppingBag size={20} className="text-blue-600 dark:text-blue-400" />
+            </span>
+            <div>
+              <p className="font-display text-xl font-bold text-black dark:text-white">{summaryTotalPesanan}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Total Pesanan</p>
+              <p className="text-[11px] text-gray-400">Semua waktu</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 p-5">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-green-50 dark:bg-green-900/40">
+              <CheckCircle2 size={20} className="text-green-600 dark:text-green-400" />
+            </span>
+            <div>
+              <p className="font-display text-xl font-bold text-black dark:text-white">{summarySelesai}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Pesanan Selesai</p>
+              <p className="text-[11px] text-gray-400">{summaryPersenSelesai}% dari total</p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3 p-5">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-orange-50 dark:bg-orange-900/40">
+              <TrendingUp size={20} className="text-orange-600 dark:text-orange-400" />
+            </span>
+            <div>
+              <p className="font-display text-xl font-bold text-black dark:text-white">{formatRupiah(summaryPendapatan)}</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Total Pendapatan</p>
+              <p className="text-[11px] text-gray-400">Semua waktu</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {showModal && (
@@ -529,93 +640,109 @@ export default function PesananTable() {
       )}
 
       {detailOrder && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 p-4 overflow-y-auto">
-          <div className="card w-full max-w-md my-8 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between">
-              <h2 className="font-display text-base font-semibold text-black dark:text-white">
-                {detailOrder.no_pesanan}
-              </h2>
-              <span className={`badge ${STATUS_COLORS[detailOrder.status ?? ""] ?? ""}`}>
-                {detailOrder.status}
-              </span>
+        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 p-4 overflow-y-auto backdrop-blur-sm">
+          <div className="card w-full max-w-md my-8 max-h-[90vh] overflow-y-auto p-0" style={{ border: "1px solid #e5e7eb" }}>
+            {/* Header biru muda */}
+            <div className="rounded-t-2xl bg-blue-50 dark:bg-blue-900/30 px-6 py-5">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 shadow-sm shadow-blue-600/30">
+                    <FileText size={18} className="text-white" />
+                  </span>
+                  <div>
+                    <h2 className="font-display text-base font-bold text-black dark:text-white">
+                      {detailOrder.no_pesanan}
+                    </h2>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">Detail Pesanan</p>
+                  </div>
+                </div>
+                <span className={`badge ${STATUS_COLORS[detailOrder.status ?? ""] ?? ""}`}>
+                  {detailOrder.status}
+                </span>
+              </div>
             </div>
 
-            <p className="mt-3 text-sm font-medium text-gray-600 dark:text-gray-400">Pelanggan</p>
-            <p className="text-sm text-gray-800 dark:text-gray-200">{detailOrder.customers?.nama ?? "-"}</p>
+            <div className="px-6 py-5">
+              <div className="flex items-center gap-2 text-sm">
+                <User size={14} className="text-gray-400" />
+                <span className="text-gray-500 dark:text-gray-400">Pelanggan:</span>
+                <span className="font-medium text-gray-800 dark:text-gray-200">{detailOrder.customers?.nama ?? "-"}</span>
+              </div>
 
-            <p className="mt-4 text-sm font-medium text-gray-600 dark:text-gray-400">Item Pesanan</p>
-            <div className="mt-2 space-y-1.5">
-              {(detailOrder.order_items ?? []).map((it, i) => (
-                <div key={i} className="flex justify-between text-sm">
-                  <span className="text-gray-800 dark:text-gray-200">
-                    {it.nama_produk} × {it.jumlah}
-                  </span>
-                  <span className="font-medium text-gray-900 dark:text-gray-100">
-                    {formatRupiah(it.jumlah * it.harga)}
+              <p className="mt-5 mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">Item Pesanan</p>
+              <div className="space-y-2 rounded-xl bg-gray-50 dark:bg-gray-900/50 p-3">
+                {(detailOrder.order_items ?? []).map((it, i) => (
+                  <div key={i} className="flex justify-between text-sm">
+                    <span className="text-gray-700 dark:text-gray-300">
+                      {it.nama_produk} <span className="text-gray-400">× {it.jumlah}</span>
+                    </span>
+                    <span className="font-medium text-gray-900 dark:text-gray-100">
+                      {formatRupiah(it.jumlah * it.harga)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-4 space-y-2 rounded-xl border border-gray-100 dark:border-gray-700 p-3 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-gray-500 dark:text-gray-400">Total</span>
+                  <span className="font-semibold text-black dark:text-white">
+                    {formatRupiah(Number(detailOrder.total) || 0)}
                   </span>
                 </div>
-              ))}
-            </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-500 dark:text-gray-400">DP</span>
+                  <span className="text-gray-700 dark:text-gray-300">
+                    {formatRupiah(Number(detailOrder.dp) || 0)}
+                  </span>
+                </div>
+                <div className="flex justify-between border-t border-gray-100 dark:border-gray-700 pt-2">
+                  <span className="text-gray-500 dark:text-gray-400">Sisa Pembayaran</span>
+                  <span className="font-semibold text-orange-600">
+                    {formatRupiah(Number(detailOrder.sisa_pembayaran) || 0)}
+                  </span>
+                </div>
+              </div>
 
-            <div className="mt-4 space-y-1 border-t border-gray-200 dark:border-gray-700 pt-3 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-400">Total</span>
-                <span className="font-medium text-black dark:text-white">
-                  {formatRupiah(Number(detailOrder.total) || 0)}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-400">DP</span>
-                <span className="text-gray-800 dark:text-gray-200">
-                  {formatRupiah(Number(detailOrder.dp) || 0)}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-400">Sisa Pembayaran</span>
-                <span className="text-gray-800 dark:text-gray-200">
-                  {formatRupiah(Number(detailOrder.sisa_pembayaran) || 0)}
-                </span>
-              </div>
-            </div>
-
-            {detailOrder.desain_url && (
-              <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
-                <p className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
-                  Desain Diupload Pelanggan
-                </p>
-                {detailOrder.desain_url.toLowerCase().endsWith(".pdf") ? (
-                  <a
-                    href={detailOrder.desain_url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn-outline w-full text-center block"
-                  >
-                    Buka File PDF
-                  </a>
-                ) : (
-                  <>
+              {detailOrder.desain_url && (
+                <div className="mt-4">
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                    Desain Diupload Pelanggan
+                  </p>
+                  {detailOrder.desain_url.toLowerCase().endsWith(".pdf") ? (
                     <a
                       href={detailOrder.desain_url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="block relative w-full h-48 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900"
+                      className="btn-outline w-full text-center block"
                     >
-                      <Image
-                        src={detailOrder.desain_url}
-                        alt="Desain dari pelanggan"
-                        fill
-                        className="object-contain"
-                      />
+                      Buka File PDF
                     </a>
-                    <p className="text-xs text-gray-400 mt-1">Klik gambar untuk buka ukuran penuh.</p>
-                  </>
-                )}
-              </div>
-            )}
+                  ) : (
+                    <>
+                      <a
+                        href={detailOrder.desain_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="block relative w-full h-48 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900"
+                      >
+                        <Image
+                          src={detailOrder.desain_url}
+                          alt="Desain dari pelanggan"
+                          fill
+                          className="object-contain"
+                        />
+                      </a>
+                      <p className="text-xs text-gray-400 mt-1">Klik gambar untuk buka ukuran penuh.</p>
+                    </>
+                  )}
+                </div>
+              )}
 
-            <button onClick={() => setDetailOrder(null)} className="btn-outline mt-4 w-full">
-              Tutup
-            </button>
+              <button onClick={() => setDetailOrder(null)} className="btn-outline mt-5 w-full">
+                Tutup
+              </button>
+            </div>
           </div>
         </div>
       )}
