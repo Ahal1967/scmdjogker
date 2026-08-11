@@ -52,6 +52,10 @@ function formatRupiah(n: number) {
 export default function PesananTable() {
   const supabase = createClient();
   const router = useRouter();
+
+  useEffect(() => {
+    router.prefetch("/dashboard/produksi");
+  }, []);
   const [orders, setOrders] = useState<Order[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [orderSeq, setOrderSeq] = useState(1);

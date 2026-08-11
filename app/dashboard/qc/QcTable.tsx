@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Search, ShieldCheck, ClipboardCheck, CheckCircle2, XCircle, ChevronLeft, ChevronRight, Eye } from "lucide-react";
@@ -53,6 +53,10 @@ export default function QcTable({
 }) {
   const supabase = createClient();
   const router = useRouter();
+
+  useEffect(() => {
+    router.prefetch("/dashboard/packing");
+  }, []);
   const [pending, setPending] = useState(pendingProduction);
   const [records, setRecords] = useState<QcRecord[]>(initialRecords);
   const [qcSeq, setQcSeq] = useState(nextQcNumber);

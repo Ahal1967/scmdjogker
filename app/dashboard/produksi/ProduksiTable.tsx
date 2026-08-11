@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Search, Factory, Activity, CheckCircle2, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
@@ -36,6 +36,10 @@ export default function ProduksiTable({
 }) {
   const supabase = createClient();
   const router = useRouter();
+
+  useEffect(() => {
+    router.prefetch("/dashboard/qc");
+  }, []);
   const [productions, setProductions] = useState<ProductionRow[]>(initialProductions);
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);

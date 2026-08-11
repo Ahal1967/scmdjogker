@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Search, Package, Clock, CheckCircle2, ChevronLeft, ChevronRight, Send } from "lucide-react";
@@ -32,6 +32,10 @@ function EmptyState() {
 export default function PackingTable({ initialPacking }: { initialPacking: Packing[] }) {
   const supabase = createClient();
   const router = useRouter();
+
+  useEffect(() => {
+    router.prefetch("/dashboard/pengiriman");
+  }, []);
   const [packingList, setPackingList] = useState<Packing[]>(initialPacking);
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);

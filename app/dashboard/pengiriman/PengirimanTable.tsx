@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Search, Truck, Clock, PackageCheck, ChevronLeft, ChevronRight, ClipboardEdit, CheckCircle2 } from "lucide-react";
@@ -45,6 +45,10 @@ function EmptyState() {
 export default function PengirimanTable({ initialShipments }: { initialShipments: Shipment[] }) {
   const supabase = createClient();
   const router = useRouter();
+
+  useEffect(() => {
+    router.prefetch("/dashboard/laporan");
+  }, []);
   const [shipments, setShipments] = useState<Shipment[]>(initialShipments);
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
