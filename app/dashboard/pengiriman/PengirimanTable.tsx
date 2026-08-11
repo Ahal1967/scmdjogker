@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Search, Truck, Clock, PackageCheck, ChevronLeft, ChevronRight, ClipboardEdit, CheckCircle2 } from "lucide-react";
 
@@ -43,6 +44,7 @@ function EmptyState() {
 
 export default function PengirimanTable({ initialShipments }: { initialShipments: Shipment[] }) {
   const supabase = createClient();
+  const router = useRouter();
   const [shipments, setShipments] = useState<Shipment[]>(initialShipments);
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -133,6 +135,8 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
       .from("production")
       .update({ status: "Selesai", progress: 100 })
       .eq("order_id", s.order_id);
+
+    router.push("/dashboard/laporan");
   }
 
   if (shipments.length === 0) {
