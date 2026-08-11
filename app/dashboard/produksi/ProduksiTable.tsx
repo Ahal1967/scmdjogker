@@ -192,7 +192,7 @@ export default function ProduksiTable({
                   </td>
                   <td className="text-sm text-gray-700 dark:text-gray-300">
                     <div className="flex items-center gap-2">
-                      <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-200">
+                      <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
                         <div
                           className="h-full bg-blue-600 transition-all"
                           style={{ width: `${Number(p.progress || 0)}%` }}
@@ -204,7 +204,7 @@ export default function ProduksiTable({
                         max={100}
                         value={Number(p.progress || 0)}
                         onChange={(e) => updateProgress(p, Number(e.target.value))}
-                        className="w-14 rounded border border-gray-300 dark:border-gray-600 py-1 text-center text-xs"
+                        className="w-14 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-black dark:text-white py-1 text-center text-xs"
                       />
                       <span className="text-xs text-gray-600 dark:text-gray-400">%</span>
                     </div>
