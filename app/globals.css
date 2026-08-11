@@ -205,7 +205,7 @@ body {
   .input-field:focus {
     border-color: var(--djoker-blue);
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-    background: #ffffff;
+    background: var(--djoker-surface);
   }
 
   .input-field::placeholder {
