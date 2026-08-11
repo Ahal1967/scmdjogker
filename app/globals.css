@@ -263,7 +263,7 @@ body {
   }
 
   .table-djoker thead th {
-    background: #eff6ff; /* blue-50, biru muda seperti versi awal */
+    background: var(--djoker-hover-bg);
     color: var(--djoker-blue-dark);
     font-weight: 700;
     font-size: 0.625rem !important; /* 10px, paksa menang atas class Tailwind */
