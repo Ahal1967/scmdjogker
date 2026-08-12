@@ -22,6 +22,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
+import NotificationBell from "@/components/NotificationBell";
 import { createClient } from "@/lib/supabase/client";
 import { navItems } from "@/lib/nav";
 
@@ -31,6 +32,7 @@ const NAV_ICONS: Record<string, any> = {
   "/dashboard/supplier": Users2,
   "/dashboard/gudang": Warehouse,
   "/dashboard/pesanan": FileText,
+  "/dashboard/pelanggan": Users2,
   "/dashboard/produksi": Factory,
   "/dashboard/qc": ShieldCheck,
   "/dashboard/packing": PackageCheck,
@@ -229,6 +231,7 @@ export default function DashboardLayout({
 
           <div className="flex items-center gap-3">
             <ThemeToggle />
+            <NotificationBell />
 
             <Menu as="div" className="relative">
             <Menu.Button className="flex items-center gap-3 rounded-full border bg-djoker-panel px-2 py-1.5 shadow-sm transition hover:bg-gray-50 dark:hover:bg-gray-700"

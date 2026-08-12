@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Search, Plus, Package, Boxes, AlertTriangle, CheckCircle2, ChevronLeft, ChevronRight, Pencil, Trash2 } from "lucide-react";
+import { useConfirm } from "@/components/useConfirm";
 
 type Supplier = { id: string; nama_supplier: string };
 
@@ -34,6 +35,7 @@ export default function GudangTable({
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [showModal, setShowModal] = useState(false);
+  const { confirm, ConfirmDialog } = useConfirm();
   const [editing, setEditing] = useState<Material | null>(null);
   const [form, setForm] = useState({
     nama_bahan: "",
@@ -117,7 +119,8 @@ export default function GudangTable({
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("Hapus bahan ini dari stok?")) return;
+    const ok = await confirm({ message: "Bahan ini akan dihapus permanen dari data stok.", danger: true });
+    if (!ok) return;
     const { error } = await supabase.from("raw_materials").delete().eq("id", id);
     if (!error) {
       setMaterials((prev) => prev.filter((m) => m.id !== id));
@@ -423,6 +426,7 @@ export default function GudangTable({
           </div>
         </div>
       )}
+      {ConfirmDialog}
     </div>
   );
 }

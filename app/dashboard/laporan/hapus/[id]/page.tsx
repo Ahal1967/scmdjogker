@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter, useParams } from "next/navigation";
+import { AlertTriangle } from "lucide-react";
 
 type Order = {
   id: string;
@@ -21,6 +22,7 @@ export default function HapusPesananPage() {
   const supabase = createClient();
   const [loading, setLoading] = useState(false);
   const [order, setOrder] = useState<Order | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchOrder() {
@@ -37,8 +39,7 @@ export default function HapusPesananPage() {
   }, [params.id, supabase]);
 
   async function handleDelete() {
-    if (!confirm(`Yakin ingin menghapus pesanan ${order?.no_pesanan}?`)) return;
-
+    setErrorMsg(null);
     setLoading(true);
 
     // order_items dan order_tracking punya "on delete cascade" ke orders,
@@ -46,13 +47,11 @@ export default function HapusPesananPage() {
     const { error } = await supabase.from("orders").delete().eq("id", params.id);
 
     if (error) {
-      alert("Gagal menghapus: " + error.message);
+      setErrorMsg(error.message);
+      setLoading(false);
     } else {
-      alert("Pesanan berhasil dihapus!");
       router.push("/dashboard/laporan");
     }
-
-    setLoading(false);
   }
 
   if (!order) {
@@ -66,17 +65,26 @@ export default function HapusPesananPage() {
         <p className="text-gray-600 dark:text-gray-400 text-sm">Konfirmasi penghapusan pesanan.</p>
       </div>
 
-      <div className="card max-w-md">
+      <div className="card max-w-md" style={{ border: "none" }}>
         <div className="mb-6">
-          <p className="text-gray-600 dark:text-gray-400 text-sm mb-2">Apakah Anda yakin ingin menghapus:</p>
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/40">
+            <AlertTriangle size={24} className="text-red-600 dark:text-red-400" />
+          </div>
+          <p className="text-gray-600 dark:text-gray-400 text-sm mb-2 text-center">Apakah Anda yakin ingin menghapus:</p>
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
             <p className="font-medium text-lg text-black dark:text-white">{order.no_pesanan}</p>
             <p className="text-sm text-gray-600 dark:text-gray-400">{formatRupiah(Number(order.total) || 0)}</p>
             <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Status: {order.status}</p>
           </div>
-          <p className="text-xs text-red-600 mt-3">
-            ⚠️ Item pesanan dan riwayat tracking terkait akan ikut terhapus. Tidak dapat dikembalikan!
+          <p className="text-xs text-red-600 dark:text-red-400 mt-3 text-center">
+            Item pesanan dan riwayat tracking terkait akan ikut terhapus. Tidak dapat dikembalikan.
           </p>
+
+          {errorMsg && (
+            <div className="mt-3 rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 px-3 py-2 text-xs text-red-700 dark:text-red-300">
+              Gagal menghapus: {errorMsg}
+            </div>
+          )}
         </div>
 
         <div className="flex gap-3">

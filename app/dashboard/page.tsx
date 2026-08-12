@@ -62,9 +62,9 @@ export default function DashboardPage() {
   const statsCards = [
     { title: "Total Pesanan", value: stats.totalPesanan, color: "from-blue-50 to-blue-100 dark:from-blue-950/40 dark:to-blue-900/20", textColor: "text-blue-700 dark:text-blue-300", valueColor: "text-blue-900 dark:text-blue-100", accent: "#2563eb", icon: ShoppingCart, iconBg: "bg-blue-600", href: "/dashboard/pesanan" },
     { title: "Total Produksi", value: stats.totalProduksi, color: "from-green-50 to-green-100 dark:from-green-950/40 dark:to-green-900/20", textColor: "text-green-700 dark:text-green-300", valueColor: "text-green-900 dark:text-green-100", accent: "#16a34a", icon: Factory, iconBg: "bg-green-600", href: "/dashboard/produksi" },
-    { title: "Pelanggan", value: stats.totalPelanggan, color: "from-purple-50 to-purple-100 dark:from-purple-950/40 dark:to-purple-900/20", textColor: "text-purple-700 dark:text-purple-300", valueColor: "text-purple-900 dark:text-purple-100", accent: "#9333ea", icon: Users, iconBg: "bg-purple-600", href: "/dashboard/pesanan" },
+    { title: "Pelanggan", value: stats.totalPelanggan, color: "from-purple-50 to-purple-100 dark:from-purple-950/40 dark:to-purple-900/20", textColor: "text-purple-700 dark:text-purple-300", valueColor: "text-purple-900 dark:text-purple-100", accent: "#9333ea", icon: Users, iconBg: "bg-purple-600", href: "/dashboard/pelanggan" },
     { title: "Supplier", value: stats.totalSupplier, color: "from-orange-50 to-orange-100 dark:from-orange-950/40 dark:to-orange-900/20", textColor: "text-orange-700 dark:text-orange-300", valueColor: "text-orange-900 dark:text-orange-100", accent: "#ea580c", icon: Truck, iconBg: "bg-orange-600", href: "/dashboard/supplier" },
-    { title: "Total Pendapatan", value: `Rp ${stats.totalPendapatan.toLocaleString("id-ID")}`, color: "from-emerald-50 to-emerald-100 dark:from-emerald-950/40 dark:to-emerald-900/20", textColor: "text-emerald-700 dark:text-emerald-300", valueColor: "text-emerald-900 dark:text-emerald-100", accent: "#059669", icon: Wallet, iconBg: "bg-emerald-600", href: "/dashboard/laporan" },
+    { title: "Pendapatan Diterima", value: `Rp ${stats.totalPendapatan.toLocaleString("id-ID")}`, color: "from-emerald-50 to-emerald-100 dark:from-emerald-950/40 dark:to-emerald-900/20", textColor: "text-emerald-700 dark:text-emerald-300", valueColor: "text-emerald-900 dark:text-emerald-100", accent: "#059669", icon: Wallet, iconBg: "bg-emerald-600", href: "/dashboard/laporan" },
     { title: "Pesanan Bulan Ini", value: stats.pesananBulanIni, color: "from-cyan-50 to-cyan-100 dark:from-cyan-950/40 dark:to-cyan-900/20", textColor: "text-cyan-700 dark:text-cyan-300", valueColor: "text-cyan-900 dark:text-cyan-100", accent: "#0891b2", icon: CalendarDays, iconBg: "bg-cyan-600", href: "/dashboard/laporan" },
   ];
 
@@ -98,8 +98,9 @@ export default function DashboardPage() {
     const { count: productionCount } = await supabase.from("production").select("*", { count: "exact", head: true });
     const { count: customersCount } = await supabase.from("customers").select("*", { count: "exact", head: true });
     const { count: suppliersCount } = await supabase.from("suppliers").select("*", { count: "exact", head: true });
-    const { data: ordersData } = await supabase.from("orders").select("total");
-    const totalPendapatan = ordersData?.reduce((sum, o) => sum + (o.total || 0), 0) || 0;
+    const { data: ordersData } = await supabase.from("orders").select("total, sisa_pembayaran");
+    const totalPendapatan =
+      ordersData?.reduce((sum, o) => sum + ((o.total || 0) - (o.sisa_pembayaran || 0)), 0) || 0;
 
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
@@ -255,7 +256,7 @@ export default function DashboardPage() {
                 <TrendingUp size={14} className="text-blue-600" />
                 {`Rp ${stats.totalPendapatan.toLocaleString("id-ID")}`}
               </div>
-              <p className="text-[11px] text-gray-500 dark:text-gray-400">Total Pendapatan</p>
+              <p className="text-[11px] text-gray-500 dark:text-gray-400">Pendapatan Diterima</p>
             </div>
             <div className="rounded-xl bg-blue-50/60 dark:bg-blue-900/20 px-4 py-3 border border-blue-100 dark:border-blue-900">
               <div className="flex items-center gap-1.5 text-sm font-bold text-black dark:text-white">

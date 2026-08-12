@@ -30,7 +30,7 @@ export default async function LaporanPage() {
   const dataOrders = (orders || []) as Order[];
 
   const totalOrders = dataOrders.length;
-  const totalRevenue = dataOrders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
+  const totalRevenue = dataOrders.reduce((sum, o) => sum + ((Number(o.total) || 0) - (Number(o.sisa_pembayaran) || 0)), 0);
   const totalDP = dataOrders.reduce((sum, o) => sum + (Number(o.dp) || 0), 0);
   const totalSisa = dataOrders.reduce((sum, o) => sum + (Number(o.sisa_pembayaran) || 0), 0);
 
@@ -64,7 +64,7 @@ export default async function LaporanPage() {
             </span>
             <div>
               <p className="font-display text-lg font-bold text-black dark:text-white">{formatRupiah(totalRevenue)}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Total Pendapatan</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Pendapatan Diterima</p>
             </div>
           </div>
           <div className="flex items-center gap-3 p-5">

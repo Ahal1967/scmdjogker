@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Search, Plus, FileText, ShoppingBag, CheckCircle2, TrendingUp, ChevronLeft, ChevronRight, Eye, Trash2, User } from "lucide-react";
+import { useConfirm } from "@/components/useConfirm";
 import { createClient } from "@/lib/supabase/client";
 
 type Customer = {
@@ -66,6 +67,7 @@ export default function PesananTable() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [showModal, setShowModal] = useState(false);
+  const { confirm, ConfirmDialog } = useConfirm();
   const [detailOrder, setDetailOrder] = useState<Order | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -286,7 +288,8 @@ export default function PesananTable() {
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("Hapus pesanan ini beserta seluruh itemnya?")) return;
+    const ok = await confirm({ message: "Pesanan ini beserta seluruh itemnya akan dihapus permanen.", danger: true });
+    if (!ok) return;
 
     try {
       const { error: itemsError } = await supabase.from("order_items").delete().eq("order_id", id);
@@ -756,6 +759,7 @@ export default function PesananTable() {
           </div>
         </div>
       )}
+      {ConfirmDialog}
     </div>
   );
 }

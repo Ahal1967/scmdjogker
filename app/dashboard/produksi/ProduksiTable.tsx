@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Search, Factory, Activity, CheckCircle2, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
+import { useConfirm } from "@/components/useConfirm";
 
 export type ProductionRow = {
   id: string;
@@ -43,6 +44,7 @@ export default function ProduksiTable({
   const [productions, setProductions] = useState<ProductionRow[]>(initialProductions);
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const { confirm, ConfirmDialog } = useConfirm();
   const [pageSize, setPageSize] = useState(10);
 
   const filtered = useMemo(() => {
@@ -121,7 +123,8 @@ export default function ProduksiTable({
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("Hapus data produksi ini?")) return;
+    const ok = await confirm({ message: "Data produksi ini akan dihapus permanen.", danger: true });
+    if (!ok) return;
 
     const res = await fetch("/api/production/delete", {
       method: "POST",
@@ -307,6 +310,7 @@ export default function ProduksiTable({
           </div>
         </div>
       </div>
+      {ConfirmDialog}
     </div>
   );
 }

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { Search, Plus, Truck, Users2, CheckCircle2, Ban, ChevronLeft, ChevronRight, Pencil, Trash2 } from "lucide-react";
+import { useConfirm } from "@/components/useConfirm";
 
 type Supplier = {
   id: string;
@@ -20,6 +21,7 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [showModal, setShowModal] = useState(false);
+  const { confirm, ConfirmDialog } = useConfirm();
   const [editing, setEditing] = useState<Supplier | null>(null);
   const [form, setForm] = useState({
     nama_supplier: "",
@@ -81,7 +83,8 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
   }
 
   async function handleDelete(id: string) {
-    if (!confirm("Hapus supplier ini?")) return;
+    const ok = await confirm({ message: "Supplier ini akan dihapus permanen dan tidak bisa dikembalikan.", danger: true });
+    if (!ok) return;
     const { error } = await supabase.from("suppliers").delete().eq("id", id);
     if (!error) {
       setSuppliers((prev) => prev.filter((s) => s.id !== id));
@@ -315,6 +318,7 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
           </div>
         </div>
       )}
+      {ConfirmDialog}
     </div>
   );
 }
