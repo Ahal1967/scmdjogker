@@ -82,7 +82,7 @@ export default async function AlurPage() {
             <Link
               key={stage.key}
               href={stage.href}
-              className="card relative block cursor-pointer"
+              className="card relative block cursor-pointer bg-blue-50/60 dark:bg-blue-900/10"
               style={{ border: "none" }}
             >
               <span className="absolute top-4 right-4 text-xs font-display font-bold text-gray-300 dark:text-gray-600">

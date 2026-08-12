@@ -338,7 +338,7 @@ export default function DashboardPage() {
         })}
       </div>
 
-      <div className="card" style={{ border: "none" }}>
+      <div className="card bg-blue-50/60 dark:bg-blue-900/10" style={{ border: "none" }}>
         <h2 className="text-base font-semibold text-black dark:text-white mb-4">Status Pesanan</h2>
         <div className="flex flex-col md:flex-row items-center gap-4">
           <div className="w-full md:w-1/2">
@@ -386,7 +386,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="card" style={{ border: "none" }}>
+      <div className="card bg-blue-50/60 dark:bg-blue-900/10" style={{ border: "none" }}>
         <h2 className="text-base font-semibold text-black dark:text-white mb-4">Progress Produksi</h2>
         <div className="flex items-center justify-center mb-4">
           <div className="relative w-32 h-32 md:w-40 md:h-40">
@@ -413,7 +413,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="card" style={{ border: "none" }}>
+      <div className="card bg-blue-50/60 dark:bg-blue-900/10" style={{ border: "none" }}>
         <h2 className="text-base font-semibold text-black dark:text-white mb-4">
           Tren Pendapatan (6 Bulan Terakhir)
         </h2>
