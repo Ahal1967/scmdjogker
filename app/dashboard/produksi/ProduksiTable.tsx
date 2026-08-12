@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Search, Factory, Activity, CheckCircle2, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
 import { useConfirm } from "@/components/useConfirm";
+import { useToast } from "@/components/useToast";
 
 export type ProductionRow = {
   id: string;
@@ -45,6 +46,7 @@ export default function ProduksiTable({
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const { confirm, ConfirmDialog } = useConfirm();
+  const { showToast, ToastBanner } = useToast();
   const [pageSize, setPageSize] = useState(10);
 
   const filtered = useMemo(() => {
@@ -52,7 +54,9 @@ export default function ProduksiTable({
     return productions.filter((p) => {
       const noProduksi = (p.no_produksi || "").toLowerCase();
       const noPesanan = (p.orders?.no_pesanan || "").toLowerCase();
-      return noProduksi.includes(q) || noPesanan.includes(q);
+      const namaPelanggan = (p.orders?.customers?.nama || "").toLowerCase();
+      const status = (p.status || "").toLowerCase();
+      return noProduksi.includes(q) || noPesanan.includes(q) || namaPelanggan.includes(q) || status.includes(q);
     });
   }, [productions, search]);
 
@@ -98,10 +102,11 @@ export default function ProduksiTable({
       }
 
       if (status === "QC") {
-        router.push("/dashboard/qc");
+        showToast("Status diubah ke QC, otomatis lanjut ke halaman QC.", "success");
+        setTimeout(() => router.push("/dashboard/qc"), 900);
       }
     } else if (error) {
-      alert("Gagal mengubah status: " + error.message);
+      showToast("Gagal mengubah status: " + error.message);
     }
   }
 
@@ -134,9 +139,10 @@ export default function ProduksiTable({
 
     if (res.ok) {
       setProductions((prev) => prev.filter((p) => p.id !== id));
+      showToast("Data produksi berhasil dihapus.", "success");
     } else {
       const body = await res.json().catch(() => null);
-      alert("Gagal menghapus produksi" + (body?.error ? `: ${body.error}` : ""));
+      showToast("Gagal menghapus produksi" + (body?.error ? `: ${body.error}` : ""));
     }
   }
 
@@ -311,6 +317,7 @@ export default function ProduksiTable({
         </div>
       </div>
       {ConfirmDialog}
+      {ToastBanner}
     </div>
   );
 }

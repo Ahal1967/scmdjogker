@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter, useParams } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
 type Order = {
   id: string;
@@ -22,6 +23,8 @@ export default function EditPesananPage() {
   const supabase = createClient();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
+  const [notFound, setNotFound] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [formData, setFormData] = useState<Order>({
     id: "",
     no_pesanan: "",
@@ -43,8 +46,8 @@ export default function EditPesananPage() {
         .single();
 
       if (error || !data) {
-        alert("Data tidak ditemukan");
-        router.push("/dashboard/laporan");
+        setNotFound(true);
+        setFetching(false);
         return;
       }
 
@@ -57,6 +60,7 @@ export default function EditPesananPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setErrorMsg(null);
     setLoading(true);
 
     const { error } = await supabase
@@ -70,17 +74,26 @@ export default function EditPesananPage() {
       .eq("id", params.id);
 
     if (error) {
-      alert("Gagal update pesanan: " + error.message);
+      setErrorMsg("Gagal update pesanan: " + error.message);
+      setLoading(false);
     } else {
-      alert("Pesanan berhasil diupdate!");
       router.push("/dashboard/laporan");
     }
-
-    setLoading(false);
   }
 
   if (fetching) {
     return <div className="text-center py-8 text-gray-500 dark:text-gray-400">Memuat data...</div>;
+  }
+
+  if (notFound) {
+    return (
+      <div className="card max-w-md mx-auto text-center py-8" style={{ border: "none" }}>
+        <p className="text-gray-600 dark:text-gray-400">Data pesanan tidak ditemukan.</p>
+        <button onClick={() => router.push("/dashboard/laporan")} className="btn-outline mt-4">
+          Kembali ke Laporan
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -90,8 +103,13 @@ export default function EditPesananPage() {
         <p className="text-gray-600 dark:text-gray-400 text-sm">Update data pesanan {formData.no_pesanan}.</p>
       </div>
 
-      <div className="card max-w-2xl">
+      <div className="card max-w-2xl" style={{ border: "none" }}>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {errorMsg && (
+            <div className="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 px-4 py-3 text-sm text-red-700 dark:text-red-300">
+              {errorMsg}
+            </div>
+          )}
           <div>
             <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">No. Pesanan</label>
             <input
@@ -181,7 +199,8 @@ export default function EditPesananPage() {
             <button type="button" onClick={() => router.back()} className="btn-outline flex-1">
               Batal
             </button>
-            <button type="submit" disabled={loading} className="btn-primary flex-1">
+            <button type="submit" disabled={loading} className="btn-primary flex-1 flex items-center justify-center gap-2">
+              {loading && <Loader2 size={15} className="animate-spin" />}
               {loading ? "Menyimpan..." : "Update"}
             </button>
           </div>

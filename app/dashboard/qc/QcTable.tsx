@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Search, ShieldCheck, ClipboardCheck, CheckCircle2, XCircle, ChevronLeft, ChevronRight, Eye } from "lucide-react";
+import { Search, ShieldCheck, ClipboardCheck, CheckCircle2, XCircle, ChevronLeft, ChevronRight, Eye, Loader2 } from "lucide-react";
+import { useToast } from "@/components/useToast";
 
 type PendingProduction = {
   id: string;
@@ -66,6 +67,7 @@ export default function QcTable({
   const [hasil, setHasil] = useState<"Lolos" | "Perbaikan" | "Gagal">("Lolos");
   const [catatan, setCatatan] = useState("");
   const [saving, setSaving] = useState(false);
+  const { showToast, ToastBanner } = useToast();
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -112,7 +114,7 @@ export default function QcTable({
       .single();
 
     if (qcError || !qcData) {
-      alert("Gagal menyimpan hasil QC: " + qcError?.message);
+      showToast("Gagal menyimpan hasil QC: " + qcError?.message);
       setSaving(false);
       return;
     }
@@ -171,9 +173,13 @@ export default function QcTable({
 
     setShowModal(false);
     setSaving(false);
+    showToast(
+      hasil === "Lolos" ? "QC lolos, otomatis lanjut ke Packing." : "Hasil QC tersimpan, dikembalikan ke Produksi.",
+      "success"
+    );
 
     if (hasil === "Lolos") {
-      router.push("/dashboard/packing");
+      setTimeout(() => router.push("/dashboard/packing"), 900);
     }
   }
 
@@ -410,7 +416,8 @@ export default function QcTable({
                 <button type="button" onClick={() => setShowModal(false)} className="btn-outline flex-1">
                   Batal
                 </button>
-                <button type="submit" disabled={saving} className="btn-primary flex-1">
+                <button type="submit" disabled={saving} className="btn-primary flex-1 flex items-center justify-center gap-2">
+                  {saving && <Loader2 size={15} className="animate-spin" />}
                   {saving ? "Menyimpan..." : "Simpan Hasil"}
                 </button>
               </div>
@@ -418,6 +425,7 @@ export default function QcTable({
           </div>
         </div>
       )}
+      {ToastBanner}
     </div>
   );
 }

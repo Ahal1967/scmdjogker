@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { Search, Plus, Package, Boxes, AlertTriangle, CheckCircle2, ChevronLeft, ChevronRight, Pencil, Trash2 } from "lucide-react";
+import { Search, Plus, Package, Boxes, AlertTriangle, CheckCircle2, ChevronLeft, ChevronRight, Pencil, Trash2, Loader2, PackageOpen } from "lucide-react";
+import { useToast } from "@/components/useToast";
 import { useConfirm } from "@/components/useConfirm";
 
 type Supplier = { id: string; nama_supplier: string };
@@ -36,6 +37,8 @@ export default function GudangTable({
   const [pageSize, setPageSize] = useState(10);
   const [showModal, setShowModal] = useState(false);
   const { confirm, ConfirmDialog } = useConfirm();
+  const { showToast, ToastBanner } = useToast();
+  const [saving, setSaving] = useState(false);
   const [editing, setEditing] = useState<Material | null>(null);
   const [form, setForm] = useState({
     nama_bahan: "",
@@ -46,9 +49,14 @@ export default function GudangTable({
     supplier_id: "",
   });
 
-  const filtered = materials.filter((m) =>
-    m.nama_bahan.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = materials.filter((m) => {
+    const q = search.toLowerCase();
+    return (
+      m.nama_bahan.toLowerCase().includes(q) ||
+      (m.kategori ?? "").toLowerCase().includes(q) ||
+      (m.suppliers?.nama_supplier ?? "").toLowerCase().includes(q)
+    );
+  });
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const paginated = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
@@ -84,6 +92,7 @@ export default function GudangTable({
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
+    setSaving(true);
 
     const payload = {
       nama_bahan: form.nama_bahan,
@@ -103,6 +112,11 @@ export default function GudangTable({
         .single();
       if (!error && data) {
         setMaterials((prev) => prev.map((m) => (m.id === editing.id ? data : m)));
+        showToast("Bahan berhasil diperbarui.", "success");
+      } else {
+        showToast("Gagal menyimpan: " + error?.message);
+        setSaving(false);
+        return;
       }
     } else {
       const { data, error } = await supabase
@@ -112,9 +126,15 @@ export default function GudangTable({
         .single();
       if (!error && data) {
         setMaterials((prev) => [data, ...prev]);
+        showToast("Bahan baru berhasil ditambahkan.", "success");
+      } else {
+        showToast("Gagal menyimpan: " + error?.message);
+        setSaving(false);
+        return;
       }
     }
 
+    setSaving(false);
     setShowModal(false);
   }
 
@@ -244,8 +264,25 @@ export default function GudangTable({
               {filtered.length === 0 && (
                 <tr>
                   <td colSpan={9}>
-                    <div className="flex min-h-[140px] items-center justify-center text-gray-500 dark:text-gray-400">
-                      Belum ada data bahan baku.
+                    <div className="flex flex-col items-center justify-center min-h-[220px] gap-3 py-8">
+                      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-900/40">
+                        <PackageOpen size={26} className="text-blue-600 dark:text-blue-400" strokeWidth={1.8} />
+                      </div>
+                      <p className="text-sm font-medium text-black dark:text-white">
+                        {search ? "Tidak ditemukan" : "Belum ada data bahan baku"}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 max-w-xs text-center">
+                        {search ? "Coba kata kunci pencarian lain." : "Mulai catat bahan baku pertama kamu."}
+                      </p>
+                      {!search && (
+                        <button
+                          onClick={openAdd}
+                          className="inline-flex items-center gap-1.5 rounded-full bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-700 transition-colors"
+                        >
+                          <Plus size={14} />
+                          Bahan Masuk
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -418,8 +455,9 @@ export default function GudangTable({
                 <button type="button" onClick={() => setShowModal(false)} className="btn-outline flex-1">
                   Batal
                 </button>
-                <button type="submit" className="btn-primary flex-1">
-                  Simpan
+                <button type="submit" disabled={saving} className="btn-primary flex-1 flex items-center justify-center gap-2">
+                  {saving && <Loader2 size={15} className="animate-spin" />}
+                  {saving ? "Menyimpan..." : "Simpan"}
                 </button>
               </div>
             </form>
@@ -427,6 +465,7 @@ export default function GudangTable({
         </div>
       )}
       {ConfirmDialog}
+      {ToastBanner}
     </div>
   );
 }

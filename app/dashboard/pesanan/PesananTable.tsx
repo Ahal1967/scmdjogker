@@ -3,8 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Search, Plus, FileText, ShoppingBag, CheckCircle2, TrendingUp, ChevronLeft, ChevronRight, Eye, Trash2, User } from "lucide-react";
+import { Search, Plus, FileText, ShoppingBag, CheckCircle2, TrendingUp, ChevronLeft, ChevronRight, Eye, Trash2, User, Loader2, PackageOpen } from "lucide-react";
 import { useConfirm } from "@/components/useConfirm";
+import { useToast } from "@/components/useToast";
 import { createClient } from "@/lib/supabase/client";
 
 type Customer = {
@@ -68,6 +69,7 @@ export default function PesananTable() {
   const [pageSize, setPageSize] = useState(10);
   const [showModal, setShowModal] = useState(false);
   const { confirm, ConfirmDialog } = useConfirm();
+  const { showToast, ToastBanner } = useToast();
   const [detailOrder, setDetailOrder] = useState<Order | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -77,6 +79,17 @@ export default function PesananTable() {
   const [alamatPengiriman, setAlamatPengiriman] = useState("");
   const [dp, setDp] = useState(0);
   const [items, setItems] = useState<OrderItem[]>([{ nama_produk: "", jumlah: 1, harga: 0 }]);
+
+  useEffect(() => {
+    function handleBeforeUnload(e: BeforeUnloadEvent) {
+      if (showModal) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    }
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [showModal]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -128,11 +141,14 @@ export default function PesananTable() {
     fetchData();
   }, [supabase]);
 
-  const filtered = orders.filter(
-    (o) =>
-      (o.no_pesanan ?? "").toLowerCase().includes(search.toLowerCase()) ||
-      (o.customers?.nama ?? "").toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = orders.filter((o) => {
+    const q = search.toLowerCase();
+    return (
+      (o.no_pesanan ?? "").toLowerCase().includes(q) ||
+      (o.customers?.nama ?? "").toLowerCase().includes(q) ||
+      (o.status ?? "").toLowerCase().includes(q)
+    );
+  });
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const paginated = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
@@ -174,7 +190,7 @@ export default function PesananTable() {
 
     if (isNewCustomer) {
       if (!newCustomer.nama.trim()) {
-        alert("Nama pelanggan wajib diisi.");
+        showToast("Nama pelanggan wajib diisi.");
         setSaving(false);
         return;
       }
@@ -184,7 +200,7 @@ export default function PesananTable() {
         .select()
         .single();
       if (custError || !custData) {
-        alert("Gagal menyimpan pelanggan baru: " + custError?.message);
+        showToast("Gagal menyimpan pelanggan baru: " + custError?.message);
         setSaving(false);
         return;
       }
@@ -193,14 +209,14 @@ export default function PesananTable() {
     }
 
     if (!finalCustomerId) {
-      alert("Pilih pelanggan terlebih dahulu.");
+      showToast("Pilih pelanggan terlebih dahulu.");
       setSaving(false);
       return;
     }
 
     const validItems = items.filter((it) => it.nama_produk.trim() && it.jumlah > 0);
     if (validItems.length === 0) {
-      alert("Tambahkan minimal 1 produk pesanan.");
+      showToast("Tambahkan minimal 1 produk pesanan.");
       setSaving(false);
       return;
     }
@@ -222,7 +238,7 @@ export default function PesananTable() {
       .single();
 
     if (orderError || !orderData) {
-      alert("Gagal menyimpan pesanan: " + orderError?.message);
+      showToast("Gagal menyimpan pesanan: " + orderError?.message);
       setSaving(false);
       return;
     }
@@ -233,7 +249,7 @@ export default function PesananTable() {
       .select();
 
     if (itemsError) {
-      alert("Pesanan tersimpan, tapi item produk gagal disimpan: " + itemsError.message);
+      showToast("Pesanan tersimpan, tapi item produk gagal disimpan: " + itemsError.message);
     }
 
     await supabase.from("order_tracking").insert({
@@ -251,7 +267,7 @@ export default function PesananTable() {
     });
 
     if (prodError) {
-      alert("Pesanan tersimpan, tapi gagal membuat entri produksi otomatis: " + prodError.message);
+      showToast("Pesanan tersimpan, tapi gagal membuat entri produksi otomatis: " + prodError.message);
     } else {
       setProductionSeq((n) => n + 1);
     }
@@ -263,6 +279,7 @@ export default function PesananTable() {
     setOrderSeq((n) => n + 1);
     setShowModal(false);
     setSaving(false);
+    showToast("Pesanan berhasil ditambahkan.", "success");
   }
 
   async function updateStatus(order: Order, status: string) {
@@ -282,7 +299,8 @@ export default function PesananTable() {
       });
 
       if (status === "Produksi") {
-        router.push("/dashboard/produksi");
+        showToast("Status diubah ke Produksi, otomatis lanjut ke halaman Produksi.", "success");
+        setTimeout(() => router.push("/dashboard/produksi"), 900);
       }
     }
   }
@@ -294,19 +312,19 @@ export default function PesananTable() {
     try {
       const { error: itemsError } = await supabase.from("order_items").delete().eq("order_id", id);
       if (itemsError) {
-        alert("Gagal menghapus item pesanan: " + itemsError.message);
+        showToast("Gagal menghapus item pesanan: " + itemsError.message);
         return;
       }
 
       const { error: orderError } = await supabase.from("orders").delete().eq("id", id);
       if (orderError) {
-        alert("Gagal menghapus pesanan: " + orderError.message);
+        showToast("Gagal menghapus pesanan: " + orderError.message);
         return;
       }
 
       setOrders((prev) => prev.filter((o) => o.id !== id));
     } catch {
-      alert("Terjadi kesalahan saat menghapus pesanan");
+      showToast("Terjadi kesalahan saat menghapus pesanan");
     }
   }
 
@@ -408,8 +426,25 @@ export default function PesananTable() {
               {filtered.length === 0 && (
                 <tr>
                   <td colSpan={6} className="p-0">
-                    <div className="flex min-h-[120px] w-full items-center justify-center text-center text-gray-500 dark:text-gray-400">
-                      Belum ada pesanan.
+                    <div className="flex flex-col items-center justify-center min-h-[220px] gap-3 py-8">
+                      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-900/40">
+                        <PackageOpen size={26} className="text-blue-600 dark:text-blue-400" strokeWidth={1.8} />
+                      </div>
+                      <p className="text-sm font-medium text-black dark:text-white">
+                        {search ? "Tidak ditemukan" : "Belum ada pesanan"}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 max-w-xs text-center">
+                        {search ? "Coba kata kunci pencarian lain." : "Mulai catat pesanan pertama kamu."}
+                      </p>
+                      {!search && (
+                        <button
+                          onClick={openAdd}
+                          className="inline-flex items-center gap-1.5 rounded-full bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-700 transition-colors"
+                        >
+                          <Plus size={14} />
+                          Pesanan Baru
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -643,7 +678,8 @@ export default function PesananTable() {
                 <button type="button" onClick={() => setShowModal(false)} className="btn-outline flex-1">
                   Batal
                 </button>
-                <button type="submit" disabled={saving} className="btn-primary flex-1">
+                <button type="submit" disabled={saving} className="btn-primary flex-1 flex items-center justify-center gap-2">
+                  {saving && <Loader2 size={15} className="animate-spin" />}
                   {saving ? "Menyimpan..." : "Simpan Pesanan"}
                 </button>
               </div>
@@ -760,6 +796,7 @@ export default function PesananTable() {
         </div>
       )}
       {ConfirmDialog}
+      {ToastBanner}
     </div>
   );
 }

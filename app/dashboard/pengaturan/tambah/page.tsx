@@ -1,19 +1,36 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
+
+const EMPTY_FORM = {
+  email: "",
+  password: "",
+  full_name: "",
+  role: "staff",
+  avatar_url: "",
+};
 
 export default function TambahProfilePage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    full_name: "",
-    role: "staff",
-    avatar_url: "",
-  });
+  const [submitted, setSubmitted] = useState(false);
+  const [formData, setFormData] = useState(EMPTY_FORM);
+
+  const isDirty = JSON.stringify(formData) !== JSON.stringify(EMPTY_FORM);
+
+  useEffect(() => {
+    function handleBeforeUnload(e: BeforeUnloadEvent) {
+      if (isDirty && !submitted) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    }
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isDirty, submitted]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -34,7 +51,7 @@ export default function TambahProfilePage() {
       return;
     }
 
-    alert("Pengguna berhasil ditambahkan!");
+    setSubmitted(true);
     router.push("/dashboard/pengaturan");
   }
 
@@ -47,10 +64,10 @@ export default function TambahProfilePage() {
         </p>
       </div>
 
-      <div className="card max-w-2xl">
+      <div className="card max-w-2xl" style={{ border: "none" }}>
         <form onSubmit={handleSubmit} className="space-y-4">
           {errorMsg && (
-            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <div className="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 px-4 py-3 text-sm text-red-700 dark:text-red-300">
               {errorMsg}
             </div>
           )}
@@ -120,7 +137,8 @@ export default function TambahProfilePage() {
             <button type="button" onClick={() => router.back()} className="btn-outline flex-1">
               Batal
             </button>
-            <button type="submit" disabled={loading} className="btn-primary flex-1">
+            <button type="submit" disabled={loading} className="btn-primary flex-1 flex items-center justify-center gap-2">
+              {loading && <Loader2 size={15} className="animate-spin" />}
               {loading ? "Menyimpan..." : "Simpan"}
             </button>
           </div>

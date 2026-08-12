@@ -17,6 +17,8 @@ export default function EditProfilePage() {
   const supabase = createClient();
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
+  const [notFound, setNotFound] = useState(false);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [formData, setFormData] = useState<Profile>({
     id: "",
     full_name: "",
@@ -33,8 +35,8 @@ export default function EditProfilePage() {
         .single();
 
       if (error || !data) {
-        alert("Data tidak ditemukan");
-        router.push("/dashboard/pengaturan");
+        setNotFound(true);
+        setFetching(false);
         return;
       }
 
@@ -43,10 +45,11 @@ export default function EditProfilePage() {
     }
 
     fetchProfile();
-  }, [params.id, router, supabase]);
+  }, [params.id, supabase]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setErrorMsg(null);
     setLoading(true);
 
     const { error } = await supabase
@@ -59,17 +62,26 @@ export default function EditProfilePage() {
       .eq("id", params.id);
 
     if (error) {
-      alert("Gagal update profil: " + error.message);
+      setErrorMsg("Gagal update profil: " + error.message);
+      setLoading(false);
     } else {
-      alert("Profil berhasil diupdate!");
       router.push("/dashboard/pengaturan");
     }
-
-    setLoading(false);
   }
 
   if (fetching) {
     return <div className="text-center py-8 text-gray-500 dark:text-gray-400">Memuat data...</div>;
+  }
+
+  if (notFound) {
+    return (
+      <div className="card max-w-md mx-auto text-center py-8" style={{ border: "none" }}>
+        <p className="text-gray-600 dark:text-gray-400">Data pengguna tidak ditemukan.</p>
+        <button onClick={() => router.push("/dashboard/pengaturan")} className="btn-outline mt-4">
+          Kembali ke Pengaturan
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -81,8 +93,14 @@ export default function EditProfilePage() {
         </p>
       </div>
 
-      <div className="card max-w-2xl">
+      <div className="card max-w-2xl" style={{ border: "none" }}>
         <form onSubmit={handleSubmit} className="space-y-4">
+          {errorMsg && (
+            <div className="rounded-xl border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/20 px-4 py-3 text-sm text-red-700 dark:text-red-300">
+              {errorMsg}
+            </div>
+          )}
+
           <div>
             <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">ID User</label>
             <input

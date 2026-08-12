@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Search, Truck, Clock, PackageCheck, ChevronLeft, ChevronRight, ClipboardEdit, CheckCircle2 } from "lucide-react";
+import { Search, Truck, Clock, PackageCheck, ChevronLeft, ChevronRight, ClipboardEdit, CheckCircle2, Loader2 } from "lucide-react";
+import { useToast } from "@/components/useToast";
 
 type Shipment = {
   id: string;
@@ -58,6 +59,7 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
   const [kurir, setKurir] = useState("");
   const [noResi, setNoResi] = useState("");
   const [saving, setSaving] = useState(false);
+  const { showToast, ToastBanner } = useToast();
 
   const filtered = shipments.filter(
     (s) =>
@@ -95,7 +97,7 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
       .single();
 
     if (error || !data) {
-      alert("Gagal update pengiriman: " + error?.message);
+      showToast("Gagal update pengiriman: " + error?.message);
       setSaving(false);
       return;
     }
@@ -111,6 +113,7 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
 
     setShowModal(false);
     setSaving(false);
+    showToast("Data pengiriman tersimpan, status berubah jadi Dikirim.", "success");
   }
 
   async function markTerkirim(s: Shipment) {
@@ -122,7 +125,7 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
       .single();
 
     if (error || !data) {
-      alert("Gagal update status: " + error?.message);
+      showToast("Gagal update status: " + error?.message);
       return;
     }
 
@@ -140,7 +143,8 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
       .update({ status: "Selesai", progress: 100 })
       .eq("order_id", s.order_id);
 
-    router.push("/dashboard/laporan");
+    showToast("Pesanan selesai! Otomatis lanjut ke halaman Laporan.", "success");
+    setTimeout(() => router.push("/dashboard/laporan"), 900);
   }
 
   if (shipments.length === 0) {
@@ -346,7 +350,8 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
                 <button type="button" onClick={() => setShowModal(false)} className="btn-outline flex-1">
                   Batal
                 </button>
-                <button type="submit" disabled={saving} className="btn-primary flex-1">
+                <button type="submit" disabled={saving} className="btn-primary flex-1 flex items-center justify-center gap-2">
+                  {saving && <Loader2 size={15} className="animate-spin" />}
                   {saving ? "Menyimpan..." : "Simpan"}
                 </button>
               </div>
@@ -354,6 +359,7 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
           </div>
         </div>
       )}
+      {ToastBanner}
     </div>
   );
 }

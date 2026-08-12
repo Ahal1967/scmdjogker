@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { Search, Plus, Truck, Users2, CheckCircle2, Ban, ChevronLeft, ChevronRight, Pencil, Trash2 } from "lucide-react";
+import { Search, Plus, Truck, Users2, CheckCircle2, Ban, ChevronLeft, ChevronRight, Pencil, Trash2, Loader2, PackageOpen } from "lucide-react";
+import { useToast } from "@/components/useToast";
 import { useConfirm } from "@/components/useConfirm";
 
 type Supplier = {
@@ -22,6 +23,8 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
   const [pageSize, setPageSize] = useState(10);
   const [showModal, setShowModal] = useState(false);
   const { confirm, ConfirmDialog } = useConfirm();
+  const { showToast, ToastBanner } = useToast();
+  const [saving, setSaving] = useState(false);
   const [editing, setEditing] = useState<Supplier | null>(null);
   const [form, setForm] = useState({
     nama_supplier: "",
@@ -31,9 +34,15 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
     status: "Aktif" as "Aktif" | "Nonaktif",
   });
 
-  const filtered = suppliers.filter((s) =>
-    s.nama_supplier.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = suppliers.filter((s) => {
+    const q = search.toLowerCase();
+    return (
+      s.nama_supplier.toLowerCase().includes(q) ||
+      (s.kontak ?? "").toLowerCase().includes(q) ||
+      (s.no_telepon ?? "").includes(q) ||
+      (s.alamat ?? "").toLowerCase().includes(q)
+    );
+  });
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const paginated = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
@@ -61,6 +70,7 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
+    setSaving(true);
 
     if (editing) {
       const { data, error } = await supabase
@@ -71,14 +81,25 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
         .single();
       if (!error && data) {
         setSuppliers((prev) => prev.map((s) => (s.id === editing.id ? data : s)));
+        showToast("Supplier berhasil diperbarui.", "success");
+      } else {
+        showToast("Gagal menyimpan: " + error?.message);
+        setSaving(false);
+        return;
       }
     } else {
       const { data, error } = await supabase.from("suppliers").insert(form).select().single();
       if (!error && data) {
         setSuppliers((prev) => [data, ...prev]);
+        showToast("Supplier baru berhasil ditambahkan.", "success");
+      } else {
+        showToast("Gagal menyimpan: " + error?.message);
+        setSaving(false);
+        return;
       }
     }
 
+    setSaving(false);
     setShowModal(false);
   }
 
@@ -175,8 +196,25 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
               {filtered.length === 0 && (
                 <tr>
                   <td colSpan={7}>
-                    <div className="flex min-h-[140px] items-center justify-center text-gray-500 dark:text-gray-400">
-                      Belum ada data supplier.
+                    <div className="flex flex-col items-center justify-center min-h-[220px] gap-3 py-8">
+                      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-900/40">
+                        <PackageOpen size={26} className="text-blue-600 dark:text-blue-400" strokeWidth={1.8} />
+                      </div>
+                      <p className="text-sm font-medium text-black dark:text-white">
+                        {search ? "Tidak ditemukan" : "Belum ada data supplier"}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 max-w-xs text-center">
+                        {search ? "Coba kata kunci pencarian lain." : "Mulai tambahkan supplier pertama kamu."}
+                      </p>
+                      {!search && (
+                        <button
+                          onClick={openAdd}
+                          className="inline-flex items-center gap-1.5 rounded-full bg-blue-600 px-4 py-2 text-xs font-semibold text-white hover:bg-blue-700 transition-colors"
+                        >
+                          <Plus size={14} />
+                          Tambah Supplier
+                        </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -310,8 +348,9 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
                 <button type="button" onClick={() => setShowModal(false)} className="btn-outline flex-1">
                   Batal
                 </button>
-                <button type="submit" className="btn-primary flex-1">
-                  Simpan
+                <button type="submit" disabled={saving} className="btn-primary flex-1 flex items-center justify-center gap-2">
+                  {saving && <Loader2 size={15} className="animate-spin" />}
+                  {saving ? "Menyimpan..." : "Simpan"}
                 </button>
               </div>
             </form>
@@ -319,6 +358,7 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
         </div>
       )}
       {ConfirmDialog}
+      {ToastBanner}
     </div>
   );
 }

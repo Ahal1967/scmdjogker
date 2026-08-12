@@ -70,8 +70,18 @@ export default function PelangganTable({ dataPelanggan }: { dataPelanggan: Pelan
               {filtered.length === 0 && (
                 <tr>
                   <td colSpan={5}>
-                    <div className="flex min-h-[140px] items-center justify-center text-gray-500 dark:text-gray-400">
-                      Belum ada data pelanggan.
+                    <div className="flex flex-col items-center justify-center min-h-[220px] gap-3 py-8">
+                      <div className="flex h-14 w-14 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-900/40">
+                        <User size={26} className="text-blue-600 dark:text-blue-400" strokeWidth={1.8} />
+                      </div>
+                      <p className="text-sm font-medium text-black dark:text-white">
+                        {search ? "Tidak ditemukan" : "Belum ada data pelanggan"}
+                      </p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400 max-w-xs text-center">
+                        {search
+                          ? "Coba kata kunci pencarian lain."
+                          : "Pelanggan baru otomatis muncul di sini saat pesanan pertama mereka dibuat."}
+                      </p>
                     </div>
                   </td>
                 </tr>

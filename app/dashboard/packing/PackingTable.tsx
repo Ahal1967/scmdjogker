@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { Search, Package, Clock, CheckCircle2, ChevronLeft, ChevronRight, Send } from "lucide-react";
+import { useToast } from "@/components/useToast";
 
 type Packing = {
   id: string;
@@ -40,6 +41,7 @@ export default function PackingTable({ initialPacking }: { initialPacking: Packi
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  const { showToast, ToastBanner } = useToast();
 
   const filtered = packingList.filter(
     (p) =>
@@ -62,7 +64,7 @@ export default function PackingTable({ initialPacking }: { initialPacking: Packi
       .single();
 
     if (error || !data) {
-      alert("Gagal update packing: " + error?.message);
+      showToast("Gagal update packing: " + error?.message);
       return;
     }
     setPackingList((prev) => prev.map((item) => (item.id === p.id ? data : item)));
@@ -87,7 +89,8 @@ export default function PackingTable({ initialPacking }: { initialPacking: Packi
       selesai: true,
     });
 
-    router.push("/dashboard/pengiriman");
+    showToast("Packing siap kirim, otomatis lanjut ke Pengiriman.", "success");
+    setTimeout(() => router.push("/dashboard/pengiriman"), 900);
   }
 
   if (packingList.length === 0) {
@@ -253,6 +256,7 @@ export default function PackingTable({ initialPacking }: { initialPacking: Packi
           </div>
         </div>
       </div>
+      {ToastBanner}
     </div>
   );
 }
