@@ -83,7 +83,7 @@ export default async function AlurPage() {
               key={stage.key}
               href={stage.href}
               className="card relative block cursor-pointer"
-              style={{ borderLeft: `1px solid ${stage.accent}` }}
+              style={{ border: `1px solid ${stage.accent}` }}
             >
               <span className="absolute top-4 right-4 text-xs font-display font-bold text-gray-300 dark:text-gray-600">
                 {String(idx + 1).padStart(2, "0")}

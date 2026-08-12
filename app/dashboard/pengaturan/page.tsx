@@ -55,7 +55,6 @@ export default async function PengaturanPage() {
       >
         <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl">
           <div className="absolute -right-10 -top-16 h-48 w-48 rounded-full bg-blue-200/30 dark:bg-blue-900/20 blur-3xl" />
-          <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-transparent via-blue-400 to-transparent opacity-60" />
         </div>
 
         <div className="relative z-10 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">

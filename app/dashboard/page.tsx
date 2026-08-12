@@ -292,7 +292,7 @@ export default function DashboardPage() {
                   key={idx}
                   href={card.href}
                   className={`flex-shrink-0 w-[90%] card bg-gradient-to-br ${card.color} snap-center block cursor-pointer`}
-                  style={{ borderLeft: `1px solid ${card.accent}` }}
+                  style={{ border: `1px solid ${card.accent}` }}
                 >
                   <div className={`mb-3 flex h-9 w-9 items-center justify-center rounded-lg ${card.iconBg}`}>
                     <Icon className="text-white" size={18} />
@@ -326,7 +326,7 @@ export default function DashboardPage() {
               key={idx}
               href={card.href}
               className={`card bg-gradient-to-br ${card.color} block cursor-pointer`}
-              style={{ borderLeft: `1px solid ${card.accent}` }}
+              style={{ border: `1px solid ${card.accent}` }}
             >
               <div className={`mb-3 flex h-9 w-9 items-center justify-center rounded-lg ${card.iconBg}`}>
                 <Icon className="text-white" size={18} />
@@ -338,7 +338,7 @@ export default function DashboardPage() {
         })}
       </div>
 
-      <div className="card" style={{ borderLeft: "1px solid #2563eb" }}>
+      <div className="card" style={{ border: "1px solid #2563eb" }}>
         <h2 className="text-base font-semibold text-black dark:text-white mb-4">Status Pesanan</h2>
         <div className="flex flex-col md:flex-row items-center gap-4">
           <div className="w-full md:w-1/2">
@@ -386,7 +386,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="card" style={{ borderLeft: "1px solid #16a34a" }}>
+      <div className="card" style={{ border: "1px solid #16a34a" }}>
         <h2 className="text-base font-semibold text-black dark:text-white mb-4">Progress Produksi</h2>
         <div className="flex items-center justify-center mb-4">
           <div className="relative w-32 h-32 md:w-40 md:h-40">
@@ -413,7 +413,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="card" style={{ borderLeft: "1px solid #059669" }}>
+      <div className="card" style={{ border: "1px solid #059669" }}>
         <h2 className="text-base font-semibold text-black dark:text-white mb-4">
           Tren Pendapatan (6 Bulan Terakhir)
         </h2>
