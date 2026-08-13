@@ -119,6 +119,13 @@ body {
     background: rgba(30, 58, 138, 0.1); /* biru gelap sangat lembut buat dark mode */
   }
 
+  /* Khusus modal/popup: latar HARUS solid (tidak transparan) karena numpuk
+     di atas backdrop blur gelap -- kalau ikut warna .card biasa yang transparan,
+     tulisan di dalamnya jadi kabur/susah dibaca di kedua tema. */
+  .card-modal {
+    background: var(--djoker-surface) !important;
+  }
+
   .card:hover {
     border-color: var(--djoker-blue);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(59, 130, 246, 0.14);

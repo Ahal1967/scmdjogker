@@ -31,7 +31,7 @@ export function useConfirm() {
   const ConfirmDialog = options ? (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
       <div
-        className="card w-full max-w-sm p-0 overflow-hidden"
+        className="card card-modal w-full max-w-sm p-0 overflow-hidden"
         style={{ border: "none" }}
       >
         <div className="p-6 text-center">

@@ -537,7 +537,7 @@ export default function PesananTable() {
 
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 p-4 overflow-y-auto">
-          <div className="card w-full max-w-lg my-8 max-h-[90vh] overflow-y-auto">
+          <div className="card card-modal w-full max-w-lg my-8 max-h-[90vh] overflow-y-auto" style={{ border: "1px solid #e5e7eb" }}>
             <h2 className="font-display text-base font-semibold text-black dark:text-white">
               Pesanan Baru — DJ{String(orderSeq).padStart(5, "0")}
             </h2>
@@ -690,7 +690,7 @@ export default function PesananTable() {
 
       {detailOrder && (
         <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 p-4 overflow-y-auto backdrop-blur-sm">
-          <div className="card w-full max-w-md my-8 max-h-[90vh] overflow-y-auto p-0" style={{ border: "1px solid #e5e7eb" }}>
+          <div className="card card-modal w-full max-w-md my-8 max-h-[90vh] overflow-y-auto p-0" style={{ border: "1px solid #e5e7eb" }}>
             {/* Header biru muda */}
             <div className="rounded-t-2xl bg-blue-50 dark:bg-blue-900/30 px-6 py-5">
               <div className="flex items-center justify-between">
