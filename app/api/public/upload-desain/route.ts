@@ -1,10 +1,22 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10MB, sesuai batas di mockup
 const ALLOWED_TYPES = ["image/png", "image/jpeg", "image/webp", "application/pdf"];
 
 export async function POST(request: Request) {
+  // Batasi maksimal 5 upload per 10 menit per alamat IP, supaya tidak
+  // bisa disalahgunakan buat spam file / boros storage.
+  const ip = getClientIp(request);
+  const allowed = await checkRateLimit(ip, "upload", 5, 10);
+  if (!allowed) {
+    return NextResponse.json(
+      { error: "Terlalu banyak percobaan upload. Coba lagi dalam beberapa menit." },
+      { status: 429 }
+    );
+  }
+
   const supabase = createAdminClient();
 
   const formData = await request.formData().catch(() => null);

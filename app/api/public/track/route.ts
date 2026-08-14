@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -7,6 +8,17 @@ export async function GET(request: Request) {
 
   if (!noPesanan) {
     return NextResponse.json({ error: "Nomor pesanan wajib diisi." }, { status: 400 });
+  }
+
+  // Batasi maksimal 10 percobaan per 5 menit per alamat IP, supaya nomor
+  // pesanan tidak bisa "discan" otomatis satu-satu oleh bot/script.
+  const ip = getClientIp(request);
+  const allowed = await checkRateLimit(ip, "track", 10, 5);
+  if (!allowed) {
+    return NextResponse.json(
+      { error: "Terlalu banyak percobaan. Coba lagi dalam beberapa menit." },
+      { status: 429 }
+    );
   }
 
   const supabase = createAdminClient();
