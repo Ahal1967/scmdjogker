@@ -71,6 +71,8 @@ export default function PesananTable() {
   const { confirm, ConfirmDialog } = useConfirm();
   const { showToast, ToastBanner } = useToast();
   const [detailOrder, setDetailOrder] = useState<Order | null>(null);
+  const [pelunasanInput, setPelunasanInput] = useState("");
+  const [payingOff, setPayingOff] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const [customerId, setCustomerId] = useState("");
@@ -282,6 +284,46 @@ export default function PesananTable() {
     showToast("Pesanan berhasil ditambahkan.", "success");
   }
 
+  async function handleCatatPembayaran(order: Order) {
+    const jumlah = Number(pelunasanInput);
+    if (!jumlah || jumlah <= 0) {
+      showToast("Isi jumlah pembayaran terlebih dahulu.");
+      return;
+    }
+
+    const sisaSekarang = Number(order.sisa_pembayaran) || 0;
+    const sisaBaru = Math.max(0, sisaSekarang - jumlah);
+
+    setPayingOff(true);
+    const { data, error } = await supabase
+      .from("orders")
+      .update({ sisa_pembayaran: sisaBaru })
+      .eq("id", order.id)
+      .select("*, customers(nama), order_items(id, nama_produk, jumlah, harga)")
+      .single();
+    setPayingOff(false);
+
+    if (error || !data) {
+      showToast("Gagal mencatat pembayaran: " + error?.message);
+      return;
+    }
+
+    setOrders((prev) => prev.map((o) => (o.id === order.id ? (data as Order) : o)));
+    setDetailOrder(data as Order);
+    setPelunasanInput("");
+
+    await supabase.from("order_tracking").insert({
+      order_id: order.id,
+      tahap: sisaBaru === 0 ? "Pembayaran Lunas" : `Pembayaran Rp ${jumlah.toLocaleString("id-ID")} diterima`,
+      selesai: true,
+    });
+
+    showToast(
+      sisaBaru === 0 ? "Pesanan sudah lunas!" : `Pembayaran tercatat, sisa Rp ${sisaBaru.toLocaleString("id-ID")}.`,
+      "success"
+    );
+  }
+
   async function updateStatus(order: Order, status: string) {
     const { data, error } = await supabase
       .from("orders")
@@ -405,7 +447,10 @@ export default function PesananTable() {
                   <td className="text-right">
                     <div className="flex justify-end gap-1.5">
                       <button
-                        onClick={() => setDetailOrder(o)}
+                        onClick={() => {
+                          setDetailOrder(o);
+                          setPelunasanInput("");
+                        }}
                         title="Lihat Detail"
                         className="flex h-8 w-8 items-center justify-center rounded-lg text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/40 transition-colors"
                       >
@@ -764,6 +809,39 @@ export default function PesananTable() {
                   </span>
                 </div>
               </div>
+
+              {Number(detailOrder.sisa_pembayaran) > 0 && (
+                <div className="mt-4 rounded-xl border border-blue-100 dark:border-blue-900 bg-blue-50/60 dark:bg-blue-900/20 p-3">
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-blue-600 dark:text-blue-300">
+                    Catat Pembayaran
+                  </p>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      placeholder="Jumlah dibayar"
+                      value={pelunasanInput === "" ? "" : Number(pelunasanInput).toLocaleString("id-ID")}
+                      onChange={(e) => setPelunasanInput(e.target.value.replace(/\D/g, ""))}
+                      className="input-field flex-1"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => handleCatatPembayaran(detailOrder)}
+                      disabled={payingOff}
+                      className="btn-primary whitespace-nowrap px-4"
+                    >
+                      {payingOff ? "..." : "Simpan"}
+                    </button>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setPelunasanInput(String(Number(detailOrder.sisa_pembayaran) || 0))}
+                    className="mt-2 text-xs text-blue-600 dark:text-blue-300 hover:underline"
+                  >
+                    Isi otomatis sisa penuh ({formatRupiah(Number(detailOrder.sisa_pembayaran) || 0)})
+                  </button>
+                </div>
+              )}
 
               {detailOrder.desain_url && (
                 <div className="mt-4">
