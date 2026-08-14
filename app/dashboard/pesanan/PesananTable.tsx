@@ -594,7 +594,12 @@ export default function PesananTable() {
 
               <div>
                 <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Produk Pesanan</label>
-                <div className="mt-2 space-y-2">
+                <div className="mt-2 flex items-center gap-2 px-0.5">
+                  <span className="flex-1"></span>
+                  <span className="w-20 text-[11px] text-gray-400">Jumlah</span>
+                  <span className="w-28 text-[11px] text-gray-400">Harga Satuan</span>
+                </div>
+                <div className="mt-1 space-y-2">
                   {items.map((it, idx) => (
                     <div key={idx} className="flex items-start gap-2">
                       <input
@@ -607,16 +612,16 @@ export default function PesananTable() {
                         type="number"
                         min={1}
                         placeholder="Qty"
-                        value={it.jumlah}
-                        onChange={(e) => updateItem(idx, "jumlah", Number(e.target.value))}
+                        value={it.jumlah || ""}
+                        onChange={(e) => updateItem(idx, "jumlah", e.target.value === "" ? 0 : Number(e.target.value))}
                         className="input-field w-20"
                       />
                       <input
                         type="number"
                         min={0}
                         placeholder="Harga"
-                        value={it.harga}
-                        onChange={(e) => updateItem(idx, "harga", Number(e.target.value))}
+                        value={it.harga || ""}
+                        onChange={(e) => updateItem(idx, "harga", e.target.value === "" ? 0 : Number(e.target.value))}
                         className="input-field w-28"
                       />
                       {items.length > 1 && (
@@ -651,10 +656,14 @@ export default function PesananTable() {
               <div>
                 <label className="text-xs font-medium text-gray-600 dark:text-gray-400">DP (Uang Muka)</label>
                 <input
-                  type="number"
-                  min={0}
-                  value={dp}
-                  onChange={(e) => setDp(Number(e.target.value))}
+                  type="text"
+                  inputMode="numeric"
+                  placeholder="0"
+                  value={dp === 0 ? "" : dp.toLocaleString("id-ID")}
+                  onChange={(e) => {
+                    const raw = e.target.value.replace(/\D/g, "");
+                    setDp(raw === "" ? 0 : Number(raw));
+                  }}
                   className="mt-2 input-field"
                 />
               </div>

@@ -347,6 +347,15 @@ body {
     transition: all 0.2s ease;
   }
 
+  /* Daftar pilihan (option) di dropdown status itu dirender langsung oleh
+     browser, bukan ikut warna kategori badge -- dipaksa pakai warna netral
+     yang pasti kebaca di kedua tema, supaya tidak ada kasus teks terang
+     nyaris tak terlihat di atas latar terang (atau sebaliknya). */
+  select.badge option {
+    background-color: var(--djoker-surface);
+    color: var(--djoker-text);
+  }
+
   .badge:hover {
     transform: scale(1.05);
   }
