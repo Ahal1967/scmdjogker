@@ -617,11 +617,14 @@ export default function PesananTable() {
                         className="input-field w-20"
                       />
                       <input
-                        type="number"
-                        min={0}
+                        type="text"
+                        inputMode="numeric"
                         placeholder="Harga"
-                        value={it.harga || ""}
-                        onChange={(e) => updateItem(idx, "harga", e.target.value === "" ? 0 : Number(e.target.value))}
+                        value={it.harga === 0 ? "" : it.harga.toLocaleString("id-ID")}
+                        onChange={(e) => {
+                          const raw = e.target.value.replace(/\D/g, "");
+                          updateItem(idx, "harga", raw === "" ? 0 : Number(raw));
+                        }}
                         className="input-field w-28"
                       />
                       {items.length > 1 && (

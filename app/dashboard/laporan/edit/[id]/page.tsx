@@ -150,9 +150,13 @@ export default function EditPesananPage() {
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">Total (Rp)</label>
               <input
-                type="number"
-                value={formData.total || ""}
-                onChange={(e) => setFormData({ ...formData, total: e.target.value === "" ? 0 : Number(e.target.value) })}
+                type="text"
+                inputMode="numeric"
+                value={formData.total === 0 ? "" : formData.total.toLocaleString("id-ID")}
+                onChange={(e) => {
+                  const raw = e.target.value.replace(/\D/g, "");
+                  setFormData({ ...formData, total: raw === "" ? 0 : Number(raw) });
+                }}
                 className="input-field"
                 required
               />
@@ -160,9 +164,13 @@ export default function EditPesananPage() {
             <div>
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">DP (Rp)</label>
               <input
-                type="number"
-                value={formData.dp || ""}
-                onChange={(e) => setFormData({ ...formData, dp: e.target.value === "" ? 0 : Number(e.target.value) })}
+                type="text"
+                inputMode="numeric"
+                value={formData.dp === 0 ? "" : formData.dp.toLocaleString("id-ID")}
+                onChange={(e) => {
+                  const raw = e.target.value.replace(/\D/g, "");
+                  setFormData({ ...formData, dp: raw === "" ? 0 : Number(raw) });
+                }}
                 className="input-field"
                 required
               />

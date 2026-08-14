@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import PelangganTable from "./PelangganTable";
+import ExportButtonsPelanggan from "./ExportButtonsPelanggan";
 import { Users2, ShoppingBag, Wallet } from "lucide-react";
 
 export default async function PelangganPage() {
@@ -29,10 +30,13 @@ export default async function PelangganPage() {
 
   return (
     <div className="space-y-4 md:space-y-6">
-      <div>
-        <span className="mb-2 inline-flex items-center rounded-full bg-blue-50 border border-blue-100 px-3 py-1 text-xs font-semibold tracking-wide text-blue-700">PELANGGAN</span>
-        <h1 className="font-display text-2xl font-bold text-black dark:text-white">Pelanggan</h1>
-        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">Daftar pelanggan dan riwayat belanja mereka.</p>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <span className="mb-2 inline-flex items-center rounded-full bg-blue-50 border border-blue-100 px-3 py-1 text-xs font-semibold tracking-wide text-blue-700">PELANGGAN</span>
+          <h1 className="font-display text-2xl font-bold text-black dark:text-white">Pelanggan</h1>
+          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">Daftar pelanggan dan riwayat belanja mereka.</p>
+        </div>
+        <ExportButtonsPelanggan dataPelanggan={dataPelanggan} />
       </div>
 
       <div className="card p-0 overflow-hidden" style={{ border: "none" }}>
