@@ -151,8 +151,8 @@ export default function EditPesananPage() {
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">Total (Rp)</label>
               <input
                 type="number"
-                value={formData.total}
-                onChange={(e) => setFormData({ ...formData, total: Number(e.target.value) })}
+                value={formData.total || ""}
+                onChange={(e) => setFormData({ ...formData, total: e.target.value === "" ? 0 : Number(e.target.value) })}
                 className="input-field"
                 required
               />
@@ -161,8 +161,8 @@ export default function EditPesananPage() {
               <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">DP (Rp)</label>
               <input
                 type="number"
-                value={formData.dp}
-                onChange={(e) => setFormData({ ...formData, dp: Number(e.target.value) })}
+                value={formData.dp || ""}
+                onChange={(e) => setFormData({ ...formData, dp: e.target.value === "" ? 0 : Number(e.target.value) })}
                 className="input-field"
                 required
               />

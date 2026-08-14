@@ -45,6 +45,7 @@ export default function ProduksiTable({
   const [productions, setProductions] = useState<ProductionRow[]>(initialProductions);
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [progressDraft, setProgressDraft] = useState<Record<string, string>>({});
   const { confirm, ConfirmDialog } = useConfirm();
   const { showToast, ToastBanner } = useToast();
   const [pageSize, setPageSize] = useState(10);
@@ -211,8 +212,19 @@ export default function ProduksiTable({
                         type="number"
                         min={0}
                         max={100}
-                        value={Number(p.progress || 0)}
-                        onChange={(e) => updateProgress(p, Number(e.target.value))}
+                        value={progressDraft[p.id] ?? String(p.progress ?? 0)}
+                        onChange={(e) => {
+                          const raw = e.target.value;
+                          setProgressDraft((prev) => ({ ...prev, [p.id]: raw }));
+                          if (raw !== "") updateProgress(p, Number(raw));
+                        }}
+                        onBlur={() =>
+                          setProgressDraft((prev) => {
+                            const next = { ...prev };
+                            delete next[p.id];
+                            return next;
+                          })
+                        }
                         className="w-14 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-black dark:text-white py-1 text-center text-xs"
                       />
                       <span className="text-xs text-gray-600 dark:text-gray-400">%</span>

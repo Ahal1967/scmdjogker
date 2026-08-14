@@ -417,8 +417,8 @@ export default function GudangTable({
                     type="number"
                     min={0}
                     required
-                    value={form.stok}
-                    onChange={(e) => setForm({ ...form, stok: Number(e.target.value) })}
+                    value={form.stok || ""}
+                    onChange={(e) => setForm({ ...form, stok: e.target.value === "" ? 0 : Number(e.target.value) })}
                     className="input-field"
                   />
                 </div>
@@ -428,8 +428,8 @@ export default function GudangTable({
                     type="number"
                     min={0}
                     required
-                    value={form.stok_minimum}
-                    onChange={(e) => setForm({ ...form, stok_minimum: Number(e.target.value) })}
+                    value={form.stok_minimum || ""}
+                    onChange={(e) => setForm({ ...form, stok_minimum: e.target.value === "" ? 0 : Number(e.target.value) })}
                     className="input-field"
                   />
                 </div>
