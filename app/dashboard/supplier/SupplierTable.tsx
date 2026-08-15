@@ -6,6 +6,7 @@ import { Search, Plus, Truck, Users2, CheckCircle2, Ban, ChevronLeft, ChevronRig
 import { useToast } from "@/components/useToast";
 import { useConfirm } from "@/components/useConfirm";
 import SortableTh from "@/components/SortableTh";
+import TableIconCell from "@/components/TableIconCell";
 import { compareValues } from "@/lib/sortUtils";
 
 type Supplier = {
@@ -160,7 +161,7 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
           <table className="table-djoker w-full">
             <thead>
               <tr>
-                <th className="w-10"></th>
+                <TableIconCell icon={Truck} />
                 <SortableTh label="Nama Supplier" icon={Users2} active={sortField === "nama_supplier"} direction={sortDir} onClick={() => toggleSort("nama_supplier")} />
                 <SortableTh label="Kontak" icon={Phone} active={sortField === "kontak"} direction={sortDir} onClick={() => toggleSort("kontak")} />
                 <SortableTh label="No. Telepon" icon={Smartphone} active={sortField === "no_telepon"} direction={sortDir} onClick={() => toggleSort("no_telepon")} />

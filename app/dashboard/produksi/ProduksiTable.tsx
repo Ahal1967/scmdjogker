@@ -7,6 +7,7 @@ import { Search, Factory, Activity, CheckCircle2, ChevronLeft, ChevronRight, Tra
 import { useConfirm } from "@/components/useConfirm";
 import { useToast } from "@/components/useToast";
 import SortableTh from "@/components/SortableTh";
+import TableIconCell from "@/components/TableIconCell";
 import { compareValues } from "@/lib/sortUtils";
 
 export type ProductionRow = {
@@ -201,7 +202,7 @@ export default function ProduksiTable({
           <table className="table-djoker w-full">
             <thead>
               <tr>
-                <th className="w-10"></th>
+                <TableIconCell icon={Factory} />
                 <SortableTh label="No. Produksi" icon={Factory} active={sortField === "no_produksi"} direction={sortDir} onClick={() => toggleSort("no_produksi")} />
                 <SortableTh label="No. Pesanan" icon={Hash} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} />
                 <SortableTh label="Pelanggan" icon={User} active={sortField === "pelanggan"} direction={sortDir} onClick={() => toggleSort("pelanggan")} />
@@ -235,7 +236,7 @@ export default function ProduksiTable({
                     </select>
                   </td>
                   <td className="text-sm text-gray-700 dark:text-gray-300">
-                    <div className="flex items-center gap-2">
+                    <div className="mx-auto flex max-w-[170px] items-center gap-2">
                       <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
                         <div
                           className="h-full bg-blue-600 transition-all"

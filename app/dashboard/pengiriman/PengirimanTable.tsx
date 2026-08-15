@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Search, Truck, Clock, PackageCheck, ChevronLeft, ChevronRight, ClipboardEdit, CheckCircle2, Loader2, Hash, User, MapPin, Barcode, MoreHorizontal } from "lucide-react";
 import { useToast } from "@/components/useToast";
 import SortableTh from "@/components/SortableTh";
+import TableIconCell from "@/components/TableIconCell";
 import { compareValues } from "@/lib/sortUtils";
 
 type Shipment = {
@@ -207,7 +208,7 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
           <table className="table-djoker w-full">
             <thead>
               <tr>
-                <th className="w-10"></th>
+                <TableIconCell icon={Truck} />
                 <SortableTh label="No. Pesanan" icon={Hash} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} />
                 <SortableTh label="Pelanggan" icon={User} active={sortField === "pelanggan"} direction={sortDir} onClick={() => toggleSort("pelanggan")} />
                 <SortableTh label="Alamat" icon={MapPin} active={sortField === "alamat"} direction={sortDir} onClick={() => toggleSort("alamat")} />

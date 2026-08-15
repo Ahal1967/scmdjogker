@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Search, FileText, ChevronLeft, ChevronRight, Pencil, Trash2, Hash, Calendar, Wallet, CreditCard, Receipt, CheckCircle2, MapPin, MoreHorizontal } from "lucide-react";
 import SortableTh from "@/components/SortableTh";
+import TableIconCell from "@/components/TableIconCell";
 import { compareValues } from "@/lib/sortUtils";
 
 type Order = {
@@ -105,7 +106,7 @@ export default function LaporanTable({ dataOrders }: { dataOrders: Order[] }) {
           <table className="table-djoker w-full">
             <thead>
               <tr>
-                <th className="w-10"></th>
+                <TableIconCell icon={FileText} />
                 <SortableTh label="No. Pesanan" icon={Hash} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} />
                 <SortableTh label="Tanggal" icon={Calendar} active={sortField === "tanggal"} direction={sortDir} onClick={() => toggleSort("tanggal")} />
                 <SortableTh label="Total" icon={Wallet} active={sortField === "total"} direction={sortDir} onClick={() => toggleSort("total")} />

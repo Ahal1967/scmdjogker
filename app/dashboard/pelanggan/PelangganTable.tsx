@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Search, User, ChevronLeft, ChevronRight, Phone, ShoppingBag, Wallet } from "lucide-react";
 import SortableTh from "@/components/SortableTh";
+import TableIconCell from "@/components/TableIconCell";
 import { compareValues } from "@/lib/sortUtils";
 
 type Pelanggan = {
@@ -63,7 +64,7 @@ export default function PelangganTable({ dataPelanggan }: { dataPelanggan: Pelan
           <table className="table-djoker w-full">
             <thead>
               <tr>
-                <th className="w-10"></th>
+                <TableIconCell icon={User} />
                 <SortableTh label="Nama Pelanggan" icon={User} active={sortField === "nama"} direction={sortDir} onClick={() => toggleSort("nama")} />
                 <SortableTh label="No. Telepon" icon={Phone} active={sortField === "no_telepon"} direction={sortDir} onClick={() => toggleSort("no_telepon")} />
                 <SortableTh label="Total Pesanan" icon={ShoppingBag} active={sortField === "totalPesanan"} direction={sortDir} onClick={() => toggleSort("totalPesanan")} />

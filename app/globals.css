@@ -285,38 +285,45 @@ body {
      background+blur+shadow yang SAMA di tiap sel bikin sambungan
      antar kolom tidak kelihatan (seamless), dan cuma ujung kiri/kanan
      yang dibulatkan penuh (999px) jadi bentuknya pill utuh. */
+  /* Celah antara header dan baris data -- sengaja dibikin TIPIS (bukan
+     dihilangkan total) supaya header masih kelihatan sebagai elemen
+     terpisah, tapi tidak lagi terkesan "mengambang" jauh dari kolom di
+     bawahnya. Trik border-bottom (bukan margin) tetap dipertahankan
+     karena border ikut dihitung table layout, jadi lebar kolom header
+     tetap dijamin 100% sama dengan <td> di bawahnya -- ini yang bikin
+     semua perbaikan alignment sebelumnya tidak percuma. */
   .table-djoker thead th {
-    background: rgba(255, 255, 255, 0.55);
-    backdrop-filter: blur(16px) saturate(180%);
-    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    background: rgba(255, 255, 255, 0.75);
+    background-clip: padding-box;
+    backdrop-filter: blur(10px) saturate(160%);
+    -webkit-backdrop-filter: blur(10px) saturate(160%);
     color: var(--djoker-blue-dark);
     font-weight: 700;
     font-size: 0.625rem !important;
     text-transform: uppercase;
     letter-spacing: 0.06em;
-    padding: 10px 16px;
+    padding: 11px 16px;
     text-align: left;
-    border-top: 1px solid rgba(255, 255, 255, 0.7);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.7);
-    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.16);
+    border: none;
+    border-bottom: 4px solid transparent;
+    box-shadow: 0 3px 8px -2px rgba(37, 99, 235, 0.16);
     position: relative;
   }
 
   .dark .table-djoker thead th {
-    background: rgba(22, 29, 58, 0.55);
+    background: rgba(22, 29, 58, 0.75);
     color: #cbd5e1;
-    border-top-color: rgba(71, 85, 105, 0.4);
-    border-bottom-color: rgba(71, 85, 105, 0.4);
   }
 
+  /* Kolom paling kiri (<th className="w-10">) ikut dikasih background
+     kaca yang sama kayak kolom lain (jadi bar-nya menyambung penuh dari
+     ujung kiri, tidak ada celah transparan) -- dan dialah yang dapat
+     sudut kiri, karena dia memang sel pertama yang sebenarnya. Radius-nya
+     (10px) disamakan ke radius tabel/card-nya sendiri, bukan bulat
+     penuh, supaya sudutnya konsisten sama bentuk tabel. */
   .table-djoker thead th:first-child {
-    border-top-left-radius: 999px;
-    border-bottom-left-radius: 999px;
-    border-left: 1px solid rgba(255, 255, 255, 0.7);
-  }
-
-  .dark .table-djoker thead th:first-child {
-    border-left-color: rgba(71, 85, 105, 0.4);
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
   }
 
   /* Kolom terakhir (Aksi) dipaksa rata kanan DI SINI, bukan lewat class
@@ -328,13 +335,8 @@ body {
      kanan walau sudah dikasih className="text-right" di semua tabel. */
   .table-djoker thead th:last-child {
     text-align: right;
-    border-top-right-radius: 999px;
-    border-bottom-right-radius: 999px;
-    border-right: 1px solid rgba(255, 255, 255, 0.7);
-  }
-
-  .dark .table-djoker thead th:last-child {
-    border-right-color: rgba(71, 85, 105, 0.4);
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
   }
 
   /* Dipakai buat kolom yang isinya BUKAN teks polos, misal widget

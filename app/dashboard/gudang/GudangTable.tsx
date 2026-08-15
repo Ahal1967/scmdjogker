@@ -6,6 +6,7 @@ import { Search, Plus, Package, Boxes, AlertTriangle, CheckCircle2, ChevronLeft,
 import { useToast } from "@/components/useToast";
 import { useConfirm } from "@/components/useConfirm";
 import SortableTh from "@/components/SortableTh";
+import TableIconCell from "@/components/TableIconCell";
 import { compareValues } from "@/lib/sortUtils";
 
 type Supplier = { id: string; nama_supplier: string };
@@ -217,7 +218,7 @@ export default function GudangTable({
           <table className="table-djoker w-full">
             <thead>
               <tr>
-                <th className="w-10"></th>
+                <TableIconCell icon={Package} />
                 <SortableTh label="Nama Bahan" icon={Package} active={sortField === "nama_bahan"} direction={sortDir} onClick={() => toggleSort("nama_bahan")} />
                 <SortableTh label="Kategori" icon={Tag} active={sortField === "kategori"} direction={sortDir} onClick={() => toggleSort("kategori")} />
                 <SortableTh label="Satuan" icon={Ruler} active={sortField === "satuan"} direction={sortDir} onClick={() => toggleSort("satuan")} />

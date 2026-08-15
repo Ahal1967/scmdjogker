@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Search, ShieldCheck, ClipboardCheck, CheckCircle2, XCircle, ChevronLeft, ChevronRight, Eye, Loader2, Hash, User, Factory, Calendar, FileText, MoreHorizontal } from "lucide-react";
 import { useToast } from "@/components/useToast";
 import SortableTh from "@/components/SortableTh";
+import TableIconCell from "@/components/TableIconCell";
 import { compareValues } from "@/lib/sortUtils";
 
 type PendingProduction = {
@@ -254,7 +255,7 @@ export default function QcTable({
             <table className="table-djoker w-full">
               <thead>
                 <tr>
-                  <th className="w-10"></th>
+                  <TableIconCell icon={ShieldCheck} />
                   <SortableTh label="No. Produksi" icon={Factory} active={pendingSortField === "no_produksi"} direction={pendingSortDir} onClick={() => togglePendingSort("no_produksi")} />
                   <SortableTh label="No. Pesanan" icon={Hash} active={pendingSortField === "no_pesanan"} direction={pendingSortDir} onClick={() => togglePendingSort("no_pesanan")} />
                   <SortableTh label="Pelanggan" icon={User} active={pendingSortField === "pelanggan"} direction={pendingSortDir} onClick={() => togglePendingSort("pelanggan")} />
@@ -309,7 +310,7 @@ export default function QcTable({
           <table className="table-djoker w-full">
             <thead>
               <tr>
-                <th className="w-10"></th>
+                <TableIconCell icon={ClipboardCheck} />
                 <SortableTh label="No. QC" icon={ClipboardCheck} active={recordSortField === "no_qc"} direction={recordSortDir} onClick={() => toggleRecordSort("no_qc")} />
                 <SortableTh label="No. Produksi" icon={Factory} active={recordSortField === "no_produksi"} direction={recordSortDir} onClick={() => toggleRecordSort("no_produksi")} />
                 <SortableTh label="Tanggal" icon={Calendar} active={recordSortField === "tanggal"} direction={recordSortDir} onClick={() => toggleRecordSort("tanggal")} />

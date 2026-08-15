@@ -6,6 +6,7 @@ import { createClient } from "@/lib/supabase/client";
 import { Search, Package, Clock, CheckCircle2, ChevronLeft, ChevronRight, Send, Hash, User, Calendar, Boxes, MoreHorizontal } from "lucide-react";
 import { useToast } from "@/components/useToast";
 import SortableTh from "@/components/SortableTh";
+import TableIconCell from "@/components/TableIconCell";
 import { compareValues } from "@/lib/sortUtils";
 
 type Packing = {
@@ -149,7 +150,7 @@ export default function PackingTable({ initialPacking }: { initialPacking: Packi
           <table className="table-djoker w-full">
             <thead>
               <tr>
-                <th className="w-10"></th>
+                <TableIconCell icon={Package} />
                 <SortableTh label="No. Packing" icon={Package} active={sortField === "no_packing"} direction={sortDir} onClick={() => toggleSort("no_packing")} />
                 <SortableTh label="No. Pesanan" icon={Hash} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} />
                 <SortableTh label="Pelanggan" icon={User} active={sortField === "pelanggan"} direction={sortDir} onClick={() => toggleSort("pelanggan")} />

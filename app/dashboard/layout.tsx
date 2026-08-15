@@ -182,11 +182,11 @@ export default function DashboardLayout({
               />
             </div>
             <div className="leading-tight">
-              <p className="font-display text-sm font-extrabold tracking-wide bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+              <p className="font-display text-sm font-extrabold tracking-wide bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent dark:from-white dark:to-blue-100">
                 DJOGKER
               </p>
               <span
-              className="mt-0.5 inline-flex items-center rounded-full px-1.5 py-0.5 text-[8px] font-semibold tracking-widest text-blue-600 dark:text-blue-300"
+              className="mt-0.5 inline-flex items-center rounded-full px-1.5 py-0.5 text-[8px] font-semibold tracking-widest text-blue-600 dark:text-white"
               style={{ background: "rgba(59,130,246,0.12)" }}
             >
               SCM SYSTEM

@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { User, Pencil, Trash2, Hash, IdCard, ShieldCheck, Calendar, MoreHorizontal } from "lucide-react";
 import SortableTh from "@/components/SortableTh";
+import TableIconCell from "@/components/TableIconCell";
 import { compareValues } from "@/lib/sortUtils";
 
 type Profile = {
@@ -51,7 +52,7 @@ export default function PengaturanTable({ profiles }: { profiles: Profile[] }) {
       <table className="table-djoker w-full">
         <thead>
           <tr>
-            <th className="w-10"></th>
+            <TableIconCell icon={User} />
             <SortableTh label="ID" icon={Hash} active={sortField === "id"} direction={sortDir} onClick={() => toggleSort("id")} />
             <SortableTh label="Nama Lengkap" icon={IdCard} active={sortField === "full_name"} direction={sortDir} onClick={() => toggleSort("full_name")} />
             <SortableTh label="Role" icon={ShieldCheck} active={sortField === "role"} direction={sortDir} onClick={() => toggleSort("role")} center />
