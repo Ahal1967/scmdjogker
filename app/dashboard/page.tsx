@@ -17,9 +17,6 @@ import PageHeaderCard from "@/components/PageHeaderCard";
 import {
   AreaChart,
   Area,
-  PieChart,
-  Pie,
-  Cell,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -27,7 +24,7 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const STATUS_PIE_COLORS: Record<string, string> = {
+const STATUS_COLORS: Record<string, string> = {
   Pesanan: "#3b82f6",
   Produksi: "#eab308",
   QC: "#a855f7",
@@ -57,6 +54,10 @@ export default function DashboardPage() {
     { status: "Selesai", count: 0 },
   ]);
   const [monthlyRevenue, setMonthlyRevenue] = useState<{ bulan: string; pendapatan: number }[]>([]);
+  const [revenueTrend, setRevenueTrend] = useState<{ total: number; changePct: number | null }>({
+    total: 0,
+    changePct: null,
+  });
   const [loading, setLoading] = useState(true);
 
   /* Cuma 2 angka yang tidak ditampilkan di tempat lain manapun di Dashboard
@@ -77,6 +78,10 @@ export default function DashboardPage() {
     const now = new Date();
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
     const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1).toISOString();
+    // Jendela 6 bulan SEBELUM sixMonthsAgo -- dipakai buat hitung persentase
+    // tren "naik/turun vs periode lalu" di card Tren Pendapatan (bukan cuma
+    // bulan-ke-bulan, tapi bener-bener bandingin 2 periode 6 bulanan).
+    const twelveMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 11, 1).toISOString();
 
     /* Semua query di bawah ini independen satu sama lain (tidak ada yang
        butuh hasil query lain), jadi ditembak bareng lewat Promise.all --
@@ -97,6 +102,7 @@ export default function DashboardPage() {
       { count: produksiSelesai },
       { data: allOrders },
       { data: recentOrders },
+      { data: prevPeriodOrders },
     ] = await Promise.all([
       supabase.auth.getUser(),
       supabase.from("orders").select("*", { count: "exact", head: true }),
@@ -108,6 +114,7 @@ export default function DashboardPage() {
       supabase.from("production").select("*", { count: "exact", head: true }).eq("status", "Selesai"),
       supabase.from("orders").select("status"),
       supabase.from("orders").select("total, tanggal, created_at").gte("created_at", sixMonthsAgo),
+      supabase.from("orders").select("total").gte("created_at", twelveMonthsAgo).lt("created_at", sixMonthsAgo),
     ]);
 
     if (user) {
@@ -157,6 +164,18 @@ export default function DashboardPage() {
     });
 
     setMonthlyRevenue(monthLabels.map((m) => ({ bulan: m.label, pendapatan: m.pendapatan })));
+
+    const currentPeriodTotal = monthLabels.reduce((sum, m) => sum + m.pendapatan, 0);
+    const prevPeriodTotal =
+      prevPeriodOrders?.reduce((sum, o: any) => sum + (Number(o.total) || 0), 0) || 0;
+    setRevenueTrend({
+      total: currentPeriodTotal,
+      // null kalau periode sebelumnya belum ada data sama sekali (misal
+      // bisnisnya baru jalan < 6 bulan) -- daripada nampilin "naik tak
+      // terhingga" yang menyesatkan, badge tren-nya cukup disembunyikan.
+      changePct:
+        prevPeriodTotal > 0 ? ((currentPeriodTotal - prevPeriodTotal) / prevPeriodTotal) * 100 : null,
+    });
 
     setStats({
       totalPesanan: ordersCount || 0,
@@ -277,144 +296,128 @@ export default function DashboardPage() {
         })}
       </div>
 
-      <div className="card p-0 overflow-hidden" style={{ border: "none" }}>
-        <div className="grid grid-cols-1 md:grid-cols-2">
-          <div className="p-3 panel-divider">
-            <h2 className="mb-2 flex items-center gap-2 text-xs font-semibold text-black dark:text-white">
-              <span className="card-icon-chip card-icon-chip-sm bg-blue-600">
-                <ListChecks size={10} />
-              </span>
-              Status Pesanan
-            </h2>
-            <div className="flex flex-col items-center gap-2">
-              <div className="w-full">
-                <ResponsiveContainer width="100%" height={110}>
-                  <PieChart>
-                    <Pie
-                      data={statusOrders}
-                      dataKey="count"
-                      nameKey="status"
-                      innerRadius={26}
-                      outerRadius={45}
-                      paddingAngle={3}
-                      strokeWidth={0}
-                    >
-                      {statusOrders.map((s) => (
-                        <Cell key={s.status} fill={STATUS_PIE_COLORS[s.status] ?? "#94a3b8"} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      contentStyle={{
-                        background: "var(--djoker-surface)",
-                        border: "none",
-                        borderRadius: 8,
-                        fontSize: 12,
-                      }}
-                      itemStyle={{ color: "var(--djoker-text)" }}
-                      labelStyle={{ color: "var(--djoker-text)" }}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-
-              <div className="w-full space-y-1">
-                {statusOrders.map((s) => (
-                  <div key={s.status} className="flex items-center justify-between text-[11px]">
-                    <div className="flex items-center gap-1.5">
-                      <span
-                        className="h-1.5 w-1.5 rounded-full shrink-0"
-                        style={{ backgroundColor: STATUS_PIE_COLORS[s.status] ?? "#94a3b8" }}
-                      />
-                      <span className="text-gray-700 dark:text-gray-300 font-medium">{s.status}</span>
-                    </div>
-                    <span className="text-gray-900 dark:text-gray-100 font-bold">{s.count}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+        <div className="status-progress-tile blue">
+          <ListChecks className="status-progress-watermark" strokeWidth={1.5} aria-hidden="true" />
+          <h2 className="status-progress-head">
+            <ListChecks size={12} />
+            Status Pesanan
+          </h2>
+          <div className="status-progress-bars">
+            {statusOrders.map((s) => {
+              const max = Math.max(...statusOrders.map((x) => x.count), 1);
+              const heightPct = Math.max((s.count / max) * 100, 6);
+              return (
+                <div
+                  key={s.status}
+                  className="status-progress-bar"
+                  style={{ height: `${heightPct}%`, backgroundColor: STATUS_COLORS[s.status] ?? "#94a3b8" }}
+                  title={`${s.status}: ${s.count}`}
+                />
+              );
+            })}
           </div>
-
-          <div className="p-3">
-            <h2 className="mb-2 flex items-center gap-2 text-xs font-semibold text-black dark:text-white">
-              <span className="card-icon-chip card-icon-chip-sm bg-emerald-500">
-                <Gauge size={10} />
+          <div className="status-progress-legend">
+            {statusOrders.map((s) => (
+              <span key={s.status} className="status-progress-legend-item">
+                <span className="status-progress-dot" style={{ backgroundColor: STATUS_COLORS[s.status] ?? "#94a3b8" }} />
+                {s.status} {s.count}
               </span>
-              Progress Produksi
-            </h2>
-            <div className="flex items-center justify-center mb-2">
-              <div className="relative w-20 h-20 md:w-24 md:h-24">
-                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-                  <circle cx="50" cy="50" r="45" fill="none" stroke="#e5e7eb" strokeWidth="10" />
-                  <circle
-                    cx="50" cy="50" r="45" fill="none" stroke="#10b981" strokeWidth="10"
-                    strokeDasharray={`${2 * Math.PI * 45}`}
-                    strokeDashoffset={`${2 * Math.PI * 45 * (1 - (stats.totalProduksi > 0 ? stats.produksiSelesai / stats.totalProduksi : 0))}`}
-                    strokeLinecap="round"
-                  />
-                </svg>
-                <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <p className="text-base md:text-lg font-bold text-black dark:text-white">
-                    {stats.totalProduksi > 0 ? Math.round((stats.produksiSelesai / stats.totalProduksi) * 100) : 0}%
-                  </p>
-                  <p className="text-[10px] text-gray-600 dark:text-gray-400">Selesai</p>
-                </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="status-progress-tile green">
+          <Gauge className="status-progress-watermark" strokeWidth={1.5} aria-hidden="true" />
+          <h2 className="status-progress-head">
+            <Gauge size={12} />
+            Progress Produksi
+          </h2>
+          <div className="flex items-center gap-3">
+            <div className="relative h-[52px] w-[52px] shrink-0">
+              <svg className="h-full w-full -rotate-90" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(5, 150, 105, 0.18)" strokeWidth="12" />
+                <circle
+                  cx="50" cy="50" r="42" fill="none" stroke="#059669" strokeWidth="12"
+                  strokeDasharray={`${2 * Math.PI * 42}`}
+                  strokeDashoffset={`${2 * Math.PI * 42 * (1 - (stats.totalProduksi > 0 ? stats.produksiSelesai / stats.totalProduksi : 0))}`}
+                  strokeLinecap="round"
+                />
+              </svg>
+              <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-emerald-800 dark:text-emerald-300">
+                {stats.totalProduksi > 0 ? Math.round((stats.produksiSelesai / stats.totalProduksi) * 100) : 0}%
               </div>
             </div>
-            <div className="flex items-center justify-between text-[11px]">
-              <span className="text-gray-600 dark:text-gray-400">Produksi Selesai</span>
-              <span className="font-medium text-black dark:text-white">{stats.produksiSelesai} / {stats.totalProduksi}</span>
+            <div>
+              <p className="text-lg font-bold text-black dark:text-white">
+                {stats.produksiSelesai}/{stats.totalProduksi}
+              </p>
+              <p className="text-[11px] font-medium text-emerald-800 dark:text-emerald-300">Produksi Selesai</p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="card dash-chart-card bg-blue-50/60 dark:bg-blue-900/10" style={{ border: "none" }}>
-        <h2 className="mb-2 flex items-center gap-2 text-xs font-semibold text-black dark:text-white">
-          <span className="card-icon-chip card-icon-chip-sm bg-emerald-700">
-            <TrendingUp size={10} />
-          </span>
-          Tren Pendapatan (6 Bulan Terakhir)
-        </h2>
+      <div className="dash-chart-card">
+        <TrendingUp className="dash-chart-watermark" strokeWidth={1.5} aria-hidden="true" />
+        <div className="dash-chart-top">
+          <h2 className="dash-chart-head">
+            <TrendingUp size={12} />
+            Tren Pendapatan (6 Bulan)
+          </h2>
+          <div className="dash-chart-summary">
+            <p className="dash-chart-summary-value font-display">
+              Rp {revenueTrend.total.toLocaleString("id-ID")}
+            </p>
+            {revenueTrend.changePct !== null && (
+              <p className={`dash-chart-trend ${revenueTrend.changePct >= 0 ? "up" : "down"}`}>
+                {revenueTrend.changePct >= 0 ? "↑" : "↓"} {Math.abs(revenueTrend.changePct).toFixed(0)}% vs periode lalu
+              </p>
+            )}
+          </div>
+        </div>
         {monthlyRevenue.every((m) => m.pendapatan === 0) ? (
-          <p className="text-sm text-gray-500 dark:text-gray-400">Belum ada data pendapatan 6 bulan terakhir.</p>
+          <p className="relative z-[2] text-sm text-gray-500 dark:text-gray-400">Belum ada data pendapatan 6 bulan terakhir.</p>
         ) : (
-          <ResponsiveContainer width="100%" height={160}>
-            <AreaChart data={monthlyRevenue}>
-              <defs>
-                <linearGradient id="colorPendapatan" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#059669" stopOpacity={0.35} />
-                  <stop offset="95%" stopColor="#059669" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
-              <XAxis dataKey="bulan" stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
-              <YAxis
-                stroke="#6b7280"
-                fontSize={11}
-                tickLine={false}
-                axisLine={false}
-                tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
-              />
-              <Tooltip
-                formatter={(value: number) => [`Rp ${value.toLocaleString("id-ID")}`, "Pendapatan"]}
-                contentStyle={{
-                  background: "var(--djoker-surface)",
-                  border: "none",
-                  borderRadius: 8,
-                  fontSize: 12,
-                }}
-                itemStyle={{ color: "var(--djoker-text)" }}
-                labelStyle={{ color: "var(--djoker-text)" }}
-              />
-              <Area
-                type="monotone"
-                dataKey="pendapatan"
-                stroke="#059669"
-                strokeWidth={2}
-                fill="url(#colorPendapatan)"
-              />
-            </AreaChart>
-          </ResponsiveContainer>
+          <div className="relative z-[2]">
+            <ResponsiveContainer width="100%" height={140}>
+              <AreaChart data={monthlyRevenue}>
+                <defs>
+                  <linearGradient id="colorPendapatan" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#059669" stopOpacity={0.35} />
+                    <stop offset="95%" stopColor="#059669" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--djoker-border)" vertical={false} />
+                <XAxis dataKey="bulan" stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
+                <YAxis
+                  stroke="#6b7280"
+                  fontSize={11}
+                  tickLine={false}
+                  axisLine={false}
+                  tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
+                />
+                <Tooltip
+                  formatter={(value: number) => [`Rp ${value.toLocaleString("id-ID")}`, "Pendapatan"]}
+                  contentStyle={{
+                    background: "var(--djoker-surface)",
+                    border: "none",
+                    borderRadius: 8,
+                    fontSize: 12,
+                  }}
+                  itemStyle={{ color: "var(--djoker-text)" }}
+                  labelStyle={{ color: "var(--djoker-text)" }}
+                />
+                <Area
+                  type="monotone"
+                  dataKey="pendapatan"
+                  stroke="#059669"
+                  strokeWidth={2}
+                  fill="url(#colorPendapatan)"
+                />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
         )}
       </div>
     </div>

@@ -199,32 +199,101 @@ body::before {
     border-color: rgba(59, 130, 246, 0.4);
   }
 
-  /* Ikon kecil di header card analitik Dashboard (Status Pesanan, Progress
-     Produksi, Tren Pendapatan) supaya card tidak kelihatan polos/generic. */
-  .card-icon-chip {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 24px;
-    height: 24px;
-    border-radius: 7px;
-    color: #fff;
-    flex-shrink: 0;
-  }
-
-  /* Varian lebih kecil, dipakai barengan .card-icon-chip di card yang sudah
-     dipadatkan (Status Pesanan, Progress Produksi, Tren Pendapatan). */
-  .card-icon-chip-sm {
-    width: 20px;
-    height: 20px;
-    border-radius: 6px;
-  }
-
-  /* Card Tren Pendapatan -- padding disamakan skalanya sama panel Status
-     Pesanan/Progress Produksi (p-3) supaya tidak jadi elemen paling besar
-     sendirian di halaman Dashboard. */
+  /* Card Tren Pendapatan -- sekarang berdiri sendiri (bukan lagi numpang di
+     atas .card) senada sama .status-progress-tile & .premium-stat-card:
+     gradient penuh + watermark ikon transparan. Diganti dari versi lama
+     (numpang .card putih polos) karena (1) kelihatan terlalu plain
+     dibanding card lain di Dashboard, dan (2) .card versi dark punya inset
+     highlight tipis di tepi atas yang kelihatan sebagai "garis putih" yang
+     kontras aneh sama gradient card ini -- dengan berdiri sendiri, masalah
+     itu otomatis hilang tanpa perlu override apa pun. */
   .dash-chart-card {
-    padding: 12px;
+    position: relative;
+    overflow: hidden;
+    border-radius: 13px;
+    padding: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 8px 20px -10px rgba(30, 58, 138, 0.25);
+    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 45%, #f0fdfa 100%);
+  }
+
+  .dark .dash-chart-card {
+    border-color: rgba(255, 255, 255, 0.08);
+    background: linear-gradient(135deg, #06231a 0%, #0a3226 45%, #082621 100%);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+  }
+
+  .dash-chart-watermark {
+    position: absolute;
+    right: -14px;
+    top: -14px;
+    width: 110px;
+    height: 110px;
+    color: #059669;
+    opacity: 0.1;
+  }
+
+  .dark .dash-chart-watermark {
+    color: #34d399;
+    opacity: 0.12;
+  }
+
+  .dash-chart-top {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    gap: 8px;
+  }
+
+  .dash-chart-head {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #047857;
+  }
+
+  .dark .dash-chart-head {
+    color: #6ee7b7;
+  }
+
+  .dash-chart-summary {
+    text-align: right;
+  }
+
+  .dash-chart-summary-value {
+    font-size: 16px;
+    font-weight: 800;
+    color: #064e3b;
+  }
+
+  .dark .dash-chart-summary-value {
+    color: #fff;
+  }
+
+  .dash-chart-trend {
+    font-size: 10px;
+    font-weight: 700;
+  }
+
+  .dash-chart-trend.up {
+    color: #059669;
+  }
+
+  .dash-chart-trend.down {
+    color: #dc2626;
+  }
+
+  .dark .dash-chart-trend.up {
+    color: #4ade80;
+  }
+
+  .dark .dash-chart-trend.down {
+    color: #f87171;
   }
 
   /* 2 card "premium" di Dashboard (Supplier, Pesanan Bulan Ini) -- sengaja
@@ -235,6 +304,7 @@ body::before {
   .premium-stat-card {
     position: relative;
     overflow: hidden;
+    min-height: 112px;
     border-radius: 13px;
     padding: 12px;
     border: 1px solid rgba(255, 255, 255, 0.5);
@@ -362,113 +432,151 @@ body::before {
     color: #94a3b8;
   }
 
+  /* Tile Status Pesanan / Progress Produksi di Dashboard -- dibikin senada
+     sama .premium-stat-card (gradient penuh + watermark ikon) biar seragam
+     satu bahasa desain sama card Supplier/Pesanan Bulan Ini, ganti dari
+     versi lama (satu card putih dibelah garis divider). Isi kontennya beda
+     (mini bar chart & donut ring), makanya class terpisah. */
+  .status-progress-tile {
+    position: relative;
+    overflow: hidden;
+    min-height: 112px;
+    border-radius: 13px;
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 8px 20px -10px rgba(30, 58, 138, 0.25);
+  }
+
+  .status-progress-tile.blue {
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 55%, #bfdbfe 100%);
+  }
+
+  .status-progress-tile.green {
+    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 55%, #a7f3d0 100%);
+  }
+
+  .dark .status-progress-tile {
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .dark .status-progress-tile.blue {
+    background: linear-gradient(135deg, #0f1d33 0%, #142a4d 55%, #1d3a66 100%);
+  }
+
+  .dark .status-progress-tile.green {
+    background: linear-gradient(135deg, #06231a 0%, #0a3226 55%, #0c4632 100%);
+  }
+
+  .status-progress-watermark {
+    position: absolute;
+    right: -8px;
+    bottom: -12px;
+    width: 74px;
+    height: 74px;
+    opacity: 0.14;
+  }
+
+  .status-progress-tile.blue .status-progress-watermark {
+    color: #2563eb;
+  }
+
+  .status-progress-tile.green .status-progress-watermark {
+    color: #059669;
+  }
+
+  .dark .status-progress-tile.blue .status-progress-watermark {
+    color: #60a5fa;
+    opacity: 0.16;
+  }
+
+  .dark .status-progress-tile.green .status-progress-watermark {
+    color: #34d399;
+    opacity: 0.16;
+  }
+
+  .status-progress-head {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 10px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .status-progress-tile.blue .status-progress-head {
+    color: #1d4ed8;
+  }
+
+  .status-progress-tile.green .status-progress-head {
+    color: #047857;
+  }
+
+  .dark .status-progress-tile.blue .status-progress-head {
+    color: #93c5fd;
+  }
+
+  .dark .status-progress-tile.green .status-progress-head {
+    color: #6ee7b7;
+  }
+
+  .status-progress-bars {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    height: 34px;
+    margin-bottom: 8px;
+  }
+
+  .status-progress-bar {
+    flex: 1;
+    min-height: 3px;
+    border-radius: 3px 3px 0 0;
+    transition: height 0.3s ease;
+  }
+
+  .status-progress-legend {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px 8px;
+    font-size: 9px;
+    font-weight: 600;
+  }
+
+  .status-progress-tile.blue .status-progress-legend {
+    color: #1e40af;
+  }
+
+  .status-progress-tile.green .status-progress-legend {
+    color: #065f46;
+  }
+
+  .dark .status-progress-tile.blue .status-progress-legend {
+    color: #bfdbfe;
+  }
+
+  .dark .status-progress-tile.green .status-progress-legend {
+    color: #a7f3d0;
+  }
+
+  .status-progress-dot {
+    display: inline-block;
+    width: 5px;
+    height: 5px;
+    margin-right: 3px;
+    border-radius: 50%;
+  }
+
   /* 9 stage card di halaman Alur Supply Chain -- class terpisah dari .card
      (sama seperti .dash-stat-card) supaya tidak menular ke card di halaman lain. */
   .alur-stage-card {
     padding: 14px 16px;
     border-radius: 13px;
-  }
-
-  /* Garis pemisah "premium" antara Status Pesanan & Progress Produksi di
-     panel gabungan Dashboard: gradasi memudar di ujung + chip panah kecil
-     di tengah yang menegaskan alur Status Pesanan -> Progress Produksi,
-     dipasang lewat pseudo-element (bukan divide-x/divide-y biasa). Mobile:
-     garis horizontal di bawah panel pertama, panah mengarah ke bawah
-     (menyusul urutan panel yang bertumpuk). Desktop (md+): garis vertical
-     di kanan panel pertama, panah mengarah ke kanan (mengikuti panel yang
-     berdampingan). */
-  .panel-divider {
-    position: relative;
-  }
-
-  .panel-divider::after {
-    content: "";
-    position: absolute;
-    left: 12px;
-    right: 12px;
-    bottom: 0;
-    height: 1px;
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      rgba(37, 99, 235, 0.4) 25%,
-      rgba(37, 99, 235, 0.4) 75%,
-      transparent 100%
-    );
-  }
-
-  .panel-divider::before {
-    content: "\2192";
-    position: absolute;
-    left: 50%;
-    bottom: -9px;
-    transform: translateX(-50%) rotate(90deg);
-    width: 18px;
-    height: 18px;
-    border-radius: 6px;
-    background: #ffffff;
-    border: 1px solid rgba(37, 99, 235, 0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 9px;
-    font-weight: 800;
-    line-height: 1;
-    color: #2563eb;
-    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
-    z-index: 2;
-  }
-
-  .dark .panel-divider::after {
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      rgba(96, 165, 250, 0.35) 25%,
-      rgba(96, 165, 250, 0.35) 75%,
-      transparent 100%
-    );
-  }
-
-  .dark .panel-divider::before {
-    background: #1a2338;
-    border-color: rgba(59, 130, 246, 0.35);
-    color: #93c5fd;
-  }
-
-  @media (min-width: 768px) {
-    .panel-divider::after {
-      left: auto;
-      right: 0;
-      bottom: 12px;
-      top: 12px;
-      width: 1px;
-      height: auto;
-      background: linear-gradient(
-        180deg,
-        transparent 0%,
-        rgba(37, 99, 235, 0.4) 25%,
-        rgba(37, 99, 235, 0.4) 75%,
-        transparent 100%
-      );
-    }
-
-    .dark .panel-divider::after {
-      background: linear-gradient(
-        180deg,
-        transparent 0%,
-        rgba(96, 165, 250, 0.35) 25%,
-        rgba(96, 165, 250, 0.35) 75%,
-        transparent 100%
-      );
-    }
-
-    .panel-divider::before {
-      left: auto;
-      right: -9px;
-      bottom: auto;
-      top: 50%;
-      transform: translateY(-50%) rotate(0deg);
-    }
   }
 
   /* Tombol utama (biru) */
