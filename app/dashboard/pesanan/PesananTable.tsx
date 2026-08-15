@@ -639,48 +639,71 @@ export default function PesananTable() {
 
               <div>
                 <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Produk Pesanan</label>
-                <div className="mt-2 flex items-center gap-2 px-0.5">
+                <div className="mt-2 hidden items-center gap-2 px-0.5 sm:flex">
                   <span className="flex-1"></span>
                   <span className="w-20 text-[11px] text-gray-400">Jumlah</span>
                   <span className="w-28 text-[11px] text-gray-400">Harga Satuan</span>
                 </div>
-                <div className="mt-1 space-y-2">
+                <div className="mt-1 space-y-3 sm:space-y-2">
                   {items.map((it, idx) => (
-                    <div key={idx} className="flex items-start gap-2">
-                      <input
-                        placeholder="Nama produk (mis. Kaos Hitam - L)"
-                        value={it.nama_produk}
-                        onChange={(e) => updateItem(idx, "nama_produk", e.target.value)}
-                        className="input-field flex-1"
-                      />
-                      <input
-                        type="number"
-                        min={1}
-                        placeholder="Qty"
-                        value={it.jumlah || ""}
-                        onChange={(e) => updateItem(idx, "jumlah", e.target.value === "" ? 0 : Number(e.target.value))}
-                        className="input-field w-20"
-                      />
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        placeholder="Harga"
-                        value={it.harga === 0 ? "" : it.harga.toLocaleString("id-ID")}
-                        onChange={(e) => {
-                          const raw = e.target.value.replace(/\D/g, "");
-                          updateItem(idx, "harga", raw === "" ? 0 : Number(raw));
-                        }}
-                        className="input-field w-28"
-                      />
-                      {items.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => removeItemRow(idx)}
-                          className="px-2 py-2.5 text-xs text-red-600 hover:text-red-700 dark:text-red-300"
-                        >
-                          ✕
-                        </button>
-                      )}
+                    <div
+                      key={idx}
+                      className="flex flex-col gap-2 rounded-lg border border-gray-100 dark:border-gray-700 p-2.5 sm:flex-row sm:items-start sm:border-0 sm:p-0"
+                    >
+                      <div className="flex items-center gap-2">
+                        <input
+                          placeholder="Nama produk (mis. Kaos Hitam - L)"
+                          value={it.nama_produk}
+                          onChange={(e) => updateItem(idx, "nama_produk", e.target.value)}
+                          className="input-field flex-1"
+                        />
+                        {items.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => removeItemRow(idx)}
+                            className="shrink-0 px-2 py-2.5 text-xs text-red-600 hover:text-red-700 dark:text-red-300 sm:hidden"
+                          >
+                            ✕
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="flex gap-2">
+                        <div className="flex-1 sm:w-20 sm:flex-none">
+                          <span className="mb-1 block text-[11px] text-gray-400 sm:hidden">Jumlah</span>
+                          <input
+                            type="number"
+                            min={1}
+                            placeholder="Qty"
+                            value={it.jumlah || ""}
+                            onChange={(e) => updateItem(idx, "jumlah", e.target.value === "" ? 0 : Number(e.target.value))}
+                            className="input-field w-full"
+                          />
+                        </div>
+                        <div className="flex-1 sm:w-28 sm:flex-none">
+                          <span className="mb-1 block text-[11px] text-gray-400 sm:hidden">Harga Satuan</span>
+                          <input
+                            type="text"
+                            inputMode="numeric"
+                            placeholder="Harga"
+                            value={it.harga === 0 ? "" : it.harga.toLocaleString("id-ID")}
+                            onChange={(e) => {
+                              const raw = e.target.value.replace(/\D/g, "");
+                              updateItem(idx, "harga", raw === "" ? 0 : Number(raw));
+                            }}
+                            className="input-field w-full"
+                          />
+                        </div>
+                        {items.length > 1 && (
+                          <button
+                            type="button"
+                            onClick={() => removeItemRow(idx)}
+                            className="hidden shrink-0 px-2 py-2.5 text-xs text-red-600 hover:text-red-700 dark:text-red-300 sm:block"
+                          >
+                            ✕
+                          </button>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>

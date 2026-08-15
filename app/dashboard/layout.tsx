@@ -41,6 +41,24 @@ const NAV_ICONS: Record<string, any> = {
   "/dashboard/pengaturan": Settings,
 };
 
+const NAV_SECTIONS = [
+  { title: "Utama", hrefs: ["/dashboard", "/dashboard/alur"] },
+  {
+    title: "Operasional",
+    hrefs: [
+      "/dashboard/supplier",
+      "/dashboard/gudang",
+      "/dashboard/pesanan",
+      "/dashboard/pelanggan",
+      "/dashboard/produksi",
+      "/dashboard/qc",
+      "/dashboard/packing",
+      "/dashboard/pengiriman",
+    ],
+  },
+  { title: "Lainnya", hrefs: ["/dashboard/laporan", "/dashboard/pengaturan"] },
+];
+
 export default function DashboardLayout({
   children,
 }: {
@@ -150,60 +168,77 @@ export default function DashboardLayout({
             />
           </div>
           <div className="leading-tight">
-            <p className="font-display text-xs font-bold tracking-wide text-black dark:text-white">
+            <p className="font-display text-sm font-extrabold tracking-wide bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
               DJOGKER
             </p>
-            <p className="text-[9px] tracking-widest" style={{ color: "var(--djoker-muted)" }}>
+            <span
+              className="mt-0.5 inline-flex items-center rounded-full px-1.5 py-0.5 text-[8px] font-semibold tracking-widest text-blue-600 dark:text-blue-300"
+              style={{ background: "rgba(59,130,246,0.12)" }}
+            >
               SCM SYSTEM
-            </p>
+            </span>
           </div>
         </div>
 
-        <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
-          {navItems.map((item) => {
-            const isActive =
-              item.href === "/dashboard"
-                ? pathname === "/dashboard"
-                : pathname?.startsWith(item.href);
-            const Icon = NAV_ICONS[item.href] ?? LayoutDashboard;
+        <nav className="flex-1 space-y-4 overflow-y-auto px-3 py-4">
+          {NAV_SECTIONS.map((section) => (
+            <div key={section.title}>
+              <p className="mb-1.5 px-3 text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">
+                {section.title}
+              </p>
+              <div className="space-y-1">
+                {navItems
+                  .filter((item) => section.hrefs.includes(item.href))
+                  .map((item) => {
+                    const isActive =
+                      item.href === "/dashboard"
+                        ? pathname === "/dashboard"
+                        : pathname?.startsWith(item.href);
+                    const Icon = NAV_ICONS[item.href] ?? LayoutDashboard;
 
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => isMobile && setSidebarOpen(false)}
-                className={`group flex items-center justify-between gap-2.5 rounded-xl px-3 py-2.5 text-sm transition-all duration-200 ${
-                  isActive
-                    ? "bg-blue-600 text-white font-semibold shadow-sm shadow-blue-600/30"
-                    : "text-gray-700 dark:text-gray-300 font-medium hover:bg-blue-50 dark:hover:bg-blue-900/30"
-                }`}
-              >
-                <span className="flex items-center gap-2.5">
-                  <span
-                    className={`flex h-7 w-7 items-center justify-center rounded-lg ${
-                      isActive ? "bg-white/20" : "bg-blue-50 dark:bg-blue-900/40"
-                    }`}
-                  >
-                    <Icon
-                      size={15}
-                      strokeWidth={2.2}
-                      className={isActive ? "text-white" : "text-blue-600 dark:text-blue-400"}
-                    />
-                  </span>
-                  {item.label}
-                </span>
-                <ChevronRight
-                  size={14}
-                  strokeWidth={2.5}
-                  className={
-                    isActive
-                      ? "text-white/70"
-                      : "text-gray-300 dark:text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity"
-                  }
-                />
-              </Link>
-            );
-          })}
+                    return (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => isMobile && setSidebarOpen(false)}
+                        className={`group relative flex items-center justify-between gap-2.5 rounded-xl px-3 py-2.5 text-sm transition-all duration-200 ${
+                          isActive
+                            ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold shadow-md shadow-blue-600/30"
+                            : "text-gray-700 dark:text-gray-300 font-medium hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:translate-x-0.5"
+                        }`}
+                      >
+                        {isActive && (
+                          <span className="absolute -left-3 top-1/2 h-5 w-1 -translate-y-1/2 rounded-r-full bg-blue-500" />
+                        )}
+                        <span className="flex items-center gap-2.5">
+                          <span
+                            className={`flex h-7 w-7 items-center justify-center rounded-lg transition-colors ${
+                              isActive ? "bg-white/20" : "bg-blue-50 dark:bg-blue-900/40 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/60"
+                            }`}
+                          >
+                            <Icon
+                              size={15}
+                              strokeWidth={2.2}
+                              className={isActive ? "text-white" : "text-blue-600 dark:text-blue-400"}
+                            />
+                          </span>
+                          {item.label}
+                        </span>
+                        <ChevronRight
+                          size={14}
+                          strokeWidth={2.5}
+                          className={
+                            isActive
+                              ? "text-white/70"
+                              : "text-gray-300 dark:text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                          }
+                        />
+                      </Link>
+                    );
+                  })}
+              </div>
+            </div>
+          ))}
         </nav>
       </aside>
 
