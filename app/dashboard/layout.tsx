@@ -68,6 +68,8 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const supabase = createClient();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [headerScrolled, setHeaderScrolled] = useState(false);
+  const mainRef = useRef<HTMLElement>(null);
   const [isMobile, setIsMobile] = useState(false);
 
   const touchStartX = useRef<number | null>(null);
@@ -105,6 +107,16 @@ export default function DashboardLayout({
   }
 
   useEffect(() => {
+    const el = mainRef.current;
+    if (!el) return;
+    function handleScroll() {
+      setHeaderScrolled(el!.scrollTop > 8);
+    }
+    el.addEventListener("scroll", handleScroll);
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
     function handleResize() {
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
@@ -139,44 +151,47 @@ export default function DashboardLayout({
     >
       {isMobile && sidebarOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/40"
+          className="fixed inset-0 z-[45] bg-black/40 backdrop-blur-sm"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       <aside
-        className={`fixed top-0 left-0 z-50 h-full w-64 border-r transition-transform duration-300 ease-in-out md:static md:translate-x-0 ${
+        className={`fixed top-0 left-0 z-50 h-full w-64 border-r backdrop-blur-xl bg-white/70 dark:bg-gray-900/70 transition-transform duration-300 ease-in-out md:static md:translate-x-0 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
         style={{
-          background: "var(--djoker-surface)",
           borderColor: "var(--djoker-border)",
         }}
       >
         <div
-          className="flex h-16 items-center gap-3 border-b px-5"
+          className="flex h-16 items-center border-b px-4"
           style={{ borderColor: "var(--djoker-border)" }}
         >
-          <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-lg border bg-white shadow">
-            <Image
-              src="/images/logodjogker1.jpeg"
-              alt="Logo DJOGKER"
-              width={40}
-              height={40}
-              className="object-contain p-1"
-              priority
-            />
-          </div>
-          <div className="leading-tight">
-            <p className="font-display text-sm font-extrabold tracking-wide bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
-              DJOGKER
-            </p>
-            <span
+          <div className="flex items-center gap-3 rounded-xl border bg-white/50 px-2.5 py-1.5 shadow-sm backdrop-blur-md dark:bg-gray-800/50"
+            style={{ borderColor: "var(--djoker-border)" }}
+          >
+            <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg border bg-white shadow">
+              <Image
+                src="/images/logodjogker1.jpeg"
+                alt="Logo DJOGKER"
+                width={36}
+                height={36}
+                className="object-contain p-1"
+                priority
+              />
+            </div>
+            <div className="leading-tight">
+              <p className="font-display text-sm font-extrabold tracking-wide bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent">
+                DJOGKER
+              </p>
+              <span
               className="mt-0.5 inline-flex items-center rounded-full px-1.5 py-0.5 text-[8px] font-semibold tracking-widest text-blue-600 dark:text-blue-300"
               style={{ background: "rgba(59,130,246,0.12)" }}
             >
               SCM SYSTEM
             </span>
+          </div>
           </div>
         </div>
 
@@ -243,8 +258,14 @@ export default function DashboardLayout({
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="relative z-50 flex h-16 items-center justify-between border-b bg-djoker-bg px-4 md:justify-end md:px-6"
-          style={{ borderColor: "var(--djoker-border)" }}>
+        <header
+          className={`sticky top-0 z-40 flex h-16 items-center justify-between border-b px-4 transition-all duration-300 md:justify-end md:px-6 ${
+            headerScrolled
+              ? "backdrop-blur-md bg-white/60 dark:bg-gray-900/60 shadow-sm"
+              : "bg-djoker-bg"
+          }`}
+          style={{ borderColor: "var(--djoker-border)" }}
+        >
           <button
             type="button"
             className="rounded-lg p-2 hover:bg-gray-100 dark:hover:bg-gray-700 md:hidden"
@@ -269,8 +290,10 @@ export default function DashboardLayout({
             <NotificationBell />
 
             <Menu as="div" className="relative">
-            <Menu.Button className="flex items-center gap-3 rounded-full border bg-djoker-panel px-2 py-1.5 shadow-sm transition hover:bg-gray-50 dark:hover:bg-gray-700"
-              style={{ borderColor: "var(--djoker-border)" }}>
+            <Menu.Button
+              className="flex items-center gap-3 rounded-full border bg-white/50 px-2 py-1.5 shadow-sm backdrop-blur-md transition hover:bg-white/70 dark:bg-gray-800/50 dark:hover:bg-gray-800/70"
+              style={{ borderColor: "var(--djoker-border)" }}
+            >
               <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border bg-white">
                 <Image
                   src="/images/logodjogker1.jpeg"
@@ -300,7 +323,7 @@ export default function DashboardLayout({
               </svg>
             </Menu.Button>
 
-            <Menu.Items className="absolute right-0 z-50 mt-3 w-56 origin-top-right rounded-xl border bg-djoker-panel p-2 shadow-xl focus:outline-none"
+            <Menu.Items className="absolute right-0 z-50 mt-3 w-56 origin-top-right rounded-xl border bg-white/70 dark:bg-gray-800/70 backdrop-blur-md p-2 shadow-xl focus:outline-none"
               style={{ borderColor: "var(--djoker-border)" }}>
               <Menu.Item>
                 {({ active }) => (
@@ -351,7 +374,7 @@ export default function DashboardLayout({
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-6">{children}</main>
+        <main ref={mainRef} className="flex-1 overflow-y-auto p-6">{children}</main>
       </div>
     </div>
   );

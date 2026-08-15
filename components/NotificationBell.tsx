@@ -65,7 +65,7 @@ export default function NotificationBell() {
         )}
       </Menu.Button>
 
-      <Menu.Items className="absolute right-0 z-50 mt-3 w-72 origin-top-right rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-2 shadow-xl focus:outline-none">
+      <Menu.Items className="absolute right-0 z-50 mt-3 w-72 origin-top-right rounded-xl border border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/70 backdrop-blur-md p-2 shadow-xl focus:outline-none">
         <p className="px-3 py-2 text-xs font-semibold uppercase tracking-wide text-gray-400">Notifikasi</p>
 
         {items.length === 0 && (
