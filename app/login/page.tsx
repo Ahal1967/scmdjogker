@@ -70,7 +70,7 @@ export default function LoginPage() {
           <h2 className="font-display text-xl font-bold tracking-[0.1em] text-black dark:text-white">DJOGKER</h2>
 
           <p className="mt-3 text-xs italic text-gray-500 dark:text-gray-400">
-            &ldquo;Kualitas Terbaik untuk Hasil Sablon Maksimal&rdquo;
+            &ldquo;Proud Of Local Product&rdquo;
           </p>
         </div>
 
