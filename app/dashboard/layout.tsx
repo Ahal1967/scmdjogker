@@ -210,7 +210,7 @@ export default function DashboardLayout({
                         key={item.href}
                         href={item.href}
                         onClick={() => isMobile && setSidebarOpen(false)}
-                        className={`group relative flex items-center justify-between gap-2.5 rounded-xl px-3 py-2.5 text-sm transition-all duration-200 ${
+                        className={`group relative flex items-center justify-between gap-2.5 rounded-xl px-3 py-2.5 text-sm transition duration-200 ${
                           isActive
                             ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold shadow-md shadow-blue-600/30"
                             : "text-gray-700 dark:text-gray-300 font-medium hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:translate-x-0.5"
@@ -253,9 +253,18 @@ export default function DashboardLayout({
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header
-          className={`sticky top-0 z-40 flex h-16 items-center justify-between border-b px-4 transition-all duration-300 md:justify-end md:px-6 ${
+          /* Header ini "sticky" (nempel pas discroll) -- SENGAJA tidak pakai
+             backdrop-blur lagi di state scrolled walau kelihatan "kaca" di
+             card lain. Kombinasi sticky + backdrop-filter itu pola yang
+             terkenal bikin scroll patah-patah, karena browser wajib hitung
+             ulang blur dari konten yang lewat di baliknya di SETIAP frame
+             scroll (bukan sekali render). Efek "elevated saat discroll"
+             sekarang cuma dari background lebih solid + shadow, bukan blur
+             -- scroll jadi mulus, card/tabel lain di halaman lain TIDAK
+             ikut berubah karena ini scoped ke header saja. */
+          className={`sticky top-0 z-40 flex h-16 items-center justify-between border-b px-4 transition-colors duration-300 md:justify-end md:px-6 ${
             headerScrolled
-              ? "backdrop-blur-md bg-white/60 dark:bg-gray-900/60 shadow-sm"
+              ? "bg-white/90 dark:bg-gray-900/90 shadow-sm"
               : "bg-transparent"
           }`}
           style={{ borderColor: "var(--djoker-border)" }}

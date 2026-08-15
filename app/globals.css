@@ -157,7 +157,11 @@ body::before {
     border-radius: 16px;
     padding: 20px 24px;
     box-shadow: 0 8px 32px rgba(30, 58, 138, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.5);
-    transition: all 0.25s ease;
+    /* "transition: all" sengaja diganti ke properti eksplisit -- "all" bikin
+       browser mengawasi SEMUA properti yang bisa dianimasi (termasuk yang
+       tidak pernah berubah di sini), lebih berat dari cuma 3 yang benar-benar
+       berubah pas :hover. Kerasa di card yang banyak di satu halaman. */
+    transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
   }
 
   .dark .card {
@@ -315,7 +319,7 @@ body::before {
     padding: 12px;
     border: 1px solid rgba(255, 255, 255, 0.5);
     box-shadow: 0 8px 20px -10px rgba(30, 58, 138, 0.25);
-    transition: all 0.25s ease;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
   }
 
   .premium-stat-card:hover {
@@ -594,7 +598,7 @@ body::before {
     border-radius: 10px;
     border: 1px solid transparent;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
     box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
   }
 
@@ -619,7 +623,7 @@ body::before {
     font-weight: 600;
     border: 1px solid var(--djoker-border);
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
   }
 
   .btn-danger {
@@ -630,7 +634,7 @@ body::before {
   border-radius: 10px;
   border: 1px solid transparent;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
   box-shadow: 0 2px 8px rgba(220, 38, 38, 0.25);
 }
 
@@ -662,7 +666,7 @@ body::before {
     border-radius: 10px;
     color: var(--djoker-text);
     font-size: 0.875rem;
-    transition: all 0.2s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
     outline: none;
   }
 
@@ -693,7 +697,7 @@ body::before {
     font-size: 0.875rem;
     font-weight: 600;
     color: var(--djoker-text);
-    transition: all 0.2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
   }
 
   .sidebar-link:hover {
@@ -923,7 +927,7 @@ body::before {
     letter-spacing: 0.025em;
     border: none;
     background: transparent;
-    transition: all 0.2s ease;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 
   /* Titik bulat kecil di depan label status -- warnanya ikut currentColor
