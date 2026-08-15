@@ -1,14 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
-import { User, Pencil, Trash2, Plus } from "lucide-react";
-
-type Profile = {
-  id: string;
-  full_name: string | null;
-  role: string;
-  avatar_url: string | null;
-  created_at: string;
-};
+import { Plus } from "lucide-react";
+import PengaturanTable from "./PengaturanTable";
 
 export default async function PengaturanPage() {
   const supabase = createClient();
@@ -47,10 +40,8 @@ export default async function PengaturanPage() {
       </div>
 
       <div
-        className="relative overflow-hidden rounded-2xl p-6 bg-gradient-to-br from-blue-100/70 to-blue-200/50 dark:from-blue-900/20 dark:to-blue-800/10"
-        style={{
-          boxShadow: "0 1px 2px rgba(37,99,235,0.06), 0 12px 32px -8px rgba(37,99,235,0.18)",
-        }}
+        className="relative overflow-hidden rounded-2xl p-6 bg-white/55 dark:bg-gray-800/55 backdrop-blur-xl"
+        style={{ boxShadow: "0 4px 16px rgba(30,58,138,0.1)" }}
       >
         <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl">
           <div className="absolute -right-10 -top-16 h-48 w-48 rounded-full bg-blue-200/30 dark:bg-blue-900/20 blur-3xl" />
@@ -112,66 +103,7 @@ export default async function PengaturanPage() {
           </Link>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="table-djoker w-full">
-            <thead>
-              <tr>
-                <th className="w-10"></th>
-                <th>ID</th>
-                <th>Nama Lengkap</th>
-                <th>Role</th>
-                <th>Dibuat</th>
-                <th className="text-right">Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              {profiles?.map((profile: Profile) => (
-                <tr key={profile.id}>
-                  <td>
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/40">
-                      <User size={15} className="text-blue-600 dark:text-blue-400" />
-                    </span>
-                  </td>
-                  <td className="font-mono text-xs text-gray-500 dark:text-gray-400">
-                    {profile.id.split("-")[0]}...
-                  </td>
-                  <td className="font-medium text-black dark:text-white">{profile.full_name || "-"}</td>
-                  <td>
-                    <span className={formatRoleBadge(profile.role)}>{profile.role}</span>
-                  </td>
-                  <td className="text-sm text-gray-600 dark:text-gray-400">
-                    {new Date(profile.created_at).toLocaleDateString("id-ID")}
-                  </td>
-                  <td className="text-right">
-                    <div className="flex justify-end gap-1.5">
-                      <Link
-                        href={`/dashboard/pengaturan/edit/${profile.id}`}
-                        title="Edit"
-                        className="flex h-8 w-8 items-center justify-center rounded-lg text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/40 transition-colors"
-                      >
-                        <Pencil size={15} />
-                      </Link>
-                      <Link
-                        href={`/dashboard/pengaturan/hapus/${profile.id}`}
-                        title="Hapus"
-                        className="flex h-8 w-8 items-center justify-center rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/40 transition-colors"
-                      >
-                        <Trash2 size={15} />
-                      </Link>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-              {(!profiles || profiles.length === 0) && (
-                <tr>
-                  <td colSpan={6} className="text-center text-gray-500 dark:text-gray-400 py-6 md:py-8">
-                    Belum ada data pengguna.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+        <PengaturanTable profiles={profiles ?? []} />
       </div>
     </div>
   );

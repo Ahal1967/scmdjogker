@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { Search, Plus, Package, Boxes, AlertTriangle, CheckCircle2, ChevronLeft, ChevronRight, Pencil, Trash2, Loader2, PackageOpen } from "lucide-react";
+import { Search, Plus, Package, Boxes, AlertTriangle, CheckCircle2, ChevronLeft, ChevronRight, Pencil, Trash2, Loader2, PackageOpen, Tag, Ruler, Truck, MoreHorizontal } from "lucide-react";
 import { useToast } from "@/components/useToast";
 import { useConfirm } from "@/components/useConfirm";
+import SortableTh from "@/components/SortableTh";
+import { compareValues } from "@/lib/sortUtils";
 
 type Supplier = { id: string; nama_supplier: string };
 
@@ -57,8 +59,34 @@ export default function GudangTable({
       (m.suppliers?.nama_supplier ?? "").toLowerCase().includes(q)
     );
   });
-  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const paginated = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  type SortField = "nama_bahan" | "kategori" | "satuan" | "stok" | "stok_minimum" | "supplier" | "status";
+  const [sortField, setSortField] = useState<SortField | null>(null);
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+
+  function toggleSort(field: SortField) {
+    if (sortField === field) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortField(field);
+      setSortDir("asc");
+    }
+  }
+
+  function sortValue(m: Material, field: SortField) {
+    switch (field) {
+      case "supplier":
+        return m.suppliers?.nama_supplier ?? "";
+      default:
+        return m[field];
+    }
+  }
+
+  const sorted = sortField
+    ? [...filtered].sort((a, b) => compareValues(sortValue(a, sortField), sortValue(b, sortField), sortDir))
+    : filtered;
+
+  const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize));
+  const paginated = sorted.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const totalJenis = materials.length;
   const totalAman = materials.filter((m) => m.status === "Aman").length;
@@ -190,14 +218,14 @@ export default function GudangTable({
             <thead>
               <tr>
                 <th className="w-10"></th>
-                <th>Nama Bahan</th>
-                <th>Kategori</th>
-                <th>Satuan</th>
-                <th>Stok</th>
-                <th>Minimum</th>
-                <th>Supplier</th>
-                <th>Status</th>
-                <th className="text-right">Aksi</th>
+                <SortableTh label="Nama Bahan" icon={Package} active={sortField === "nama_bahan"} direction={sortDir} onClick={() => toggleSort("nama_bahan")} />
+                <SortableTh label="Kategori" icon={Tag} active={sortField === "kategori"} direction={sortDir} onClick={() => toggleSort("kategori")} />
+                <SortableTh label="Satuan" icon={Ruler} active={sortField === "satuan"} direction={sortDir} onClick={() => toggleSort("satuan")} />
+                <SortableTh label="Stok" icon={Boxes} active={sortField === "stok"} direction={sortDir} onClick={() => toggleSort("stok")} center />
+                <SortableTh label="Minimum" icon={AlertTriangle} active={sortField === "stok_minimum"} direction={sortDir} onClick={() => toggleSort("stok_minimum")} center />
+                <SortableTh label="Supplier" icon={Truck} active={sortField === "supplier"} direction={sortDir} onClick={() => toggleSort("supplier")} />
+                <SortableTh label="Status" icon={CheckCircle2} active={sortField === "status"} direction={sortDir} onClick={() => toggleSort("status")} center />
+                <SortableTh label="Aksi" icon={MoreHorizontal} sortable={false} />
               </tr>
             </thead>
             <tbody>
@@ -212,7 +240,7 @@ export default function GudangTable({
                   <td className="text-sm text-gray-700 dark:text-gray-300">{m.kategori}</td>
                   <td className="text-sm text-gray-700 dark:text-gray-300">{m.satuan}</td>
                   <td>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-center gap-2">
                       <button
                         onClick={() => quickAdjustStock(m, -1)}
                         className="w-6 h-6 rounded border border-gray-300 dark:border-gray-600 text-xs hover:border-blue-600"
@@ -228,9 +256,9 @@ export default function GudangTable({
                       </button>
                     </div>
                   </td>
-                  <td className="text-sm text-gray-700 dark:text-gray-300">{m.stok_minimum}</td>
+                  <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{m.stok_minimum}</td>
                   <td className="text-sm text-gray-700 dark:text-gray-300">{m.suppliers?.nama_supplier ?? "-"}</td>
-                  <td>
+                  <td className="text-center">
                     <span
                       className={`badge ${
                         m.status === "Aman"

@@ -3,10 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Search, Plus, FileText, ShoppingBag, CheckCircle2, TrendingUp, ChevronLeft, ChevronRight, Eye, Trash2, User, Loader2, PackageOpen } from "lucide-react";
+import { Search, Plus, FileText, ShoppingBag, CheckCircle2, TrendingUp, ChevronLeft, ChevronRight, Eye, Trash2, User, Loader2, PackageOpen, Hash, Calendar, Wallet, MoreHorizontal } from "lucide-react";
 import { useConfirm } from "@/components/useConfirm";
 import { useToast } from "@/components/useToast";
 import { createClient } from "@/lib/supabase/client";
+import SortableTh from "@/components/SortableTh";
+import { compareValues } from "@/lib/sortUtils";
 
 type Customer = {
   id: string;
@@ -152,8 +154,38 @@ export default function PesananTable() {
     );
   });
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const paginated = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  type SortField = "no_pesanan" | "pelanggan" | "tanggal" | "total";
+  const [sortField, setSortField] = useState<SortField | null>(null);
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+
+  function toggleSort(field: SortField) {
+    if (sortField === field) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortField(field);
+      setSortDir("asc");
+    }
+  }
+
+  function sortValue(o: Order, field: SortField) {
+    switch (field) {
+      case "no_pesanan":
+        return o.no_pesanan ?? "";
+      case "pelanggan":
+        return o.customers?.nama ?? "";
+      case "tanggal":
+        return o.tanggal ?? "";
+      case "total":
+        return Number(o.total) || 0;
+    }
+  }
+
+  const sorted = sortField
+    ? [...filtered].sort((a, b) => compareValues(sortValue(a, sortField), sortValue(b, sortField), sortDir))
+    : filtered;
+
+  const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize));
+  const paginated = sorted.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const summaryTotalPesanan = orders.length;
   const summarySelesai = orders.filter((o) => o.status === "Selesai").length;
@@ -404,11 +436,11 @@ export default function PesananTable() {
             <thead>
               <tr>
                 <th className="w-10"></th>
-                <th>No. Pesanan</th>
-                <th>Pelanggan</th>
-                <th>Tanggal</th>
-                <th>Total</th>
-                <th className="text-right">Aksi</th>
+                <SortableTh label="No. Pesanan" icon={Hash} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} />
+                <SortableTh label="Pelanggan" icon={User} active={sortField === "pelanggan"} direction={sortDir} onClick={() => toggleSort("pelanggan")} />
+                <SortableTh label="Tanggal" icon={Calendar} active={sortField === "tanggal"} direction={sortDir} onClick={() => toggleSort("tanggal")} />
+                <SortableTh label="Total" icon={Wallet} active={sortField === "total"} direction={sortDir} onClick={() => toggleSort("total")} center />
+                <SortableTh label="Aksi" icon={MoreHorizontal} sortable={false} />
               </tr>
             </thead>
             <tbody>
@@ -430,7 +462,7 @@ export default function PesananTable() {
                         })
                       : "-"}
                   </td>
-                  <td>
+                  <td className="text-center">
                     <p className="text-sm font-medium text-black dark:text-white">{formatRupiah(Number(o.total) || 0)}</p>
                     <select
                       value={o.status ?? "Pesanan"}

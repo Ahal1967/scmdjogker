@@ -2,7 +2,9 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Search, FileText, ChevronLeft, ChevronRight, Pencil, Trash2 } from "lucide-react";
+import { Search, FileText, ChevronLeft, ChevronRight, Pencil, Trash2, Hash, Calendar, Wallet, CreditCard, Receipt, CheckCircle2, MapPin, MoreHorizontal } from "lucide-react";
+import SortableTh from "@/components/SortableTh";
+import { compareValues } from "@/lib/sortUtils";
 
 type Order = {
   id: string;
@@ -44,8 +46,44 @@ export default function LaporanTable({ dataOrders }: { dataOrders: Order[] }) {
   const filtered = dataOrders.filter((o) =>
     (o.no_pesanan ?? "").toLowerCase().includes(search.toLowerCase())
   );
-  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const paginated = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  type SortField = "no_pesanan" | "tanggal" | "total" | "dp" | "sisa" | "status" | "alamat";
+  const [sortField, setSortField] = useState<SortField | null>(null);
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+
+  function toggleSort(field: SortField) {
+    if (sortField === field) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortField(field);
+      setSortDir("asc");
+    }
+  }
+
+  function sortValue(o: Order, field: SortField) {
+    switch (field) {
+      case "no_pesanan":
+        return o.no_pesanan ?? "";
+      case "tanggal":
+        return o.tanggal ?? o.created_at ?? "";
+      case "total":
+        return Number(o.total) || 0;
+      case "dp":
+        return Number(o.dp) || 0;
+      case "sisa":
+        return Number(o.sisa_pembayaran) || 0;
+      case "status":
+        return o.status ?? "";
+      case "alamat":
+        return o.alamat_pengiriman ?? "";
+    }
+  }
+
+  const sorted = sortField
+    ? [...filtered].sort((a, b) => compareValues(sortValue(a, sortField), sortValue(b, sortField), sortDir))
+    : filtered;
+
+  const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize));
+  const paginated = sorted.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   return (
     <div className="space-y-4">
@@ -68,14 +106,14 @@ export default function LaporanTable({ dataOrders }: { dataOrders: Order[] }) {
             <thead>
               <tr>
                 <th className="w-10"></th>
-                <th>No. Pesanan</th>
-                <th>Tanggal</th>
-                <th>Total</th>
-                <th>DP</th>
-                <th>Sisa</th>
-                <th>Status</th>
-                <th>Alamat</th>
-                <th className="text-right">Aksi</th>
+                <SortableTh label="No. Pesanan" icon={Hash} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} />
+                <SortableTh label="Tanggal" icon={Calendar} active={sortField === "tanggal"} direction={sortDir} onClick={() => toggleSort("tanggal")} />
+                <SortableTh label="Total" icon={Wallet} active={sortField === "total"} direction={sortDir} onClick={() => toggleSort("total")} />
+                <SortableTh label="DP" icon={CreditCard} active={sortField === "dp"} direction={sortDir} onClick={() => toggleSort("dp")} />
+                <SortableTh label="Sisa" icon={Receipt} active={sortField === "sisa"} direction={sortDir} onClick={() => toggleSort("sisa")} />
+                <SortableTh label="Status" icon={CheckCircle2} active={sortField === "status"} direction={sortDir} onClick={() => toggleSort("status")} center />
+                <SortableTh label="Alamat" icon={MapPin} active={sortField === "alamat"} direction={sortDir} onClick={() => toggleSort("alamat")} />
+                <SortableTh label="Aksi" icon={MoreHorizontal} sortable={false} />
               </tr>
             </thead>
             <tbody>
@@ -97,7 +135,7 @@ export default function LaporanTable({ dataOrders }: { dataOrders: Order[] }) {
                   >
                     {formatRupiah(Number(order.sisa_pembayaran) || 0)}
                   </td>
-                  <td>
+                  <td className="text-center">
                     <span className={`badge ${STATUS_COLORS[order.status || ""] ?? "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400"}`}>
                       {order.status || "-"}
                     </span>

@@ -1,7 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Search, User, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, User, ChevronLeft, ChevronRight, Phone, ShoppingBag, Wallet } from "lucide-react";
+import SortableTh from "@/components/SortableTh";
+import { compareValues } from "@/lib/sortUtils";
 
 type Pelanggan = {
   id: string;
@@ -21,8 +23,25 @@ export default function PelangganTable({ dataPelanggan }: { dataPelanggan: Pelan
       c.nama.toLowerCase().includes(search.toLowerCase()) ||
       (c.no_telepon ?? "").includes(search)
   );
-  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const paginated = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  type SortField = "nama" | "no_telepon" | "totalPesanan" | "totalBelanja";
+  const [sortField, setSortField] = useState<SortField | null>(null);
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+
+  function toggleSort(field: SortField) {
+    if (sortField === field) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortField(field);
+      setSortDir("asc");
+    }
+  }
+
+  const sorted = sortField
+    ? [...filtered].sort((a, b) => compareValues(a[sortField], b[sortField], sortDir))
+    : filtered;
+
+  const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize));
+  const paginated = sorted.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   return (
     <div className="space-y-4">
@@ -45,10 +64,10 @@ export default function PelangganTable({ dataPelanggan }: { dataPelanggan: Pelan
             <thead>
               <tr>
                 <th className="w-10"></th>
-                <th>Nama Pelanggan</th>
-                <th>No. Telepon</th>
-                <th>Total Pesanan</th>
-                <th>Total Belanja Diterima</th>
+                <SortableTh label="Nama Pelanggan" icon={User} active={sortField === "nama"} direction={sortDir} onClick={() => toggleSort("nama")} />
+                <SortableTh label="No. Telepon" icon={Phone} active={sortField === "no_telepon"} direction={sortDir} onClick={() => toggleSort("no_telepon")} />
+                <SortableTh label="Total Pesanan" icon={ShoppingBag} active={sortField === "totalPesanan"} direction={sortDir} onClick={() => toggleSort("totalPesanan")} />
+                <SortableTh label="Total Belanja Diterima" icon={Wallet} active={sortField === "totalBelanja"} direction={sortDir} onClick={() => toggleSort("totalBelanja")} />
               </tr>
             </thead>
             <tbody>

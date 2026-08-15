@@ -3,9 +3,11 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Search, Factory, Activity, CheckCircle2, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
+import { Search, Factory, Activity, CheckCircle2, ChevronLeft, ChevronRight, Trash2, Hash, User, Gauge, MoreHorizontal } from "lucide-react";
 import { useConfirm } from "@/components/useConfirm";
 import { useToast } from "@/components/useToast";
+import SortableTh from "@/components/SortableTh";
+import { compareValues } from "@/lib/sortUtils";
 
 export type ProductionRow = {
   id: string;
@@ -61,8 +63,40 @@ export default function ProduksiTable({
     });
   }, [productions, search]);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const paginated = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  type SortField = "no_produksi" | "no_pesanan" | "pelanggan" | "status" | "progress";
+  const [sortField, setSortField] = useState<SortField | null>(null);
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+
+  function toggleSort(field: SortField) {
+    if (sortField === field) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortField(field);
+      setSortDir("asc");
+    }
+  }
+
+  function sortValue(p: ProductionRow, field: SortField) {
+    switch (field) {
+      case "no_produksi":
+        return p.no_produksi ?? "";
+      case "no_pesanan":
+        return p.orders?.no_pesanan ?? "";
+      case "pelanggan":
+        return p.orders?.customers?.nama ?? "";
+      case "status":
+        return p.status ?? "";
+      case "progress":
+        return Number(p.progress) || 0;
+    }
+  }
+
+  const sorted = sortField
+    ? [...filtered].sort((a, b) => compareValues(sortValue(a, sortField), sortValue(b, sortField), sortDir))
+    : filtered;
+
+  const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize));
+  const paginated = sorted.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const totalProduksi = productions.length;
   const sedangProses = productions.filter((p) => p.status !== "Selesai").length;
@@ -168,12 +202,12 @@ export default function ProduksiTable({
             <thead>
               <tr>
                 <th className="w-10"></th>
-                <th>No. Produksi</th>
-                <th>No. Pesanan</th>
-                <th>Pelanggan</th>
-                <th>Status</th>
-                <th>Progress</th>
-                <th className="text-right">Aksi</th>
+                <SortableTh label="No. Produksi" icon={Factory} active={sortField === "no_produksi"} direction={sortDir} onClick={() => toggleSort("no_produksi")} />
+                <SortableTh label="No. Pesanan" icon={Hash} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} />
+                <SortableTh label="Pelanggan" icon={User} active={sortField === "pelanggan"} direction={sortDir} onClick={() => toggleSort("pelanggan")} />
+                <SortableTh label="Status" icon={Activity} active={sortField === "status"} direction={sortDir} onClick={() => toggleSort("status")} center />
+                <SortableTh label="Progress" icon={Gauge} active={sortField === "progress"} direction={sortDir} onClick={() => toggleSort("progress")} center />
+                <SortableTh label="Aksi" icon={MoreHorizontal} sortable={false} />
               </tr>
             </thead>
             <tbody>
@@ -187,7 +221,7 @@ export default function ProduksiTable({
                   <td className="font-semibold text-black dark:text-white">{p.no_produksi || "-"}</td>
                   <td className="text-sm text-gray-700 dark:text-gray-300">{p.orders?.no_pesanan ?? "-"}</td>
                   <td className="text-sm text-gray-800 dark:text-gray-200">{p.orders?.customers?.nama ?? "-"}</td>
-                  <td>
+                  <td className="text-center">
                     <select
                       value={p.status || "Produksi"}
                       onChange={(e) => updateStatus(p, e.target.value)}

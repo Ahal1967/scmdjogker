@@ -111,9 +111,7 @@ body {
 @layer components {
   /* Card / panel */
   .card {
-    background: rgba(255, 255, 255, 0.55);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: rgba(255, 255, 255, 0.75);
     border: none;
     border-radius: 16px;
     padding: 20px 24px;
@@ -122,7 +120,7 @@ body {
   }
 
   .dark .card {
-    background: rgba(22, 29, 58, 0.55);
+    background: rgba(22, 29, 58, 0.75);
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
   }
 
@@ -280,30 +278,138 @@ body {
     overflow: hidden;
   }
 
+  /* Header "Glassmorphism": tiap <th> tetap sel tabel biasa (supaya
+     lebar kolom dijamin sama persis dengan <td> di bawahnya -- ini
+     yang bikin semua perbaikan alignment sebelumnya tidak percuma),
+     tapi didandani biar KELIHATAN sebagai satu pill kaca mengambang:
+     background+blur+shadow yang SAMA di tiap sel bikin sambungan
+     antar kolom tidak kelihatan (seamless), dan cuma ujung kiri/kanan
+     yang dibulatkan penuh (999px) jadi bentuknya pill utuh. */
   .table-djoker thead th {
-    background: var(--djoker-hover-bg);
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
     color: var(--djoker-blue-dark);
     font-weight: 700;
-    font-size: 0.625rem !important; /* 10px, paksa menang atas class Tailwind */
+    font-size: 0.625rem !important;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    padding: 16px;
+    letter-spacing: 0.06em;
+    padding: 10px 16px;
     text-align: left;
-    border-bottom: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.7);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.7);
+    box-shadow: 0 8px 20px rgba(37, 99, 235, 0.16);
     position: relative;
-    box-shadow: 0 4px 8px -2px rgba(37, 99, 235, 0.18);
   }
 
   .dark .table-djoker thead th {
-    color: #ffffff;
+    background: rgba(22, 29, 58, 0.55);
+    color: #cbd5e1;
+    border-top-color: rgba(71, 85, 105, 0.4);
+    border-bottom-color: rgba(71, 85, 105, 0.4);
   }
 
   .table-djoker thead th:first-child {
-    border-top-left-radius: 14px;
+    border-top-left-radius: 999px;
+    border-bottom-left-radius: 999px;
+    border-left: 1px solid rgba(255, 255, 255, 0.7);
   }
 
+  .dark .table-djoker thead th:first-child {
+    border-left-color: rgba(71, 85, 105, 0.4);
+  }
+
+  /* Kolom terakhir (Aksi) dipaksa rata kanan DI SINI, bukan lewat class
+     Tailwind "text-right" di JSX -- selector ".table-djoker thead th"
+     di atas itu 1 class + 2 tag (lebih spesifik), sedangkan class
+     Tailwind cuma 1 class polos, jadi text-align:left di atas SELALU
+     menang lawan "text-right" dari Tailwind, berapa pun urutan importnya.
+     Inilah kenapa header Aksi kelihatan tidak pernah benar-benar rata
+     kanan walau sudah dikasih className="text-right" di semua tabel. */
   .table-djoker thead th:last-child {
-    border-top-right-radius: 14px;
+    text-align: right;
+    border-top-right-radius: 999px;
+    border-bottom-right-radius: 999px;
+    border-right: 1px solid rgba(255, 255, 255, 0.7);
+  }
+
+  .dark .table-djoker thead th:last-child {
+    border-right-color: rgba(71, 85, 105, 0.4);
+  }
+
+  /* Dipakai buat kolom yang isinya BUKAN teks polos, misal widget
+     stepper [−] angka [+] di kolom Stok GudangTable -- header perlu
+     rata tengah supaya "mengambang" pas di atas widgetnya, bukan
+     rata kiri ke tepi kolom. Butuh class terpisah (bukan Tailwind
+     "text-center") karena kalau cuma className Tailwind biasa,
+     specificity-nya kalah lawan ".table-djoker thead th" di atas --
+     sama persis akar masalah kolom Aksi sebelumnya. Class kedua di
+     sini (.th-center) sengaja dobel supaya specificity-nya menang. */
+  .table-djoker thead th.th-center {
+    text-align: center;
+  }
+
+  /* Isi tiap header: ikon bulat + label + panah sortir, sejajar
+     horizontal. Dipakai di dalam <th>, tidak mengubah box model <th>
+     itu sendiri (jadi tidak menyentuh alignment kolom). */
+  .th-flex {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .table-djoker thead th:last-child .th-flex {
+    justify-content: flex-end;
+  }
+
+  .icon-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 999px;
+    background: rgba(37, 99, 235, 0.12);
+    color: var(--djoker-blue-dark);
+    flex-shrink: 0;
+  }
+
+  .dark .icon-chip {
+    background: rgba(37, 99, 235, 0.25);
+    color: #93c5fd;
+  }
+
+  .col-label {
+    white-space: nowrap;
+  }
+
+  .th-sortable {
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  .th-sortable:hover .col-label {
+    color: var(--djoker-blue);
+  }
+
+  .sort-chevron {
+    display: inline-flex;
+    align-items: center;
+    color: rgba(37, 99, 235, 0.35);
+    flex-shrink: 0;
+  }
+
+  .sort-chevron.active {
+    color: var(--djoker-blue-dark);
+  }
+
+  .dark .sort-chevron {
+    color: rgba(147, 197, 253, 0.35);
+  }
+
+  .dark .sort-chevron.active {
+    color: #93c5fd;
   }
 
   .table-djoker tbody tr:first-child td {

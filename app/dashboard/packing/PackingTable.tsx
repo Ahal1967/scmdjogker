@@ -3,8 +3,10 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Search, Package, Clock, CheckCircle2, ChevronLeft, ChevronRight, Send } from "lucide-react";
+import { Search, Package, Clock, CheckCircle2, ChevronLeft, ChevronRight, Send, Hash, User, Calendar, Boxes, MoreHorizontal } from "lucide-react";
 import { useToast } from "@/components/useToast";
+import SortableTh from "@/components/SortableTh";
+import { compareValues } from "@/lib/sortUtils";
 
 type Packing = {
   id: string;
@@ -48,8 +50,38 @@ export default function PackingTable({ initialPacking }: { initialPacking: Packi
       p.no_packing.toLowerCase().includes(search.toLowerCase()) ||
       (p.orders?.no_pesanan ?? "").toLowerCase().includes(search.toLowerCase())
   );
-  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const paginated = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  type SortField = "no_packing" | "no_pesanan" | "pelanggan" | "tanggal" | "jumlah" | "status";
+  const [sortField, setSortField] = useState<SortField | null>(null);
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+
+  function toggleSort(field: SortField) {
+    if (sortField === field) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortField(field);
+      setSortDir("asc");
+    }
+  }
+
+  function sortValue(p: Packing, field: SortField) {
+    switch (field) {
+      case "no_pesanan":
+        return p.orders?.no_pesanan ?? "";
+      case "pelanggan":
+        return p.orders?.customers?.nama ?? "";
+      case "jumlah":
+        return Number(p.jumlah) || 0;
+      default:
+        return p[field];
+    }
+  }
+
+  const sorted = sortField
+    ? [...filtered].sort((a, b) => compareValues(sortValue(a, sortField), sortValue(b, sortField), sortDir))
+    : filtered;
+
+  const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize));
+  const paginated = sorted.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const totalPacking = packingList.length;
   const totalDiproses = packingList.filter((p) => p.status === "Diproses").length;
@@ -118,13 +150,13 @@ export default function PackingTable({ initialPacking }: { initialPacking: Packi
             <thead>
               <tr>
                 <th className="w-10"></th>
-                <th>No. Packing</th>
-                <th>No. Pesanan</th>
-                <th>Pelanggan</th>
-                <th>Tanggal</th>
-                <th>Jumlah</th>
-                <th>Status</th>
-                <th className="text-right">Aksi</th>
+                <SortableTh label="No. Packing" icon={Package} active={sortField === "no_packing"} direction={sortDir} onClick={() => toggleSort("no_packing")} />
+                <SortableTh label="No. Pesanan" icon={Hash} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} />
+                <SortableTh label="Pelanggan" icon={User} active={sortField === "pelanggan"} direction={sortDir} onClick={() => toggleSort("pelanggan")} />
+                <SortableTh label="Tanggal" icon={Calendar} active={sortField === "tanggal"} direction={sortDir} onClick={() => toggleSort("tanggal")} />
+                <SortableTh label="Jumlah" icon={Boxes} active={sortField === "jumlah"} direction={sortDir} onClick={() => toggleSort("jumlah")} />
+                <SortableTh label="Status" icon={CheckCircle2} active={sortField === "status"} direction={sortDir} onClick={() => toggleSort("status")} center />
+                <SortableTh label="Aksi" icon={MoreHorizontal} sortable={false} />
               </tr>
             </thead>
             <tbody>
@@ -146,7 +178,7 @@ export default function PackingTable({ initialPacking }: { initialPacking: Packi
                     })}
                   </td>
                   <td className="text-sm text-gray-700 dark:text-gray-300">{p.jumlah} pcs</td>
-                  <td>
+                  <td className="text-center">
                     <span
                       className={`badge ${
                         p.status === "Siap Kirim"

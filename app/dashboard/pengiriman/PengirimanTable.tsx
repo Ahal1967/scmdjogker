@@ -3,8 +3,10 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Search, Truck, Clock, PackageCheck, ChevronLeft, ChevronRight, ClipboardEdit, CheckCircle2, Loader2 } from "lucide-react";
+import { Search, Truck, Clock, PackageCheck, ChevronLeft, ChevronRight, ClipboardEdit, CheckCircle2, Loader2, Hash, User, MapPin, Barcode, MoreHorizontal } from "lucide-react";
 import { useToast } from "@/components/useToast";
+import SortableTh from "@/components/SortableTh";
+import { compareValues } from "@/lib/sortUtils";
 
 type Shipment = {
   id: string;
@@ -66,8 +68,42 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
       (s.orders?.no_pesanan ?? "").toLowerCase().includes(search.toLowerCase()) ||
       (s.orders?.customers?.nama ?? "").toLowerCase().includes(search.toLowerCase())
   );
-  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const paginated = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  type SortField = "no_pesanan" | "pelanggan" | "alamat" | "kurir" | "no_resi" | "status";
+  const [sortField, setSortField] = useState<SortField | null>(null);
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+
+  function toggleSort(field: SortField) {
+    if (sortField === field) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortField(field);
+      setSortDir("asc");
+    }
+  }
+
+  function sortValue(s: Shipment, field: SortField) {
+    switch (field) {
+      case "no_pesanan":
+        return s.orders?.no_pesanan ?? "";
+      case "pelanggan":
+        return s.orders?.customers?.nama ?? "";
+      case "alamat":
+        return s.orders?.alamat_pengiriman ?? "";
+      case "kurir":
+        return s.kurir ?? "";
+      case "no_resi":
+        return s.no_resi ?? "";
+      case "status":
+        return s.status ?? "";
+    }
+  }
+
+  const sorted = sortField
+    ? [...filtered].sort((a, b) => compareValues(sortValue(a, sortField), sortValue(b, sortField), sortDir))
+    : filtered;
+
+  const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize));
+  const paginated = sorted.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const totalPengiriman = shipments.length;
   const totalDiproses = shipments.filter((s) => s.status === "Diproses" || s.status === "Dalam Proses" || s.status === "Dikirim").length;
@@ -172,13 +208,13 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
             <thead>
               <tr>
                 <th className="w-10"></th>
-                <th>No. Pesanan</th>
-                <th>Pelanggan</th>
-                <th>Alamat</th>
-                <th>Kurir</th>
-                <th>No. Resi</th>
-                <th>Status</th>
-                <th className="text-right">Aksi</th>
+                <SortableTh label="No. Pesanan" icon={Hash} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} />
+                <SortableTh label="Pelanggan" icon={User} active={sortField === "pelanggan"} direction={sortDir} onClick={() => toggleSort("pelanggan")} />
+                <SortableTh label="Alamat" icon={MapPin} active={sortField === "alamat"} direction={sortDir} onClick={() => toggleSort("alamat")} />
+                <SortableTh label="Kurir" icon={Truck} active={sortField === "kurir"} direction={sortDir} onClick={() => toggleSort("kurir")} />
+                <SortableTh label="No. Resi" icon={Barcode} active={sortField === "no_resi"} direction={sortDir} onClick={() => toggleSort("no_resi")} />
+                <SortableTh label="Status" icon={CheckCircle2} active={sortField === "status"} direction={sortDir} onClick={() => toggleSort("status")} center />
+                <SortableTh label="Aksi" icon={MoreHorizontal} sortable={false} />
               </tr>
             </thead>
             <tbody>
@@ -196,7 +232,7 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
                   </td>
                   <td className="text-sm text-gray-700 dark:text-gray-300">{s.kurir || "-"}</td>
                   <td className="text-sm text-gray-700 dark:text-gray-300">{s.no_resi || "-"}</td>
-                  <td>
+                  <td className="text-center">
                     <span className={`badge ${STATUS_COLORS[s.status] ?? ""}`}>{s.status}</span>
                   </td>
                   <td className="text-right">

@@ -187,7 +187,7 @@ export default function DashboardPage() {
           <div className="h-8 w-56 rounded-lg bg-gray-200 dark:bg-gray-700" />
         </div>
 
-        <div className="rounded-2xl p-6 md:p-8" style={{ background: "rgba(239, 246, 255, 0.6)" }}>
+        <div className="rounded-2xl p-6 md:p-8 backdrop-blur-xl bg-white/55 dark:bg-gray-800/55">
           <div className="h-4 w-24 rounded-full bg-gray-200 dark:bg-gray-700 mb-3" />
           <div className="h-6 w-64 rounded bg-gray-200 dark:bg-gray-700 mb-2" />
           <div className="h-4 w-48 rounded bg-gray-200 dark:bg-gray-700 mb-4" />
@@ -224,10 +224,8 @@ export default function DashboardPage() {
       </div>
 
       <div
-        className="relative rounded-2xl bg-gradient-to-br from-blue-100/70 to-blue-200/50 dark:from-blue-900/20 dark:to-blue-800/10"
-        style={{
-          boxShadow: "0 1px 2px rgba(37,99,235,0.06), 0 12px 32px -8px rgba(37,99,235,0.18)",
-        }}
+        className="relative rounded-2xl bg-white/55 dark:bg-gray-800/55 backdrop-blur-xl"
+        style={{ boxShadow: "0 4px 16px rgba(30,58,138,0.1)" }}
       >
         <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl">
           <div className="absolute -right-10 -top-16 h-48 w-48 rounded-full bg-blue-200/30 blur-3xl" />

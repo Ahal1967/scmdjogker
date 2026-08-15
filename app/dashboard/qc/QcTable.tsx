@@ -3,8 +3,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Search, ShieldCheck, ClipboardCheck, CheckCircle2, XCircle, ChevronLeft, ChevronRight, Eye, Loader2 } from "lucide-react";
+import { Search, ShieldCheck, ClipboardCheck, CheckCircle2, XCircle, ChevronLeft, ChevronRight, Eye, Loader2, Hash, User, Factory, Calendar, FileText, MoreHorizontal } from "lucide-react";
 import { useToast } from "@/components/useToast";
+import SortableTh from "@/components/SortableTh";
+import { compareValues } from "@/lib/sortUtils";
 
 type PendingProduction = {
   id: string;
@@ -81,8 +83,62 @@ export default function QcTable({
     );
   }, [records, search]);
 
-  const totalPages = Math.max(1, Math.ceil(filteredRecords.length / pageSize));
-  const paginated = filteredRecords.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  type PendingSortField = "no_produksi" | "no_pesanan" | "pelanggan";
+  const [pendingSortField, setPendingSortField] = useState<PendingSortField | null>(null);
+  const [pendingSortDir, setPendingSortDir] = useState<"asc" | "desc">("asc");
+
+  function togglePendingSort(field: PendingSortField) {
+    if (pendingSortField === field) {
+      setPendingSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setPendingSortField(field);
+      setPendingSortDir("asc");
+    }
+  }
+
+  function pendingSortValue(p: PendingProduction, field: PendingSortField) {
+    switch (field) {
+      case "no_produksi":
+        return p.no_produksi ?? "";
+      case "no_pesanan":
+        return p.orders?.no_pesanan ?? "";
+      case "pelanggan":
+        return p.orders?.customers?.nama ?? "";
+    }
+  }
+
+  const sortedPending = pendingSortField
+    ? [...pending].sort((a, b) => compareValues(pendingSortValue(a, pendingSortField), pendingSortValue(b, pendingSortField), pendingSortDir))
+    : pending;
+
+  type RecordSortField = "no_qc" | "no_produksi" | "tanggal" | "hasil" | "catatan";
+  const [recordSortField, setRecordSortField] = useState<RecordSortField | null>(null);
+  const [recordSortDir, setRecordSortDir] = useState<"asc" | "desc">("asc");
+
+  function toggleRecordSort(field: RecordSortField) {
+    if (recordSortField === field) {
+      setRecordSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setRecordSortField(field);
+      setRecordSortDir("asc");
+    }
+  }
+
+  function recordSortValue(r: QcRecord, field: RecordSortField) {
+    switch (field) {
+      case "no_produksi":
+        return r.production?.no_produksi ?? "";
+      default:
+        return r[field] ?? "";
+    }
+  }
+
+  const sortedRecords = recordSortField
+    ? [...filteredRecords].sort((a, b) => compareValues(recordSortValue(a, recordSortField), recordSortValue(b, recordSortField), recordSortDir))
+    : filteredRecords;
+
+  const totalPages = Math.max(1, Math.ceil(sortedRecords.length / pageSize));
+  const paginated = sortedRecords.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const totalLolos = records.filter((r) => r.hasil === "Lolos").length;
   const totalPerbaikan = records.filter((r) => r.hasil === "Perbaikan").length;
@@ -199,14 +255,14 @@ export default function QcTable({
               <thead>
                 <tr>
                   <th className="w-10"></th>
-                  <th>No. Produksi</th>
-                  <th>No. Pesanan</th>
-                  <th>Pelanggan</th>
-                  <th className="text-right">Aksi</th>
+                  <SortableTh label="No. Produksi" icon={Factory} active={pendingSortField === "no_produksi"} direction={pendingSortDir} onClick={() => togglePendingSort("no_produksi")} />
+                  <SortableTh label="No. Pesanan" icon={Hash} active={pendingSortField === "no_pesanan"} direction={pendingSortDir} onClick={() => togglePendingSort("no_pesanan")} />
+                  <SortableTh label="Pelanggan" icon={User} active={pendingSortField === "pelanggan"} direction={pendingSortDir} onClick={() => togglePendingSort("pelanggan")} />
+                  <SortableTh label="Aksi" icon={MoreHorizontal} sortable={false} />
                 </tr>
               </thead>
               <tbody>
-                {pending.map((p) => (
+                {sortedPending.map((p) => (
                   <tr key={p.id}>
                     <td>
                       <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/40">
@@ -254,11 +310,11 @@ export default function QcTable({
             <thead>
               <tr>
                 <th className="w-10"></th>
-                <th>No. QC</th>
-                <th>No. Produksi</th>
-                <th>Tanggal</th>
-                <th>Hasil</th>
-                <th>Catatan</th>
+                <SortableTh label="No. QC" icon={ClipboardCheck} active={recordSortField === "no_qc"} direction={recordSortDir} onClick={() => toggleRecordSort("no_qc")} />
+                <SortableTh label="No. Produksi" icon={Factory} active={recordSortField === "no_produksi"} direction={recordSortDir} onClick={() => toggleRecordSort("no_produksi")} />
+                <SortableTh label="Tanggal" icon={Calendar} active={recordSortField === "tanggal"} direction={recordSortDir} onClick={() => toggleRecordSort("tanggal")} />
+                <SortableTh label="Hasil" icon={CheckCircle2} active={recordSortField === "hasil"} direction={recordSortDir} onClick={() => toggleRecordSort("hasil")} center />
+                <SortableTh label="Catatan" icon={FileText} active={recordSortField === "catatan"} direction={recordSortDir} onClick={() => toggleRecordSort("catatan")} />
               </tr>
             </thead>
             <tbody>
@@ -278,7 +334,7 @@ export default function QcTable({
                       year: "numeric",
                     })}
                   </td>
-                  <td>
+                  <td className="text-center">
                     <span className={`badge ${HASIL_COLORS[r.hasil]}`}>{r.hasil}</span>
                   </td>
                   <td className="text-sm text-gray-600 dark:text-gray-400">{r.catatan || "-"}</td>

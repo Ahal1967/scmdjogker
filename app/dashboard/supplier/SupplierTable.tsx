@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { Search, Plus, Truck, Users2, CheckCircle2, Ban, ChevronLeft, ChevronRight, Pencil, Trash2, Loader2, PackageOpen } from "lucide-react";
+import { Search, Plus, Truck, Users2, CheckCircle2, Ban, ChevronLeft, ChevronRight, Pencil, Trash2, Loader2, PackageOpen, Phone, Smartphone, MapPin, Tag, MoreHorizontal } from "lucide-react";
 import { useToast } from "@/components/useToast";
 import { useConfirm } from "@/components/useConfirm";
+import SortableTh from "@/components/SortableTh";
+import { compareValues } from "@/lib/sortUtils";
 
 type Supplier = {
   id: string;
@@ -43,8 +45,25 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
       (s.alamat ?? "").toLowerCase().includes(q)
     );
   });
-  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
-  const paginated = filtered.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+  type SortField = "nama_supplier" | "kontak" | "no_telepon" | "alamat" | "status";
+  const [sortField, setSortField] = useState<SortField | null>(null);
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+
+  function toggleSort(field: SortField) {
+    if (sortField === field) {
+      setSortDir((d) => (d === "asc" ? "desc" : "asc"));
+    } else {
+      setSortField(field);
+      setSortDir("asc");
+    }
+  }
+
+  const sorted = sortField
+    ? [...filtered].sort((a, b) => compareValues(a[sortField], b[sortField], sortDir))
+    : filtered;
+
+  const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize));
+  const paginated = sorted.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const totalSupplier = suppliers.length;
   const totalAktif = suppliers.filter((s) => s.status === "Aktif").length;
@@ -142,12 +161,12 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
             <thead>
               <tr>
                 <th className="w-10"></th>
-                <th>Nama Supplier</th>
-                <th>Kontak</th>
-                <th>No. Telepon</th>
-                <th>Alamat</th>
-                <th>Status</th>
-                <th className="text-right">Aksi</th>
+                <SortableTh label="Nama Supplier" icon={Users2} active={sortField === "nama_supplier"} direction={sortDir} onClick={() => toggleSort("nama_supplier")} />
+                <SortableTh label="Kontak" icon={Phone} active={sortField === "kontak"} direction={sortDir} onClick={() => toggleSort("kontak")} />
+                <SortableTh label="No. Telepon" icon={Smartphone} active={sortField === "no_telepon"} direction={sortDir} onClick={() => toggleSort("no_telepon")} />
+                <SortableTh label="Alamat" icon={MapPin} active={sortField === "alamat"} direction={sortDir} onClick={() => toggleSort("alamat")} />
+                <SortableTh label="Status" icon={Tag} active={sortField === "status"} direction={sortDir} onClick={() => toggleSort("status")} center />
+                <SortableTh label="Aksi" icon={MoreHorizontal} sortable={false} />
               </tr>
             </thead>
             <tbody>
@@ -162,7 +181,7 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
                   <td className="text-gray-700 dark:text-gray-300">{s.kontak || "-"}</td>
                   <td className="text-gray-700 dark:text-gray-300">{s.no_telepon || "-"}</td>
                   <td className="text-gray-600 dark:text-gray-400 max-w-xs truncate">{s.alamat || "-"}</td>
-                  <td>
+                  <td className="text-center">
                     <span
                       className={`badge ${
                         s.status === "Aktif"
