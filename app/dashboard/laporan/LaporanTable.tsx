@@ -62,7 +62,7 @@ export default function LaporanTable({ dataOrders }: { dataOrders: Order[] }) {
         />
       </div>
 
-      <div className="card overflow-hidden p-0" style={{ border: "1px solid #e5e7eb" }}>
+      <div className="card overflow-hidden p-0" style={{ border: "1px solid var(--djoker-border)" }}>
         <div className="overflow-x-auto">
           <table className="table-djoker w-full">
             <thead>

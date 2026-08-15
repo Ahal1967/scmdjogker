@@ -100,7 +100,7 @@ export default async function PengaturanPage() {
         )}
       </div>
 
-      <div className="card overflow-hidden p-0" style={{ border: "1px solid #e5e7eb" }}>
+      <div className="card overflow-hidden p-0" style={{ border: "1px solid var(--djoker-border)" }}>
         <div className="mb-0 flex items-center justify-between p-5 pb-4">
           <h2 className="text-base font-semibold text-black dark:text-white">Daftar Pengguna</h2>
           <Link

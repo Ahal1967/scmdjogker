@@ -162,7 +162,7 @@ export default function ProduksiTable({
         />
       </div>
 
-      <div className="card overflow-hidden p-0" style={{ border: "1px solid #e5e7eb" }}>
+      <div className="card overflow-hidden p-0" style={{ border: "1px solid var(--djoker-border)" }}>
         <div className="overflow-x-auto">
           <table className="table-djoker w-full">
             <thead>
@@ -297,7 +297,7 @@ export default function ProduksiTable({
         )}
       </div>
 
-      <div className="card p-0 overflow-hidden" style={{ border: "1px solid #e5e7eb" }}>
+      <div className="card p-0 overflow-hidden" style={{ border: "1px solid var(--djoker-border)" }}>
         <div className="grid grid-cols-1 divide-y divide-gray-100 dark:divide-gray-700 sm:grid-cols-3 sm:divide-y-0 sm:divide-x">
           <div className="flex items-center gap-3 p-5">
             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-900/40">
