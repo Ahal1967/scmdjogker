@@ -311,9 +311,9 @@ export default function QcTable({
             <thead>
               <tr>
                 <TableIconCell icon={ClipboardCheck} />
-                <SortableTh label="No. QC" icon={ClipboardCheck} active={recordSortField === "no_qc"} direction={recordSortDir} onClick={() => toggleRecordSort("no_qc")} />
-                <SortableTh label="No. Produksi" icon={Factory} active={recordSortField === "no_produksi"} direction={recordSortDir} onClick={() => toggleRecordSort("no_produksi")} />
-                <SortableTh label="Tanggal" icon={Calendar} active={recordSortField === "tanggal"} direction={recordSortDir} onClick={() => toggleRecordSort("tanggal")} />
+                <SortableTh label="No. QC" icon={ClipboardCheck} active={recordSortField === "no_qc"} direction={recordSortDir} onClick={() => toggleRecordSort("no_qc")} center />
+                <SortableTh label="No. Produksi" icon={Factory} active={recordSortField === "no_produksi"} direction={recordSortDir} onClick={() => toggleRecordSort("no_produksi")} center />
+                <SortableTh label="Tanggal" icon={Calendar} active={recordSortField === "tanggal"} direction={recordSortDir} onClick={() => toggleRecordSort("tanggal")} center />
                 <SortableTh label="Hasil" icon={CheckCircle2} active={recordSortField === "hasil"} direction={recordSortDir} onClick={() => toggleRecordSort("hasil")} center />
                 <SortableTh label="Catatan" icon={FileText} active={recordSortField === "catatan"} direction={recordSortDir} onClick={() => toggleRecordSort("catatan")} />
               </tr>
@@ -326,9 +326,9 @@ export default function QcTable({
                       <ClipboardCheck size={15} className="text-blue-600 dark:text-blue-400" />
                     </span>
                   </td>
-                  <td className="font-semibold text-black dark:text-white">{r.no_qc}</td>
-                  <td className="text-sm text-gray-700 dark:text-gray-300">{r.production?.no_produksi ?? "-"}</td>
-                  <td className="text-sm text-gray-600 dark:text-gray-400">
+                  <td className="font-semibold text-black dark:text-white text-center">{r.no_qc}</td>
+                  <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{r.production?.no_produksi ?? "-"}</td>
+                  <td className="text-sm text-gray-600 dark:text-gray-400 text-center">
                     {new Date(r.tanggal).toLocaleDateString("id-ID", {
                       day: "2-digit",
                       month: "short",

@@ -209,8 +209,8 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
             <thead>
               <tr>
                 <TableIconCell icon={Truck} />
-                <SortableTh label="No. Pesanan" icon={Hash} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} />
-                <SortableTh label="Pelanggan" icon={User} active={sortField === "pelanggan"} direction={sortDir} onClick={() => toggleSort("pelanggan")} />
+                <SortableTh label="No. Pesanan" icon={Hash} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} center />
+                <SortableTh label="Pelanggan" icon={User} active={sortField === "pelanggan"} direction={sortDir} onClick={() => toggleSort("pelanggan")} center />
                 <SortableTh label="Alamat" icon={MapPin} active={sortField === "alamat"} direction={sortDir} onClick={() => toggleSort("alamat")} />
                 <SortableTh label="Kurir" icon={Truck} active={sortField === "kurir"} direction={sortDir} onClick={() => toggleSort("kurir")} />
                 <SortableTh label="No. Resi" icon={Barcode} active={sortField === "no_resi"} direction={sortDir} onClick={() => toggleSort("no_resi")} />
@@ -226,8 +226,8 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
                       <Truck size={15} className="text-blue-600 dark:text-blue-400" />
                     </span>
                   </td>
-                  <td className="font-semibold text-black dark:text-white">{s.orders?.no_pesanan ?? "-"}</td>
-                  <td className="text-sm text-gray-700 dark:text-gray-300">{s.orders?.customers?.nama ?? "-"}</td>
+                  <td className="font-semibold text-black dark:text-white text-center">{s.orders?.no_pesanan ?? "-"}</td>
+                  <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{s.orders?.customers?.nama ?? "-"}</td>
                   <td className="text-sm text-gray-600 dark:text-gray-400 max-w-xs truncate">
                     {s.orders?.alamat_pengiriman ?? "-"}
                   </td>

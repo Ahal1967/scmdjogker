@@ -151,11 +151,11 @@ export default function PackingTable({ initialPacking }: { initialPacking: Packi
             <thead>
               <tr>
                 <TableIconCell icon={Package} />
-                <SortableTh label="No. Packing" icon={Package} active={sortField === "no_packing"} direction={sortDir} onClick={() => toggleSort("no_packing")} />
-                <SortableTh label="No. Pesanan" icon={Hash} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} />
-                <SortableTh label="Pelanggan" icon={User} active={sortField === "pelanggan"} direction={sortDir} onClick={() => toggleSort("pelanggan")} />
-                <SortableTh label="Tanggal" icon={Calendar} active={sortField === "tanggal"} direction={sortDir} onClick={() => toggleSort("tanggal")} />
-                <SortableTh label="Jumlah" icon={Boxes} active={sortField === "jumlah"} direction={sortDir} onClick={() => toggleSort("jumlah")} />
+                <SortableTh label="No. Packing" icon={Package} active={sortField === "no_packing"} direction={sortDir} onClick={() => toggleSort("no_packing")} center />
+                <SortableTh label="No. Pesanan" icon={Hash} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} center />
+                <SortableTh label="Pelanggan" icon={User} active={sortField === "pelanggan"} direction={sortDir} onClick={() => toggleSort("pelanggan")} center />
+                <SortableTh label="Tanggal" icon={Calendar} active={sortField === "tanggal"} direction={sortDir} onClick={() => toggleSort("tanggal")} center />
+                <SortableTh label="Jumlah" icon={Boxes} active={sortField === "jumlah"} direction={sortDir} onClick={() => toggleSort("jumlah")} center />
                 <SortableTh label="Status" icon={CheckCircle2} active={sortField === "status"} direction={sortDir} onClick={() => toggleSort("status")} center />
                 <SortableTh label="Aksi" icon={MoreHorizontal} sortable={false} />
               </tr>
@@ -168,17 +168,17 @@ export default function PackingTable({ initialPacking }: { initialPacking: Packi
                       <Package size={15} className="text-blue-600 dark:text-blue-400" />
                     </span>
                   </td>
-                  <td className="font-semibold text-black dark:text-white">{p.no_packing}</td>
-                  <td className="text-sm text-gray-700 dark:text-gray-300">{p.orders?.no_pesanan ?? "-"}</td>
-                  <td className="text-sm text-gray-700 dark:text-gray-300">{p.orders?.customers?.nama ?? "-"}</td>
-                  <td className="text-sm text-gray-600 dark:text-gray-400">
+                  <td className="font-semibold text-black dark:text-white text-center">{p.no_packing}</td>
+                  <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{p.orders?.no_pesanan ?? "-"}</td>
+                  <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{p.orders?.customers?.nama ?? "-"}</td>
+                  <td className="text-sm text-gray-600 dark:text-gray-400 text-center">
                     {new Date(p.tanggal).toLocaleDateString("id-ID", {
                       day: "2-digit",
                       month: "short",
                       year: "numeric",
                     })}
                   </td>
-                  <td className="text-sm text-gray-700 dark:text-gray-300">{p.jumlah} pcs</td>
+                  <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{p.jumlah} pcs</td>
                   <td className="text-center">
                     <span
                       className={`badge ${

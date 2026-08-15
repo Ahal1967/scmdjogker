@@ -54,9 +54,9 @@ export default function PengaturanTable({ profiles }: { profiles: Profile[] }) {
           <tr>
             <TableIconCell icon={User} />
             <SortableTh label="ID" icon={Hash} active={sortField === "id"} direction={sortDir} onClick={() => toggleSort("id")} />
-            <SortableTh label="Nama Lengkap" icon={IdCard} active={sortField === "full_name"} direction={sortDir} onClick={() => toggleSort("full_name")} />
+            <SortableTh label="Nama Lengkap" icon={IdCard} active={sortField === "full_name"} direction={sortDir} onClick={() => toggleSort("full_name")} center />
             <SortableTh label="Role" icon={ShieldCheck} active={sortField === "role"} direction={sortDir} onClick={() => toggleSort("role")} center />
-            <SortableTh label="Dibuat" icon={Calendar} active={sortField === "created_at"} direction={sortDir} onClick={() => toggleSort("created_at")} />
+            <SortableTh label="Dibuat" icon={Calendar} active={sortField === "created_at"} direction={sortDir} onClick={() => toggleSort("created_at")} center />
             <SortableTh label="Aksi" icon={MoreHorizontal} sortable={false} />
           </tr>
         </thead>
@@ -71,11 +71,11 @@ export default function PengaturanTable({ profiles }: { profiles: Profile[] }) {
               <td className="font-mono text-xs text-gray-500 dark:text-gray-400">
                 {profile.id.split("-")[0]}...
               </td>
-              <td className="font-medium text-black dark:text-white">{profile.full_name || "-"}</td>
+              <td className="font-medium text-black dark:text-white text-center">{profile.full_name || "-"}</td>
               <td className="text-center">
                 <span className={formatRoleBadge(profile.role)}>{profile.role}</span>
               </td>
-              <td className="text-sm text-gray-600 dark:text-gray-400">
+              <td className="text-sm text-gray-600 dark:text-gray-400 text-center">
                 {new Date(profile.created_at).toLocaleDateString("id-ID")}
               </td>
               <td className="text-right">

@@ -203,9 +203,9 @@ export default function ProduksiTable({
             <thead>
               <tr>
                 <TableIconCell icon={Factory} />
-                <SortableTh label="No. Produksi" icon={Factory} active={sortField === "no_produksi"} direction={sortDir} onClick={() => toggleSort("no_produksi")} />
-                <SortableTh label="No. Pesanan" icon={Hash} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} />
-                <SortableTh label="Pelanggan" icon={User} active={sortField === "pelanggan"} direction={sortDir} onClick={() => toggleSort("pelanggan")} />
+                <SortableTh label="No. Produksi" icon={Factory} active={sortField === "no_produksi"} direction={sortDir} onClick={() => toggleSort("no_produksi")} center />
+                <SortableTh label="No. Pesanan" icon={Hash} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} center />
+                <SortableTh label="Pelanggan" icon={User} active={sortField === "pelanggan"} direction={sortDir} onClick={() => toggleSort("pelanggan")} center />
                 <SortableTh label="Status" icon={Activity} active={sortField === "status"} direction={sortDir} onClick={() => toggleSort("status")} center />
                 <SortableTh label="Progress" icon={Gauge} active={sortField === "progress"} direction={sortDir} onClick={() => toggleSort("progress")} center />
                 <SortableTh label="Aksi" icon={MoreHorizontal} sortable={false} />
@@ -219,9 +219,9 @@ export default function ProduksiTable({
                       <Factory size={15} className="text-blue-600 dark:text-blue-400" />
                     </span>
                   </td>
-                  <td className="font-semibold text-black dark:text-white">{p.no_produksi || "-"}</td>
-                  <td className="text-sm text-gray-700 dark:text-gray-300">{p.orders?.no_pesanan ?? "-"}</td>
-                  <td className="text-sm text-gray-800 dark:text-gray-200">{p.orders?.customers?.nama ?? "-"}</td>
+                  <td className="font-semibold text-black dark:text-white text-center">{p.no_produksi || "-"}</td>
+                  <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{p.orders?.no_pesanan ?? "-"}</td>
+                  <td className="text-sm text-gray-800 dark:text-gray-200 text-center">{p.orders?.customers?.nama ?? "-"}</td>
                   <td className="text-center">
                     <select
                       value={p.status || "Produksi"}

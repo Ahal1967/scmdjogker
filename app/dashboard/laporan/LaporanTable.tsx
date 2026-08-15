@@ -107,8 +107,8 @@ export default function LaporanTable({ dataOrders }: { dataOrders: Order[] }) {
             <thead>
               <tr>
                 <TableIconCell icon={FileText} />
-                <SortableTh label="No. Pesanan" icon={Hash} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} />
-                <SortableTh label="Tanggal" icon={Calendar} active={sortField === "tanggal"} direction={sortDir} onClick={() => toggleSort("tanggal")} />
+                <SortableTh label="No. Pesanan" icon={Hash} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} center />
+                <SortableTh label="Tanggal" icon={Calendar} active={sortField === "tanggal"} direction={sortDir} onClick={() => toggleSort("tanggal")} center />
                 <SortableTh label="Total" icon={Wallet} active={sortField === "total"} direction={sortDir} onClick={() => toggleSort("total")} />
                 <SortableTh label="DP" icon={CreditCard} active={sortField === "dp"} direction={sortDir} onClick={() => toggleSort("dp")} />
                 <SortableTh label="Sisa" icon={Receipt} active={sortField === "sisa"} direction={sortDir} onClick={() => toggleSort("sisa")} />
@@ -125,8 +125,8 @@ export default function LaporanTable({ dataOrders }: { dataOrders: Order[] }) {
                       <FileText size={15} className="text-blue-600 dark:text-blue-400" />
                     </span>
                   </td>
-                  <td className="font-semibold text-black dark:text-white">{order.no_pesanan || "-"}</td>
-                  <td className="text-sm text-gray-600 dark:text-gray-400">{formatTanggal(order.tanggal || order.created_at)}</td>
+                  <td className="font-semibold text-black dark:text-white text-center">{order.no_pesanan || "-"}</td>
+                  <td className="text-sm text-gray-600 dark:text-gray-400 text-center">{formatTanggal(order.tanggal || order.created_at)}</td>
                   <td className="text-sm font-medium text-black dark:text-white">{formatRupiah(Number(order.total) || 0)}</td>
                   <td className="text-sm text-gray-700 dark:text-gray-300">{formatRupiah(Number(order.dp) || 0)}</td>
                   <td

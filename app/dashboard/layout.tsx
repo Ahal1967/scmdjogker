@@ -88,13 +88,11 @@ export default function DashboardLayout({
   function handleTouchEnd() {
     if (!touchStartX.current || !touchEndX.current) return;
 
+    // Swipe kanan (buka sidebar) sengaja dihapus atas permintaan user --
+    // di mobile, sidebar sekarang cuma bisa dibuka lewat tombol hamburger.
+    // Swipe kiri buat NUTUP sidebar yang sudah kebuka tetap dipertahankan.
     const distance = touchStartX.current - touchEndX.current;
     const isLeftSwipe = distance > minSwipeDistance;
-    const isRightSwipe = distance < -minSwipeDistance;
-
-    if (isRightSwipe && isMobile) {
-      setSidebarOpen(true);
-    }
 
     if (isLeftSwipe && isMobile && sidebarOpen) {
       setSidebarOpen(false);

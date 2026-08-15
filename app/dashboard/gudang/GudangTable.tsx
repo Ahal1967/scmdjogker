@@ -219,9 +219,9 @@ export default function GudangTable({
             <thead>
               <tr>
                 <TableIconCell icon={Package} />
-                <SortableTh label="Nama Bahan" icon={Package} active={sortField === "nama_bahan"} direction={sortDir} onClick={() => toggleSort("nama_bahan")} />
-                <SortableTh label="Kategori" icon={Tag} active={sortField === "kategori"} direction={sortDir} onClick={() => toggleSort("kategori")} />
-                <SortableTh label="Satuan" icon={Ruler} active={sortField === "satuan"} direction={sortDir} onClick={() => toggleSort("satuan")} />
+                <SortableTh label="Nama Bahan" icon={Package} active={sortField === "nama_bahan"} direction={sortDir} onClick={() => toggleSort("nama_bahan")} center />
+                <SortableTh label="Kategori" icon={Tag} active={sortField === "kategori"} direction={sortDir} onClick={() => toggleSort("kategori")} center />
+                <SortableTh label="Satuan" icon={Ruler} active={sortField === "satuan"} direction={sortDir} onClick={() => toggleSort("satuan")} center />
                 <SortableTh label="Stok" icon={Boxes} active={sortField === "stok"} direction={sortDir} onClick={() => toggleSort("stok")} center />
                 <SortableTh label="Minimum" icon={AlertTriangle} active={sortField === "stok_minimum"} direction={sortDir} onClick={() => toggleSort("stok_minimum")} center />
                 <SortableTh label="Supplier" icon={Truck} active={sortField === "supplier"} direction={sortDir} onClick={() => toggleSort("supplier")} />
@@ -237,9 +237,9 @@ export default function GudangTable({
                       <Package size={15} className="text-blue-600 dark:text-blue-400" />
                     </span>
                   </td>
-                  <td className="font-semibold text-black dark:text-white">{m.nama_bahan}</td>
-                  <td className="text-sm text-gray-700 dark:text-gray-300">{m.kategori}</td>
-                  <td className="text-sm text-gray-700 dark:text-gray-300">{m.satuan}</td>
+                  <td className="font-semibold text-black dark:text-white text-center">{m.nama_bahan}</td>
+                  <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{m.kategori}</td>
+                  <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{m.satuan}</td>
                   <td>
                     <div className="flex items-center justify-center gap-2">
                       <button

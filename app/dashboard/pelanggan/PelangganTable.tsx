@@ -65,10 +65,10 @@ export default function PelangganTable({ dataPelanggan }: { dataPelanggan: Pelan
             <thead>
               <tr>
                 <TableIconCell icon={User} />
-                <SortableTh label="Nama Pelanggan" icon={User} active={sortField === "nama"} direction={sortDir} onClick={() => toggleSort("nama")} />
-                <SortableTh label="No. Telepon" icon={Phone} active={sortField === "no_telepon"} direction={sortDir} onClick={() => toggleSort("no_telepon")} />
-                <SortableTh label="Total Pesanan" icon={ShoppingBag} active={sortField === "totalPesanan"} direction={sortDir} onClick={() => toggleSort("totalPesanan")} />
-                <SortableTh label="Total Belanja Diterima" icon={Wallet} active={sortField === "totalBelanja"} direction={sortDir} onClick={() => toggleSort("totalBelanja")} />
+                <SortableTh label="Nama Pelanggan" icon={User} active={sortField === "nama"} direction={sortDir} onClick={() => toggleSort("nama")} center />
+                <SortableTh label="No. Telepon" icon={Phone} active={sortField === "no_telepon"} direction={sortDir} onClick={() => toggleSort("no_telepon")} center />
+                <SortableTh label="Total Pesanan" icon={ShoppingBag} active={sortField === "totalPesanan"} direction={sortDir} onClick={() => toggleSort("totalPesanan")} center />
+                <SortableTh label="Total Belanja Diterima" icon={Wallet} active={sortField === "totalBelanja"} direction={sortDir} onClick={() => toggleSort("totalBelanja")} center />
               </tr>
             </thead>
             <tbody>
@@ -79,10 +79,10 @@ export default function PelangganTable({ dataPelanggan }: { dataPelanggan: Pelan
                       <User size={15} className="text-blue-600 dark:text-blue-400" />
                     </span>
                   </td>
-                  <td className="font-semibold text-black dark:text-white">{c.nama}</td>
-                  <td className="text-sm text-gray-700 dark:text-gray-300">{c.no_telepon || "-"}</td>
-                  <td className="text-sm text-gray-700 dark:text-gray-300">{c.totalPesanan} pesanan</td>
-                  <td className="text-sm font-medium text-black dark:text-white">
+                  <td className="font-semibold text-black dark:text-white text-center">{c.nama}</td>
+                  <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{c.no_telepon || "-"}</td>
+                  <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{c.totalPesanan} pesanan</td>
+                  <td className="text-sm font-medium text-black dark:text-white text-center">
                     Rp {c.totalBelanja.toLocaleString("id-ID")}
                   </td>
                 </tr>

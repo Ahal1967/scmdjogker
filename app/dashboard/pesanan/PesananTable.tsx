@@ -437,9 +437,9 @@ export default function PesananTable() {
             <thead>
               <tr>
                 <TableIconCell icon={FileText} />
-                <SortableTh label="No. Pesanan" icon={Hash} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} />
-                <SortableTh label="Pelanggan" icon={User} active={sortField === "pelanggan"} direction={sortDir} onClick={() => toggleSort("pelanggan")} />
-                <SortableTh label="Tanggal" icon={Calendar} active={sortField === "tanggal"} direction={sortDir} onClick={() => toggleSort("tanggal")} />
+                <SortableTh label="No. Pesanan" icon={Hash} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} center />
+                <SortableTh label="Pelanggan" icon={User} active={sortField === "pelanggan"} direction={sortDir} onClick={() => toggleSort("pelanggan")} center />
+                <SortableTh label="Tanggal" icon={Calendar} active={sortField === "tanggal"} direction={sortDir} onClick={() => toggleSort("tanggal")} center />
                 <SortableTh label="Total" icon={Wallet} active={sortField === "total"} direction={sortDir} onClick={() => toggleSort("total")} center />
                 <SortableTh label="Aksi" icon={MoreHorizontal} sortable={false} />
               </tr>
@@ -452,9 +452,9 @@ export default function PesananTable() {
                       <FileText size={15} className="text-blue-600 dark:text-blue-400" />
                     </span>
                   </td>
-                  <td className="font-semibold text-black dark:text-white">{o.no_pesanan}</td>
-                  <td className="text-sm text-gray-800 dark:text-gray-200">{o.customers?.nama ?? "-"}</td>
-                  <td className="text-sm text-gray-600 dark:text-gray-400">
+                  <td className="font-semibold text-black dark:text-white text-center">{o.no_pesanan}</td>
+                  <td className="text-sm text-gray-800 dark:text-gray-200 text-center">{o.customers?.nama ?? "-"}</td>
+                  <td className="text-sm text-gray-600 dark:text-gray-400 text-center">
                     {o.tanggal
                       ? new Date(o.tanggal).toLocaleDateString("id-ID", {
                           day: "2-digit",
