@@ -155,7 +155,14 @@ export default function DashboardLayout({
       )}
 
       <aside
-        className={`sidebar-glass fixed top-0 left-0 z-50 h-full w-64 border-r transition-transform duration-300 ease-in-out md:static md:translate-x-0 ${
+        /* flex + flex-col ditambahkan di sini -- sebelumnya <nav> di bawah
+           sudah punya "flex-1 overflow-y-auto" tapi TIDAK PERNAH jalan
+           karena parent-nya (<aside> ini) bukan flex container, jadi
+           "flex-1" itu tidak berarti apa-apa. Akibatnya di layar pendek
+           (HP), daftar menu yang kepanjangan cuma overflow diam-diam tanpa
+           bisa di-scroll, jadi menu paling bawah (Pengaturan) kepotong dan
+           tidak kelihatan/tidak bisa diklik. */
+        className={`sidebar-glass fixed top-0 left-0 z-50 flex h-full w-64 flex-col border-r transition-transform duration-300 ease-in-out md:static md:translate-x-0 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
         style={{
@@ -163,7 +170,7 @@ export default function DashboardLayout({
         }}
       >
         <div
-          className="flex h-16 items-center gap-3 border-b px-4"
+          className="flex h-16 shrink-0 items-center gap-3 border-b px-4"
           style={{ borderColor: "var(--djoker-border)" }}
         >
           <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg border bg-white shadow-sm">
@@ -189,7 +196,7 @@ export default function DashboardLayout({
           </div>
         </div>
 
-        <nav className="flex-1 space-y-4 overflow-y-auto px-3 py-4">
+        <nav className="min-h-0 flex-1 space-y-4 overflow-y-auto px-3 py-4">
           {NAV_SECTIONS.map((section) => (
             <div key={section.title}>
               <p className="mb-1.5 px-3 text-[11px] font-bold tracking-wide text-gray-400 dark:text-gray-500">
@@ -377,7 +384,18 @@ export default function DashboardLayout({
           </div>
         </header>
 
-        <main ref={mainRef} className="flex-1 overflow-y-auto p-6">{children}</main>
+        {/* overscroll-y-contain -- background halaman ini datang dari
+            body::before/::after yang position:fixed di globals.css, BUKAN
+            dari <main> ini sendiri. Di HP, pas scroll sampai mentok bawah
+            di halaman yang isinya panjang (tabel), gesture rubber-band/
+            bounce bawaan browser mobile bisa "mengintip" ke belakang <main>
+            sekilas dan yang kelihatan sesaat itu putih polos (bukan
+            gradient dark/light yang seharusnya), baru balik normal begitu
+            bounce-nya selesai -- ini bug overscroll klasik di scroll
+            container bersarang. overscroll-y-contain mengunci efek
+            bounce-nya supaya berhenti di batas <main>, tidak "bocor" ke
+            belakangnya. */}
+        <main ref={mainRef} className="flex-1 overflow-y-auto overscroll-y-contain p-6">{children}</main>
       </div>
     </div>
   );
