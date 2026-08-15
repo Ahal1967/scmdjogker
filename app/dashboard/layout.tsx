@@ -384,18 +384,17 @@ export default function DashboardLayout({
           </div>
         </header>
 
-        {/* overscroll-y-contain -- background halaman ini datang dari
-            body::before/::after yang position:fixed di globals.css, BUKAN
-            dari <main> ini sendiri. Di HP, pas scroll sampai mentok bawah
-            di halaman yang isinya panjang (tabel), gesture rubber-band/
-            bounce bawaan browser mobile bisa "mengintip" ke belakang <main>
-            sekilas dan yang kelihatan sesaat itu putih polos (bukan
-            gradient dark/light yang seharusnya), baru balik normal begitu
-            bounce-nya selesai -- ini bug overscroll klasik di scroll
-            container bersarang. overscroll-y-contain mengunci efek
-            bounce-nya supaya berhenti di batas <main>, tidak "bocor" ke
-            belakangnya. */}
-        <main ref={mainRef} className="flex-1 overflow-y-auto overscroll-y-contain p-6">{children}</main>
+        {/* overscroll-y-contain SEMPAT dicoba di sini buat benerin kilatan
+            putih pas bounce-scroll di HP, tapi DIBATALKAN -- di sebagian
+            browser mobile (terutama WebKit/iOS versi tertentu),
+            overscroll-behavior ternyata bisa bentrok sama gesture
+            touch-scroll bawaan dan malah mematikan scroll sama sekali,
+            bukan cuma "mengunci" efek bounce-nya seperti yang diharapkan.
+            Scroll normal jauh lebih penting daripada kilatan putih kosmetik,
+            jadi properti ini dilepas lagi. Kalau mau coba lagi nanti,
+            pertimbangkan -webkit-overflow-scrolling:touch dulu atau test
+            manual di device asli sebelum ship. */}
+        <main ref={mainRef} className="flex-1 overflow-y-auto p-6">{children}</main>
       </div>
     </div>
   );
