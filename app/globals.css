@@ -67,10 +67,14 @@ h1, h2, h3, h4, h5, h6, .font-display {
 
 
 body {
-  background: var(--djoker-bg);
+  background: linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%);
   color: var(--djoker-text);
   min-height: 100vh;
   overflow-x: hidden;
+}
+
+.dark body {
+  background: linear-gradient(135deg, #0f1420 0%, #161d3a 100%);
 }
 
 
@@ -107,16 +111,19 @@ body {
 @layer components {
   /* Card / panel */
   .card {
-    background: rgba(239, 246, 255, 0.6); /* biru sangat lembut, blue-50/60 */
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     border: none;
     border-radius: 16px;
     padding: 20px 24px;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 4px 12px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 4px 16px rgba(30, 58, 138, 0.1);
     transition: all 0.25s ease;
   }
 
   .dark .card {
-    background: rgba(30, 58, 138, 0.1); /* biru gelap sangat lembut buat dark mode */
+    background: rgba(22, 29, 58, 0.55);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
   }
 
   /* Khusus modal/popup: latar HARUS solid (tidak transparan) karena numpuk
