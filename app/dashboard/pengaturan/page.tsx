@@ -47,7 +47,7 @@ export default async function PengaturanPage() {
       </div>
 
       <div
-        className="relative overflow-hidden rounded-2xl border border-blue-100 dark:border-blue-900 p-6 bg-gradient-to-br from-blue-100/70 to-blue-200/50 dark:from-blue-900/20 dark:to-blue-800/10"
+        className="relative overflow-hidden rounded-2xl p-6 bg-gradient-to-br from-blue-100/70 to-blue-200/50 dark:from-blue-900/20 dark:to-blue-800/10"
         style={{
           boxShadow: "0 1px 2px rgba(37,99,235,0.06), 0 12px 32px -8px rgba(37,99,235,0.18)",
         }}
@@ -100,7 +100,7 @@ export default async function PengaturanPage() {
         )}
       </div>
 
-      <div className="card overflow-hidden p-0" style={{ border: "1px solid var(--djoker-border)" }}>
+      <div className="card overflow-hidden p-0" style={{ border: "none" }}>
         <div className="mb-0 flex items-center justify-between p-5 pb-4">
           <h2 className="text-base font-semibold text-black dark:text-white">Daftar Pengguna</h2>
           <Link

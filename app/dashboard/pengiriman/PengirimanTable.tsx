@@ -29,7 +29,7 @@ const STATUS_COLORS: Record<string, string> = {
 
 function EmptyState() {
   return (
-    <div className="card flex min-h-[16rem] items-center justify-center" style={{ border: "1px solid var(--djoker-border)" }}>
+    <div className="card flex min-h-[16rem] items-center justify-center" style={{ border: "none" }}>
       <div className="text-center">
         <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-900/40">
           <Truck size={30} className="text-blue-600 dark:text-blue-400" strokeWidth={1.8} />
@@ -166,7 +166,7 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
         />
       </div>
 
-      <div className="card overflow-hidden p-0" style={{ border: "1px solid var(--djoker-border)" }}>
+      <div className="card overflow-hidden p-0" style={{ border: "none" }}>
         <div className="overflow-x-auto">
           <table className="table-djoker w-full">
             <thead>
@@ -276,7 +276,7 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
         )}
       </div>
 
-      <div className="card p-0 overflow-hidden" style={{ border: "1px solid var(--djoker-border)" }}>
+      <div className="card p-0 overflow-hidden" style={{ border: "none" }}>
         <div className="grid grid-cols-1 divide-y divide-gray-100 dark:divide-gray-700 sm:grid-cols-3 sm:divide-y-0 sm:divide-x">
           <div className="flex items-center gap-3 p-5">
             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-900/40">
@@ -310,7 +310,7 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
 
       {showModal && activeShipment && (
         <div className="fixed inset-0 bg-black/60 flex items-start justify-center z-50 p-4 overflow-y-auto backdrop-blur-sm">
-          <div className="card card-modal w-full max-w-md my-8 max-h-[90vh] overflow-y-auto p-0" style={{ border: "1px solid var(--djoker-border)" }}>
+          <div className="card card-modal w-full max-w-md my-8 max-h-[90vh] overflow-y-auto p-0" style={{ border: "none" }}>
             <div className="rounded-t-2xl bg-blue-50 dark:bg-blue-900/30 px-6 py-5 flex items-center gap-3">
               <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 shadow-sm shadow-blue-600/30">
                 <Truck size={18} className="text-white" />

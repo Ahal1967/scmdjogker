@@ -19,13 +19,13 @@ export default function Loading() {
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="card h-28" style={{ border: "1px solid var(--djoker-border)" }} />
+          <div key={i} className="card h-28" style={{ border: "none" }} />
         ))}
       </div>
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <div className="card h-64" style={{ border: "1px solid var(--djoker-border)" }} />
-        <div className="card h-64" style={{ border: "1px solid var(--djoker-border)" }} />
+        <div className="card h-64" style={{ border: "none" }} />
+        <div className="card h-64" style={{ border: "none" }} />
       </div>
     </div>
   );

@@ -187,7 +187,7 @@ export default function DashboardPage() {
           <div className="h-8 w-56 rounded-lg bg-gray-200 dark:bg-gray-700" />
         </div>
 
-        <div className="rounded-2xl border border-blue-100 dark:border-blue-900 p-6 md:p-8">
+        <div className="rounded-2xl p-6 md:p-8" style={{ background: "rgba(239, 246, 255, 0.6)" }}>
           <div className="h-4 w-24 rounded-full bg-gray-200 dark:bg-gray-700 mb-3" />
           <div className="h-6 w-64 rounded bg-gray-200 dark:bg-gray-700 mb-2" />
           <div className="h-4 w-48 rounded bg-gray-200 dark:bg-gray-700 mb-4" />
@@ -200,13 +200,13 @@ export default function DashboardPage() {
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="card h-28" style={{ border: "1px solid var(--djoker-border)" }} />
+            <div key={i} className="card h-28" style={{ border: "none" }} />
           ))}
         </div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div className="card h-64" style={{ border: "1px solid var(--djoker-border)" }} />
-          <div className="card h-64" style={{ border: "1px solid var(--djoker-border)" }} />
+          <div className="card h-64" style={{ border: "none" }} />
+          <div className="card h-64" style={{ border: "none" }} />
         </div>
       </div>
     );
@@ -224,7 +224,7 @@ export default function DashboardPage() {
       </div>
 
       <div
-        className="relative rounded-2xl border border-blue-100 dark:border-blue-900 bg-gradient-to-br from-blue-100/70 to-blue-200/50 dark:from-blue-900/20 dark:to-blue-800/10"
+        className="relative rounded-2xl bg-gradient-to-br from-blue-100/70 to-blue-200/50 dark:from-blue-900/20 dark:to-blue-800/10"
         style={{
           boxShadow: "0 1px 2px rgba(37,99,235,0.06), 0 12px 32px -8px rgba(37,99,235,0.18)",
         }}
@@ -360,7 +360,7 @@ export default function DashboardPage() {
                 <Tooltip
                   contentStyle={{
                     background: "var(--djoker-surface)",
-                    border: "1px solid var(--djoker-border)",
+                    border: "none",
                     borderRadius: 8,
                     fontSize: 12,
                   }}
@@ -441,7 +441,7 @@ export default function DashboardPage() {
                 formatter={(value: number) => [`Rp ${value.toLocaleString("id-ID")}`, "Pendapatan"]}
                 contentStyle={{
                   background: "var(--djoker-surface)",
-                  border: "1px solid var(--djoker-border)",
+                  border: "none",
                   borderRadius: 8,
                   fontSize: 12,
                 }}
