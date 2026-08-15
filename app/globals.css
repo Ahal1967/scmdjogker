@@ -163,7 +163,7 @@ body::before {
   .dark .card {
     background: rgba(22, 29, 58, 0.45);
     border-color: rgba(255, 255, 255, 0.08);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
   }
 
   /* Khusus modal/popup: latar HARUS solid (tidak transparan) karena numpuk
@@ -197,6 +197,12 @@ body::before {
 
   .dark .card:hover {
     border-color: rgba(59, 130, 246, 0.4);
+    /* .card:hover di atas punya inset highlight putih (versi light mode) --
+       tanpa override ini, hover di dark mode ikut kebawa "kena cahaya"
+       terang yang kelihatan sebagai garis putih. Semua card yang numpang
+       .card (tabel, card stat Pelanggan/Laporan/Produksi/Gudang, card
+       stage Alur, dll) kena ini pas di-hover, bukan cuma satu card. */
+    box-shadow: 0 12px 36px rgba(59, 130, 246, 0.18);
   }
 
   /* Card Tren Pendapatan -- sekarang berdiri sendiri (bukan lagi numpang di
