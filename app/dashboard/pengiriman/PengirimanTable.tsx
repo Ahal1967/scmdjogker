@@ -212,8 +212,8 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
                 <SortableTh label="No. Pesanan" icon={Hash} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} center />
                 <SortableTh label="Pelanggan" icon={User} active={sortField === "pelanggan"} direction={sortDir} onClick={() => toggleSort("pelanggan")} center />
                 <SortableTh label="Alamat" icon={MapPin} active={sortField === "alamat"} direction={sortDir} onClick={() => toggleSort("alamat")} />
-                <SortableTh label="Kurir" icon={Truck} active={sortField === "kurir"} direction={sortDir} onClick={() => toggleSort("kurir")} />
-                <SortableTh label="No. Resi" icon={Barcode} active={sortField === "no_resi"} direction={sortDir} onClick={() => toggleSort("no_resi")} />
+                <SortableTh label="Kurir" icon={Truck} active={sortField === "kurir"} direction={sortDir} onClick={() => toggleSort("kurir")} center />
+                <SortableTh label="No. Resi" icon={Barcode} active={sortField === "no_resi"} direction={sortDir} onClick={() => toggleSort("no_resi")} center />
                 <SortableTh label="Status" icon={CheckCircle2} active={sortField === "status"} direction={sortDir} onClick={() => toggleSort("status")} center />
                 <SortableTh label="Aksi" icon={MoreHorizontal} sortable={false} />
               </tr>
@@ -231,10 +231,13 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
                   <td className="text-sm text-gray-600 dark:text-gray-400 max-w-xs truncate">
                     {s.orders?.alamat_pengiriman ?? "-"}
                   </td>
-                  <td className="text-sm text-gray-700 dark:text-gray-300">{s.kurir || "-"}</td>
-                  <td className="text-sm text-gray-700 dark:text-gray-300">{s.no_resi || "-"}</td>
+                  <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{s.kurir || "-"}</td>
+                  <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{s.no_resi || "-"}</td>
                   <td className="text-center">
-                    <span className={`badge ${STATUS_COLORS[s.status] ?? ""}`}>{s.status}</span>
+                    <span className={`badge ${STATUS_COLORS[s.status] ?? ""}`}>
+                      <span className="status-dot" />
+                      {s.status}
+                    </span>
                   </td>
                   <td className="text-right">
                     {s.status === "Diproses" && (

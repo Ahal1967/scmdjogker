@@ -187,6 +187,7 @@ export default function PackingTable({ initialPacking }: { initialPacking: Packi
                           : "bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300"
                       }`}
                     >
+                      <span className="status-dot" />
                       {p.status}
                     </span>
                   </td>

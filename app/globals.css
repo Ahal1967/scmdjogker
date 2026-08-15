@@ -66,15 +66,52 @@ h1, h2, h3, h4, h5, h6, .font-display {
 }
 
 
+/* Kanvas background app -- sebelumnya gradient di sini KETUTUP TOTAL
+   sama div pembungkus utama di layout.tsx yang pakai bg-djoker-bg (solid
+   putih/navy), jadi gradient-nya tidak pernah kelihatan. Sekarang div
+   pembungkus itu dibikin transparent (lihat layout.tsx) supaya kanvas ini
+   akhirnya tembus. Dekorasi dipasang lewat ::before/::after posisi fixed
+   (bukan absolute) supaya tidak ikut ter-scroll dan tidak nambah tinggi
+   halaman; z-index -1 supaya selalu di belakang konten. */
 body {
-  background: linear-gradient(135deg, #eff6ff 0%, #e0e7ff 100%);
+  position: relative;
+  background: #ffffff;
   color: var(--djoker-text);
   min-height: 100vh;
   overflow-x: hidden;
 }
 
+/* Light mode: mesh 2 sudut (glow biru kanan-atas + indigo kiri-bawah),
+   tengah tetap putih bersih, tanpa tekstur titik. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: radial-gradient(circle at 100% 0%, rgba(147, 197, 253, 0.45) 0%, transparent 45%),
+    radial-gradient(circle at 0% 100%, rgba(165, 180, 252, 0.35) 0%, transparent 45%);
+}
+
 .dark body {
   background: linear-gradient(135deg, #0f1420 0%, #161d3a 100%);
+}
+
+/* Dark mode: gradient dasar (di atas) + 1 glow kanan-atas + tekstur titik
+   samar di area kiri-bawah -- ini versi yang sudah kamu setujui duluan. */
+.dark body::before {
+  background: radial-gradient(circle at 100% 0%, rgba(59, 130, 246, 0.22) 0%, transparent 45%);
+}
+
+.dark body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.5;
+  background-image: radial-gradient(rgba(96, 165, 250, 0.08) 1px, transparent 1px);
+  background-size: 22px 22px;
+  -webkit-mask-image: radial-gradient(ellipse 500px 350px at 30% 90%, black 20%, transparent 70%);
+  mask-image: radial-gradient(ellipse 500px 350px at 30% 90%, black 20%, transparent 70%);
 }
 
 
@@ -109,19 +146,24 @@ body {
 
 
 @layer components {
-  /* Card / panel */
+  /* Card / panel -- glassmorphism (kaca buram): backdrop-blur + border
+     tipis bercahaya + shadow lembut. Dipakai di SEMUA halaman (bukan cuma
+     Dashboard) karena .card ini class dasar yang dipakai di mana-mana. */
   .card {
-    background: rgba(255, 255, 255, 0.75);
-    border: none;
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.6);
     border-radius: 16px;
     padding: 20px 24px;
-    box-shadow: 0 4px 16px rgba(30, 58, 138, 0.1);
+    box-shadow: 0 8px 32px rgba(30, 58, 138, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.5);
     transition: all 0.25s ease;
   }
 
   .dark .card {
-    background: rgba(22, 29, 58, 0.75);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    background: rgba(22, 29, 58, 0.45);
+    border-color: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.04);
   }
 
   /* Khusus modal/popup: latar HARUS solid (tidak transparan) karena numpuk
@@ -131,10 +173,302 @@ body {
     background: var(--djoker-surface) !important;
   }
 
+  /* Sidebar navigasi -- sengaja disamakan persis blur/saturate/opacity-nya
+     sama .card (bukan bg-white/70 + backdrop-blur-xl bawaan Tailwind yang
+     dulu dipakai langsung di JSX), supaya kaca sidebar senada sama kaca
+     semua card di halaman. border-r TIDAK ikut disamakan ke border .card
+     (glow tipis semua sisi) karena border-r di sini fungsinya struktural --
+     pemisah sidebar dari konten, bukan dekorasi kartu. */
+  .sidebar-glass {
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+  }
+
+  .dark .sidebar-glass {
+    background: rgba(22, 29, 58, 0.55);
+  }
+
   .card:hover {
-    border-color: var(--djoker-blue);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(59, 130, 246, 0.14);
+    border-color: rgba(37, 99, 235, 0.35);
+    box-shadow: 0 12px 36px rgba(59, 130, 246, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.5);
     transform: translateY(-2px);
+  }
+
+  .dark .card:hover {
+    border-color: rgba(59, 130, 246, 0.4);
+  }
+
+  /* Ikon kecil di header card analitik Dashboard (Status Pesanan, Progress
+     Produksi, Tren Pendapatan) supaya card tidak kelihatan polos/generic. */
+  .card-icon-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 7px;
+    color: #fff;
+    flex-shrink: 0;
+  }
+
+  /* Varian lebih kecil, dipakai barengan .card-icon-chip di card yang sudah
+     dipadatkan (Status Pesanan, Progress Produksi, Tren Pendapatan). */
+  .card-icon-chip-sm {
+    width: 20px;
+    height: 20px;
+    border-radius: 6px;
+  }
+
+  /* Card Tren Pendapatan -- padding disamakan skalanya sama panel Status
+     Pesanan/Progress Produksi (p-3) supaya tidak jadi elemen paling besar
+     sendirian di halaman Dashboard. */
+  .dash-chart-card {
+    padding: 12px;
+  }
+
+  /* 2 card "premium" di Dashboard (Supplier, Pesanan Bulan Ini) -- sengaja
+     TIDAK numpang di atas .card (beda dari card lain di halaman ini),
+     karena ini cuma tinggal 2 card jadi dikasih treatment sendiri: gradient
+     per-kategori warna + watermark ikon besar-samar (bahasa yang sama
+     kayak PageHeaderCard) + shadow lebih dalam. */
+  .premium-stat-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 13px;
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 8px 20px -10px rgba(30, 58, 138, 0.25);
+    transition: all 0.25s ease;
+  }
+
+  .premium-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px -10px rgba(30, 58, 138, 0.3);
+  }
+
+  .premium-stat-card.blue {
+    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 55%, #bfdbfe 100%);
+  }
+
+  .premium-stat-card.cyan {
+    background: linear-gradient(135deg, #ecfeff 0%, #cffafe 55%, #a5f3fc 100%);
+  }
+
+  .dark .premium-stat-card {
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .dark .premium-stat-card.blue {
+    background: linear-gradient(135deg, #0f1d33 0%, #142a4d 55%, #1d3a66 100%);
+  }
+
+  .dark .premium-stat-card.cyan {
+    background: linear-gradient(135deg, #0b2226 0%, #0e343a 55%, #114752 100%);
+  }
+
+  .premium-stat-watermark {
+    position: absolute;
+    right: -6px;
+    bottom: -10px;
+    width: 68px;
+    height: 68px;
+    opacity: 0.14;
+  }
+
+  .premium-stat-card.blue .premium-stat-watermark {
+    color: #2563eb;
+  }
+
+  .premium-stat-card.cyan .premium-stat-watermark {
+    color: #0891b2;
+  }
+
+  .dark .premium-stat-card.blue .premium-stat-watermark {
+    color: #60a5fa;
+    opacity: 0.18;
+  }
+
+  .dark .premium-stat-card.cyan .premium-stat-watermark {
+    color: #22d3ee;
+    opacity: 0.18;
+  }
+
+  .premium-stat-content {
+    position: relative;
+    z-index: 2;
+  }
+
+  .premium-stat-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    color: #fff;
+    margin-bottom: 8px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  }
+
+  .premium-stat-card.blue .premium-stat-icon {
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+  }
+
+  .premium-stat-card.cyan .premium-stat-icon {
+    background: linear-gradient(135deg, #22d3ee, #0891b2);
+  }
+
+  .premium-stat-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+
+  .premium-stat-card.blue .premium-stat-label {
+    color: #1d4ed8;
+  }
+
+  .premium-stat-card.cyan .premium-stat-label {
+    color: #0e7490;
+  }
+
+  .dark .premium-stat-card.blue .premium-stat-label {
+    color: #93c5fd;
+  }
+
+  .dark .premium-stat-card.cyan .premium-stat-label {
+    color: #67e8f9;
+  }
+
+  .premium-stat-value {
+    margin-top: 3px;
+    font-size: 20px;
+    font-weight: 800;
+    color: #0a0a1a;
+  }
+
+  .dark .premium-stat-value {
+    color: #fff;
+  }
+
+  .premium-stat-hint {
+    margin-top: 2px;
+    font-size: 10px;
+    color: #475569;
+  }
+
+  .dark .premium-stat-hint {
+    color: #94a3b8;
+  }
+
+  /* 9 stage card di halaman Alur Supply Chain -- class terpisah dari .card
+     (sama seperti .dash-stat-card) supaya tidak menular ke card di halaman lain. */
+  .alur-stage-card {
+    padding: 14px 16px;
+    border-radius: 13px;
+  }
+
+  /* Garis pemisah "premium" antara Status Pesanan & Progress Produksi di
+     panel gabungan Dashboard: gradasi memudar di ujung + chip panah kecil
+     di tengah yang menegaskan alur Status Pesanan -> Progress Produksi,
+     dipasang lewat pseudo-element (bukan divide-x/divide-y biasa). Mobile:
+     garis horizontal di bawah panel pertama, panah mengarah ke bawah
+     (menyusul urutan panel yang bertumpuk). Desktop (md+): garis vertical
+     di kanan panel pertama, panah mengarah ke kanan (mengikuti panel yang
+     berdampingan). */
+  .panel-divider {
+    position: relative;
+  }
+
+  .panel-divider::after {
+    content: "";
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    bottom: 0;
+    height: 1px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(37, 99, 235, 0.4) 25%,
+      rgba(37, 99, 235, 0.4) 75%,
+      transparent 100%
+    );
+  }
+
+  .panel-divider::before {
+    content: "\2192";
+    position: absolute;
+    left: 50%;
+    bottom: -9px;
+    transform: translateX(-50%) rotate(90deg);
+    width: 18px;
+    height: 18px;
+    border-radius: 6px;
+    background: #ffffff;
+    border: 1px solid rgba(37, 99, 235, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: 800;
+    line-height: 1;
+    color: #2563eb;
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+    z-index: 2;
+  }
+
+  .dark .panel-divider::after {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(96, 165, 250, 0.35) 25%,
+      rgba(96, 165, 250, 0.35) 75%,
+      transparent 100%
+    );
+  }
+
+  .dark .panel-divider::before {
+    background: #1a2338;
+    border-color: rgba(59, 130, 246, 0.35);
+    color: #93c5fd;
+  }
+
+  @media (min-width: 768px) {
+    .panel-divider::after {
+      left: auto;
+      right: 0;
+      bottom: 12px;
+      top: 12px;
+      width: 1px;
+      height: auto;
+      background: linear-gradient(
+        180deg,
+        transparent 0%,
+        rgba(37, 99, 235, 0.4) 25%,
+        rgba(37, 99, 235, 0.4) 75%,
+        transparent 100%
+      );
+    }
+
+    .dark .panel-divider::after {
+      background: linear-gradient(
+        180deg,
+        transparent 0%,
+        rgba(96, 165, 250, 0.35) 25%,
+        rgba(96, 165, 250, 0.35) 75%,
+        transparent 100%
+      );
+    }
+
+    .panel-divider::before {
+      left: auto;
+      right: -9px;
+      bottom: auto;
+      top: 50%;
+      transform: translateY(-50%) rotate(0deg);
+    }
   }
 
   /* Tombol utama (biru) */
@@ -299,9 +633,8 @@ body {
     -webkit-backdrop-filter: blur(10px) saturate(160%);
     color: var(--djoker-blue-dark);
     font-weight: 700;
-    font-size: 0.625rem !important;
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
+    font-size: 0.6875rem !important;
+    letter-spacing: 0.01em;
     padding: 11px 16px;
     text-align: left;
     border: none;
@@ -349,6 +682,19 @@ body {
      sini (.th-center) sengaja dobel supaya specificity-nya menang. */
   .table-djoker thead th.th-center {
     text-align: center;
+  }
+
+  /* Sama seperti .th-center, tapi buat <td> di kolom yang KEBETULAN jadi
+     kolom terakhir tabel (contoh: "Total Belanja Diterima" di Pelanggan,
+     "Catatan" di riwayat QC -- tabel ini tidak punya kolom Aksi).
+     ".table-djoker tbody td:last-child" di bawah sengaja dipaksa rata
+     KANAN (buat kolom Aksi di tabel lain), dan specificity-nya (1 class +
+     2 tag + 1 pseudo-class) sama kuat dengan Tailwind "text-center" biasa
+     kalau cuma ditambah 1 class -- jadi selalu kalah, sama persis akar
+     masalah kolom Aksi/Stok dulu. Butuh !important di sini biar PASTI
+     menang, tidak bisa cuma andalkan urutan penulisan di file. */
+  .table-djoker tbody td.td-center {
+    text-align: center !important;
   }
 
   /* Isi tiap header: ikon bulat + label + panah sortir, sejajar
@@ -449,17 +795,56 @@ body {
     text-align: right;
   }
 
-  /* Badge */
+  /* Badge -- gaya "soft pill": latar pastel tipis (dari STATUS_COLORS /
+     HASIL_COLORS di tiap tabel, misal bg-blue-100), tanpa border/outline,
+     dipakai buat semua badge status/role. */
   .badge {
-    display: inline-block;
-    padding: 4px 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
     border-radius: 9999px;
     font-size: 0.7rem;
     font-weight: 600;
     letter-spacing: 0.025em;
-    border: 1px solid currentColor;
+    border: none;
     background: transparent;
     transition: all 0.2s ease;
+  }
+
+  /* Titik bulat kecil di depan label status -- warnanya ikut currentColor
+     jadi otomatis sewarna sama teksnya tanpa perlu diatur ulang per status. */
+  .status-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+  }
+
+  /* Panah kecil di kolom status yang BISA diklik (select asli), warnanya
+     sengaja dibikin redup/netral (bukan ikut warna status) supaya jelas
+     itu cuma indikator "bisa dipilih", bukan bagian dari label. */
+  .status-chevron {
+    flex-shrink: 0;
+    opacity: 0.55;
+  }
+
+  /* Overlay <select> asli yang menutupi SELURUH pill secara transparan --
+     supaya utuh 1 area itu bisa diklik dan tetap pakai dropdown native
+     browser (aksesibel, jalan di HP), sementara yang KELIHATAN (titik +
+     teks + panah) murni dekorasi di baliknya. Trik umum buat custom-style
+     elemen <select> tanpa kehilangan fungsinya. */
+  .status-select-overlay {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    border: none;
+    appearance: none;
+    -webkit-appearance: none;
   }
 
   /* Daftar pilihan (option) di dropdown status itu dirender langsung oleh
@@ -473,6 +858,367 @@ body {
 
   .badge:hover {
     transform: scale(1.05);
+  }
+
+  /* Page header card -- pengganti header polos (badge+judul+subjudul tanpa
+     bungkus apa pun) yang tadinya di-copy identik di 11 halaman. Sekarang
+     dibungkus jadi card sungguhan dengan dekorasi gradasi biru + cincin
+     bertumpuk + pola titik di sisi kanan, dipakai lewat komponen bersama
+     <PageHeaderCard /> supaya desainnya konsisten dan cukup diubah di 1
+     tempat kalau nanti mau di-tweak lagi. */
+  .page-hero {
+    position: relative;
+    overflow: hidden;
+    border-radius: 20px;
+    padding: 16px 20px;
+    max-width: 440px;
+    background: linear-gradient(115deg, #ffffff 0%, #ffffff 42%, #eef4ff 62%, #d7e6fb 80%, #aecbf3 100%);
+    box-shadow: 0 4px 16px rgba(30, 58, 138, 0.1);
+  }
+
+  @media (min-width: 768px) {
+    .page-hero {
+      padding: 20px 28px;
+    }
+  }
+
+  .dark .page-hero {
+    background: linear-gradient(115deg, #161d2e 0%, #161d2e 40%, #16213d 62%, #163461 82%, #1d4ed8 100%);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  }
+
+  .page-hero-deco {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  @media (max-width: 640px) {
+    .page-hero-deco {
+      display: none;
+    }
+    .page-hero-content {
+      max-width: 100% !important;
+    }
+  }
+
+  /* Watermark ikon halaman -- ganti dari blob+cincin+titik (dihapus atas
+     permintaan user, katanya "kurang suka desain bagian cincinnya"). Ikon
+     yang sama seperti di badge kiri, digedein & ditransparanin, jadi tiap
+     halaman punya watermark yang beda sesuai icon prop-nya sendiri. */
+  .page-hero-watermark {
+    position: absolute;
+    right: -14px;
+    bottom: -20px;
+    width: 130px;
+    height: 130px;
+    color: #2563eb;
+    opacity: 0.14;
+  }
+
+  .dark .page-hero-watermark {
+    color: #60a5fa;
+    opacity: 0.16;
+  }
+
+  .page-hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 65%;
+  }
+
+  .page-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 9999px;
+    background: rgba(219, 234, 254, 0.9);
+    padding: 4px 11px 4px 4px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: #1d4ed8;
+    margin-bottom: 6px;
+  }
+
+  .dark .page-hero-badge {
+    background: rgba(37, 99, 235, 0.25);
+    color: #93c5fd;
+  }
+
+  .page-hero-badge-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #dbeafe;
+    color: #2563eb;
+    flex-shrink: 0;
+  }
+
+  .dark .page-hero-badge-icon {
+    background: rgba(37, 99, 235, 0.35);
+    color: #bfdbfe;
+  }
+
+  .page-hero-title {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #000;
+    line-height: 1.2;
+  }
+
+  .dark .page-hero-title {
+    color: #fff;
+  }
+
+  .page-hero-subtitle {
+    margin-top: 3px;
+    font-size: 0.8125rem;
+    color: #4b5563;
+  }
+
+  .dark .page-hero-subtitle {
+    color: #9ca3af;
+  }
+
+  /* Welcome hero (cuma di halaman Dashboard) -- versi "premium" dari card
+     sambutan lama: gradasi biru muda + glow + grid tipis + panel kaca per
+     statistik. Di dark mode sengaja dibalik ke gradasi navy gelap (bukan
+     cuma biru muda yang di-dim) supaya tetap kelihatan "premium", bukan
+     pucat -- sesuai permintaan awal user waktu lihat mockup versi gelap. */
+  .welcome-hero {
+    position: relative;
+    overflow: hidden;
+    border-radius: 16px;
+    padding: 12px 14px;
+    background: linear-gradient(135deg, #f5f9ff 0%, #e3eefd 28%, #bcd9f8 62%, #8dbdf2 100%);
+    box-shadow: 0 12px 26px -14px rgba(37, 99, 235, 0.32), 0 3px 10px rgba(30, 58, 138, 0.1);
+  }
+
+  @media (min-width: 768px) {
+    .welcome-hero {
+      padding: 16px 20px;
+    }
+  }
+
+  .dark .welcome-hero {
+    background: linear-gradient(135deg, #0b1330 0%, #142451 30%, #1d4ed8 68%, #3b82f6 100%);
+    box-shadow: 0 20px 40px -16px rgba(29, 78, 216, 0.45), 0 4px 16px rgba(0, 0, 0, 0.3);
+  }
+
+  .welcome-hero-deco {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .welcome-hero-glow-1 {
+    position: absolute;
+    width: 190px;
+    height: 190px;
+    border-radius: 50%;
+    right: -55px;
+    top: -75px;
+    background: radial-gradient(circle, rgba(59, 130, 246, 0.35) 0%, rgba(59, 130, 246, 0) 70%);
+  }
+
+  .dark .welcome-hero-glow-1 {
+    background: radial-gradient(circle, rgba(96, 165, 250, 0.55) 0%, rgba(96, 165, 250, 0) 70%);
+  }
+
+  .welcome-hero-glow-2 {
+    position: absolute;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    left: -45px;
+    bottom: -65px;
+    background: radial-gradient(circle, rgba(129, 140, 248, 0.2) 0%, rgba(129, 140, 248, 0) 70%);
+  }
+
+  .dark .welcome-hero-glow-2 {
+    background: radial-gradient(circle, rgba(167, 139, 250, 0.35) 0%, rgba(167, 139, 250, 0) 70%);
+  }
+
+  .welcome-hero-grid {
+    position: absolute;
+    inset: 0;
+    opacity: 0.2;
+    background-image: linear-gradient(rgba(37, 99, 235, 0.5) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(37, 99, 235, 0.5) 1px, transparent 1px);
+    background-size: 28px 28px;
+    -webkit-mask-image: radial-gradient(ellipse 420px 160px at 82% 12%, black 30%, transparent 75%);
+    mask-image: radial-gradient(ellipse 420px 160px at 82% 12%, black 30%, transparent 75%);
+  }
+
+  .dark .welcome-hero-grid {
+    opacity: 0.1;
+    background-image: linear-gradient(rgba(255, 255, 255, 0.6) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.6) 1px, transparent 1px);
+  }
+
+  /* Watermark ikon (BadgeCheck, sama seperti di badge "SCM DJOGKER")
+     menggantikan cincin -- konsisten sama perubahan di PageHeaderCard. */
+  .welcome-hero-watermark {
+    position: absolute;
+    right: -10px;
+    top: -18px;
+    width: 150px;
+    height: 150px;
+    color: #2563eb;
+    opacity: 0.12;
+  }
+
+  .dark .welcome-hero-watermark {
+    color: #60a5fa;
+    opacity: 0.14;
+  }
+
+  .welcome-hero-content {
+    position: relative;
+    z-index: 2;
+  }
+
+  .welcome-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 9px;
+    border-radius: 9999px;
+    background: rgba(255, 255, 255, 0.75);
+    border: 1px solid rgba(37, 99, 235, 0.18);
+    backdrop-filter: blur(6px);
+    font-size: 0.56rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: #1d4ed8;
+  }
+
+  .dark .welcome-hero-badge {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.18);
+    color: #dbeafe;
+  }
+
+  .welcome-hero-eyebrow {
+    margin-top: 8px;
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    color: #2563eb;
+    text-transform: uppercase;
+  }
+
+  .dark .welcome-hero-eyebrow {
+    color: #93c5fd;
+  }
+
+  .welcome-hero-title {
+    margin-top: 2px;
+    font-size: 0.92rem;
+    font-weight: 800;
+    color: #0a0a1a;
+    letter-spacing: -0.01em;
+  }
+
+  .dark .welcome-hero-title {
+    color: #fff;
+  }
+
+  @media (min-width: 768px) {
+    .welcome-hero-title {
+      font-size: 1.15rem;
+    }
+  }
+
+  .welcome-hero-desc {
+    margin-top: 4px;
+    max-width: 28rem;
+    font-size: 0.72rem;
+    line-height: 1.5;
+    color: #374151;
+  }
+
+  .dark .welcome-hero-desc {
+    color: rgba(255, 255, 255, 0.72);
+  }
+
+  .welcome-hero-stats {
+    margin-top: 12px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  @media (min-width: 640px) {
+    .welcome-hero-stats {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .welcome-hero-stat {
+    border-radius: 11px;
+    padding: 8px 10px;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 3px 8px rgba(30, 58, 138, 0.05);
+  }
+
+  .dark .welcome-hero-stat {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.14);
+    box-shadow: none;
+  }
+
+  .welcome-hero-stat-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 7px;
+    margin-bottom: 5px;
+    color: #fff;
+  }
+
+  .welcome-hero-stat-icon.green {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    box-shadow: 0 4px 10px rgba(34, 197, 94, 0.3);
+  }
+
+  .welcome-hero-stat-icon.blue {
+    background: linear-gradient(135deg, #60a5fa, #3b82f6);
+    box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+  }
+
+  .welcome-hero-stat-icon.orange {
+    background: linear-gradient(135deg, #fb923c, #f97316);
+    box-shadow: 0 4px 10px rgba(249, 115, 22, 0.3);
+  }
+
+  .welcome-hero-stat-num {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: #0a0a1a;
+  }
+
+  .dark .welcome-hero-stat-num {
+    color: #fff;
+  }
+
+  .welcome-hero-stat-label {
+    margin-top: 1px;
+    font-size: 0.6rem;
+    color: #6b7280;
+  }
+
+  .dark .welcome-hero-stat-label {
+    color: rgba(255, 255, 255, 0.6);
   }
 }
 

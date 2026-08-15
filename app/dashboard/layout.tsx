@@ -142,7 +142,7 @@ export default function DashboardLayout({
 
   return (
     <div
-      className="relative flex min-h-screen bg-djoker-bg"
+      className="relative flex min-h-screen bg-transparent"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -155,7 +155,7 @@ export default function DashboardLayout({
       )}
 
       <aside
-        className={`fixed top-0 left-0 z-50 h-full w-64 border-r backdrop-blur-xl bg-white/70 dark:bg-gray-900/70 transition-transform duration-300 ease-in-out md:static md:translate-x-0 ${
+        className={`sidebar-glass fixed top-0 left-0 z-50 h-full w-64 border-r transition-transform duration-300 ease-in-out md:static md:translate-x-0 ${
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         }`}
         style={{
@@ -163,40 +163,36 @@ export default function DashboardLayout({
         }}
       >
         <div
-          className="flex h-16 items-center border-b px-4"
+          className="flex h-16 items-center gap-3 border-b px-4"
           style={{ borderColor: "var(--djoker-border)" }}
         >
-          <div className="flex items-center gap-3 rounded-xl border bg-white/50 px-2.5 py-1.5 shadow-sm backdrop-blur-md dark:bg-gray-800/50"
-            style={{ borderColor: "var(--djoker-border)" }}
-          >
-            <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg border bg-white shadow">
-              <Image
-                src="/images/logodjogker1.jpeg"
-                alt="Logo DJOGKER"
-                width={36}
-                height={36}
-                className="object-contain p-1"
-                priority
-              />
-            </div>
-            <div className="leading-tight">
-              <p className="font-display text-sm font-extrabold tracking-wide bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent dark:from-white dark:to-blue-100">
-                DJOGKER
-              </p>
-              <span
+          <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg border bg-white shadow-sm">
+            <Image
+              src="/images/logodjogker1.jpeg"
+              alt="Logo DJOGKER"
+              width={36}
+              height={36}
+              className="object-contain p-1"
+              priority
+            />
+          </div>
+          <div className="leading-tight">
+            <p className="font-display text-sm font-extrabold tracking-wide bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent dark:from-white dark:to-blue-100">
+              DJOGKER
+            </p>
+            <span
               className="mt-0.5 inline-flex items-center rounded-full px-1.5 py-0.5 text-[8px] font-semibold tracking-widest text-blue-600 dark:text-white"
               style={{ background: "rgba(59,130,246,0.12)" }}
             >
               SCM SYSTEM
             </span>
           </div>
-          </div>
         </div>
 
         <nav className="flex-1 space-y-4 overflow-y-auto px-3 py-4">
           {NAV_SECTIONS.map((section) => (
             <div key={section.title}>
-              <p className="mb-1.5 px-3 text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500">
+              <p className="mb-1.5 px-3 text-[11px] font-bold tracking-wide text-gray-400 dark:text-gray-500">
                 {section.title}
               </p>
               <div className="space-y-1">
@@ -260,7 +256,7 @@ export default function DashboardLayout({
           className={`sticky top-0 z-40 flex h-16 items-center justify-between border-b px-4 transition-all duration-300 md:justify-end md:px-6 ${
             headerScrolled
               ? "backdrop-blur-md bg-white/60 dark:bg-gray-900/60 shadow-sm"
-              : "bg-djoker-bg"
+              : "bg-transparent"
           }`}
           style={{ borderColor: "var(--djoker-border)" }}
         >

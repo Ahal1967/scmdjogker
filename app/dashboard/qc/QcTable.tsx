@@ -315,7 +315,7 @@ export default function QcTable({
                 <SortableTh label="No. Produksi" icon={Factory} active={recordSortField === "no_produksi"} direction={recordSortDir} onClick={() => toggleRecordSort("no_produksi")} center />
                 <SortableTh label="Tanggal" icon={Calendar} active={recordSortField === "tanggal"} direction={recordSortDir} onClick={() => toggleRecordSort("tanggal")} center />
                 <SortableTh label="Hasil" icon={CheckCircle2} active={recordSortField === "hasil"} direction={recordSortDir} onClick={() => toggleRecordSort("hasil")} center />
-                <SortableTh label="Catatan" icon={FileText} active={recordSortField === "catatan"} direction={recordSortDir} onClick={() => toggleRecordSort("catatan")} />
+                <SortableTh label="Catatan" icon={FileText} active={recordSortField === "catatan"} direction={recordSortDir} onClick={() => toggleRecordSort("catatan")} center />
               </tr>
             </thead>
             <tbody>
@@ -336,9 +336,12 @@ export default function QcTable({
                     })}
                   </td>
                   <td className="text-center">
-                    <span className={`badge ${HASIL_COLORS[r.hasil]}`}>{r.hasil}</span>
+                    <span className={`badge ${HASIL_COLORS[r.hasil]}`}>
+                      <span className="status-dot" />
+                      {r.hasil}
+                    </span>
                   </td>
-                  <td className="text-sm text-gray-600 dark:text-gray-400">{r.catatan || "-"}</td>
+                  <td className="td-center text-sm text-gray-600 dark:text-gray-400">{r.catatan || "-"}</td>
                 </tr>
               ))}
               {filteredRecords.length === 0 && (

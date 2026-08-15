@@ -110,10 +110,10 @@ export default function LaporanTable({ dataOrders }: { dataOrders: Order[] }) {
                 <SortableTh label="No. Pesanan" icon={Hash} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} center />
                 <SortableTh label="Tanggal" icon={Calendar} active={sortField === "tanggal"} direction={sortDir} onClick={() => toggleSort("tanggal")} center />
                 <SortableTh label="Total" icon={Wallet} active={sortField === "total"} direction={sortDir} onClick={() => toggleSort("total")} />
-                <SortableTh label="DP" icon={CreditCard} active={sortField === "dp"} direction={sortDir} onClick={() => toggleSort("dp")} />
-                <SortableTh label="Sisa" icon={Receipt} active={sortField === "sisa"} direction={sortDir} onClick={() => toggleSort("sisa")} />
+                <SortableTh label="DP" icon={CreditCard} active={sortField === "dp"} direction={sortDir} onClick={() => toggleSort("dp")} center />
+                <SortableTh label="Sisa" icon={Receipt} active={sortField === "sisa"} direction={sortDir} onClick={() => toggleSort("sisa")} center />
                 <SortableTh label="Status" icon={CheckCircle2} active={sortField === "status"} direction={sortDir} onClick={() => toggleSort("status")} center />
-                <SortableTh label="Alamat" icon={MapPin} active={sortField === "alamat"} direction={sortDir} onClick={() => toggleSort("alamat")} />
+                <SortableTh label="Alamat" icon={MapPin} active={sortField === "alamat"} direction={sortDir} onClick={() => toggleSort("alamat")} center />
                 <SortableTh label="Aksi" icon={MoreHorizontal} sortable={false} />
               </tr>
             </thead>
@@ -127,10 +127,10 @@ export default function LaporanTable({ dataOrders }: { dataOrders: Order[] }) {
                   </td>
                   <td className="font-semibold text-black dark:text-white text-center">{order.no_pesanan || "-"}</td>
                   <td className="text-sm text-gray-600 dark:text-gray-400 text-center">{formatTanggal(order.tanggal || order.created_at)}</td>
-                  <td className="text-sm font-medium text-black dark:text-white">{formatRupiah(Number(order.total) || 0)}</td>
-                  <td className="text-sm text-gray-700 dark:text-gray-300">{formatRupiah(Number(order.dp) || 0)}</td>
+                  <td className="text-sm font-medium text-black dark:text-white whitespace-nowrap">{formatRupiah(Number(order.total) || 0)}</td>
+                  <td className="text-sm text-gray-700 dark:text-gray-300 text-center whitespace-nowrap">{formatRupiah(Number(order.dp) || 0)}</td>
                   <td
-                    className={`text-sm font-medium ${
+                    className={`text-sm font-medium text-center whitespace-nowrap ${
                       (Number(order.sisa_pembayaran) || 0) > 0 ? "text-red-600" : "text-green-600"
                     }`}
                   >
@@ -138,10 +138,11 @@ export default function LaporanTable({ dataOrders }: { dataOrders: Order[] }) {
                   </td>
                   <td className="text-center">
                     <span className={`badge ${STATUS_COLORS[order.status || ""] ?? "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400"}`}>
+                      <span className="status-dot" />
                       {order.status || "-"}
                     </span>
                   </td>
-                  <td className="max-w-[10rem] truncate text-sm text-gray-700 dark:text-gray-300 md:max-w-xs">
+                  <td className="max-w-[10rem] truncate text-sm text-gray-700 dark:text-gray-300 md:max-w-xs text-center">
                     {order.alamat_pengiriman || "-"}
                   </td>
                   <td className="text-right">

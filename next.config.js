@@ -21,8 +21,18 @@ const nextConfig = {
         headers: [{ key: "Cache-Control", value: "no-cache, no-store, must-revalidate" }],
       },
       {
+        // Sebelumnya no-store total -- setiap klik menu wajib fetch ulang
+        // dari nol walau halaman itu baru saja dibuka, bikin navigasi
+        // kerasa berat. Sekarang dikasih jendela cache pendek (5 detik,
+        // private ke browser masing-masing user, bukan shared/CDN cache)
+        // supaya klik bolak-balik antar menu terasa instan, sambil tetap
+        // otomatis nge-refresh diam-diam di background (stale-while-
+        // revalidate) begitu jendela itu lewat. Halaman-halaman ini juga
+        // sudah dynamic (pakai cookies()), jadi tetap selalu fetch data
+        // asli dari Supabase begitu cache-nya expired -- bukan di-cache
+        // permanen.
         source: "/dashboard/:path*",
-        headers: [{ key: "Cache-Control", value: "no-cache, no-store, must-revalidate" }],
+        headers: [{ key: "Cache-Control", value: "private, max-age=5, stale-while-revalidate=30" }],
       },
       {
         source: "/tracking",

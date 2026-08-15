@@ -224,7 +224,7 @@ export default function GudangTable({
                 <SortableTh label="Satuan" icon={Ruler} active={sortField === "satuan"} direction={sortDir} onClick={() => toggleSort("satuan")} center />
                 <SortableTh label="Stok" icon={Boxes} active={sortField === "stok"} direction={sortDir} onClick={() => toggleSort("stok")} center />
                 <SortableTh label="Minimum" icon={AlertTriangle} active={sortField === "stok_minimum"} direction={sortDir} onClick={() => toggleSort("stok_minimum")} center />
-                <SortableTh label="Supplier" icon={Truck} active={sortField === "supplier"} direction={sortDir} onClick={() => toggleSort("supplier")} />
+                <SortableTh label="Supplier" icon={Truck} active={sortField === "supplier"} direction={sortDir} onClick={() => toggleSort("supplier")} center />
                 <SortableTh label="Status" icon={CheckCircle2} active={sortField === "status"} direction={sortDir} onClick={() => toggleSort("status")} center />
                 <SortableTh label="Aksi" icon={MoreHorizontal} sortable={false} />
               </tr>
@@ -258,7 +258,7 @@ export default function GudangTable({
                     </div>
                   </td>
                   <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{m.stok_minimum}</td>
-                  <td className="text-sm text-gray-700 dark:text-gray-300">{m.suppliers?.nama_supplier ?? "-"}</td>
+                  <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{m.suppliers?.nama_supplier ?? "-"}</td>
                   <td className="text-center">
                     <span
                       className={`badge ${
@@ -267,6 +267,7 @@ export default function GudangTable({
                           : "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300"
                       }`}
                     >
+                      <span className="status-dot" />
                       {m.status}
                     </span>
                   </td>

@@ -190,6 +190,7 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
                           : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
                       }`}
                     >
+                      <span className="status-dot" />
                       {s.status}
                     </span>
                   </td>

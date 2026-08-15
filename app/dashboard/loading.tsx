@@ -1,31 +1,31 @@
-export default function Loading() {
+/* Loading UI bawaan Next.js App Router -- otomatis dipasang sebagai
+   Suspense boundary buat SEMUA halaman di bawah /dashboard/*. Tanpa file
+   ini, klik di sidebar terasa "nge-freeze" sesaat karena browser diam
+   menunggu server component halaman tujuan selesai fetch data baru
+   nampilin apa pun. Dengan file ini, begitu diklik, skeleton ini langsung
+   muncul instan (tidak perlu nunggu data), baru nanti ditukar otomatis
+   sama konten asli begitu data-nya siap -- jadi terasa jauh lebih
+   responsif walau waktu fetch datanya sendiri sama saja. */
+export default function DashboardLoading() {
   return (
-    <div className="space-y-4 md:space-y-6 animate-pulse">
-      <div>
-        <div className="h-6 w-40 rounded-full bg-gray-200 dark:bg-gray-700 mb-3" />
-        <div className="h-8 w-56 rounded-lg bg-gray-200 dark:bg-gray-700" />
+    <div className="space-y-4 md:space-y-6 animate-pulse" aria-hidden="true">
+      <div className="card w-full max-w-[420px] rounded-[20px] px-5 py-4 md:px-7 md:py-5">
+        <div className="h-4 w-24 rounded-full bg-gray-200 dark:bg-gray-700" />
+        <div className="mt-3 h-5 w-40 rounded bg-gray-200 dark:bg-gray-700" />
+        <div className="mt-2 h-3 w-56 rounded bg-gray-200 dark:bg-gray-700" />
       </div>
 
-      <div className="rounded-2xl border border-blue-100 dark:border-blue-900 p-6 md:p-8">
-        <div className="h-4 w-24 rounded-full bg-gray-200 dark:bg-gray-700 mb-3" />
-        <div className="h-6 w-64 rounded bg-gray-200 dark:bg-gray-700 mb-2" />
-        <div className="h-4 w-48 rounded bg-gray-200 dark:bg-gray-700 mb-4" />
-        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} className="h-16 rounded-xl bg-gray-100 dark:bg-gray-800" />
-          ))}
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="card h-28" style={{ border: "none" }} />
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={i} className="card h-20" />
         ))}
       </div>
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <div className="card h-64" style={{ border: "none" }} />
-        <div className="card h-64" style={{ border: "none" }} />
+      <div className="card p-0 overflow-hidden">
+        <div className="h-10 border-b border-gray-100 dark:border-gray-700" />
+        {Array.from({ length: 6 }).map((_, i) => (
+          <div key={i} className="h-12 border-b border-gray-100 dark:border-gray-800 last:border-0" />
+        ))}
       </div>
     </div>
   );

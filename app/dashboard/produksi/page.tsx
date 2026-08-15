@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
+import { Factory } from "lucide-react";
 import ProduksiTable, { type ProductionRow } from "./ProduksiTable";
+import PageHeaderCard from "@/components/PageHeaderCard";
 
 export default async function ProduksiPage() {
   const supabase = createClient();
@@ -34,28 +36,27 @@ export default async function ProduksiPage() {
 
   return (
     <div className="space-y-4 md:space-y-6">
-      <div>
-        <span className="mb-2 inline-flex items-center rounded-full bg-blue-50 border border-blue-100 px-3 py-1 text-xs font-semibold tracking-wide text-blue-700">PROSES PRODUKSI</span>
-        <h1 className="font-display text-2xl font-bold text-black dark:text-white">Produksi</h1>
-        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-          Kelola dan pantau proses produksi pesanan.
-        </p>
-      </div>
+      <PageHeaderCard
+        badge="PROSES PRODUKSI"
+        icon={Factory}
+        title="Produksi"
+        subtitle="Kelola dan pantau proses produksi pesanan."
+      />
 
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-3 md:gap-4">
-        <div className="card">
-          <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Total Produksi</p>
-          <p className="mt-1 font-display text-3xl font-bold text-black dark:text-white">{totalProduksi}</p>
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+        <div className="card p-3">
+          <p className="text-[10px] font-semibold tracking-wide text-gray-500 dark:text-gray-400">Total Produksi</p>
+          <p className="mt-1 font-display text-lg font-bold text-black dark:text-white">{totalProduksi}</p>
         </div>
-        <div className="card">
-          <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+        <div className="card p-3">
+          <p className="text-[10px] font-semibold tracking-wide text-gray-500 dark:text-gray-400">
             Sedang Diproses
           </p>
-          <p className="mt-1 font-display text-3xl font-bold text-black dark:text-white">{sedangDiproses}</p>
+          <p className="mt-1 font-display text-lg font-bold text-black dark:text-white">{sedangDiproses}</p>
         </div>
-        <div className="card">
-          <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Selesai</p>
-          <p className="mt-1 font-display text-3xl font-bold text-black dark:text-white">{selesai}</p>
+        <div className="card p-3">
+          <p className="text-[10px] font-semibold tracking-wide text-gray-500 dark:text-gray-400">Selesai</p>
+          <p className="mt-1 font-display text-lg font-bold text-black dark:text-white">{selesai}</p>
         </div>
       </div>
 

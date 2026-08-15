@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Search, Factory, Activity, CheckCircle2, ChevronLeft, ChevronRight, Trash2, Hash, User, Gauge, MoreHorizontal } from "lucide-react";
+import { Search, Factory, Activity, CheckCircle2, ChevronLeft, ChevronRight, ChevronDown, Trash2, Hash, User, Gauge, MoreHorizontal } from "lucide-react";
 import { useConfirm } from "@/components/useConfirm";
 import { useToast } from "@/components/useToast";
 import SortableTh from "@/components/SortableTh";
@@ -223,17 +223,23 @@ export default function ProduksiTable({
                   <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{p.orders?.no_pesanan ?? "-"}</td>
                   <td className="text-sm text-gray-800 dark:text-gray-200 text-center">{p.orders?.customers?.nama ?? "-"}</td>
                   <td className="text-center">
-                    <select
-                      value={p.status || "Produksi"}
-                      onChange={(e) => updateStatus(p, e.target.value)}
-                      className={`badge cursor-pointer ${STATUS_COLORS[p.status || ""] ?? ""}`}
-                    >
-                      {STATUS_OPTIONS.map((s) => (
-                        <option key={s} value={s}>
-                          {s}
-                        </option>
-                      ))}
-                    </select>
+                    <span className={`badge relative ${STATUS_COLORS[p.status || ""] ?? ""}`}>
+                      <span className="status-dot" />
+                      {p.status || "Produksi"}
+                      <ChevronDown size={12} className="status-chevron" />
+                      <select
+                        value={p.status || "Produksi"}
+                        onChange={(e) => updateStatus(p, e.target.value)}
+                        className="status-select-overlay"
+                        aria-label="Ubah status produksi"
+                      >
+                        {STATUS_OPTIONS.map((s) => (
+                          <option key={s} value={s}>
+                            {s}
+                          </option>
+                        ))}
+                      </select>
+                    </span>
                   </td>
                   <td className="text-sm text-gray-700 dark:text-gray-300">
                     <div className="mx-auto flex max-w-[170px] items-center gap-2">

@@ -1,17 +1,19 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import {
   ShoppingCart,
-  Factory,
   Users,
   Truck,
-  Wallet,
   TrendingUp,
   CalendarDays,
+  BadgeCheck,
+  ListChecks,
+  Gauge,
 } from "lucide-react";
+import PageHeaderCard from "@/components/PageHeaderCard";
 import {
   AreaChart,
   Area,
@@ -56,33 +58,57 @@ export default function DashboardPage() {
   ]);
   const [monthlyRevenue, setMonthlyRevenue] = useState<{ bulan: string; pendapatan: number }[]>([]);
   const [loading, setLoading] = useState(true);
-  const [currentSlide, setCurrentSlide] = useState(0);
-  const sliderRef = useRef<HTMLDivElement>(null);
 
-  const statsCards = [
-    { title: "Total Pesanan", value: stats.totalPesanan, color: "from-blue-50 to-blue-100 dark:from-blue-950/40 dark:to-blue-900/20", textColor: "text-blue-700 dark:text-blue-300", valueColor: "text-blue-900 dark:text-blue-100", accent: "#2563eb", icon: ShoppingCart, iconBg: "bg-blue-600", href: "/dashboard/pesanan" },
-    { title: "Total Produksi", value: stats.totalProduksi, color: "from-green-50 to-green-100 dark:from-green-950/40 dark:to-green-900/20", textColor: "text-green-700 dark:text-green-300", valueColor: "text-green-900 dark:text-green-100", accent: "#16a34a", icon: Factory, iconBg: "bg-green-600", href: "/dashboard/produksi" },
-    { title: "Pelanggan", value: stats.totalPelanggan, color: "from-purple-50 to-purple-100 dark:from-purple-950/40 dark:to-purple-900/20", textColor: "text-purple-700 dark:text-purple-300", valueColor: "text-purple-900 dark:text-purple-100", accent: "#9333ea", icon: Users, iconBg: "bg-purple-600", href: "/dashboard/pelanggan" },
-    { title: "Supplier", value: stats.totalSupplier, color: "from-orange-50 to-orange-100 dark:from-orange-950/40 dark:to-orange-900/20", textColor: "text-orange-700 dark:text-orange-300", valueColor: "text-orange-900 dark:text-orange-100", accent: "#ea580c", icon: Truck, iconBg: "bg-orange-600", href: "/dashboard/supplier" },
-    { title: "Pendapatan Diterima", value: `Rp ${stats.totalPendapatan.toLocaleString("id-ID")}`, color: "from-emerald-50 to-emerald-100 dark:from-emerald-950/40 dark:to-emerald-900/20", textColor: "text-emerald-700 dark:text-emerald-300", valueColor: "text-emerald-900 dark:text-emerald-100", accent: "#059669", icon: Wallet, iconBg: "bg-emerald-600", href: "/dashboard/laporan" },
-    { title: "Pesanan Bulan Ini", value: stats.pesananBulanIni, color: "from-cyan-50 to-cyan-100 dark:from-cyan-950/40 dark:to-cyan-900/20", textColor: "text-cyan-700 dark:text-cyan-300", valueColor: "text-cyan-900 dark:text-cyan-100", accent: "#0891b2", icon: CalendarDays, iconBg: "bg-cyan-600", href: "/dashboard/laporan" },
+  /* Cuma 2 angka yang tidak ditampilkan di tempat lain manapun di Dashboard
+     (Total Pesanan/Produksi/Pelanggan/Pendapatan semuanya sudah kelihatan di
+     welcome-hero & panel Progress Produksi) -- makanya cuma dua ini yang
+     dipertahankan sebagai card sendiri, sisanya sengaja dihapus atas
+     permintaan user biar tidak dobel & lebih ringkas. */
+  const premiumStats = [
+    { key: "supplier", title: "Supplier", value: stats.totalSupplier, hint: "supplier aktif", icon: Truck, accent: "blue", href: "/dashboard/supplier" },
+    { key: "pesananBulanIni", title: "Pesanan Bulan Ini", value: stats.pesananBulanIni, hint: "pesanan masuk bulan ini", icon: CalendarDays, accent: "cyan", href: "/dashboard/laporan" },
   ];
 
   useEffect(() => {
     fetchStats();
   }, []);
 
-  useEffect(() => {
-    if (sliderRef.current) {
-      const slideWidth = sliderRef.current.clientWidth * 0.9;
-      sliderRef.current.scrollLeft = currentSlide * slideWidth;
-    }
-  }, [currentSlide]);
-
   async function fetchStats() {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+    const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1).toISOString();
+
+    /* Semua query di bawah ini independen satu sama lain (tidak ada yang
+       butuh hasil query lain), jadi ditembak bareng lewat Promise.all --
+       sebelumnya 10 query jalan berurutan (nunggu satu-satu) yang bikin
+       Dashboard (halaman pertama setelah login) kerasa lama banget pas
+       dibuka. Cuma query profile yang butuh user.id, jadi itu tetap
+       nunggu giliran belakangan. */
+    const [
+      {
+        data: { user },
+      },
+      { count: ordersCount },
+      { count: productionCount },
+      { count: customersCount },
+      { count: suppliersCount },
+      { data: ordersData },
+      { count: pesananBulanIni },
+      { count: produksiSelesai },
+      { data: allOrders },
+      { data: recentOrders },
+    ] = await Promise.all([
+      supabase.auth.getUser(),
+      supabase.from("orders").select("*", { count: "exact", head: true }),
+      supabase.from("production").select("*", { count: "exact", head: true }),
+      supabase.from("customers").select("*", { count: "exact", head: true }),
+      supabase.from("suppliers").select("*", { count: "exact", head: true }),
+      supabase.from("orders").select("total, sisa_pembayaran"),
+      supabase.from("orders").select("*", { count: "exact", head: true }).gte("created_at", startOfMonth),
+      supabase.from("production").select("*", { count: "exact", head: true }).eq("status", "Selesai"),
+      supabase.from("orders").select("status"),
+      supabase.from("orders").select("total, tanggal, created_at").gte("created_at", sixMonthsAgo),
+    ]);
 
     if (user) {
       const { data: profile } = await supabase
@@ -94,27 +120,8 @@ export default function DashboardPage() {
       if (profile?.full_name) setAdminName(profile.full_name);
     }
 
-    const { count: ordersCount } = await supabase.from("orders").select("*", { count: "exact", head: true });
-    const { count: productionCount } = await supabase.from("production").select("*", { count: "exact", head: true });
-    const { count: customersCount } = await supabase.from("customers").select("*", { count: "exact", head: true });
-    const { count: suppliersCount } = await supabase.from("suppliers").select("*", { count: "exact", head: true });
-    const { data: ordersData } = await supabase.from("orders").select("total, sisa_pembayaran");
     const totalPendapatan =
       ordersData?.reduce((sum, o) => sum + ((o.total || 0) - (o.sisa_pembayaran || 0)), 0) || 0;
-
-    const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-    const { count: pesananBulanIni } = await supabase
-      .from("orders")
-      .select("*", { count: "exact", head: true })
-      .gte("created_at", startOfMonth);
-
-    const { count: produksiSelesai } = await supabase
-      .from("production")
-      .select("*", { count: "exact", head: true })
-      .eq("status", "Selesai");
-
-    const { data: allOrders } = await supabase.from("orders").select("status");
 
     const statusCount = [
       { status: "Pesanan", count: 0 },
@@ -131,13 +138,6 @@ export default function DashboardPage() {
     });
 
     setStatusOrders(statusCount);
-
-    // Tren pendapatan 6 bulan terakhir
-    const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1).toISOString();
-    const { data: recentOrders } = await supabase
-      .from("orders")
-      .select("total, tanggal, created_at")
-      .gte("created_at", sixMonthsAgo);
 
     const monthLabels: { key: string; label: string; pendapatan: number }[] = [];
     for (let i = 5; i >= 0; i--) {
@@ -171,14 +171,6 @@ export default function DashboardPage() {
     setLoading(false);
   }
 
-  function nextSlide() {
-    setCurrentSlide((prev) => Math.min(prev + 1, statsCards.length - 1));
-  }
-
-  function prevSlide() {
-    setCurrentSlide((prev) => Math.max(prev - 1, 0));
-  }
-
   if (loading) {
     return (
       <div className="space-y-4 md:space-y-6 animate-pulse">
@@ -198,16 +190,14 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, i) => (
+        <div className="grid grid-cols-2 gap-3">
+          {Array.from({ length: 2 }).map((_, i) => (
             <div key={i} className="card h-28" style={{ border: "none" }} />
           ))}
         </div>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div className="card h-64" style={{ border: "none" }} />
-          <div className="card h-64" style={{ border: "none" }} />
-        </div>
+        <div className="card h-64" style={{ border: "none" }} />
+        <div className="card h-64" style={{ border: "none" }} />
       </div>
     );
   }
@@ -215,210 +205,180 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-4 md:space-y-6">
-      <div>
-        <span className="mb-2 inline-flex items-center rounded-full bg-blue-50 border border-blue-100 px-3 py-1 text-xs font-semibold tracking-wide text-blue-700">
-          RINGKASAN HARI INI
-        </span>
-        <h1 className="font-display text-2xl font-bold text-black dark:text-white">Dashboard</h1>
-        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">Ringkasan aktivitas SCM Djogker.</p>
-      </div>
+      <PageHeaderCard
+        badge="RINGKASAN HARI INI"
+        icon={CalendarDays}
+        title="Dashboard"
+        subtitle="Ringkasan aktivitas SCM Djogker."
+      />
 
-      <div
-        className="relative rounded-2xl bg-white/55 dark:bg-gray-800/55 backdrop-blur-xl"
-        style={{ boxShadow: "0 4px 16px rgba(30,58,138,0.1)" }}
-      >
-        <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl">
-          <div className="absolute -right-10 -top-16 h-48 w-48 rounded-full bg-blue-200/30 blur-3xl" />
-          <div className="absolute -bottom-16 left-1/3 h-40 w-40 rounded-full bg-blue-100/40 blur-3xl" />
+      <div className="welcome-hero">
+        <div className="welcome-hero-deco" aria-hidden="true">
+          <div className="welcome-hero-glow-1" />
+          <div className="welcome-hero-glow-2" />
+          <div className="welcome-hero-grid" />
+          <BadgeCheck className="welcome-hero-watermark" strokeWidth={1.5} />
         </div>
 
-        <div className="relative z-10 p-6 md:p-8">
-          <span className="inline-flex items-center rounded-full bg-blue-50 dark:bg-blue-900/40 px-2.5 py-1 text-[11px] font-semibold text-blue-700 dark:text-blue-300">
-            SCM
+        <div className="welcome-hero-content">
+          <span className="welcome-hero-badge">
+            <BadgeCheck size={11} />
+            SCM DJOGKER
           </span>
-          <h2 className="mt-2 font-display text-xl font-bold tracking-tight text-black dark:text-white md:text-2xl">
-            Dashboard Supply Chain
-          </h2>
-          <p className="font-display text-base font-bold tracking-tight text-black dark:text-white md:text-lg">
-            Selamat Datang, {adminName}
-          </p>
-          <p className="mt-2 text-sm text-gray-700 dark:text-gray-300 leading-relaxed max-w-xl">
+          <p className="welcome-hero-eyebrow">Dashboard Supply Chain</p>
+          <h2 className="welcome-hero-title font-display">Selamat Datang, {adminName}</h2>
+          <p className="welcome-hero-desc">
             Pantau seluruh alur supply chain DJOGKER dari satu tempat — mulai dari pesanan masuk
             sampai produk diterima pelanggan.
           </p>
 
-          {/* Card statistik, sekarang di dalam alur normal card, tidak ngambang */}
-          <div className="mt-6 grid grid-cols-1 gap-2.5 sm:grid-cols-3">
-            <div className="rounded-xl bg-blue-50/60 dark:bg-blue-900/20 px-4 py-3 border border-blue-100 dark:border-blue-900">
-              <div className="flex items-center gap-1.5 text-sm font-bold text-black dark:text-white">
-                <TrendingUp size={14} className="text-blue-600" />
-                {`Rp ${stats.totalPendapatan.toLocaleString("id-ID")}`}
+          <div className="welcome-hero-stats">
+            <div className="welcome-hero-stat">
+              <div className="welcome-hero-stat-icon green">
+                <TrendingUp size={12} />
               </div>
-              <p className="text-[11px] text-gray-500 dark:text-gray-400">Pendapatan Diterima</p>
+              <p className="welcome-hero-stat-num">{`Rp ${stats.totalPendapatan.toLocaleString("id-ID")}`}</p>
+              <p className="welcome-hero-stat-label">Pendapatan Diterima</p>
             </div>
-            <div className="rounded-xl bg-blue-50/60 dark:bg-blue-900/20 px-4 py-3 border border-blue-100 dark:border-blue-900">
-              <div className="flex items-center gap-1.5 text-sm font-bold text-black dark:text-white">
-                <Users size={14} className="text-green-600" />
-                {stats.totalPelanggan}
+            <div className="welcome-hero-stat">
+              <div className="welcome-hero-stat-icon blue">
+                <Users size={12} />
               </div>
-              <p className="text-[11px] text-gray-500 dark:text-gray-400">Pelanggan Aktif</p>
+              <p className="welcome-hero-stat-num">{stats.totalPelanggan}</p>
+              <p className="welcome-hero-stat-label">Pelanggan Aktif</p>
             </div>
-            <div className="rounded-xl bg-blue-50/60 dark:bg-blue-900/20 px-4 py-3 border border-blue-100 dark:border-blue-900">
-              <div className="flex items-center gap-1.5 text-sm font-bold text-black dark:text-white">
-                <ShoppingCart size={14} className="text-orange-600" />
-                {stats.totalPesanan - stats.produksiSelesai}
+            <div className="welcome-hero-stat">
+              <div className="welcome-hero-stat-icon orange">
+                <ShoppingCart size={12} />
               </div>
-              <p className="text-[11px] text-gray-500 dark:text-gray-400">Pesanan Berjalan</p>
+              <p className="welcome-hero-stat-num">{stats.totalPesanan - stats.produksiSelesai}</p>
+              <p className="welcome-hero-stat-label">Pesanan Berjalan</p>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="md:hidden">
-        <div className="relative">
-          <button onClick={prevSlide} disabled={currentSlide === 0} className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white dark:bg-gray-800/80 rounded-full p-2 shadow disabled:opacity-30">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-
-          <div ref={sliderRef} className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth gap-3 px-8" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-            {statsCards.map((card, idx) => {
-              const Icon = card.icon;
-              return (
-                <Link
-                  key={idx}
-                  href={card.href}
-                  className={`flex-shrink-0 w-[90%] card bg-gradient-to-br ${card.color} snap-center block cursor-pointer`}
-                  style={{ border: "none" }}
-                >
-                  <div className={`mb-3 flex h-9 w-9 items-center justify-center rounded-lg ${card.iconBg}`}>
-                    <Icon className="text-white" size={18} />
-                  </div>
-                  <p className={`text-xs font-medium uppercase tracking-wide ${card.textColor}`}>{card.title}</p>
-                  <p className={`mt-1 font-display text-3xl font-bold ${card.valueColor}`}>{card.value}</p>
-                </Link>
-              );
-            })}
-          </div>
-
-          <button onClick={nextSlide} disabled={currentSlide === statsCards.length - 1} className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white dark:bg-gray-800/80 rounded-full p-2 shadow disabled:opacity-30">
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-        </div>
-
-        <div className="flex justify-center gap-2 mt-3">
-          {statsCards.map((_, idx) => (
-            <button key={idx} onClick={() => setCurrentSlide(idx)} className={`w-2 h-2 rounded-full transition-all ${idx === currentSlide ? "bg-blue-600 w-4" : "bg-gray-300"}`} />
-          ))}
-        </div>
-      </div>
-
-      <div className="hidden md:grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {statsCards.map((card, idx) => {
-          const Icon = card.icon;
+      <div className="grid grid-cols-2 gap-3">
+        {premiumStats.map((s) => {
+          const Icon = s.icon;
           return (
-            <Link
-              key={idx}
-              href={card.href}
-              className={`card bg-gradient-to-br ${card.color} block cursor-pointer`}
-              style={{ border: "none" }}
-            >
-              <div className={`mb-3 flex h-9 w-9 items-center justify-center rounded-lg ${card.iconBg}`}>
-                <Icon className="text-white" size={18} />
+            <Link key={s.key} href={s.href} className={`premium-stat-card ${s.accent} block cursor-pointer`}>
+              <Icon className="premium-stat-watermark" strokeWidth={1.5} aria-hidden="true" />
+              <div className="premium-stat-content">
+                <div className="premium-stat-icon">
+                  <Icon size={14} />
+                </div>
+                <p className="premium-stat-label">{s.title}</p>
+                <p className="premium-stat-value font-display">{s.value}</p>
+                <p className="premium-stat-hint">{s.hint}</p>
               </div>
-              <p className={`text-xs font-medium uppercase tracking-wide ${card.textColor}`}>{card.title}</p>
-              <p className={`mt-1 font-display text-3xl font-bold ${card.valueColor}`}>{card.value}</p>
             </Link>
           );
         })}
       </div>
 
-      <div className="card bg-blue-50/60 dark:bg-blue-900/10" style={{ border: "none" }}>
-        <h2 className="text-base font-semibold text-black dark:text-white mb-4">Status Pesanan</h2>
-        <div className="flex flex-col md:flex-row items-center gap-4">
-          <div className="w-full md:w-1/2">
-            <ResponsiveContainer width="100%" height={180}>
-              <PieChart>
-                <Pie
-                  data={statusOrders}
-                  dataKey="count"
-                  nameKey="status"
-                  innerRadius={45}
-                  outerRadius={75}
-                  paddingAngle={3}
-                  strokeWidth={0}
-                >
-                  {statusOrders.map((s) => (
-                    <Cell key={s.status} fill={STATUS_PIE_COLORS[s.status] ?? "#94a3b8"} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{
-                    background: "var(--djoker-surface)",
-                    border: "none",
-                    borderRadius: 8,
-                    fontSize: 12,
-                  }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-
-          <div className="w-full md:w-1/2 space-y-2.5">
-            {statusOrders.map((s) => (
-              <div key={s.status} className="flex items-center justify-between text-sm">
-                <div className="flex items-center gap-2">
-                  <span
-                    className="h-2.5 w-2.5 rounded-full shrink-0"
-                    style={{ backgroundColor: STATUS_PIE_COLORS[s.status] ?? "#94a3b8" }}
-                  />
-                  <span className="text-gray-700 dark:text-gray-300 font-medium">{s.status}</span>
-                </div>
-                <span className="text-gray-900 dark:text-gray-100 font-bold">{s.count}</span>
+      <div className="card p-0 overflow-hidden" style={{ border: "none" }}>
+        <div className="grid grid-cols-1 md:grid-cols-2">
+          <div className="p-3 panel-divider">
+            <h2 className="mb-2 flex items-center gap-2 text-xs font-semibold text-black dark:text-white">
+              <span className="card-icon-chip card-icon-chip-sm bg-blue-600">
+                <ListChecks size={10} />
+              </span>
+              Status Pesanan
+            </h2>
+            <div className="flex flex-col items-center gap-2">
+              <div className="w-full">
+                <ResponsiveContainer width="100%" height={110}>
+                  <PieChart>
+                    <Pie
+                      data={statusOrders}
+                      dataKey="count"
+                      nameKey="status"
+                      innerRadius={26}
+                      outerRadius={45}
+                      paddingAngle={3}
+                      strokeWidth={0}
+                    >
+                      {statusOrders.map((s) => (
+                        <Cell key={s.status} fill={STATUS_PIE_COLORS[s.status] ?? "#94a3b8"} />
+                      ))}
+                    </Pie>
+                    <Tooltip
+                      contentStyle={{
+                        background: "var(--djoker-surface)",
+                        border: "none",
+                        borderRadius: 8,
+                        fontSize: 12,
+                      }}
+                      itemStyle={{ color: "var(--djoker-text)" }}
+                      labelStyle={{ color: "var(--djoker-text)" }}
+                    />
+                  </PieChart>
+                </ResponsiveContainer>
               </div>
-            ))}
-          </div>
-        </div>
-      </div>
 
-      <div className="card bg-blue-50/60 dark:bg-blue-900/10" style={{ border: "none" }}>
-        <h2 className="text-base font-semibold text-black dark:text-white mb-4">Progress Produksi</h2>
-        <div className="flex items-center justify-center mb-4">
-          <div className="relative w-32 h-32 md:w-40 md:h-40">
-            <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="45" fill="none" stroke="#e5e7eb" strokeWidth="10" />
-              <circle
-                cx="50" cy="50" r="45" fill="none" stroke="#10b981" strokeWidth="10"
-                strokeDasharray={`${2 * Math.PI * 45}`}
-                strokeDashoffset={`${2 * Math.PI * 45 * (1 - (stats.totalProduksi > 0 ? stats.produksiSelesai / stats.totalProduksi : 0))}`}
-                strokeLinecap="round"
-              />
-            </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <p className="text-2xl md:text-3xl font-bold text-black dark:text-white">
-                {stats.totalProduksi > 0 ? Math.round((stats.produksiSelesai / stats.totalProduksi) * 100) : 0}%
-              </p>
-              <p className="text-xs text-gray-600 dark:text-gray-400">Selesai</p>
+              <div className="w-full space-y-1">
+                {statusOrders.map((s) => (
+                  <div key={s.status} className="flex items-center justify-between text-[11px]">
+                    <div className="flex items-center gap-1.5">
+                      <span
+                        className="h-1.5 w-1.5 rounded-full shrink-0"
+                        style={{ backgroundColor: STATUS_PIE_COLORS[s.status] ?? "#94a3b8" }}
+                      />
+                      <span className="text-gray-700 dark:text-gray-300 font-medium">{s.status}</span>
+                    </div>
+                    <span className="text-gray-900 dark:text-gray-100 font-bold">{s.count}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="p-3">
+            <h2 className="mb-2 flex items-center gap-2 text-xs font-semibold text-black dark:text-white">
+              <span className="card-icon-chip card-icon-chip-sm bg-emerald-500">
+                <Gauge size={10} />
+              </span>
+              Progress Produksi
+            </h2>
+            <div className="flex items-center justify-center mb-2">
+              <div className="relative w-20 h-20 md:w-24 md:h-24">
+                <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="45" fill="none" stroke="#e5e7eb" strokeWidth="10" />
+                  <circle
+                    cx="50" cy="50" r="45" fill="none" stroke="#10b981" strokeWidth="10"
+                    strokeDasharray={`${2 * Math.PI * 45}`}
+                    strokeDashoffset={`${2 * Math.PI * 45 * (1 - (stats.totalProduksi > 0 ? stats.produksiSelesai / stats.totalProduksi : 0))}`}
+                    strokeLinecap="round"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <p className="text-base md:text-lg font-bold text-black dark:text-white">
+                    {stats.totalProduksi > 0 ? Math.round((stats.produksiSelesai / stats.totalProduksi) * 100) : 0}%
+                  </p>
+                  <p className="text-[10px] text-gray-600 dark:text-gray-400">Selesai</p>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center justify-between text-[11px]">
+              <span className="text-gray-600 dark:text-gray-400">Produksi Selesai</span>
+              <span className="font-medium text-black dark:text-white">{stats.produksiSelesai} / {stats.totalProduksi}</span>
             </div>
           </div>
         </div>
-        <div className="flex items-center justify-between text-sm">
-          <span className="text-gray-600 dark:text-gray-400">Produksi Selesai</span>
-          <span className="font-medium text-black dark:text-white">{stats.produksiSelesai} / {stats.totalProduksi}</span>
-        </div>
       </div>
 
-      <div className="card bg-blue-50/60 dark:bg-blue-900/10" style={{ border: "none" }}>
-        <h2 className="text-base font-semibold text-black dark:text-white mb-4">
+      <div className="card dash-chart-card bg-blue-50/60 dark:bg-blue-900/10" style={{ border: "none" }}>
+        <h2 className="mb-2 flex items-center gap-2 text-xs font-semibold text-black dark:text-white">
+          <span className="card-icon-chip card-icon-chip-sm bg-emerald-700">
+            <TrendingUp size={10} />
+          </span>
           Tren Pendapatan (6 Bulan Terakhir)
         </h2>
         {monthlyRevenue.every((m) => m.pendapatan === 0) ? (
           <p className="text-sm text-gray-500 dark:text-gray-400">Belum ada data pendapatan 6 bulan terakhir.</p>
         ) : (
-          <ResponsiveContainer width="100%" height={220}>
+          <ResponsiveContainer width="100%" height={160}>
             <AreaChart data={monthlyRevenue}>
               <defs>
                 <linearGradient id="colorPendapatan" x1="0" y1="0" x2="0" y2="1">
@@ -443,6 +403,8 @@ export default function DashboardPage() {
                   borderRadius: 8,
                   fontSize: 12,
                 }}
+                itemStyle={{ color: "var(--djoker-text)" }}
+                labelStyle={{ color: "var(--djoker-text)" }}
               />
               <Area
                 type="monotone"

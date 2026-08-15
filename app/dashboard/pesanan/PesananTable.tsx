@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Search, Plus, FileText, ShoppingBag, CheckCircle2, TrendingUp, ChevronLeft, ChevronRight, Eye, Trash2, User, Loader2, PackageOpen, Hash, Calendar, Wallet, MoreHorizontal } from "lucide-react";
+import { Search, Plus, FileText, ShoppingBag, CheckCircle2, TrendingUp, ChevronLeft, ChevronRight, ChevronDown, Eye, Trash2, User, Loader2, PackageOpen, Hash, Calendar, Tag, MoreHorizontal } from "lucide-react";
 import { useConfirm } from "@/components/useConfirm";
 import { useToast } from "@/components/useToast";
 import { createClient } from "@/lib/supabase/client";
@@ -100,15 +100,21 @@ export default function PesananTable() {
     const fetchData = async () => {
       setLoading(true);
 
-      const { data: ordersData, error: ordersError } = await supabase
-        .from("orders")
-        .select("*, customers(nama), order_items(id, nama_produk, jumlah, harga)")
-        .order("created_at", { ascending: false });
-
-      const { data: customersData, error: customersError } = await supabase
-        .from("customers")
-        .select("*")
-        .order("nama", { ascending: true });
+      // Ketiga query ini independen (tidak saling butuh hasil satu sama
+      // lain), jadi ditembak bareng lewat Promise.all -- sebelumnya jalan
+      // berurutan (nunggu satu-satu) yang bikin halaman Pesanan kerasa lama.
+      const [
+        { data: ordersData, error: ordersError },
+        { data: customersData, error: customersError },
+        { data: prodData },
+      ] = await Promise.all([
+        supabase
+          .from("orders")
+          .select("*, customers(nama), order_items(id, nama_produk, jumlah, harga)")
+          .order("created_at", { ascending: false }),
+        supabase.from("customers").select("*").order("nama", { ascending: true }),
+        supabase.from("production").select("no_produksi").order("created_at", { ascending: false }).limit(1),
+      ]);
 
       if (ordersError) console.error(ordersError);
       if (customersError) console.error(customersError);
@@ -125,12 +131,6 @@ export default function PesananTable() {
         }, 0);
         setOrderSeq(maxNo + 1);
       }
-
-      const { data: prodData } = await supabase
-        .from("production")
-        .select("no_produksi")
-        .order("created_at", { ascending: false })
-        .limit(1);
 
       if (prodData && prodData.length > 0) {
         const match = prodData[0].no_produksi?.match(/PRO-(\d+)/);
@@ -155,7 +155,7 @@ export default function PesananTable() {
     );
   });
 
-  type SortField = "no_pesanan" | "pelanggan" | "tanggal" | "total";
+  type SortField = "no_pesanan" | "pelanggan" | "tanggal" | "status";
   const [sortField, setSortField] = useState<SortField | null>(null);
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
 
@@ -176,8 +176,8 @@ export default function PesananTable() {
         return o.customers?.nama ?? "";
       case "tanggal":
         return o.tanggal ?? "";
-      case "total":
-        return Number(o.total) || 0;
+      case "status":
+        return o.status ?? "";
     }
   }
 
@@ -440,7 +440,7 @@ export default function PesananTable() {
                 <SortableTh label="No. Pesanan" icon={Hash} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} center />
                 <SortableTh label="Pelanggan" icon={User} active={sortField === "pelanggan"} direction={sortDir} onClick={() => toggleSort("pelanggan")} center />
                 <SortableTh label="Tanggal" icon={Calendar} active={sortField === "tanggal"} direction={sortDir} onClick={() => toggleSort("tanggal")} center />
-                <SortableTh label="Total" icon={Wallet} active={sortField === "total"} direction={sortDir} onClick={() => toggleSort("total")} center />
+                <SortableTh label="Status" icon={Tag} active={sortField === "status"} direction={sortDir} onClick={() => toggleSort("status")} center />
                 <SortableTh label="Aksi" icon={MoreHorizontal} sortable={false} />
               </tr>
             </thead>
@@ -464,18 +464,23 @@ export default function PesananTable() {
                       : "-"}
                   </td>
                   <td className="text-center">
-                    <p className="text-sm font-medium text-black dark:text-white">{formatRupiah(Number(o.total) || 0)}</p>
-                    <select
-                      value={o.status ?? "Pesanan"}
-                      onChange={(e) => updateStatus(o, e.target.value)}
-                      className={`badge cursor-pointer mt-1 ${STATUS_COLORS[o.status ?? ""] ?? ""}`}
-                    >
-                      {STATUS_OPTIONS.map((s) => (
-                        <option key={s} value={s}>
-                          {s}
-                        </option>
-                      ))}
-                    </select>
+                    <span className={`badge relative ${STATUS_COLORS[o.status ?? ""] ?? ""}`}>
+                      <span className="status-dot" />
+                      {o.status ?? "Pesanan"}
+                      <ChevronDown size={12} className="status-chevron" />
+                      <select
+                        value={o.status ?? "Pesanan"}
+                        onChange={(e) => updateStatus(o, e.target.value)}
+                        className="status-select-overlay"
+                        aria-label="Ubah status pesanan"
+                      >
+                        {STATUS_OPTIONS.map((s) => (
+                          <option key={s} value={s}>
+                            {s}
+                          </option>
+                        ))}
+                      </select>
+                    </span>
                   </td>
                   <td className="text-right">
                     <div className="flex justify-end gap-1.5">
@@ -819,6 +824,7 @@ export default function PesananTable() {
                   </div>
                 </div>
                 <span className={`badge ${STATUS_COLORS[detailOrder.status ?? ""] ?? ""}`}>
+                  <span className="status-dot" />
                   {detailOrder.status}
                 </span>
               </div>

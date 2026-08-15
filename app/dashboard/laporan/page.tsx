@@ -1,7 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import ExportButtons from "./ExportButtons";
 import LaporanTable from "./LaporanTable";
-import { ShoppingBag, Wallet, HandCoins, AlertCircle } from "lucide-react";
+import { ShoppingBag, Wallet, HandCoins, AlertCircle, FileText } from "lucide-react";
+import PageHeaderCard from "@/components/PageHeaderCard";
 
 type Order = {
   id: string;
@@ -37,11 +38,12 @@ export default async function LaporanPage() {
   return (
     <div className="space-y-4 md:space-y-6">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <div>
-          <span className="mb-2 inline-flex items-center rounded-full bg-blue-50 border border-blue-100 px-3 py-1 text-xs font-semibold tracking-wide text-blue-700">ANALISIS</span>
-          <h1 className="font-display text-2xl font-bold text-black dark:text-white">Laporan Pesanan</h1>
-          <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">Ringkasan dan daftar semua pesanan pelanggan.</p>
-        </div>
+        <PageHeaderCard
+          badge="ANALISIS"
+          icon={FileText}
+          title="Laporan Pesanan"
+          subtitle="Ringkasan dan daftar semua pesanan pelanggan."
+        />
         <div className="flex items-center gap-2">
           <ExportButtons orders={dataOrders} />
         </div>
@@ -49,40 +51,40 @@ export default async function LaporanPage() {
 
       <div className="card p-0 overflow-hidden" style={{ border: "none" }}>
         <div className="grid grid-cols-1 divide-y divide-gray-100 dark:divide-gray-700 sm:grid-cols-2 sm:divide-y-0 sm:divide-x lg:grid-cols-4">
-          <div className="flex items-center gap-3 p-5">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-900/40">
-              <ShoppingBag size={20} className="text-blue-600 dark:text-blue-400" />
+          <div className="flex items-center gap-2.5 p-3">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/40">
+              <ShoppingBag size={15} className="text-blue-600 dark:text-blue-400" />
             </span>
             <div>
-              <p className="font-display text-xl font-bold text-black dark:text-white">{totalOrders}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Total Pesanan</p>
+              <p className="font-display text-base font-bold text-black dark:text-white">{totalOrders}</p>
+              <p className="text-[11px] text-gray-500 dark:text-gray-400">Total Pesanan</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 p-5">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-green-50 dark:bg-green-900/40">
-              <Wallet size={20} className="text-green-600 dark:text-green-400" />
+          <div className="flex items-center gap-2.5 p-3">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-50 dark:bg-green-900/40">
+              <Wallet size={15} className="text-green-600 dark:text-green-400" />
             </span>
             <div>
-              <p className="font-display text-lg font-bold text-black dark:text-white">{formatRupiah(totalRevenue)}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Pendapatan Diterima</p>
+              <p className="font-display text-sm font-bold text-black dark:text-white">{formatRupiah(totalRevenue)}</p>
+              <p className="text-[11px] text-gray-500 dark:text-gray-400">Pendapatan Diterima</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 p-5">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-cyan-50 dark:bg-cyan-900/40">
-              <HandCoins size={20} className="text-cyan-600 dark:text-cyan-400" />
+          <div className="flex items-center gap-2.5 p-3">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-cyan-50 dark:bg-cyan-900/40">
+              <HandCoins size={15} className="text-cyan-600 dark:text-cyan-400" />
             </span>
             <div>
-              <p className="font-display text-lg font-bold text-black dark:text-white">{formatRupiah(totalDP)}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Total DP Diterima</p>
+              <p className="font-display text-sm font-bold text-black dark:text-white">{formatRupiah(totalDP)}</p>
+              <p className="text-[11px] text-gray-500 dark:text-gray-400">Total DP Diterima</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 p-5">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-orange-50 dark:bg-orange-900/40">
-              <AlertCircle size={20} className="text-orange-600 dark:text-orange-400" />
+          <div className="flex items-center gap-2.5 p-3">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-orange-50 dark:bg-orange-900/40">
+              <AlertCircle size={15} className="text-orange-600 dark:text-orange-400" />
             </span>
             <div>
-              <p className="font-display text-lg font-bold text-black dark:text-white">{formatRupiah(totalSisa)}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Sisa Belum Dibayar</p>
+              <p className="font-display text-sm font-bold text-black dark:text-white">{formatRupiah(totalSisa)}</p>
+              <p className="text-[11px] text-gray-500 dark:text-gray-400">Sisa Belum Dibayar</p>
             </div>
           </div>
         </div>

@@ -1,7 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Plus, Settings } from "lucide-react";
 import PengaturanTable from "./PengaturanTable";
+import PageHeaderCard from "@/components/PageHeaderCard";
 
 export default async function PengaturanPage() {
   const supabase = createClient();
@@ -31,13 +32,12 @@ export default async function PengaturanPage() {
 
   return (
     <div className="space-y-4 md:space-y-6">
-      <div>
-        <span className="mb-2 inline-flex items-center rounded-full bg-blue-50 border border-blue-100 px-3 py-1 text-xs font-semibold tracking-wide text-blue-700 dark:text-blue-300">MANAJEMEN AKUN</span>
-        <h1 className="font-display text-2xl font-bold text-black dark:text-white">Pengaturan</h1>
-        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-          Manajemen profil pengguna dan role akses.
-        </p>
-      </div>
+      <PageHeaderCard
+        badge="MANAJEMEN AKUN"
+        icon={Settings}
+        title="Pengaturan"
+        subtitle="Manajemen profil pengguna dan role akses."
+      />
 
       <div
         className="relative overflow-hidden rounded-2xl p-6 bg-white/55 dark:bg-gray-800/55 backdrop-blur-xl"

@@ -10,7 +10,9 @@ import {
   Package,
   Send,
   UserCheck,
+  Route,
 } from "lucide-react";
+import PageHeaderCard from "@/components/PageHeaderCard";
 
 const STAGES = [
   { key: "supplier", label: "Supplier", desc: "Pemasok bahan baku", icon: Truck, accent: "#2563eb", iconBg: "bg-blue-600", href: "/dashboard/supplier" },
@@ -65,42 +67,39 @@ export default async function AlurPage() {
 
   return (
     <div className="space-y-4 md:space-y-6">
-      <div>
-        <span className="mb-2 inline-flex items-center rounded-full bg-blue-50 border border-blue-100 px-3 py-1 text-xs font-semibold tracking-wide text-blue-700">
-          END-TO-END TRACKING
-        </span>
-        <h1 className="font-display text-2xl font-bold text-black dark:text-white">Alur Supply Chain</h1>
-        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-          Ringkasan tiap tahap dari bahan baku sampai produk diterima pelanggan.
-        </p>
-      </div>
+      <PageHeaderCard
+        badge="END-TO-END TRACKING"
+        icon={Route}
+        title="Alur Supply Chain"
+        subtitle="Ringkasan tiap tahap dari bahan baku sampai produk diterima pelanggan."
+      />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {STAGES.map((stage, idx) => {
           const Icon = stage.icon;
           return (
             <Link
               key={stage.key}
               href={stage.href}
-              className="card relative block cursor-pointer bg-blue-50/60 dark:bg-blue-900/10"
+              className="card alur-stage-card relative block cursor-pointer bg-blue-50/60 dark:bg-blue-900/10"
               style={{ border: "none" }}
             >
-              <span className="absolute top-4 right-4 text-xs font-display font-bold text-gray-300 dark:text-gray-600">
+              <span className="absolute top-3 right-3 text-[10px] font-display font-bold text-gray-300 dark:text-gray-600">
                 {String(idx + 1).padStart(2, "0")}
               </span>
 
-              <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-lg ${stage.iconBg} shadow-sm`}>
-                <Icon className="text-white" size={19} />
+              <div className={`mb-2 flex h-8 w-8 items-center justify-center rounded-lg ${stage.iconBg} shadow-sm`}>
+                <Icon className="text-white" size={15} />
               </div>
 
-              <p className="text-base font-semibold text-black dark:text-white">{stage.label}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">{stage.desc}</p>
+              <p className="text-sm font-semibold text-black dark:text-white">{stage.label}</p>
+              <p className="text-[11px] text-gray-500 dark:text-gray-400 mb-2">{stage.desc}</p>
 
-              <div className="pt-3 border-t border-gray-100 dark:border-gray-700 flex items-end justify-between">
-                <p className="font-display text-2xl font-bold" style={{ color: stage.accent }}>
+              <div className="pt-2 border-t border-gray-100 dark:border-gray-700 flex items-end justify-between">
+                <p className="font-display text-lg font-bold" style={{ color: stage.accent }}>
                   {VALUES[stage.key].value}
                 </p>
-                <p className="text-[11px] text-gray-500 dark:text-gray-400 text-right">
+                <p className="text-[10px] text-gray-500 dark:text-gray-400 text-right">
                   {VALUES[stage.key].hint}
                 </p>
               </div>

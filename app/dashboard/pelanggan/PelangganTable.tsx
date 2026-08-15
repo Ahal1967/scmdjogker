@@ -82,7 +82,7 @@ export default function PelangganTable({ dataPelanggan }: { dataPelanggan: Pelan
                   <td className="font-semibold text-black dark:text-white text-center">{c.nama}</td>
                   <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{c.no_telepon || "-"}</td>
                   <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{c.totalPesanan} pesanan</td>
-                  <td className="text-sm font-medium text-black dark:text-white text-center">
+                  <td className="td-center text-sm font-medium text-black dark:text-white">
                     Rp {c.totalBelanja.toLocaleString("id-ID")}
                   </td>
                 </tr>

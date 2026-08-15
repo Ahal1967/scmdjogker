@@ -1,5 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
+import { Boxes } from "lucide-react";
 import GudangTable from "./GudangTable";
+import PageHeaderCard from "@/components/PageHeaderCard";
 
 export default async function GudangPage() {
   const supabase = createClient();
@@ -21,24 +23,25 @@ export default async function GudangPage() {
 
   return (
     <div className="space-y-4 md:space-y-6">
-      <div>
-        <span className="mb-2 inline-flex items-center rounded-full bg-blue-50 border border-blue-100 px-3 py-1 text-xs font-semibold tracking-wide text-blue-700">INVENTORI</span>
-        <h1 className="font-display text-2xl font-bold text-black dark:text-white">Gudang</h1>
-        <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">Kelola stok bahan baku produksi.</p>
-      </div>
+      <PageHeaderCard
+        badge="INVENTORI"
+        icon={Boxes}
+        title="Gudang"
+        subtitle="Kelola stok bahan baku produksi."
+      />
 
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-3 md:gap-4">
-        <div className="card">
-          <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Total Jenis Bahan</p>
-          <p className="mt-1 font-display text-3xl font-bold text-black dark:text-white">{totalJenisBahan}</p>
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+        <div className="card p-3">
+          <p className="text-[10px] font-semibold tracking-wide text-gray-500 dark:text-gray-400">Total Jenis Bahan</p>
+          <p className="mt-1 font-display text-lg font-bold text-black dark:text-white">{totalJenisBahan}</p>
         </div>
-        <div className="card">
-          <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Total Stok</p>
-          <p className="mt-1 font-display text-3xl font-bold text-black dark:text-white">{totalStok}</p>
+        <div className="card p-3">
+          <p className="text-[10px] font-semibold tracking-wide text-gray-500 dark:text-gray-400">Total Stok</p>
+          <p className="mt-1 font-display text-lg font-bold text-black dark:text-white">{totalStok}</p>
         </div>
-        <div className="card">
-          <p className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">Stok Terendah</p>
-          <p className="mt-1 font-display text-3xl font-bold text-black dark:text-white">{stokTerendah}</p>
+        <div className="card p-3">
+          <p className="text-[10px] font-semibold tracking-wide text-gray-500 dark:text-gray-400">Stok Terendah</p>
+          <p className="mt-1 font-display text-lg font-bold text-black dark:text-white">{stokTerendah}</p>
         </div>
       </div>
 
