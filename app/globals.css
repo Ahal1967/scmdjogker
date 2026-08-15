@@ -744,11 +744,16 @@ body::before {
      karena border ikut dihitung table layout, jadi lebar kolom header
      tetap dijamin 100% sama dengan <td> di bawahnya -- ini yang bikin
      semua perbaikan alignment sebelumnya tidak percuma. */
+  /* backdrop-filter DIHAPUS dari sini (sebelumnya blur(10px) per <th>) --
+     setiap kolom tabel adalah elemen blur terpisah, jadi tabel 8 kolom =
+     8 layer blur yang harus dihitung ulang bareng pas halaman di-scroll.
+     Ini kemungkinan besar biang utama "halaman tabel belum mulus discroll"
+     karena kejadian di SEMUA halaman yang ada tabelnya, dikali jumlah
+     kolom. Background dinaikkan opacity-nya (0.75 -> 0.94) buat gantiin
+     efek blur biar tetap kelihatan solid/tidak transparan-transparan amat. */
   .table-djoker thead th {
-    background: rgba(255, 255, 255, 0.75);
+    background: rgba(255, 255, 255, 0.94);
     background-clip: padding-box;
-    backdrop-filter: blur(10px) saturate(160%);
-    -webkit-backdrop-filter: blur(10px) saturate(160%);
     color: var(--djoker-blue-dark);
     font-weight: 700;
     font-size: 0.6875rem !important;
@@ -762,7 +767,7 @@ body::before {
   }
 
   .dark .table-djoker thead th {
-    background: rgba(22, 29, 58, 0.75);
+    background: rgba(22, 29, 58, 0.94);
     color: #cbd5e1;
   }
 
