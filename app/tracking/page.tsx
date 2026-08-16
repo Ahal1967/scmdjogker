@@ -3,7 +3,21 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import {
+  ArrowLeft,
+  Search,
+  MapPin,
+  Shirt,
+  ShoppingCart,
+  Wallet,
+  Factory,
+  ShieldCheck,
+  PackageCheck,
+  Truck,
+  CheckCircle2,
+  Circle,
+  MessageCircle,
+} from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
@@ -35,6 +49,35 @@ function formatWaktu(iso: string) {
   });
 }
 
+/* Nama tahap di order_tracking bersifat teks bebas (diisi dari berbagai
+   halaman: Produksi, QC, Packing, Pengiriman), jadi ikon dicocokkan lewat
+   kata kunci -- bukan enum tetap -- supaya tetap tampil benar walau
+   penulisan tahapnya sedikit berbeda-beda di database. */
+function iconForTahap(tahap: string) {
+  const t = tahap.toLowerCase();
+  if (/bayar|payment/.test(t)) return Wallet;
+  if (/produksi|cetak|sablon|proses/.test(t)) return Factory;
+  if (/qc|quality|kontrol|periksa/.test(t)) return ShieldCheck;
+  if (/packing|kemas/.test(t)) return PackageCheck;
+  if (/kirim|antar/.test(t)) return Truck;
+  if (/selesai|sampai|diterima pelanggan/.test(t)) return CheckCircle2;
+  if (/terima|masuk|order/.test(t)) return ShoppingCart;
+  return Circle;
+}
+
+/* Sama seperti ikon, status pesanan juga teks bebas dari admin -- warna
+   badge dicocokkan lewat kata kunci dengan fallback biru netral. */
+function colorForStatus(status: string) {
+  const s = status.toLowerCase();
+  if (/batal/.test(s)) return { bg: "rgba(220,38,38,0.1)", fg: "#dc2626" };
+  if (/selesai|sampai/.test(s)) return { bg: "rgba(22,163,74,0.1)", fg: "#16a34a" };
+  if (/kirim/.test(s)) return { bg: "rgba(147,51,234,0.1)", fg: "#9333ea" };
+  if (/qc|quality/.test(s)) return { bg: "rgba(147,51,234,0.1)", fg: "#9333ea" };
+  if (/packing/.test(s)) return { bg: "rgba(8,145,178,0.1)", fg: "#0891b2" };
+  if (/menunggu|baru|pending/.test(s)) return { bg: "rgba(217,119,6,0.1)", fg: "#d97706" };
+  return { bg: "rgba(37,99,235,0.1)", fg: "#2563eb" };
+}
+
 export default function TrackingPage() {
   const [noPesanan, setNoPesanan] = useState("");
   const [loading, setLoading] = useState(false);
@@ -62,41 +105,92 @@ export default function TrackingPage() {
     setTracking(result.tracking);
   }
 
+  const statusColor = order ? colorForStatus(order.status) : null;
+  // Baris terakhir yang belum "selesai" dianggap tahap yang sedang
+  // berjalan sekarang -- baris sebelumnya yang sudah selesai tetap
+  // ditandai selesai seperti biasa. Tidak ada tahap masa depan yang
+  // dikarang di sini; hanya data yang benar-benar ada di order_tracking.
+  const lastIncompleteIdx = tracking.reduce(
+    (acc, t, i) => (!t.selesai ? i : acc),
+    -1
+  );
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-white dark:from-gray-900 dark:via-gray-900 dark:to-gray-900 px-4 py-10 md:py-16">
-      <div className="mx-auto max-w-2xl">
-        <Link
-          href="/login"
-          className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3.5 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 shadow-sm hover:border-blue-200 hover:text-blue-600 hover:shadow transition-all"
-        >
-          <ArrowLeft size={15} strokeWidth={2.5} />
-          Kembali ke Login
-        </Link>
+    <div className="min-h-screen relative overflow-hidden bg-white dark:bg-[#0f1420] px-4 py-8 md:py-12">
+      <div
+        className="pointer-events-none fixed inset-0 -z-10"
+        style={{
+          background:
+            "radial-gradient(circle at 100% 0%, rgba(147,197,253,0.5) 0%, transparent 45%), radial-gradient(circle at 0% 100%, rgba(165,180,252,0.35) 0%, transparent 45%)",
+        }}
+      />
 
-        <div className="rounded-xl border border-blue-100 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-lg md:p-8 mb-6">
-          <div className="mb-6 text-center">
-            <p className="font-display text-xs font-bold tracking-widest text-blue-600">DJOGKER SABLON KAOS</p>
-            <h1 className="mt-2 font-display text-2xl font-bold text-black dark:text-white">Lacak Pesanan</h1>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-              Masukkan nomor pesanan kamu untuk melihat status terbaru.
-            </p>
+      <div className="mx-auto max-w-xl">
+        <div className="mb-5 flex items-center justify-between">
+          <Link
+            href="/login"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+          >
+            <ArrowLeft size={14} strokeWidth={2.5} />
+            Login
+          </Link>
+
+          <div className="flex gap-0.5 rounded-full border border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/70 p-1 shadow-sm">
+            <span className="rounded-full bg-blue-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-sm">
+              Lacak Pesanan
+            </span>
+            <Link
+              href="/upload"
+              className="rounded-full px-3.5 py-1.5 text-xs font-bold text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            >
+              Upload Desain
+            </Link>
           </div>
+        </div>
 
-          <form onSubmit={handleSubmit} className="flex gap-2">
-            <input
-              value={noPesanan}
-              onChange={(e) => setNoPesanan(e.target.value)}
-              placeholder="Contoh: DJ00125"
-              className="input-field flex-1"
-              required
-            />
-            <button type="submit" disabled={loading} className="btn-primary whitespace-nowrap">
+        <div className="mb-6 text-center">
+          <div
+            className="mx-auto mb-3.5 flex h-14 w-14 items-center justify-center rounded-2xl"
+            style={{
+              background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
+              boxShadow: "0 10px 24px -6px rgba(37,99,235,0.5)",
+            }}
+          >
+            <Shirt size={26} className="text-white" />
+          </div>
+          <span className="mb-3 inline-flex items-center rounded-full bg-blue-50 dark:bg-blue-900/40 px-3 py-1 text-[10.5px] font-extrabold tracking-widest text-blue-600 dark:text-blue-300">
+            DJOGKER SABLON KAOS
+          </span>
+          <h1 className="font-display text-2xl font-extrabold tracking-tight text-black dark:text-white">
+            Lacak Pesanan Kamu
+          </h1>
+          <p className="mx-auto mt-1.5 max-w-sm text-[13.5px] text-gray-500 dark:text-gray-400">
+            Masukkan nomor pesanan untuk melihat status produksi &amp; pengiriman secara real-time.
+          </p>
+        </div>
+
+        <div className="bg-white dark:bg-[#161d2e] mb-5 rounded-[20px] border border-gray-200 dark:border-gray-700 p-5 shadow-lg">
+          <form onSubmit={handleSubmit} className="flex gap-2.5">
+            <div className="relative flex-1">
+              <Search size={17} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                value={noPesanan}
+                onChange={(e) => setNoPesanan(e.target.value)}
+                placeholder="Contoh: DJ00125"
+                className="input-field pl-10"
+                required
+              />
+            </div>
+            <button type="submit" disabled={loading} className="btn-primary whitespace-nowrap rounded-[13px]">
               {loading ? "Mencari..." : "Lacak"}
             </button>
           </form>
+          <p className="mt-2.5 pl-0.5 text-[11.5px] text-gray-400 dark:text-gray-500">
+            Contoh format: DJ00125 — cek di struk atau pesan konfirmasi WhatsApp kamu.
+          </p>
 
           {error && (
-            <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 text-center mt-4">
+            <div className="mt-4 rounded-xl border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-900/20 px-4 py-3 text-center text-sm text-red-700 dark:text-red-400">
               {error}
             </div>
           )}
@@ -104,69 +198,126 @@ export default function TrackingPage() {
 
         {order && (
           <div className="space-y-4">
-            <div className="card">
-              <div className="flex items-center justify-between mb-1">
-                <h2 className="font-display font-bold text-lg text-black dark:text-white">{order.no_pesanan}</h2>
-                <span className="badge text-blue-600">{order.status}</span>
+            <div className="bg-white dark:bg-[#161d2e] rounded-[20px] border border-gray-200 dark:border-gray-700 p-5 shadow-lg">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h2 className="font-display text-lg font-extrabold tracking-tight text-black dark:text-white">
+                    {order.no_pesanan}
+                  </h2>
+                  <p className="mt-0.5 text-[12.5px] text-gray-500 dark:text-gray-400">{order.pelanggan ?? "-"}</p>
+                </div>
+                <span
+                  className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-extrabold"
+                  style={{ background: statusColor?.bg, color: statusColor?.fg }}
+                >
+                  <span className="h-1.5 w-1.5 rounded-full" style={{ background: statusColor?.fg }} />
+                  {order.status}
+                </span>
               </div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">{order.pelanggan ?? "-"}</p>
 
-              <div className="mt-4 space-y-1.5">
+              <div className="mt-4 space-y-1.5 border-t border-dashed border-gray-200 dark:border-gray-700 pt-3.5">
                 {order.items.map((it, i) => (
-                  <div key={i} className="flex justify-between text-sm">
-                    <span className="text-gray-800 dark:text-gray-200">
+                  <div key={i} className="flex justify-between text-[13px]">
+                    <span className="text-gray-700 dark:text-gray-300">
                       {it.nama_produk} × {it.jumlah}
                     </span>
-                    <span className="font-medium text-gray-900 dark:text-gray-100">
+                    <span className="font-bold text-gray-900 dark:text-gray-100">
                       {formatRupiah(it.jumlah * it.harga)}
                     </span>
                   </div>
                 ))}
               </div>
 
-              <div className="mt-3 flex justify-between border-t border-gray-200 dark:border-gray-700 pt-3 text-sm">
-                <span className="text-gray-600 dark:text-gray-400">Total</span>
-                <span className="font-bold text-black dark:text-white">{formatRupiah(order.total)}</span>
+              <div className="mt-2.5 flex justify-between border-t border-gray-200 dark:border-gray-700 pt-3 text-sm">
+                <span className="text-gray-500 dark:text-gray-400">Total</span>
+                <span className="text-base font-extrabold text-black dark:text-white">{formatRupiah(order.total)}</span>
               </div>
 
               {order.alamat_pengiriman && (
-                <div className="mt-3 text-sm">
-                  <p className="text-gray-600 dark:text-gray-400">Alamat Pengiriman</p>
-                  <p className="text-gray-800 dark:text-gray-200">{order.alamat_pengiriman}</p>
+                <div className="mt-4 flex gap-2.5">
+                  <span className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[9px] bg-blue-50 dark:bg-blue-900/40">
+                    <MapPin size={15} className="text-blue-600 dark:text-blue-400" />
+                  </span>
+                  <div>
+                    <p className="text-[11px] font-bold uppercase tracking-wide text-gray-400 dark:text-gray-500">
+                      Alamat Pengiriman
+                    </p>
+                    <p className="mt-0.5 text-[13px] text-gray-700 dark:text-gray-300">{order.alamat_pengiriman}</p>
+                  </div>
                 </div>
               )}
 
               {order.desain_url && (
                 <div className="mt-4">
-                  <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Desain Terupload</p>
-                  <div className="relative w-32 h-32 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+                  <p className="mb-2 text-[11px] font-bold uppercase tracking-wide text-gray-400 dark:text-gray-500">
+                    Desain Terupload
+                  </p>
+                  <div className="relative h-20 w-20 overflow-hidden rounded-[14px] border border-gray-200 dark:border-gray-700">
                     <Image src={order.desain_url} alt="Desain" fill className="object-contain" />
                   </div>
                 </div>
               )}
             </div>
 
-            <div className="card">
-              <h3 className="font-semibold text-black dark:text-white mb-4">Riwayat Status</h3>
+            <div className="bg-white dark:bg-[#161d2e] rounded-[20px] border border-gray-200 dark:border-gray-700 p-5 shadow-lg">
+              <h3 className="mb-4 text-[14.5px] font-extrabold text-black dark:text-white">Riwayat Status</h3>
               <div className="space-y-0">
-                {tracking.map((t, i) => (
-                  <div key={i} className="flex gap-3">
-                    <div className="flex flex-col items-center">
-                      <div
-                        className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                          t.selesai ? "bg-blue-600 text-white" : "bg-gray-200 text-gray-500 dark:text-gray-400"
-                        }`}
-                      >
-                        {t.selesai ? "✓" : ""}
+                {tracking.map((t, i) => {
+                  const Icon = iconForTahap(t.tahap);
+                  const isCurrent = i === lastIncompleteIdx;
+                  return (
+                    <div key={i} className="flex gap-3">
+                      <div className="flex flex-col items-center">
+                        <div
+                          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
+                            t.selesai
+                              ? "bg-gradient-to-br from-blue-500 to-blue-600 shadow-md shadow-blue-600/30"
+                              : isCurrent
+                              ? "border-2 border-blue-500 bg-white dark:bg-gray-800"
+                              : "border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800"
+                          }`}
+                        >
+                          <Icon
+                            size={15}
+                            className={
+                              t.selesai
+                                ? "text-white"
+                                : isCurrent
+                                ? "text-blue-600 dark:text-blue-400"
+                                : "text-gray-300 dark:text-gray-600"
+                            }
+                          />
+                        </div>
+                        {i < tracking.length - 1 && (
+                          <div
+                            className={`min-h-[24px] w-[2.5px] flex-1 rounded ${
+                              t.selesai ? "bg-blue-500" : "bg-gray-200 dark:bg-gray-700"
+                            }`}
+                          />
+                        )}
                       </div>
-                      {i < tracking.length - 1 && <div className="w-0.5 flex-1 bg-gray-200 min-h-[24px]" />}
+                      <div className="pb-5">
+                        <p
+                          className={`text-[13.5px] font-bold ${
+                            t.selesai
+                              ? "text-black dark:text-white"
+                              : isCurrent
+                              ? "text-blue-600 dark:text-blue-400"
+                              : "text-gray-400 dark:text-gray-500"
+                          }`}
+                        >
+                          {t.tahap}
+                          {isCurrent && (
+                            <span className="ml-2 rounded-full bg-blue-50 dark:bg-blue-900/40 px-2 py-0.5 text-[9.5px] font-extrabold text-blue-600 dark:text-blue-400">
+                              Berlangsung
+                            </span>
+                          )}
+                        </p>
+                        <p className="mt-0.5 text-[11.5px] text-gray-400 dark:text-gray-500">{formatWaktu(t.waktu)}</p>
+                      </div>
                     </div>
-                    <div className="pb-4">
-                      <p className="text-sm font-medium text-black dark:text-white">{t.tahap}</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">{formatWaktu(t.waktu)}</p>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
                 {tracking.length === 0 && (
                   <p className="text-sm text-gray-500 dark:text-gray-400">Belum ada riwayat status.</p>
                 )}
@@ -179,9 +330,10 @@ export default function TrackingPage() {
               )}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn-outline w-full text-center block"
+              className="flex items-center justify-center gap-2 rounded-[15px] border-[1.5px] border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 px-4 py-3.5 text-[13.5px] font-bold text-green-700 dark:text-green-400 transition-colors hover:bg-green-100 dark:hover:bg-green-900/30"
             >
-              Hubungi Admin
+              <MessageCircle size={17} />
+              Hubungi Admin via WhatsApp
             </a>
           </div>
         )}

@@ -3,9 +3,14 @@
 import { useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Hash, UploadCloud, ImageIcon, X, CheckCircle2, Shirt } from "lucide-react";
 
 export const dynamic = "force-dynamic";
+
+function formatSize(bytes: number) {
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(0) + " KB";
+  return (bytes / (1024 * 1024)).toFixed(1) + " MB";
+}
 
 export default function UploadDesainPage() {
   const [noPesanan, setNoPesanan] = useState("");
@@ -32,6 +37,20 @@ export default function UploadDesainPage() {
     e.preventDefault();
     setDragging(false);
     handleFile(e.dataTransfer.files?.[0] ?? null);
+  }
+
+  function handleRemoveFile(e: React.MouseEvent) {
+    e.stopPropagation();
+    setFile(null);
+    setPreview(null);
+    if (inputRef.current) inputRef.current.value = "";
+  }
+
+  function resetForm() {
+    setSuccess(false);
+    setFile(null);
+    setPreview(null);
+    setNoPesanan("");
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -66,111 +85,196 @@ export default function UploadDesainPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-white dark:from-gray-900 dark:via-gray-900 dark:to-gray-900 px-4 py-10 md:py-16">
-      <div className="mx-auto max-w-xl">
-        <Link
-          href="/login"
-          className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-3.5 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 shadow-sm hover:border-blue-200 hover:text-blue-600 hover:shadow transition-all"
-        >
-          <ArrowLeft size={15} strokeWidth={2.5} />
-          Kembali ke Login
-        </Link>
+    <div className="min-h-screen relative overflow-hidden bg-white dark:bg-[#0f1420] px-4 py-8 md:py-12">
+      <div
+        className="pointer-events-none fixed inset-0 -z-10"
+        style={{
+          background:
+            "radial-gradient(circle at 100% 0%, rgba(147,197,253,0.5) 0%, transparent 45%), radial-gradient(circle at 0% 100%, rgba(165,180,252,0.35) 0%, transparent 45%)",
+        }}
+      />
 
-        <div className="rounded-xl border border-blue-100 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 shadow-lg md:p-8">
-          <div className="mb-6 text-center">
-            <p className="font-display text-xs font-bold tracking-widest text-blue-600">DJOGKER SABLON KAOS</p>
-            <h1 className="mt-2 font-display text-2xl font-bold text-black dark:text-white">Upload Desain</h1>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
-              Kirim file desain kaos untuk pesanan kamu. Format PNG, JPG, WEBP, atau PDF (maks 10MB).
-            </p>
+      <div className="mx-auto max-w-lg">
+        <div className="mb-5 flex items-center justify-between">
+          <Link
+            href="/login"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+          >
+            <ArrowLeft size={14} strokeWidth={2.5} />
+            Login
+          </Link>
+
+          <div className="flex gap-0.5 rounded-full border border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/70 p-1 shadow-sm">
+            <Link
+              href="/tracking"
+              className="rounded-full px-3.5 py-1.5 text-xs font-bold text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            >
+              Lacak Pesanan
+            </Link>
+            <span className="rounded-full bg-blue-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-sm">
+              Upload Desain
+            </span>
           </div>
+        </div>
 
+        <div className="mb-6 text-center">
+          <div
+            className="mx-auto mb-3.5 flex h-14 w-14 items-center justify-center rounded-2xl"
+            style={{
+              background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
+              boxShadow: "0 10px 24px -6px rgba(37,99,235,0.5)",
+            }}
+          >
+            <Shirt size={26} className="text-white" />
+          </div>
+          <span className="mb-3 inline-flex items-center rounded-full bg-blue-50 dark:bg-blue-900/40 px-3 py-1 text-[10.5px] font-extrabold tracking-widest text-blue-600 dark:text-blue-300">
+            DJOGKER SABLON KAOS
+          </span>
+          <h1 className="font-display text-2xl font-extrabold tracking-tight text-black dark:text-white">
+            Upload Desain Kaos
+          </h1>
+          <p className="mx-auto mt-1.5 max-w-sm text-[13.5px] text-gray-500 dark:text-gray-400">
+            Kirim file desain untuk pesanan kamu. Format PNG, JPG, WEBP, atau PDF (maks 10MB).
+          </p>
+        </div>
+
+        <div className="bg-white dark:bg-[#161d2e] rounded-[20px] border border-gray-200 dark:border-gray-700 p-5 shadow-lg">
           {success ? (
-            <div className="text-center">
-              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-50 dark:bg-green-900/40">
-                <svg viewBox="0 0 24 24" className="h-8 w-8 text-green-600" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-                  <polyline points="22 4 12 14.01 9 11.01" />
-                </svg>
+            <div className="py-2 text-center">
+              <div
+                className="mx-auto mb-4 flex h-[74px] w-[74px] items-center justify-center rounded-full"
+                style={{
+                  background: "radial-gradient(circle, rgba(220,252,231,1) 0%, rgba(240,253,244,1) 70%)",
+                  boxShadow: "0 0 0 8px rgba(240,253,244,1)",
+                }}
+              >
+                <CheckCircle2 size={34} className="text-green-600" strokeWidth={2.2} />
               </div>
-              <p className="font-semibold text-black dark:text-white">Desain berhasil diupload!</p>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                Tim kami akan meninjau desain untuk pesanan {noPesanan}.
+              <p className="text-[17px] font-extrabold text-black dark:text-white">Desain Berhasil Diupload!</p>
+              <p className="mx-auto mt-1.5 mb-6 max-w-xs text-[13px] leading-relaxed text-gray-500 dark:text-gray-400">
+                Tim kami akan meninjau desain untuk pesanan{" "}
+                <b className="text-gray-800 dark:text-gray-200">{noPesanan}</b>.
               </p>
+              <div className="flex flex-col gap-2.5">
+                <Link
+                  href="/tracking"
+                  className="btn-primary block rounded-[13px] py-3 text-center text-[13.5px]"
+                >
+                  Lacak Status Pesanan
+                </Link>
+                <button
+                  type="button"
+                  onClick={resetForm}
+                  className="btn-outline rounded-[13px] py-2.5 text-[13px]"
+                >
+                  Upload Desain Lain
+                </button>
+              </div>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">Nomor Pesanan</label>
-              <input
-                value={noPesanan}
-                onChange={(e) => setNoPesanan(e.target.value)}
-                placeholder="Contoh: DJ00125"
-                className="input-field"
-                required
-              />
-            </div>
+              <div>
+                <label className="mb-1.5 block text-xs font-bold text-gray-700 dark:text-gray-300">
+                  Nomor Pesanan
+                </label>
+                <div className="relative">
+                  <Hash size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input
+                    value={noPesanan}
+                    onChange={(e) => setNoPesanan(e.target.value)}
+                    placeholder="Contoh: DJ00125"
+                    className="input-field pl-10"
+                    required
+                  />
+                </div>
+              </div>
 
-            <div>
-              <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">File Desain</label>
-              <div
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  setDragging(true);
-                }}
-                onDragLeave={() => setDragging(false)}
-                onDrop={handleDrop}
-                onClick={() => inputRef.current?.click()}
-                className={`cursor-pointer rounded-xl border-2 border-dashed p-8 text-center transition-colors ${
-                  dragging ? "border-blue-600 bg-blue-50" : "border-gray-300 dark:border-gray-600 hover:border-blue-400"
-                }`}
-              >
-                {preview ? (
-                  <div className="relative w-32 h-32 mx-auto rounded-lg overflow-hidden">
-                    <Image src={preview} alt="Preview" fill className="object-contain" />
-                  </div>
-                ) : file ? (
-                  <p className="text-sm text-gray-700 dark:text-gray-300">{file.name}</p>
-                ) : (
-                  <>
-                    <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-blue-50">
-                      <svg viewBox="0 0 24 24" className="h-6 w-6 text-blue-600" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                        <polyline points="17 8 12 3 7 8" />
-                        <line x1="12" y1="3" x2="12" y2="15" />
-                      </svg>
+              <div>
+                <label className="mb-1.5 block text-xs font-bold text-gray-700 dark:text-gray-300">
+                  File Desain
+                </label>
+
+                {file ? (
+                  <div className="flex items-center gap-3 rounded-2xl border-[1.5px] border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/60 p-3">
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-blue-50 dark:bg-blue-900/40">
+                      {preview ? (
+                        <div className="relative h-full w-full">
+                          <Image src={preview} alt="Preview" fill className="object-cover" />
+                        </div>
+                      ) : (
+                        <ImageIcon size={22} className="text-blue-600 dark:text-blue-400" />
+                      )}
                     </div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Klik atau drag file desain di sini</p>
-                    <p className="text-xs text-gray-400 mt-1">Format: PNG, JPG, WEBP, PDF (Max 10MB)</p>
-                  </>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[13px] font-bold text-black dark:text-white">{file.name}</p>
+                      <p className="mt-0.5 text-[11.5px] text-gray-400 dark:text-gray-500">{formatSize(file.size)}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleRemoveFile}
+                      className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[9px] bg-red-50 dark:bg-red-900/30 hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors"
+                    >
+                      <X size={14} className="text-red-600 dark:text-red-400" />
+                    </button>
+                  </div>
+                ) : (
+                  <div
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      setDragging(true);
+                    }}
+                    onDragLeave={() => setDragging(false)}
+                    onDrop={handleDrop}
+                    onClick={() => inputRef.current?.click()}
+                    className={`cursor-pointer rounded-2xl border-2 border-dashed p-7 text-center transition-colors ${
+                      dragging
+                        ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
+                        : "border-blue-200 dark:border-gray-600 bg-gradient-to-b from-blue-50/60 to-blue-50/20 dark:from-gray-800/40 dark:to-gray-800/10 hover:border-blue-400"
+                    }`}
+                  >
+                    <div
+                      className="mx-auto mb-3.5 flex h-[52px] w-[52px] items-center justify-center rounded-2xl"
+                      style={{
+                        background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
+                        boxShadow: "0 8px 18px -6px rgba(37,99,235,0.45)",
+                      }}
+                    >
+                      <UploadCloud size={24} className="text-white" />
+                    </div>
+                    <p className="text-sm font-bold text-black dark:text-white">Klik atau tarik file ke sini</p>
+                    <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">Ukuran maksimal 10MB</p>
+                    <div className="mt-3.5 flex flex-wrap justify-center gap-1.5">
+                      {["PNG", "JPG", "WEBP", "PDF"].map((f) => (
+                        <span
+                          key={f}
+                          className="rounded-full border border-blue-200 dark:border-blue-800 bg-white dark:bg-gray-800 px-2.5 py-1 text-[10.5px] font-bold text-blue-600 dark:text-blue-400"
+                        >
+                          {f}
+                        </span>
+                      ))}
+                    </div>
+                    <input
+                      ref={inputRef}
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp,application/pdf"
+                      onChange={(e) => handleFile(e.target.files?.[0] ?? null)}
+                      className="hidden"
+                    />
+                  </div>
                 )}
-                <input
-                  ref={inputRef}
-                  type="file"
-                  accept="image/png,image/jpeg,image/webp,application/pdf"
-                  onChange={(e) => handleFile(e.target.files?.[0] ?? null)}
-                  className="hidden"
-                />
               </div>
-            </div>
 
-            {error && (
-              <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                {error}
-              </div>
-            )}
+              {error && (
+                <div className="rounded-xl border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-900/20 px-4 py-3 text-sm text-red-700 dark:text-red-400">
+                  {error}
+                </div>
+              )}
 
-            <button type="submit" disabled={loading} className="btn-primary w-full">
-              {loading ? "Mengupload..." : "Pilih File"}
-            </button>
-          </form>
-        )}
-
-        <p className="mt-6 text-center text-xs">
-          <a href="/tracking" className="text-blue-600 hover:underline font-medium">
-            Lacak Status Pesanan Kamu →
-          </a>
-        </p>
+              <button type="submit" disabled={loading} className="btn-primary w-full rounded-[13px]">
+                {loading ? "Mengupload..." : "Upload Desain"}
+              </button>
+            </form>
+          )}
         </div>
       </div>
     </div>
