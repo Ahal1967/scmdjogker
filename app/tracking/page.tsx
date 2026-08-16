@@ -66,16 +66,23 @@ function iconForTahap(tahap: string) {
 }
 
 /* Sama seperti ikon, status pesanan juga teks bebas dari admin -- warna
-   badge dicocokkan lewat kata kunci dengan fallback biru netral. */
-function colorForStatus(status: string) {
+   badge dicocokkan lewat kata kunci dengan fallback biru netral.
+   PENTING: ini mengembalikan className Tailwind (bukan {bg, fg} hex/rgba
+   mentah kayak sebelumnya), karena warna yang dipasang lewat inline
+   style={{...}} TIDAK PERNAH ikut varian dark: -- itu murni fitur
+   className. Versi sebelumnya kelihatan "nyesuaikan" pas ditest di light
+   mode karena background transparan-tipisnya kebetulan masih kebaca di
+   dua tema, tapi sebenarnya warnanya statis, sama sekali tidak berubah
+   saat mode gelap aktif. */
+function statusBadgeClass(status: string) {
   const s = status.toLowerCase();
-  if (/batal/.test(s)) return { bg: "rgba(220,38,38,0.1)", fg: "#dc2626" };
-  if (/selesai|sampai/.test(s)) return { bg: "rgba(22,163,74,0.1)", fg: "#16a34a" };
-  if (/kirim/.test(s)) return { bg: "rgba(147,51,234,0.1)", fg: "#9333ea" };
-  if (/qc|quality/.test(s)) return { bg: "rgba(147,51,234,0.1)", fg: "#9333ea" };
-  if (/packing/.test(s)) return { bg: "rgba(8,145,178,0.1)", fg: "#0891b2" };
-  if (/menunggu|baru|pending/.test(s)) return { bg: "rgba(217,119,6,0.1)", fg: "#d97706" };
-  return { bg: "rgba(37,99,235,0.1)", fg: "#2563eb" };
+  if (/batal/.test(s)) return "bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400";
+  if (/selesai|sampai/.test(s)) return "bg-green-50 text-green-600 dark:bg-green-900/30 dark:text-green-400";
+  if (/kirim/.test(s)) return "bg-purple-50 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400";
+  if (/qc|quality/.test(s)) return "bg-purple-50 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400";
+  if (/packing/.test(s)) return "bg-cyan-50 text-cyan-600 dark:bg-cyan-900/30 dark:text-cyan-400";
+  if (/menunggu|baru|pending/.test(s)) return "bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400";
+  return "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400";
 }
 
 export default function TrackingPage() {
@@ -105,7 +112,7 @@ export default function TrackingPage() {
     setTracking(result.tracking);
   }
 
-  const statusColor = order ? colorForStatus(order.status) : null;
+  const statusColorClass = order ? statusBadgeClass(order.status) : "";
   // Baris terakhir yang belum "selesai" dianggap tahap yang sedang
   // berjalan sekarang -- baris sebelumnya yang sudah selesai tetap
   // ditandai selesai seperti biasa. Tidak ada tahap masa depan yang
@@ -207,10 +214,9 @@ export default function TrackingPage() {
                   <p className="mt-0.5 text-[12.5px] text-gray-500 dark:text-gray-400">{order.pelanggan ?? "-"}</p>
                 </div>
                 <span
-                  className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-extrabold"
-                  style={{ background: statusColor?.bg, color: statusColor?.fg }}
+                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-extrabold ${statusColorClass}`}
                 >
-                  <span className="h-1.5 w-1.5 rounded-full" style={{ background: statusColor?.fg }} />
+                  <span className="h-1.5 w-1.5 rounded-full bg-current" />
                   {order.status}
                 </span>
               </div>

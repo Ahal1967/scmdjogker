@@ -141,14 +141,14 @@ export default function UploadDesainPage() {
         <div className="bg-white dark:bg-[#161d2e] rounded-[20px] border border-gray-200 dark:border-gray-700 p-5 shadow-lg">
           {success ? (
             <div className="py-2 text-center">
-              <div
-                className="mx-auto mb-4 flex h-[74px] w-[74px] items-center justify-center rounded-full"
-                style={{
-                  background: "radial-gradient(circle, rgba(220,252,231,1) 0%, rgba(240,253,244,1) 70%)",
-                  boxShadow: "0 0 0 8px rgba(240,253,244,1)",
-                }}
-              >
-                <CheckCircle2 size={34} className="text-green-600" strokeWidth={2.2} />
+              {/* Sebelumnya pakai style={{...}} inline dengan warna hijau
+                  pucat opaque -- sama seperti bug badge status di halaman
+                  Lacak Pesanan, warna itu statis dan tidak ikut dark:,
+                  jadi di mode gelap tampil sebagai bulatan terang yang
+                  "nempel" aneh di atas card gelap. Diganti ke class
+                  Tailwind + ring supaya otomatis ikut tema. */}
+              <div className="mx-auto mb-4 flex h-[74px] w-[74px] items-center justify-center rounded-full bg-green-50 ring-8 ring-green-50/60 dark:bg-green-900/30 dark:ring-green-900/20">
+                <CheckCircle2 size={34} className="text-green-600 dark:text-green-400" strokeWidth={2.2} />
               </div>
               <p className="text-[17px] font-extrabold text-black dark:text-white">Desain Berhasil Diupload!</p>
               <p className="mx-auto mt-1.5 mb-6 max-w-xs text-[13px] leading-relaxed text-gray-500 dark:text-gray-400">
