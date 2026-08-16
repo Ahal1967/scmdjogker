@@ -21,9 +21,12 @@ type Customer = {
 type OrderItem = {
   id?: string;
   nama_produk: string;
+  ukuran: string;
   jumlah: number;
   harga: number;
 };
+
+const UKURAN_OPTIONS = ["S", "M", "L", "XL", "XXL", "3XL", "All Size"];
 
 type Order = {
   id: string;
@@ -83,7 +86,7 @@ export default function PesananTable() {
   const [newCustomer, setNewCustomer] = useState({ nama: "", no_telepon: "", alamat: "" });
   const [alamatPengiriman, setAlamatPengiriman] = useState("");
   const [dp, setDp] = useState(0);
-  const [items, setItems] = useState<OrderItem[]>([{ nama_produk: "", jumlah: 1, harga: 0 }]);
+  const [items, setItems] = useState<OrderItem[]>([{ nama_produk: "", ukuran: "", jumlah: 1, harga: 0 }]);
 
   useEffect(() => {
     function handleBeforeUnload(e: BeforeUnloadEvent) {
@@ -110,7 +113,7 @@ export default function PesananTable() {
       ] = await Promise.all([
         supabase
           .from("orders")
-          .select("*, customers(nama), order_items(id, nama_produk, jumlah, harga)")
+          .select("*, customers(nama), order_items(id, nama_produk, ukuran, jumlah, harga)")
           .order("created_at", { ascending: false }),
         supabase.from("customers").select("*").order("nama", { ascending: true }),
         supabase.from("production").select("no_produksi").order("created_at", { ascending: false }).limit(1),
@@ -201,12 +204,12 @@ export default function PesananTable() {
     setNewCustomer({ nama: "", no_telepon: "", alamat: "" });
     setAlamatPengiriman("");
     setDp(0);
-    setItems([{ nama_produk: "", jumlah: 1, harga: 0 }]);
+    setItems([{ nama_produk: "", ukuran: "", jumlah: 1, harga: 0 }]);
     setShowModal(true);
   }
 
   function addItemRow() {
-    setItems((prev) => [...prev, { nama_produk: "", jumlah: 1, harga: 0 }]);
+    setItems((prev) => [...prev, { nama_produk: "", ukuran: "", jumlah: 1, harga: 0 }]);
   }
 
   function removeItemRow(idx: number) {
@@ -332,7 +335,7 @@ export default function PesananTable() {
       .from("orders")
       .update({ sisa_pembayaran: sisaBaru })
       .eq("id", order.id)
-      .select("*, customers(nama), order_items(id, nama_produk, jumlah, harga)")
+      .select("*, customers(nama), order_items(id, nama_produk, ukuran, jumlah, harga)")
       .single();
     setPayingOff(false);
 
@@ -362,7 +365,7 @@ export default function PesananTable() {
       .from("orders")
       .update({ status })
       .eq("id", order.id)
-      .select("*, customers(nama), order_items(id, nama_produk, jumlah, harga)")
+      .select("*, customers(nama), order_items(id, nama_produk, ukuran, jumlah, harga)")
       .single();
 
     if (!error && data) {
@@ -679,6 +682,7 @@ export default function PesananTable() {
                 <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Produk Pesanan</label>
                 <div className="mt-2 hidden items-center gap-2 px-0.5 sm:flex">
                   <span className="flex-1"></span>
+                  <span className="w-24 text-[11px] text-gray-400">Ukuran</span>
                   <span className="w-20 text-[11px] text-gray-400">Jumlah</span>
                   <span className="w-28 text-[11px] text-gray-400">Harga Satuan</span>
                 </div>
@@ -690,7 +694,7 @@ export default function PesananTable() {
                     >
                       <div className="flex items-center gap-2">
                         <input
-                          placeholder="Nama produk (mis. Kaos Hitam - L)"
+                          placeholder="Nama produk (mis. Kaos Hitam)"
                           value={it.nama_produk}
                           onChange={(e) => updateItem(idx, "nama_produk", e.target.value)}
                           className="input-field flex-1"
@@ -707,6 +711,21 @@ export default function PesananTable() {
                       </div>
 
                       <div className="flex gap-2">
+                        <div className="flex-1 sm:w-24 sm:flex-none">
+                          <span className="mb-1 block text-[11px] text-gray-400 sm:hidden">Ukuran</span>
+                          <select
+                            value={it.ukuran}
+                            onChange={(e) => updateItem(idx, "ukuran", e.target.value)}
+                            className="input-field w-full"
+                          >
+                            <option value="">Ukuran</option>
+                            {UKURAN_OPTIONS.map((u) => (
+                              <option key={u} value={u}>
+                                {u}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
                         <div className="flex-1 sm:w-20 sm:flex-none">
                           <span className="mb-1 block text-[11px] text-gray-400 sm:hidden">Jumlah</span>
                           <input
@@ -842,7 +861,9 @@ export default function PesananTable() {
                 {(detailOrder.order_items ?? []).map((it, i) => (
                   <div key={i} className="flex justify-between text-sm">
                     <span className="text-gray-700 dark:text-gray-300">
-                      {it.nama_produk} <span className="text-gray-400">× {it.jumlah}</span>
+                      {it.nama_produk}
+                      {it.ukuran && <span className="text-gray-400"> ({it.ukuran})</span>}{" "}
+                      <span className="text-gray-400">× {it.jumlah}</span>
                     </span>
                     <span className="font-medium text-gray-900 dark:text-gray-100">
                       {formatRupiah(it.jumlah * it.harga)}
