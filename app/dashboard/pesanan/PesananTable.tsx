@@ -44,6 +44,17 @@ type Order = {
 
 const STATUS_OPTIONS = ["Pesanan", "Produksi", "QC", "Packing", "Dikirim", "Selesai"];
 
+// Sama persis dengan mapping progress di halaman Produksi (ProduksiTable.tsx)
+// -- "Pesanan" dan "Dikirim" sengaja tidak dipetakan karena tidak ada
+// tahap production yang berkaitan (Pesanan = sebelum produksi mulai,
+// Dikirim = sesudah production selesai, ditangani halaman Pengiriman).
+const PRODUCTION_PROGRESS_MAP: Record<string, number> = {
+  Produksi: 20,
+  QC: 75,
+  Packing: 90,
+  Selesai: 100,
+};
+
 const STATUS_COLORS: Record<string, string> = {
   Pesanan: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
   Produksi: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300",
@@ -370,6 +381,22 @@ export default function PesananTable() {
 
     if (!error && data) {
       setOrders((prev) => prev.map((o) => (o.id === order.id ? (data as Order) : o)));
+
+      // Sinkronkan ke tabel production supaya progress di halaman Produksi
+      // ikut berubah. Sebelumnya ini TIDAK ADA -- ubah status di sini cuma
+      // menulis ke orders.status, sama sekali tidak menyentuh
+      // production.progress, jadi progress di halaman Produksi selalu diam
+      // di 0% walau status pesanan sudah diubah ke Produksi. Nilai persen
+      // disamakan dengan mapping yang sudah dipakai di halaman Produksi
+      // (PRODUCTION_PROGRESS_MAP) supaya kedua halaman konsisten.
+      const mappedProgress = PRODUCTION_PROGRESS_MAP[status];
+      if (mappedProgress !== undefined) {
+        await supabase
+          .from("production")
+          .update({ status, progress: mappedProgress })
+          .eq("order_id", order.id);
+      }
+
       await supabase.from("order_tracking").insert({
         order_id: order.id,
         tahap: status,
