@@ -236,7 +236,10 @@ export default function QcTable({
     );
 
     if (hasil === "Lolos") {
-      setTimeout(() => router.push("/dashboard/packing"), 900);
+      setTimeout(() => {
+        router.push("/dashboard/packing");
+        router.refresh();
+      }, 900);
     }
   }
 

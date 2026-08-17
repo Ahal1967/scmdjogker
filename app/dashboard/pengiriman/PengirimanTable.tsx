@@ -181,7 +181,10 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
       .eq("order_id", s.order_id);
 
     showToast("Pesanan selesai! Otomatis lanjut ke halaman Laporan.", "success");
-    setTimeout(() => router.push("/dashboard/laporan"), 900);
+    setTimeout(() => {
+      router.push("/dashboard/laporan");
+      router.refresh();
+    }, 900);
   }
 
   if (shipments.length === 0) {

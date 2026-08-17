@@ -405,7 +405,10 @@ export default function PesananTable() {
 
       if (status === "Produksi") {
         showToast("Status diubah ke Produksi, otomatis lanjut ke halaman Produksi.", "success");
-        setTimeout(() => router.push("/dashboard/produksi"), 900);
+        setTimeout(() => {
+          router.push("/dashboard/produksi");
+          router.refresh();
+        }, 900);
       }
     }
   }

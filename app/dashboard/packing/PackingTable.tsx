@@ -123,7 +123,10 @@ export default function PackingTable({ initialPacking }: { initialPacking: Packi
     });
 
     showToast("Packing siap kirim, otomatis lanjut ke Pengiriman.", "success");
-    setTimeout(() => router.push("/dashboard/pengiriman"), 900);
+    setTimeout(() => {
+      router.push("/dashboard/pengiriman");
+      router.refresh();
+    }, 900);
   }
 
   if (packingList.length === 0) {

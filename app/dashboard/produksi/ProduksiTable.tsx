@@ -139,7 +139,10 @@ export default function ProduksiTable({
 
       if (status === "QC") {
         showToast("Status diubah ke QC, otomatis lanjut ke halaman QC.", "success");
-        setTimeout(() => router.push("/dashboard/qc"), 900);
+        setTimeout(() => {
+          router.push("/dashboard/qc");
+          router.refresh();
+        }, 900);
       }
     } else if (error) {
       showToast("Gagal mengubah status: " + error.message);
