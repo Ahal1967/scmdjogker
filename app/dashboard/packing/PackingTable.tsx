@@ -167,7 +167,7 @@ export default function PackingTable({ initialPacking }: { initialPacking: Packi
               {paginated.map((p) => (
                 <tr key={p.id}>
                   <td>
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/40">
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/40">
                       <Package size={15} className="text-blue-600 dark:text-blue-400" />
                     </span>
                   </td>

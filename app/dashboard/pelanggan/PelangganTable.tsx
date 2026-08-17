@@ -75,7 +75,7 @@ export default function PelangganTable({ dataPelanggan }: { dataPelanggan: Pelan
               {paginated.map((c) => (
                 <tr key={c.id}>
                   <td>
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/40">
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/40">
                       <User size={15} className="text-blue-600 dark:text-blue-400" />
                     </span>
                   </td>

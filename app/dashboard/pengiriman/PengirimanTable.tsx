@@ -214,7 +214,7 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
                 <TableIconCell icon={Truck} />
                 <SortableTh label="No. Pesanan" icon={Hash} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} center />
                 <SortableTh label="Pelanggan" icon={User} active={sortField === "pelanggan"} direction={sortDir} onClick={() => toggleSort("pelanggan")} center />
-                <SortableTh label="Alamat" icon={MapPin} active={sortField === "alamat"} direction={sortDir} onClick={() => toggleSort("alamat")} />
+                <SortableTh label="Alamat" icon={MapPin} active={sortField === "alamat"} direction={sortDir} onClick={() => toggleSort("alamat")} center />
                 <SortableTh label="Kurir" icon={Truck} active={sortField === "kurir"} direction={sortDir} onClick={() => toggleSort("kurir")} center />
                 <SortableTh label="No. Resi" icon={Barcode} active={sortField === "no_resi"} direction={sortDir} onClick={() => toggleSort("no_resi")} center />
                 <SortableTh label="Status" icon={CheckCircle2} active={sortField === "status"} direction={sortDir} onClick={() => toggleSort("status")} center />
@@ -225,13 +225,13 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
               {paginated.map((s) => (
                 <tr key={s.id}>
                   <td>
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/40">
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/40">
                       <Truck size={15} className="text-blue-600 dark:text-blue-400" />
                     </span>
                   </td>
                   <td className="font-semibold text-black dark:text-white text-center">{s.orders?.no_pesanan ?? "-"}</td>
                   <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{s.orders?.customers?.nama ?? "-"}</td>
-                  <td className="text-sm text-gray-600 dark:text-gray-400 max-w-xs truncate">
+                  <td className="text-sm text-gray-600 dark:text-gray-400 max-w-xs truncate text-center">
                     {s.orders?.alamat_pengiriman ?? "-"}
                   </td>
                   <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{s.kurir || "-"}</td>

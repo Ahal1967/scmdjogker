@@ -269,7 +269,7 @@ export default function QcTable({
                 {sortedPending.map((p) => (
                   <tr key={p.id}>
                     <td>
-                      <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/40">
+                      <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/40">
                         <ShieldCheck size={15} className="text-blue-600 dark:text-blue-400" />
                       </span>
                     </td>
@@ -325,7 +325,7 @@ export default function QcTable({
               {paginated.map((r) => (
                 <tr key={r.id}>
                   <td>
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/40">
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/40">
                       <ClipboardCheck size={15} className="text-blue-600 dark:text-blue-400" />
                     </span>
                   </td>

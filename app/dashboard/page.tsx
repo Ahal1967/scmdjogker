@@ -236,7 +236,6 @@ export default function DashboardPage() {
           <div className="welcome-hero-glow-1" />
           <div className="welcome-hero-glow-2" />
           <div className="welcome-hero-grid" />
-          <BadgeCheck className="welcome-hero-watermark" strokeWidth={1.5} />
         </div>
 
         <div className="welcome-hero-content">
@@ -282,7 +281,6 @@ export default function DashboardPage() {
           const Icon = s.icon;
           return (
             <Link key={s.key} href={s.href} className={`premium-stat-card ${s.accent} block cursor-pointer`}>
-              <Icon className="premium-stat-watermark" strokeWidth={1.5} aria-hidden="true" />
               <div className="premium-stat-content">
                 <div className="premium-stat-icon">
                   <Icon size={14} />
@@ -298,7 +296,6 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
         <div className="status-progress-tile blue">
-          <ListChecks className="status-progress-watermark" strokeWidth={1.5} aria-hidden="true" />
           <h2 className="status-progress-head">
             <ListChecks size={12} />
             Status Pesanan
@@ -328,7 +325,6 @@ export default function DashboardPage() {
         </div>
 
         <div className="status-progress-tile green">
-          <Gauge className="status-progress-watermark" strokeWidth={1.5} aria-hidden="true" />
           <h2 className="status-progress-head">
             <Gauge size={12} />
             Progress Produksi
@@ -359,7 +355,6 @@ export default function DashboardPage() {
       </div>
 
       <div className="dash-chart-card">
-        <TrendingUp className="dash-chart-watermark" strokeWidth={1.5} aria-hidden="true" />
         <div className="dash-chart-top">
           <h2 className="dash-chart-head">
             <TrendingUp size={12} />

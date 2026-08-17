@@ -109,7 +109,7 @@ export default function LaporanTable({ dataOrders }: { dataOrders: Order[] }) {
                 <TableIconCell icon={FileText} />
                 <SortableTh label="No. Pesanan" icon={Hash} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} center />
                 <SortableTh label="Tanggal" icon={Calendar} active={sortField === "tanggal"} direction={sortDir} onClick={() => toggleSort("tanggal")} center />
-                <SortableTh label="Total" icon={Wallet} active={sortField === "total"} direction={sortDir} onClick={() => toggleSort("total")} />
+                <SortableTh label="Total" icon={Wallet} active={sortField === "total"} direction={sortDir} onClick={() => toggleSort("total")} center />
                 <SortableTh label="DP" icon={CreditCard} active={sortField === "dp"} direction={sortDir} onClick={() => toggleSort("dp")} center />
                 <SortableTh label="Sisa" icon={Receipt} active={sortField === "sisa"} direction={sortDir} onClick={() => toggleSort("sisa")} center />
                 <SortableTh label="Status" icon={CheckCircle2} active={sortField === "status"} direction={sortDir} onClick={() => toggleSort("status")} center />
@@ -121,13 +121,13 @@ export default function LaporanTable({ dataOrders }: { dataOrders: Order[] }) {
               {paginated.map((order) => (
                 <tr key={order.id}>
                   <td>
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/40">
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/40">
                       <FileText size={15} className="text-blue-600 dark:text-blue-400" />
                     </span>
                   </td>
                   <td className="font-semibold text-black dark:text-white text-center">{order.no_pesanan || "-"}</td>
                   <td className="text-sm text-gray-600 dark:text-gray-400 text-center">{formatTanggal(order.tanggal || order.created_at)}</td>
-                  <td className="text-sm font-medium text-black dark:text-white whitespace-nowrap">{formatRupiah(Number(order.total) || 0)}</td>
+                  <td className="text-sm font-medium text-black dark:text-white whitespace-nowrap text-center">{formatRupiah(Number(order.total) || 0)}</td>
                   <td className="text-sm text-gray-700 dark:text-gray-300 text-center whitespace-nowrap">{formatRupiah(Number(order.dp) || 0)}</td>
                   <td
                     className={`text-sm font-medium text-center whitespace-nowrap ${

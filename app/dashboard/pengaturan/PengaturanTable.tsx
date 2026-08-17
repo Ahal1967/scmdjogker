@@ -53,7 +53,7 @@ export default function PengaturanTable({ profiles }: { profiles: Profile[] }) {
         <thead>
           <tr>
             <TableIconCell icon={User} />
-            <SortableTh label="ID" icon={Hash} active={sortField === "id"} direction={sortDir} onClick={() => toggleSort("id")} />
+            <SortableTh label="ID" icon={Hash} active={sortField === "id"} direction={sortDir} onClick={() => toggleSort("id")} center />
             <SortableTh label="Nama Lengkap" icon={IdCard} active={sortField === "full_name"} direction={sortDir} onClick={() => toggleSort("full_name")} center />
             <SortableTh label="Role" icon={ShieldCheck} active={sortField === "role"} direction={sortDir} onClick={() => toggleSort("role")} center />
             <SortableTh label="Dibuat" icon={Calendar} active={sortField === "created_at"} direction={sortDir} onClick={() => toggleSort("created_at")} center />
@@ -64,11 +64,11 @@ export default function PengaturanTable({ profiles }: { profiles: Profile[] }) {
           {sorted.map((profile) => (
             <tr key={profile.id}>
               <td>
-                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/40">
+                <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/40">
                   <User size={15} className="text-blue-600 dark:text-blue-400" />
                 </span>
               </td>
-              <td className="font-mono text-xs text-gray-500 dark:text-gray-400">
+              <td className="font-mono text-xs text-gray-500 dark:text-gray-400 text-center">
                 {profile.id.split("-")[0]}...
               </td>
               <td className="font-medium text-black dark:text-white text-center">{profile.full_name || "-"}</td>

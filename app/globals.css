@@ -233,21 +233,6 @@ body::before {
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
   }
 
-  .dash-chart-watermark {
-    position: absolute;
-    right: -14px;
-    top: -14px;
-    width: 110px;
-    height: 110px;
-    color: #059669;
-    opacity: 0.1;
-  }
-
-  .dark .dash-chart-watermark {
-    color: #34d399;
-    opacity: 0.12;
-  }
-
   .dash-chart-top {
     position: relative;
     z-index: 2;
@@ -347,32 +332,6 @@ body::before {
     background: linear-gradient(135deg, #0b2226 0%, #0e343a 55%, #114752 100%);
   }
 
-  .premium-stat-watermark {
-    position: absolute;
-    right: -6px;
-    bottom: -10px;
-    width: 68px;
-    height: 68px;
-    opacity: 0.14;
-  }
-
-  .premium-stat-card.blue .premium-stat-watermark {
-    color: #2563eb;
-  }
-
-  .premium-stat-card.cyan .premium-stat-watermark {
-    color: #0891b2;
-  }
-
-  .dark .premium-stat-card.blue .premium-stat-watermark {
-    color: #60a5fa;
-    opacity: 0.18;
-  }
-
-  .dark .premium-stat-card.cyan .premium-stat-watermark {
-    color: #22d3ee;
-    opacity: 0.18;
-  }
 
   .premium-stat-content {
     position: relative;
@@ -477,32 +436,6 @@ body::before {
     background: linear-gradient(135deg, #06231a 0%, #0a3226 55%, #0c4632 100%);
   }
 
-  .status-progress-watermark {
-    position: absolute;
-    right: -8px;
-    bottom: -12px;
-    width: 74px;
-    height: 74px;
-    opacity: 0.14;
-  }
-
-  .status-progress-tile.blue .status-progress-watermark {
-    color: #2563eb;
-  }
-
-  .status-progress-tile.green .status-progress-watermark {
-    color: #059669;
-  }
-
-  .dark .status-progress-tile.blue .status-progress-watermark {
-    color: #60a5fa;
-    opacity: 0.16;
-  }
-
-  .dark .status-progress-tile.green .status-progress-watermark {
-    color: #34d399;
-    opacity: 0.16;
-  }
 
   .status-progress-head {
     position: relative;
@@ -776,10 +709,18 @@ body::before {
      ujung kiri, tidak ada celah transparan) -- dan dialah yang dapat
      sudut kiri, karena dia memang sel pertama yang sebenarnya. Radius-nya
      (10px) disamakan ke radius tabel/card-nya sendiri, bukan bulat
-     penuh, supaya sudutnya konsisten sama bentuk tabel. */
+     penuh, supaya sudutnya konsisten sama bentuk tabel.
+     text-align:center DITAMBAHKAN di sini (menang lawan text-align:left
+     dari ".table-djoker thead th" di atas karena :first-child bikin
+     selector ini lebih spesifik) supaya .icon-chip di dalamnya (yang
+     inline-flex, jadi ikut text-align parent) presisi di tengah kolom,
+     sejajar sama ikon baris di <td> pertama tiap baris di bawahnya --
+     sebelumnya sama-sama nempel kiri tapi ukurannya beda (22px vs 32px)
+     jadi kelihatan tidak presisi/tidak center. */
   .table-djoker thead th:first-child {
     border-top-left-radius: 10px;
     border-bottom-left-radius: 10px;
+    text-align: center;
   }
 
   /* Kolom terakhir (Aksi) dipaksa rata kanan DI SINI, bukan lewat class
@@ -910,8 +851,15 @@ body::before {
     font-size: 0.75rem !important; /* 12px, paksa menang atas class Tailwind di tiap sel */
   }
 
+  /* text-align:center di sini + className diubah dari "flex" jadi
+     "inline-flex" di span ikon baris (di semua tabel) -- pasangan sama
+     seperti fix ".table-djoker thead th:first-child" di atas: "flex"
+     Tailwind itu block-level jadi tidak kebawa text-align parent, ganti
+     "inline-flex" biar ikonnya presisi di tengah kolom sejajar sama
+     .icon-chip di header, bukan nempel kiri. */
   .table-djoker tbody td:first-child {
     border-left: none;
+    text-align: center;
   }
 
   .table-djoker tbody td:last-child {
@@ -1010,44 +958,9 @@ body::before {
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
   }
 
-  .page-hero-deco {
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-  }
-
-  @media (max-width: 640px) {
-    .page-hero-deco {
-      display: none;
-    }
-    .page-hero-content {
-      max-width: 100% !important;
-    }
-  }
-
-  /* Watermark ikon halaman -- ganti dari blob+cincin+titik (dihapus atas
-     permintaan user, katanya "kurang suka desain bagian cincinnya"). Ikon
-     yang sama seperti di badge kiri, digedein & ditransparanin, jadi tiap
-     halaman punya watermark yang beda sesuai icon prop-nya sendiri. */
-  .page-hero-watermark {
-    position: absolute;
-    right: -14px;
-    bottom: -20px;
-    width: 130px;
-    height: 130px;
-    color: #2563eb;
-    opacity: 0.14;
-  }
-
-  .dark .page-hero-watermark {
-    color: #60a5fa;
-    opacity: 0.16;
-  }
-
   .page-hero-content {
     position: relative;
     z-index: 2;
-    max-width: 65%;
   }
 
   .page-hero-badge {
@@ -1182,23 +1095,6 @@ body::before {
     opacity: 0.1;
     background-image: linear-gradient(rgba(255, 255, 255, 0.6) 1px, transparent 1px),
       linear-gradient(90deg, rgba(255, 255, 255, 0.6) 1px, transparent 1px);
-  }
-
-  /* Watermark ikon (BadgeCheck, sama seperti di badge "SCM DJOGKER")
-     menggantikan cincin -- konsisten sama perubahan di PageHeaderCard. */
-  .welcome-hero-watermark {
-    position: absolute;
-    right: -10px;
-    top: -18px;
-    width: 150px;
-    height: 150px;
-    color: #2563eb;
-    opacity: 0.12;
-  }
-
-  .dark .welcome-hero-watermark {
-    color: #60a5fa;
-    opacity: 0.14;
   }
 
   .welcome-hero-content {
