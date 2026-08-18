@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Search, Package, Clock, CheckCircle2, ChevronLeft, ChevronRight, Send, Hash, User, Calendar, Boxes, MoreHorizontal } from "lucide-react";
+import { Search, Package, Clock, CheckCircle2, ChevronLeft, ChevronRight, Send, ClipboardList, User, Calendar, Boxes, MoreHorizontal } from "lucide-react";
 import { useToast } from "@/components/useToast";
 import SortableTh from "@/components/SortableTh";
 import TableIconCell from "@/components/TableIconCell";
@@ -155,7 +155,7 @@ export default function PackingTable({ initialPacking }: { initialPacking: Packi
               <tr>
                 <TableIconCell icon={Package} />
                 <SortableTh label="No. Packing" icon={Package} active={sortField === "no_packing"} direction={sortDir} onClick={() => toggleSort("no_packing")} center />
-                <SortableTh label="No. Pesanan" icon={Hash} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} center />
+                <SortableTh label="No. Pesanan" icon={ClipboardList} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} center />
                 <SortableTh label="Pelanggan" icon={User} active={sortField === "pelanggan"} direction={sortDir} onClick={() => toggleSort("pelanggan")} center />
                 <SortableTh label="Tanggal" icon={Calendar} active={sortField === "tanggal"} direction={sortDir} onClick={() => toggleSort("tanggal")} center />
                 <SortableTh label="Jumlah" icon={Boxes} active={sortField === "jumlah"} direction={sortDir} onClick={() => toggleSort("jumlah")} center />
@@ -167,8 +167,8 @@ export default function PackingTable({ initialPacking }: { initialPacking: Packi
               {paginated.map((p) => (
                 <tr key={p.id}>
                   <td>
-                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/40">
-                      <Package size={15} className="text-blue-600 dark:text-blue-400" />
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700/50">
+                      <Package size={15} className="text-gray-500 dark:text-gray-400" />
                     </span>
                   </td>
                   <td className="font-semibold text-black dark:text-white text-center">{p.no_packing}</td>
@@ -183,11 +183,13 @@ export default function PackingTable({ initialPacking }: { initialPacking: Packi
                   </td>
                   <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{p.jumlah} pcs</td>
                   <td className="text-center">
+                    {/* Dipindah ke token semantik terpusat (badge-success/warning
+                        di globals.css), sebelumnya "Diproses" pakai bg-yellow-100
+                        hardcode di sini -- sekarang amber lewat token yang sama
+                        dipakai QcTable & PengirimanTable buat makna yang sama. */}
                     <span
                       className={`badge ${
-                        p.status === "Siap Kirim"
-                          ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300"
-                          : "bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300"
+                        p.status === "Siap Kirim" ? "badge-success" : "badge-warning"
                       }`}
                     >
                       <span className="status-dot" />

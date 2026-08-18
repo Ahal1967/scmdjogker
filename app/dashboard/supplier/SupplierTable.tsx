@@ -174,8 +174,8 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
               {paginated.map((s) => (
                 <tr key={s.id}>
                   <td>
-                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/40">
-                      <Truck size={15} className="text-blue-600 dark:text-blue-400" />
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700/50">
+                      <Truck size={15} className="text-gray-500 dark:text-gray-400" />
                     </span>
                   </td>
                   <td className="font-semibold text-black dark:text-white text-center">{s.nama_supplier}</td>

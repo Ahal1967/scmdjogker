@@ -1,16 +1,13 @@
 import type { LucideIcon } from "lucide-react";
 
-/* Kolom paling kiri tiap tabel (spacer buat ikon baris) -- diisi ikon
-   kecil yang gayanya SAMA persis dengan icon-chip di header kolom lain
-   (bukan logo perusahaan), dan ikonnya dipilih sama dengan ikon baris
-   yang sudah dipakai di kolom itu juga (misal Package buat tabel Packing,
-   Truck buat tabel Supplier/Pengiriman, dst) supaya nyambung maknanya. */
-export default function TableIconCell({ icon: Icon }: { icon: LucideIcon }) {
-  return (
-    <th className="w-10">
-      <span className="icon-chip">
-        <Icon size={13} />
-      </span>
-    </th>
-  );
+/* Kolom paling kiri tiap tabel (spacer buat ikon baris di bawahnya) --
+   ikonnya di header SENGAJA dihapus (atas permintaan user, biar tampilan
+   lebih simple/premium/elegan): ikon di header ini cuma dekorasi, tidak
+   menambah informasi apa pun (kolomnya sendiri tidak berlabel), dan
+   dobel sama ikon yang sudah ada di setiap baris di bawahnya. Prop
+   "icon" tetap dipertahankan di signature (bukan dihapus) supaya 10
+   file pemanggil (<TableIconCell icon={...} />) tidak perlu ikut
+   diubah satu-satu -- cukup 1 tempat ini yang berubah. */
+export default function TableIconCell({}: { icon: LucideIcon }) {
+  return <th className="w-10" />;
 }

@@ -213,14 +213,23 @@ export default function DashboardLayout({
                     const Icon = NAV_ICONS[item.href] ?? LayoutDashboard;
 
                     return (
+                      /* Active state "Soft Tinted" (Opsi B dari mockup, dipilih user) --
+                         ganti dari pill gradasi biru solid ke latar biru tipis
+                         transparan + garis aksen di kiri (span di bawah), senada
+                         sama arah desain card/tabel lain yang sudah di-flat-in.
+                         font-display DITAMBAHKAN di sini (bukan cuma di
+                         .sidebar-link/.sidebar-link-active di globals.css --
+                         dua class itu TERNYATA TIDAK dipakai sama sekali di
+                         komponen ini, jadi perubahan font sebelumnya tidak
+                         pernah kepakai di sidebar asli sampai baris ini). */
                       <Link
                         key={item.href}
                         href={item.href}
                         onClick={() => isMobile && setSidebarOpen(false)}
-                        className={`group relative flex items-center justify-between gap-2.5 rounded-xl px-3 py-2.5 text-sm transition duration-200 ${
+                        className={`group relative flex items-center justify-between gap-2.5 rounded-xl px-3 py-2.5 text-sm font-display transition duration-200 ${
                           isActive
-                            ? "bg-gradient-to-r from-blue-600 to-blue-500 text-white font-semibold shadow-md shadow-blue-600/30"
-                            : "text-gray-700 dark:text-gray-300 font-medium hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:translate-x-0.5"
+                            ? "bg-blue-500/10 text-blue-700 font-bold ring-1 ring-inset ring-blue-500/20 dark:bg-blue-500/15 dark:text-blue-200 dark:ring-blue-400/20"
+                            : "text-gray-700 dark:text-gray-300 font-semibold hover:bg-blue-50 dark:hover:bg-blue-900/30 hover:translate-x-0.5"
                         }`}
                       >
                         {isActive && (
@@ -229,13 +238,13 @@ export default function DashboardLayout({
                         <span className="flex items-center gap-2.5">
                           <span
                             className={`flex h-7 w-7 items-center justify-center rounded-lg transition-colors ${
-                              isActive ? "bg-white/20" : "bg-blue-50 dark:bg-blue-900/40 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/60"
+                              isActive ? "bg-blue-500/15 dark:bg-blue-500/25" : "bg-blue-50 dark:bg-blue-900/40 group-hover:bg-blue-100 dark:group-hover:bg-blue-900/60"
                             }`}
                           >
                             <Icon
                               size={15}
                               strokeWidth={2.2}
-                              className={isActive ? "text-white" : "text-blue-600 dark:text-blue-400"}
+                              className={isActive ? "text-blue-600 dark:text-blue-300" : "text-blue-600 dark:text-blue-400"}
                             />
                           </span>
                           {item.label}
@@ -245,7 +254,7 @@ export default function DashboardLayout({
                           strokeWidth={2.5}
                           className={
                             isActive
-                              ? "text-white/70"
+                              ? "text-blue-500/70 dark:text-blue-300/70"
                               : "text-gray-300 dark:text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity"
                           }
                         />

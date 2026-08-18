@@ -6,11 +6,14 @@ import PageHeaderCard from "@/components/PageHeaderCard";
 export default async function QCPage() {
   const supabase = createClient();
 
+  // (Query "count" buat quality_control & packing SUDAH DIHAPUS -- dulu
+  // dipakai buat ngitung nomor urut berikutnya (nextQcNumber/nextPackingNumber),
+  // sekarang no_qc/no_packing kode acak yang dicek unik langsung ke DB pas
+  // disimpan (lihat generateUniqueCode di QcTable.tsx), jadi tidak perlu
+  // lagi tahu nomor urut terakhir.)
   const [
     { data: pendingRaw, error: pendingError },
     { data: qcRaw, error: qcError },
-    { count: qcCount },
-    { count: packingCount },
   ] = await Promise.all([
     supabase
       .from("production")
@@ -21,8 +24,6 @@ export default async function QCPage() {
       .from("quality_control")
       .select("*, production(no_produksi, orders(no_pesanan))")
       .order("created_at", { ascending: false }),
-    supabase.from("quality_control").select("*", { count: "exact", head: true }),
-    supabase.from("packing").select("*", { count: "exact", head: true }),
   ]);
 
   if (pendingError) console.error("QC pendingProduction fetch error:", pendingError.message);
@@ -74,8 +75,6 @@ export default async function QCPage() {
       <QcTable
         pendingProduction={pendingProduction}
         initialRecords={qcRecords}
-        nextQcNumber={(qcCount ?? 0) + 1}
-        nextPackingNumber={(packingCount ?? 0) + 1}
       />
     </div>
   );

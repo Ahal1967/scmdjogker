@@ -3,11 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Search, ShieldCheck, ClipboardCheck, CheckCircle2, XCircle, ChevronLeft, ChevronRight, Eye, Loader2, Hash, User, Factory, Calendar, FileText, MoreHorizontal } from "lucide-react";
+import { Search, ShieldCheck, ClipboardCheck, CheckCircle2, XCircle, ChevronLeft, ChevronRight, Eye, Loader2, ClipboardList, User, Factory, Calendar, FileText, MoreHorizontal } from "lucide-react";
 import { useToast } from "@/components/useToast";
 import SortableTh from "@/components/SortableTh";
 import TableIconCell from "@/components/TableIconCell";
 import { compareValues } from "@/lib/sortUtils";
+import { generateUniqueCode } from "@/lib/generateCode";
 
 type PendingProduction = {
   id: string;
@@ -24,10 +25,15 @@ type QcRecord = {
   production: { no_produksi: string; orders: { no_pesanan: string } | null } | null;
 };
 
+/* Dipindah dari class Tailwind hardcode ke token semantik terpusat
+   (badge-success/warning/danger di globals.css) -- sebelumnya "Perbaikan"
+   pakai bg-yellow-100 di sini padahal makna "perlu perbaikan/menunggu"
+   yang sama di tabel lain (Pengiriman, Packing) sudah dirapikan jadi
+   amber lewat token yang sama, biar tidak dobel sumber warna lagi. */
 const HASIL_COLORS: Record<string, string> = {
-  Lolos: "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300",
-  Perbaikan: "bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300",
-  Gagal: "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300",
+  Lolos: "badge-success",
+  Perbaikan: "badge-warning",
+  Gagal: "badge-danger",
 };
 
 function EmptyState({ title, subtitle }: { title: string; subtitle: string }) {
@@ -47,13 +53,9 @@ function EmptyState({ title, subtitle }: { title: string; subtitle: string }) {
 export default function QcTable({
   pendingProduction,
   initialRecords,
-  nextQcNumber,
-  nextPackingNumber,
 }: {
   pendingProduction: PendingProduction[];
   initialRecords: QcRecord[];
-  nextQcNumber: number;
-  nextPackingNumber: number;
 }) {
   const supabase = createClient();
   const router = useRouter();
@@ -63,8 +65,6 @@ export default function QcTable({
   }, []);
   const [pending, setPending] = useState(pendingProduction);
   const [records, setRecords] = useState<QcRecord[]>(initialRecords);
-  const [qcSeq, setQcSeq] = useState(nextQcNumber);
-  const [packingSeq, setPackingSeq] = useState(nextPackingNumber);
   const [showModal, setShowModal] = useState(false);
   const [activeProduction, setActiveProduction] = useState<PendingProduction | null>(null);
   const [hasil, setHasil] = useState<"Lolos" | "Perbaikan" | "Gagal">("Lolos");
@@ -157,7 +157,7 @@ export default function QcTable({
     if (!activeProduction) return;
     setSaving(true);
 
-    const noQc = "QC-" + String(qcSeq).padStart(4, "0");
+    const noQc = await generateUniqueCode(supabase, "quality_control", "no_qc", "QC-");
 
     const { data: qcData, error: qcError } = await supabase
       .from("quality_control")
@@ -177,7 +177,6 @@ export default function QcTable({
     }
 
     setRecords((prev) => [qcData, ...prev]);
-    setQcSeq((n) => n + 1);
 
     if (hasil === "Lolos") {
       await supabase
@@ -202,14 +201,13 @@ export default function QcTable({
         ) ?? 0;
 
       if (orderId) {
-        const noPacking = "PK-" + String(packingSeq).padStart(4, "0");
+        const noPacking = await generateUniqueCode(supabase, "packing", "no_packing", "PK-");
         await supabase.from("packing").insert({
           no_packing: noPacking,
           order_id: orderId,
           jumlah: totalQty,
           status: "Diproses",
         });
-        setPackingSeq((n) => n + 1);
 
         await supabase.from("orders").update({ status: "Packing" }).eq("id", orderId);
         await supabase.from("order_tracking").insert({
@@ -260,7 +258,7 @@ export default function QcTable({
                 <tr>
                   <TableIconCell icon={ShieldCheck} />
                   <SortableTh label="No. Produksi" icon={Factory} active={pendingSortField === "no_produksi"} direction={pendingSortDir} onClick={() => togglePendingSort("no_produksi")} />
-                  <SortableTh label="No. Pesanan" icon={Hash} active={pendingSortField === "no_pesanan"} direction={pendingSortDir} onClick={() => togglePendingSort("no_pesanan")} />
+                  <SortableTh label="No. Pesanan" icon={ClipboardList} active={pendingSortField === "no_pesanan"} direction={pendingSortDir} onClick={() => togglePendingSort("no_pesanan")} />
                   <SortableTh label="Pelanggan" icon={User} active={pendingSortField === "pelanggan"} direction={pendingSortDir} onClick={() => togglePendingSort("pelanggan")} />
                   <SortableTh label="Aksi" icon={MoreHorizontal} sortable={false} />
                 </tr>
@@ -269,8 +267,8 @@ export default function QcTable({
                 {sortedPending.map((p) => (
                   <tr key={p.id}>
                     <td>
-                      <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/40">
-                        <ShieldCheck size={15} className="text-blue-600 dark:text-blue-400" />
+                      <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700/50">
+                        <ShieldCheck size={15} className="text-gray-500 dark:text-gray-400" />
                       </span>
                     </td>
                     <td className="font-semibold text-black dark:text-white">{p.no_produksi}</td>
@@ -325,8 +323,8 @@ export default function QcTable({
               {paginated.map((r) => (
                 <tr key={r.id}>
                   <td>
-                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/40">
-                      <ClipboardCheck size={15} className="text-blue-600 dark:text-blue-400" />
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700/50">
+                      <ClipboardCheck size={15} className="text-gray-500 dark:text-gray-400" />
                     </span>
                   </td>
                   <td className="font-semibold text-black dark:text-white text-center">{r.no_qc}</td>

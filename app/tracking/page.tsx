@@ -74,15 +74,23 @@ function iconForTahap(tahap: string) {
    mode karena background transparan-tipisnya kebetulan masih kebaca di
    dua tema, tapi sebenarnya warnanya statis, sama sekali tidak berubah
    saat mode gelap aktif. */
+/* batal/selesai/menunggu/default dipindah ke token semantik terpusat
+   (badge-danger/success/warning/info di globals.css) supaya sama persis
+   dengan badge status di dashboard admin -- sebelumnya halaman ini pakai
+   shade sendiri (bg-*-50/600) yang beda dari dashboard (bg-*-100/700),
+   jadi walau sama-sama "merah buat batal" shade-nya tetap tidak seragam.
+   kirim/qc/packing TETAP dibiarkan warna sendiri (bukan token) karena itu
+   identitas tahap pipeline, sama seperti skema warna di LaporanTable/
+   PesananTable/alur -- bukan makna sukses/gagal/peringatan. */
 function statusBadgeClass(status: string) {
   const s = status.toLowerCase();
-  if (/batal/.test(s)) return "bg-red-50 text-red-600 dark:bg-red-900/30 dark:text-red-400";
-  if (/selesai|sampai/.test(s)) return "bg-green-50 text-green-600 dark:bg-green-900/30 dark:text-green-400";
+  if (/batal/.test(s)) return "badge-danger";
+  if (/selesai|sampai/.test(s)) return "badge-success";
   if (/kirim/.test(s)) return "bg-purple-50 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400";
   if (/qc|quality/.test(s)) return "bg-purple-50 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400";
   if (/packing/.test(s)) return "bg-cyan-50 text-cyan-600 dark:bg-cyan-900/30 dark:text-cyan-400";
-  if (/menunggu|baru|pending/.test(s)) return "bg-amber-50 text-amber-600 dark:bg-amber-900/30 dark:text-amber-400";
-  return "bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-400";
+  if (/menunggu|baru|pending/.test(s)) return "badge-warning";
+  return "badge-info";
 }
 
 export default function TrackingPage() {

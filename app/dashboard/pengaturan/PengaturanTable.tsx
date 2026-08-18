@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { User, Pencil, Trash2, Hash, IdCard, ShieldCheck, Calendar, MoreHorizontal } from "lucide-react";
+import { User, Pencil, Trash2, Fingerprint, IdCard, ShieldCheck, Calendar, MoreHorizontal } from "lucide-react";
 import SortableTh from "@/components/SortableTh";
 import TableIconCell from "@/components/TableIconCell";
 import { compareValues } from "@/lib/sortUtils";
@@ -53,7 +53,7 @@ export default function PengaturanTable({ profiles }: { profiles: Profile[] }) {
         <thead>
           <tr>
             <TableIconCell icon={User} />
-            <SortableTh label="ID" icon={Hash} active={sortField === "id"} direction={sortDir} onClick={() => toggleSort("id")} center />
+            <SortableTh label="ID" icon={Fingerprint} active={sortField === "id"} direction={sortDir} onClick={() => toggleSort("id")} center />
             <SortableTh label="Nama Lengkap" icon={IdCard} active={sortField === "full_name"} direction={sortDir} onClick={() => toggleSort("full_name")} center />
             <SortableTh label="Role" icon={ShieldCheck} active={sortField === "role"} direction={sortDir} onClick={() => toggleSort("role")} center />
             <SortableTh label="Dibuat" icon={Calendar} active={sortField === "created_at"} direction={sortDir} onClick={() => toggleSort("created_at")} center />
@@ -64,8 +64,8 @@ export default function PengaturanTable({ profiles }: { profiles: Profile[] }) {
           {sorted.map((profile) => (
             <tr key={profile.id}>
               <td>
-                <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/40">
-                  <User size={15} className="text-blue-600 dark:text-blue-400" />
+                <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700/50">
+                  <User size={15} className="text-gray-500 dark:text-gray-400" />
                 </span>
               </td>
               <td className="font-mono text-xs text-gray-500 dark:text-gray-400 text-center">

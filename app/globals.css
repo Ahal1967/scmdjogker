@@ -53,9 +53,14 @@ html {
 }
 
 
-/* Judul: Montserrat */
+/* Judul: Plus Jakarta Sans (Opsi C dari mockup) -- sengaja dibedakan dari
+   body text (Inter) biar judul/angka besar punya karakter sendiri, bukan
+   cuma beda ukuran/ketebalan dari font yang sama. Sempat dicoba Fraunces
+   (serif) lalu diganti ke Plus Jakarta Sans atas permintaan user. Juga
+   dipakai di .sidebar-link/.sidebar-link-active dan .col-label (header
+   tabel) di bawah supaya konsisten -- bukan cuma judul halaman. */
 h1, h2, h3, h4, h5, h6, .font-display {
-  font-family: var(--font-inter), sans-serif;
+  font-family: var(--font-display), sans-serif;
 }
 
 
@@ -135,6 +140,23 @@ body::before {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--djoker-blue);
+}
+
+/* Scrollbar dark mode -- sebelumnya track/thumb-nya cuma punya warna abu
+   terang (#f3f4f6 / #d1d5db) tanpa varian .dark sama sekali, jadi pas mode
+   gelap aktif scrollbar-nya tetap abu terang polos nempel di atas
+   background navy gelap, kelihatan kayak elemen bawaan browser yang lupa
+   di-style, bukan bagian dari tema gelapnya. */
+.dark ::-webkit-scrollbar-track {
+  background: var(--djoker-surface-2);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #3a4568;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: var(--djoker-blue-light);
 }
 
 
@@ -217,20 +239,23 @@ body::before {
      highlight tipis di tepi atas yang kelihatan sebagai "garis putih" yang
      kontras aneh sama gradient card ini -- dengan berdiri sendiri, masalah
      itu otomatis hilang tanpa perlu override apa pun. */
+  /* Sebelumnya gradient hijau penuh -- diganti jadi putih/netral senada
+     .card lain, aksen hijau cuma tersisa di teks judul & garis tren
+     (.dash-chart-head, .dash-chart-trend), bukan lagi background utuh. */
   .dash-chart-card {
     position: relative;
     overflow: hidden;
-    border-radius: 13px;
+    border-radius: 12px;
     padding: 14px;
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    box-shadow: 0 8px 20px -10px rgba(30, 58, 138, 0.25);
-    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 45%, #f0fdfa 100%);
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 16px -8px rgba(30, 58, 138, 0.1);
+    background: #ffffff;
   }
 
   .dark .dash-chart-card {
-    border-color: rgba(255, 255, 255, 0.08);
-    background: linear-gradient(135deg, #06231a 0%, #0a3226 45%, #082621 100%);
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+    border-color: var(--djoker-border);
+    background: var(--djoker-surface);
+    box-shadow: none;
   }
 
   .dash-chart-top {
@@ -296,40 +321,30 @@ body::before {
      karena ini cuma tinggal 2 card jadi dikasih treatment sendiri: gradient
      per-kategori warna + watermark ikon besar-samar (bahasa yang sama
      kayak PageHeaderCard) + shadow lebih dalam. */
+  /* Sebelumnya background gradient penuh per-kategori (biru/cyan) -- kartu
+     luarnya sekarang putih/netral seragam, warna cuma tersisa di
+     .premium-stat-icon (kotak ikon kecil) & .premium-stat-label (teks),
+     bukan lagi mewarnai seluruh card. */
   .premium-stat-card {
     position: relative;
     overflow: hidden;
     min-height: 112px;
-    border-radius: 13px;
+    border-radius: 12px;
     padding: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    box-shadow: 0 8px 20px -10px rgba(30, 58, 138, 0.25);
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 2px 10px -6px rgba(30, 58, 138, 0.12);
+    background: #ffffff;
     transition: transform 0.25s ease, box-shadow 0.25s ease;
   }
 
   .premium-stat-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 10px 24px -10px rgba(30, 58, 138, 0.3);
-  }
-
-  .premium-stat-card.blue {
-    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 55%, #bfdbfe 100%);
-  }
-
-  .premium-stat-card.cyan {
-    background: linear-gradient(135deg, #ecfeff 0%, #cffafe 55%, #a5f3fc 100%);
+    box-shadow: 0 6px 16px -8px rgba(30, 58, 138, 0.18);
   }
 
   .dark .premium-stat-card {
-    border-color: rgba(255, 255, 255, 0.08);
-  }
-
-  .dark .premium-stat-card.blue {
-    background: linear-gradient(135deg, #0f1d33 0%, #142a4d 55%, #1d3a66 100%);
-  }
-
-  .dark .premium-stat-card.cyan {
-    background: linear-gradient(135deg, #0b2226 0%, #0e343a 55%, #114752 100%);
+    border-color: var(--djoker-border);
+    background: var(--djoker-surface);
   }
 
 
@@ -406,34 +421,23 @@ body::before {
      satu bahasa desain sama card Supplier/Pesanan Bulan Ini, ganti dari
      versi lama (satu card putih dibelah garis divider). Isi kontennya beda
      (mini bar chart & donut ring), makanya class terpisah. */
+  /* Sama seperti .premium-stat-card -- background gradient penuh per-tile
+     (biru/hijau) diganti putih/netral, warna cuma tersisa di teks judul &
+     legenda (.status-progress-head, .status-progress-legend). */
   .status-progress-tile {
     position: relative;
     overflow: hidden;
     min-height: 112px;
-    border-radius: 13px;
+    border-radius: 12px;
     padding: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.5);
-    box-shadow: 0 8px 20px -10px rgba(30, 58, 138, 0.25);
-  }
-
-  .status-progress-tile.blue {
-    background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 55%, #bfdbfe 100%);
-  }
-
-  .status-progress-tile.green {
-    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 55%, #a7f3d0 100%);
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 2px 10px -6px rgba(30, 58, 138, 0.12);
+    background: #ffffff;
   }
 
   .dark .status-progress-tile {
-    border-color: rgba(255, 255, 255, 0.08);
-  }
-
-  .dark .status-progress-tile.blue {
-    background: linear-gradient(135deg, #0f1d33 0%, #142a4d 55%, #1d3a66 100%);
-  }
-
-  .dark .status-progress-tile.green {
-    background: linear-gradient(135deg, #06231a 0%, #0a3226 55%, #0c4632 100%);
+    border-color: var(--djoker-border);
+    background: var(--djoker-surface);
   }
 
 
@@ -519,7 +523,7 @@ body::before {
      (sama seperti .dash-stat-card) supaya tidak menular ke card di halaman lain. */
   .alur-stage-card {
     padding: 14px 16px;
-    border-radius: 13px;
+    border-radius: 12px;
   }
 
   /* Tombol utama (biru) */
@@ -627,6 +631,7 @@ body::before {
     gap: 12px;
     padding: 9px 16px;
     border-radius: 10px;
+    font-family: var(--font-display), sans-serif;
     font-size: 0.875rem;
     font-weight: 600;
     color: var(--djoker-text);
@@ -645,6 +650,7 @@ body::before {
     gap: 12px;
     padding: 9px 16px;
     border-radius: 10px;
+    font-family: var(--font-display), sans-serif;
     font-size: 0.875rem;
     font-weight: 700;
     background: rgba(37, 99, 235, 0.12);
@@ -663,63 +669,45 @@ body::before {
     overflow: hidden;
   }
 
-  /* Header "Glassmorphism": tiap <th> tetap sel tabel biasa (supaya
-     lebar kolom dijamin sama persis dengan <td> di bawahnya -- ini
-     yang bikin semua perbaikan alignment sebelumnya tidak percuma),
-     tapi didandani biar KELIHATAN sebagai satu pill kaca mengambang:
-     background+blur+shadow yang SAMA di tiap sel bikin sambungan
-     antar kolom tidak kelihatan (seamless), dan cuma ujung kiri/kanan
-     yang dibulatkan penuh (999px) jadi bentuknya pill utuh. */
-  /* Celah antara header dan baris data -- sengaja dibikin TIPIS (bukan
-     dihilangkan total) supaya header masih kelihatan sebagai elemen
-     terpisah, tapi tidak lagi terkesan "mengambang" jauh dari kolom di
-     bawahnya. Trik border-bottom (bukan margin) tetap dipertahankan
-     karena border ikut dihitung table layout, jadi lebar kolom header
-     tetap dijamin 100% sama dengan <td> di bawahnya -- ini yang bikin
-     semua perbaikan alignment sebelumnya tidak percuma. */
-  /* backdrop-filter DIHAPUS dari sini (sebelumnya blur(10px) per <th>) --
-     setiap kolom tabel adalah elemen blur terpisah, jadi tabel 8 kolom =
-     8 layer blur yang harus dihitung ulang bareng pas halaman di-scroll.
-     Ini kemungkinan besar biang utama "halaman tabel belum mulus discroll"
-     karena kejadian di SEMUA halaman yang ada tabelnya, dikali jumlah
-     kolom. Background dinaikkan opacity-nya (0.75 -> 0.94) buat gantiin
-     efek blur biar tetap kelihatan solid/tidak transparan-transparan amat. */
+  /* Header "Borderless Modern" (Opsi C dari mockup, dipilih user) --
+     ganti dari header kaca/glow biru sebelumnya. Background dibuat
+     transparan sepenuhnya (nempel ke background .card di belakangnya,
+     bukan lagi elemen "kaca mengambang"), warna abu netral
+     (--djoker-muted), biru cuma dipertahankan sebagai aksen di
+     badge/status baris, bukan lagi di header. Garis pembatas cuma 1px
+     solid tipis di bawah seluruh baris header (bukan lagi per-<th>),
+     sebagai satu-satunya pemisah -- tidak ada lagi shadow/glow.
+     text-transform:uppercase SUDAH DIHAPUS atas permintaan user (label
+     ditulis apa adanya sesuai casing di JSX, misal "No. Pesanan" bukan
+     lagi "NO. PESANAN") -- ukuran font dinaikkan sedikit (11px) dan
+     letter-spacing dikecilkan karena huruf kapital-kecil butuh spacing
+     lebih rapat daripada huruf kapital semua biar tetap enak dibaca. */
   .table-djoker thead th {
-    background: rgba(255, 255, 255, 0.94);
-    background-clip: padding-box;
-    color: var(--djoker-blue-dark);
+    background: transparent;
+    color: var(--djoker-muted);
+    font-family: var(--font-display), sans-serif;
     font-weight: 700;
     font-size: 0.6875rem !important;
     letter-spacing: 0.01em;
-    padding: 11px 16px;
+    padding: 12px 16px;
     text-align: left;
     border: none;
-    border-bottom: 4px solid transparent;
-    box-shadow: 0 3px 8px -2px rgba(37, 99, 235, 0.16);
-    position: relative;
+    border-bottom: 1px solid var(--djoker-border);
   }
 
   .dark .table-djoker thead th {
-    background: rgba(22, 29, 58, 0.94);
-    color: #cbd5e1;
+    color: var(--djoker-muted);
   }
 
-  /* Kolom paling kiri (<th className="w-10">) ikut dikasih background
-     kaca yang sama kayak kolom lain (jadi bar-nya menyambung penuh dari
-     ujung kiri, tidak ada celah transparan) -- dan dialah yang dapat
-     sudut kiri, karena dia memang sel pertama yang sebenarnya. Radius-nya
-     (10px) disamakan ke radius tabel/card-nya sendiri, bukan bulat
-     penuh, supaya sudutnya konsisten sama bentuk tabel.
-     text-align:center DITAMBAHKAN di sini (menang lawan text-align:left
-     dari ".table-djoker thead th" di atas karena :first-child bikin
-     selector ini lebih spesifik) supaya .icon-chip di dalamnya (yang
-     inline-flex, jadi ikut text-align parent) presisi di tengah kolom,
-     sejajar sama ikon baris di <td> pertama tiap baris di bawahnya --
-     sebelumnya sama-sama nempel kiri tapi ukurannya beda (22px vs 32px)
-     jadi kelihatan tidak presisi/tidak center. */
+  /* Kolom paling kiri (<th className="w-10">) -- text-align:center DI SINI
+     (menang lawan text-align:left dari ".table-djoker thead th" di atas
+     karena :first-child bikin selector ini lebih spesifik) supaya
+     .icon-chip di dalamnya (yang inline-flex, jadi ikut text-align parent)
+     presisi di tengah kolom, sejajar sama ikon baris di <td> pertama tiap
+     baris di bawahnya. (Border-radius di sini sudah tidak relevan lagi
+     sejak header jadi transparan/borderless -- sengaja dihapus, dulu buat
+     nyambungin sudut background kaca yang sekarang sudah tidak ada.) */
   .table-djoker thead th:first-child {
-    border-top-left-radius: 10px;
-    border-bottom-left-radius: 10px;
     text-align: center;
   }
 
@@ -732,8 +720,6 @@ body::before {
      kanan walau sudah dikasih className="text-right" di semua tabel. */
   .table-djoker thead th:last-child {
     text-align: right;
-    border-top-right-radius: 10px;
-    border-bottom-right-radius: 10px;
   }
 
   /* Dipakai buat kolom yang isinya BUKAN teks polos, misal widget
@@ -780,7 +766,7 @@ body::before {
     justify-content: center;
     width: 22px;
     height: 22px;
-    border-radius: 999px;
+    border-radius: 50%;
     background: rgba(37, 99, 235, 0.12);
     color: var(--djoker-blue-dark);
     flex-shrink: 0;
@@ -793,6 +779,7 @@ body::before {
 
   .col-label {
     white-space: nowrap;
+    font-family: var(--font-display), sans-serif;
   }
 
   .th-sortable {
@@ -828,21 +815,18 @@ body::before {
     padding-top: 18px;
   }
 
+  /* Borderless Modern: tidak ada lagi garis pembatas antar baris (border-bottom
+     dihapus) atau zebra stripe -- baris dipisahkan murni lewat whitespace
+     (padding), garis cuma tersisa 1x di bawah header (lihat ".table-djoker
+     thead th" di atas). Hover pakai abu netral (--djoker-bg-2), bukan lagi
+     biru muda, biar biru tetap eksklusif jadi aksen badge/status. */
   .table-djoker tbody tr {
-    transition: background 0.15s ease, box-shadow 0.15s ease;
-    border-bottom: 1px solid var(--djoker-border);
-  }
-
-  .table-djoker tbody tr:nth-child(even) {
-    background: rgba(59, 130, 246, 0.02);
+    transition: background 0.15s ease;
+    border-bottom: none;
   }
 
   .table-djoker tbody tr:hover {
-    background: var(--djoker-hover-bg);
-  }
-
-  .table-djoker tbody tr:last-child {
-    border-bottom: none;
+    background: var(--djoker-bg-2);
   }
 
   .table-djoker tbody td {
@@ -931,20 +915,78 @@ body::before {
     transform: scale(1.05);
   }
 
+  /* Token warna SEMANTIK (success/warning/danger/info) -- dipusatkan di
+     sini, satu-satunya sumber, supaya tiap tabel tidak lagi hardcode
+     class Tailwind sendiri-sendiri buat status yang MAKNANYA sama.
+     Sebelum ini: "Menunggu"/"Diproses" ada yang bg-yellow-100 (Pengiriman,
+     Packing, QC) ada yang bg-amber-50 (halaman publik Lacak Pesanan) --
+     dua hue beda buat makna yang sama. "Selesai" juga ada yang green ada
+     yang emerald (Dashboard). Dipakai HANYA untuk status yang benar-benar
+     bermakna sukses/peringatan/gagal/netral (QcTable, PengirimanTable,
+     PackingTable) -- BUKAN untuk skema warna per-tahap pipeline (6 warna
+     beda di LaporanTable/PesananTable/dashboard chart, 9 warna beda di
+     alur/page.tsx) karena skema itu sengaja beda warna per tahap supaya
+     tahapnya kebeda-beda di satu tampilan yang isinya banyak baris/tahap
+     sekaligus -- kalau dipaksa jadi 4 warna saja, informasi itu hilang. */
+  .badge-success {
+    background: #dcfce7; /* green-100 */
+    color: #15803d; /* green-700 */
+  }
+
+  .dark .badge-success {
+    background: rgba(34, 197, 94, 0.18);
+    color: #4ade80; /* green-400 */
+  }
+
+  .badge-warning {
+    background: #fef3c7; /* amber-100 */
+    color: #b45309; /* amber-700 */
+  }
+
+  .dark .badge-warning {
+    background: rgba(245, 158, 11, 0.18);
+    color: #fbbf24; /* amber-400 */
+  }
+
+  .badge-danger {
+    background: #fee2e2; /* red-100 */
+    color: #b91c1c; /* red-700 */
+  }
+
+  .dark .badge-danger {
+    background: rgba(239, 68, 68, 0.18);
+    color: #f87171; /* red-400 */
+  }
+
+  .badge-info {
+    background: #dbeafe; /* blue-100 */
+    color: #1d4ed8; /* blue-700 */
+  }
+
+  .dark .badge-info {
+    background: rgba(59, 130, 246, 0.2);
+    color: #60a5fa; /* blue-400 */
+  }
+
   /* Page header card -- pengganti header polos (badge+judul+subjudul tanpa
-     bungkus apa pun) yang tadinya di-copy identik di 11 halaman. Sekarang
-     dibungkus jadi card sungguhan dengan dekorasi gradasi biru + cincin
-     bertumpuk + pola titik di sisi kanan, dipakai lewat komponen bersama
-     <PageHeaderCard /> supaya desainnya konsisten dan cukup diubah di 1
-     tempat kalau nanti mau di-tweak lagi. */
+     bungkus apa pun) yang tadinya di-copy identik di 11 halaman, dipakai
+     lewat komponen bersama <PageHeaderCard /> supaya desainnya konsisten
+     dan cukup diubah di 1 tempat kalau nanti mau di-tweak lagi.
+     Background diganti dari gradasi biru diagonal jadi flat putih/surface
+     (sama persis pola .dash-chart-card/.premium-stat-card/.welcome-hero
+     yang sudah di-flat-in duluan) -- ini kartu terakhir yang masih gradasi
+     penuh, jadi sebelum ini dia beda sendiri dibanding card lain. Biru
+     cuma tersisa di badge kecil (.page-hero-badge), bukan lagi mewarnai
+     seluruh card. */
   .page-hero {
     position: relative;
     overflow: hidden;
-    border-radius: 20px;
+    border-radius: 16px;
     padding: 16px 20px;
     max-width: 440px;
-    background: linear-gradient(115deg, #ffffff 0%, #ffffff 42%, #eef4ff 62%, #d7e6fb 80%, #aecbf3 100%);
-    box-shadow: 0 4px 16px rgba(30, 58, 138, 0.1);
+    background: #ffffff;
+    border: 1px solid var(--djoker-border);
+    box-shadow: 0 4px 16px -8px rgba(30, 58, 138, 0.1);
   }
 
   @media (min-width: 768px) {
@@ -954,8 +996,9 @@ body::before {
   }
 
   .dark .page-hero {
-    background: linear-gradient(115deg, #161d2e 0%, #161d2e 40%, #16213d 62%, #163461 82%, #1d4ed8 100%);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+    background: var(--djoker-surface);
+    border-color: var(--djoker-border);
+    box-shadow: none;
   }
 
   .page-hero-content {
@@ -1025,13 +1068,19 @@ body::before {
      statistik. Di dark mode sengaja dibalik ke gradasi navy gelap (bukan
      cuma biru muda yang di-dim) supaya tetap kelihatan "premium", bukan
      pucat -- sesuai permintaan awal user waktu lihat mockup versi gelap. */
+  /* Sebelumnya gradient biru penuh + glow 2 lingkaran + tekstur grid titik
+     (lihat riwayat di bawah kalau perlu balikin) -- dihapus atas permintaan
+     user biar "simple/premium/elegan": jadi card netral putih/gelap biasa
+     kayak .card lain, aksen warna cuma tersisa di badge & ikon kecil di
+     dalam .welcome-hero-stats, bukan lagi elemen yang paling "berteriak"
+     di halaman. */
   .welcome-hero {
     position: relative;
-    overflow: hidden;
     border-radius: 16px;
     padding: 12px 14px;
-    background: linear-gradient(135deg, #f5f9ff 0%, #e3eefd 28%, #bcd9f8 62%, #8dbdf2 100%);
-    box-shadow: 0 12px 26px -14px rgba(37, 99, 235, 0.32), 0 3px 10px rgba(30, 58, 138, 0.1);
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 16px -8px rgba(30, 58, 138, 0.12);
   }
 
   @media (min-width: 768px) {
@@ -1041,60 +1090,9 @@ body::before {
   }
 
   .dark .welcome-hero {
-    background: linear-gradient(135deg, #0b1330 0%, #142451 30%, #1d4ed8 68%, #3b82f6 100%);
-    box-shadow: 0 20px 40px -16px rgba(29, 78, 216, 0.45), 0 4px 16px rgba(0, 0, 0, 0.3);
-  }
-
-  .welcome-hero-deco {
-    position: absolute;
-    inset: 0;
-    overflow: hidden;
-    pointer-events: none;
-  }
-
-  .welcome-hero-glow-1 {
-    position: absolute;
-    width: 190px;
-    height: 190px;
-    border-radius: 50%;
-    right: -55px;
-    top: -75px;
-    background: radial-gradient(circle, rgba(59, 130, 246, 0.35) 0%, rgba(59, 130, 246, 0) 70%);
-  }
-
-  .dark .welcome-hero-glow-1 {
-    background: radial-gradient(circle, rgba(96, 165, 250, 0.55) 0%, rgba(96, 165, 250, 0) 70%);
-  }
-
-  .welcome-hero-glow-2 {
-    position: absolute;
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    left: -45px;
-    bottom: -65px;
-    background: radial-gradient(circle, rgba(129, 140, 248, 0.2) 0%, rgba(129, 140, 248, 0) 70%);
-  }
-
-  .dark .welcome-hero-glow-2 {
-    background: radial-gradient(circle, rgba(167, 139, 250, 0.35) 0%, rgba(167, 139, 250, 0) 70%);
-  }
-
-  .welcome-hero-grid {
-    position: absolute;
-    inset: 0;
-    opacity: 0.2;
-    background-image: linear-gradient(rgba(37, 99, 235, 0.5) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(37, 99, 235, 0.5) 1px, transparent 1px);
-    background-size: 28px 28px;
-    -webkit-mask-image: radial-gradient(ellipse 420px 160px at 82% 12%, black 30%, transparent 75%);
-    mask-image: radial-gradient(ellipse 420px 160px at 82% 12%, black 30%, transparent 75%);
-  }
-
-  .dark .welcome-hero-grid {
-    opacity: 0.1;
-    background-image: linear-gradient(rgba(255, 255, 255, 0.6) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255, 255, 255, 0.6) 1px, transparent 1px);
+    background: var(--djoker-surface);
+    border-color: var(--djoker-border);
+    box-shadow: none;
   }
 
   .welcome-hero-content {
@@ -1102,25 +1100,23 @@ body::before {
     z-index: 2;
   }
 
+  /* Sebelumnya pil kaca (bg putih transparan + backdrop-blur) -- itu
+     masuk akal waktu latarnya gradient biru berwarna, tapi begitu
+     .welcome-hero jadi kartu netral putih polos, blur di atas putih tidak
+     kelihatan apa-apa lagi (cuma buang GPU). Disederhanakan jadi label
+     teks biasa + ikon kecil, tanpa pil/background sendiri. */
   .welcome-hero-badge {
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    padding: 3px 9px;
-    border-radius: 9999px;
-    background: rgba(255, 255, 255, 0.75);
-    border: 1px solid rgba(37, 99, 235, 0.18);
-    backdrop-filter: blur(6px);
-    font-size: 0.56rem;
-    font-weight: 700;
+    font-size: 0.6rem;
+    font-weight: 800;
     letter-spacing: 0.06em;
-    color: #1d4ed8;
+    color: #2563eb;
   }
 
   .dark .welcome-hero-badge {
-    background: rgba(255, 255, 255, 0.12);
-    border-color: rgba(255, 255, 255, 0.18);
-    color: #dbeafe;
+    color: #93c5fd;
   }
 
   .welcome-hero-eyebrow {
@@ -1145,7 +1141,7 @@ body::before {
   }
 
   .dark .welcome-hero-title {
-    color: #fff;
+    color: var(--djoker-text);
   }
 
   @media (min-width: 768px) {
@@ -1163,7 +1159,7 @@ body::before {
   }
 
   .dark .welcome-hero-desc {
-    color: rgba(255, 255, 255, 0.72);
+    color: var(--djoker-text-2);
   }
 
   .welcome-hero-stats {
@@ -1179,45 +1175,63 @@ body::before {
     }
   }
 
+  /* Sama seperti .welcome-hero-badge -- kaca blur ini dulu masuk akal di
+     atas gradient biru, sekarang di atas kartu putih polos jadi cuma kotak
+     abu-abu muda biasa (tidak perlu blur lagi). */
   .welcome-hero-stat {
-    border-radius: 11px;
+    border-radius: 12px;
     padding: 8px 10px;
-    background: rgba(255, 255, 255, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(10px);
-    box-shadow: 0 3px 8px rgba(30, 58, 138, 0.05);
+    background: #f9fafb;
+    border: 1px solid #f0f2f5;
   }
 
   .dark .welcome-hero-stat {
-    background: rgba(255, 255, 255, 0.08);
-    border-color: rgba(255, 255, 255, 0.14);
-    box-shadow: none;
+    background: var(--djoker-surface-2);
+    border-color: var(--djoker-border);
   }
 
+  /* Ikon gradient + glow warna diganti jadi chip pastel datar (bg pucat +
+     ikon warna gelap), senada sama gaya aksen ikon di .premium-stat-card &
+     .status-progress-tile yang juga sudah disederhanakan -- bukan lagi
+     kotak gradient bercahaya di dalam card yang sudah netral. */
   .welcome-hero-stat-icon {
     display: flex;
     align-items: center;
     justify-content: center;
     width: 20px;
     height: 20px;
-    border-radius: 7px;
+    border-radius: 8px;
     margin-bottom: 5px;
-    color: #fff;
   }
 
   .welcome-hero-stat-icon.green {
-    background: linear-gradient(135deg, #22c55e, #16a34a);
-    box-shadow: 0 4px 10px rgba(34, 197, 94, 0.3);
+    background: #dcfce7;
+    color: #15803d;
+  }
+
+  .dark .welcome-hero-stat-icon.green {
+    background: rgba(34, 197, 94, 0.18);
+    color: #4ade80;
   }
 
   .welcome-hero-stat-icon.blue {
-    background: linear-gradient(135deg, #60a5fa, #3b82f6);
-    box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);
+    background: #dbeafe;
+    color: #1d4ed8;
+  }
+
+  .dark .welcome-hero-stat-icon.blue {
+    background: rgba(59, 130, 246, 0.2);
+    color: #60a5fa;
   }
 
   .welcome-hero-stat-icon.orange {
-    background: linear-gradient(135deg, #fb923c, #f97316);
-    box-shadow: 0 4px 10px rgba(249, 115, 22, 0.3);
+    background: #ffedd5;
+    color: #c2410c;
+  }
+
+  .dark .welcome-hero-stat-icon.orange {
+    background: rgba(249, 115, 22, 0.18);
+    color: #fb923c;
   }
 
   .welcome-hero-stat-num {
@@ -1255,8 +1269,15 @@ body::before {
   background: var(--djoker-blue);
 }
 
+/* Duplikat rule .font-display -- disamakan ke Plus Jakarta Sans juga. Rule
+   ini letaknya SETELAH rule h1-h6/.font-display di atas dan spesifisitasnya
+   sama-sama 1 class buat elemen ber-class "font-display" (bukan tag
+   h1-h6), jadi selama ini rule INI yang menang di urutan cascade untuk
+   elemen semacam itu -- kalau tidak ikut diubah, elemen dengan
+   className="font-display" (bukan tag <h1>-<h6> asli) akan tetap kepakai
+   font lain walau rule di atas sudah diganti. */
 .font-display {
-  font-family: var(--font-inter), sans-serif;
+  font-family: var(--font-display), sans-serif;
 }
 
 

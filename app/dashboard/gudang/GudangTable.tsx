@@ -233,8 +233,8 @@ export default function GudangTable({
               {paginated.map((m) => (
                 <tr key={m.id}>
                   <td>
-                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/40">
-                      <Package size={15} className="text-blue-600 dark:text-blue-400" />
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700/50">
+                      <Package size={15} className="text-gray-500 dark:text-gray-400" />
                     </span>
                   </td>
                   <td className="font-semibold text-black dark:text-white text-center">{m.nama_bahan}</td>

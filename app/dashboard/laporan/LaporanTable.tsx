@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Search, FileText, ChevronLeft, ChevronRight, Pencil, Trash2, Hash, Calendar, Wallet, CreditCard, Receipt, CheckCircle2, MapPin, MoreHorizontal } from "lucide-react";
+import { Search, FileText, ChevronLeft, ChevronRight, Pencil, Trash2, ClipboardList, Calendar, Wallet, CreditCard, Receipt, CheckCircle2, MapPin, MoreHorizontal } from "lucide-react";
 import SortableTh from "@/components/SortableTh";
 import TableIconCell from "@/components/TableIconCell";
 import { compareValues } from "@/lib/sortUtils";
@@ -107,7 +107,7 @@ export default function LaporanTable({ dataOrders }: { dataOrders: Order[] }) {
             <thead>
               <tr>
                 <TableIconCell icon={FileText} />
-                <SortableTh label="No. Pesanan" icon={Hash} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} center />
+                <SortableTh label="No. Pesanan" icon={ClipboardList} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} center />
                 <SortableTh label="Tanggal" icon={Calendar} active={sortField === "tanggal"} direction={sortDir} onClick={() => toggleSort("tanggal")} center />
                 <SortableTh label="Total" icon={Wallet} active={sortField === "total"} direction={sortDir} onClick={() => toggleSort("total")} center />
                 <SortableTh label="DP" icon={CreditCard} active={sortField === "dp"} direction={sortDir} onClick={() => toggleSort("dp")} center />
@@ -121,8 +121,8 @@ export default function LaporanTable({ dataOrders }: { dataOrders: Order[] }) {
               {paginated.map((order) => (
                 <tr key={order.id}>
                   <td>
-                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/40">
-                      <FileText size={15} className="text-blue-600 dark:text-blue-400" />
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700/50">
+                      <FileText size={15} className="text-gray-500 dark:text-gray-400" />
                     </span>
                   </td>
                   <td className="font-semibold text-black dark:text-white text-center">{order.no_pesanan || "-"}</td>

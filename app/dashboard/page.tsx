@@ -232,12 +232,6 @@ export default function DashboardPage() {
       />
 
       <div className="welcome-hero">
-        <div className="welcome-hero-deco" aria-hidden="true">
-          <div className="welcome-hero-glow-1" />
-          <div className="welcome-hero-glow-2" />
-          <div className="welcome-hero-grid" />
-        </div>
-
         <div className="welcome-hero-content">
           <span className="welcome-hero-badge">
             <BadgeCheck size={11} />
@@ -340,7 +334,7 @@ export default function DashboardPage() {
                   strokeLinecap="round"
                 />
               </svg>
-              <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-emerald-800 dark:text-emerald-300">
+              <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-green-700 dark:text-green-300">
                 {stats.totalProduksi > 0 ? Math.round((stats.produksiSelesai / stats.totalProduksi) * 100) : 0}%
               </div>
             </div>
@@ -348,7 +342,7 @@ export default function DashboardPage() {
               <p className="text-lg font-bold text-black dark:text-white">
                 {stats.produksiSelesai}/{stats.totalProduksi}
               </p>
-              <p className="text-[11px] font-medium text-emerald-800 dark:text-emerald-300">Produksi Selesai</p>
+              <p className="text-[11px] font-medium text-green-700 dark:text-green-300">Produksi Selesai</p>
             </div>
           </div>
         </div>

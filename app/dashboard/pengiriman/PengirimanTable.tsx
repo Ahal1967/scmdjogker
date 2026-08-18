@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Search, Truck, Clock, PackageCheck, ChevronLeft, ChevronRight, ClipboardEdit, CheckCircle2, Loader2, Hash, User, MapPin, Barcode, MoreHorizontal } from "lucide-react";
+import { Search, Truck, Clock, PackageCheck, ChevronLeft, ChevronRight, ClipboardEdit, CheckCircle2, Loader2, ClipboardList, User, MapPin, Barcode, MoreHorizontal } from "lucide-react";
 import { useToast } from "@/components/useToast";
 import SortableTh from "@/components/SortableTh";
 import TableIconCell from "@/components/TableIconCell";
@@ -22,12 +22,16 @@ type Shipment = {
   } | null;
 };
 
+/* Dipindah ke token semantik terpusat (badge-warning/info/success di
+   globals.css) -- "Diproses"/"Dalam Proses" sebelumnya bg-yellow-100,
+   sekarang amber lewat token yang sama dipakai QcTable & PackingTable
+   buat makna "menunggu/proses" yang sama. */
 const STATUS_COLORS: Record<string, string> = {
-  Diproses: "bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300",
-  "Dalam Proses": "bg-yellow-100 dark:bg-yellow-900/40 text-yellow-700 dark:text-yellow-300",
-  Dikirim: "bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300",
-  Terkirim: "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300",
-  Diterima: "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300",
+  Diproses: "badge-warning",
+  "Dalam Proses": "badge-warning",
+  Dikirim: "badge-info",
+  Terkirim: "badge-success",
+  Diterima: "badge-success",
 };
 
 function EmptyState() {
@@ -212,7 +216,7 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
             <thead>
               <tr>
                 <TableIconCell icon={Truck} />
-                <SortableTh label="No. Pesanan" icon={Hash} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} center />
+                <SortableTh label="No. Pesanan" icon={ClipboardList} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} center />
                 <SortableTh label="Pelanggan" icon={User} active={sortField === "pelanggan"} direction={sortDir} onClick={() => toggleSort("pelanggan")} center />
                 <SortableTh label="Alamat" icon={MapPin} active={sortField === "alamat"} direction={sortDir} onClick={() => toggleSort("alamat")} center />
                 <SortableTh label="Kurir" icon={Truck} active={sortField === "kurir"} direction={sortDir} onClick={() => toggleSort("kurir")} center />
@@ -225,8 +229,8 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
               {paginated.map((s) => (
                 <tr key={s.id}>
                   <td>
-                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/40">
-                      <Truck size={15} className="text-blue-600 dark:text-blue-400" />
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700/50">
+                      <Truck size={15} className="text-gray-500 dark:text-gray-400" />
                     </span>
                   </td>
                   <td className="font-semibold text-black dark:text-white text-center">{s.orders?.no_pesanan ?? "-"}</td>

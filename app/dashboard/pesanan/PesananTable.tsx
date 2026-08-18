@@ -3,13 +3,14 @@
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Search, Plus, FileText, ShoppingBag, CheckCircle2, TrendingUp, ChevronLeft, ChevronRight, ChevronDown, Eye, Trash2, User, Loader2, PackageOpen, Hash, Calendar, Tag, MoreHorizontal } from "lucide-react";
+import { Search, Plus, FileText, ShoppingBag, CheckCircle2, TrendingUp, ChevronLeft, ChevronRight, ChevronDown, Eye, Trash2, User, Loader2, PackageOpen, ClipboardList, Calendar, Tag, MoreHorizontal } from "lucide-react";
 import { useConfirm } from "@/components/useConfirm";
 import { useToast } from "@/components/useToast";
 import { createClient } from "@/lib/supabase/client";
 import SortableTh from "@/components/SortableTh";
 import TableIconCell from "@/components/TableIconCell";
 import { compareValues } from "@/lib/sortUtils";
+import { generateUniqueCode } from "@/lib/generateCode";
 
 type Customer = {
   id: string;
@@ -68,6 +69,11 @@ function formatRupiah(n: number) {
   return "Rp " + n.toLocaleString("id-ID");
 }
 
+// generateUniqueCode (buat no_pesanan/no_produksi) ditarik ke
+// @/lib/generateCode supaya bisa dipakai bareng sama QcTable.tsx
+// (no_qc/no_packing) -- lihat komentar di file itu buat penjelasan lengkap
+// kenapa kode acak, bukan nomor urut.
+
 export default function PesananTable() {
   const supabase = createClient();
   const router = useRouter();
@@ -77,8 +83,6 @@ export default function PesananTable() {
   }, []);
   const [orders, setOrders] = useState<Order[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const [orderSeq, setOrderSeq] = useState(1);
-  const [productionSeq, setProductionSeq] = useState(1);
   const [loading, setLoading] = useState(true);
 
   const [search, setSearch] = useState("");
@@ -114,20 +118,22 @@ export default function PesananTable() {
     const fetchData = async () => {
       setLoading(true);
 
-      // Ketiga query ini independen (tidak saling butuh hasil satu sama
+      // Kedua query ini independen (tidak saling butuh hasil satu sama
       // lain), jadi ditembak bareng lewat Promise.all -- sebelumnya jalan
       // berurutan (nunggu satu-satu) yang bikin halaman Pesanan kerasa lama.
+      // (Query ke tabel "production" buat ngitung nomor urut berikutnya
+      // SUDAH DIHAPUS -- no_pesanan/no_produksi sekarang kode acak yang
+      // dicek unik langsung ke DB pas disimpan, lihat generateUniqueCode
+      // di atas, jadi tidak perlu lagi tahu nomor urut terakhir.)
       const [
         { data: ordersData, error: ordersError },
         { data: customersData, error: customersError },
-        { data: prodData },
       ] = await Promise.all([
         supabase
           .from("orders")
           .select("*, customers(nama), order_items(id, nama_produk, ukuran, jumlah, harga)")
           .order("created_at", { ascending: false }),
         supabase.from("customers").select("*").order("nama", { ascending: true }),
-        supabase.from("production").select("no_produksi").order("created_at", { ascending: false }).limit(1),
       ]);
 
       if (ordersError) console.error(ordersError);
@@ -135,24 +141,6 @@ export default function PesananTable() {
 
       if (ordersData) setOrders(ordersData as Order[]);
       if (customersData) setCustomers(customersData as Customer[]);
-
-      if (ordersData && ordersData.length > 0) {
-        const maxNo = ordersData.reduce((max, o) => {
-          const match = o.no_pesanan?.match(/DJ(\d+)/);
-          if (!match) return max;
-          const num = parseInt(match[1], 10);
-          return num > max ? num : max;
-        }, 0);
-        setOrderSeq(maxNo + 1);
-      }
-
-      if (prodData && prodData.length > 0) {
-        const match = prodData[0].no_produksi?.match(/PRO-(\d+)/);
-        if (match) {
-          const num = parseInt(match[1], 10);
-          setProductionSeq(num + 1);
-        }
-      }
 
       setLoading(false);
     };
@@ -270,7 +258,7 @@ export default function PesananTable() {
       return;
     }
 
-    const noPesanan = "DJ" + String(orderSeq).padStart(5, "0");
+    const noPesanan = await generateUniqueCode(supabase, "orders", "no_pesanan", "DJ");
 
     const { data: orderData, error: orderError } = await supabase
       .from("orders")
@@ -307,7 +295,7 @@ export default function PesananTable() {
       selesai: true,
     });
 
-    const noProduksi = "PRO-" + String(productionSeq).padStart(4, "0");
+    const noProduksi = await generateUniqueCode(supabase, "production", "no_produksi", "PRO-");
     const { error: prodError } = await supabase.from("production").insert({
       no_produksi: noProduksi,
       order_id: orderData.id,
@@ -317,15 +305,12 @@ export default function PesananTable() {
 
     if (prodError) {
       showToast("Pesanan tersimpan, tapi gagal membuat entri produksi otomatis: " + prodError.message);
-    } else {
-      setProductionSeq((n) => n + 1);
     }
 
     setOrders((prev) => [
       { ...(orderData as Order), order_items: (itemsData as OrderItem[]) ?? validItems },
       ...prev,
     ]);
-    setOrderSeq((n) => n + 1);
     setShowModal(false);
     setSaving(false);
     showToast("Pesanan berhasil ditambahkan.", "success");
@@ -470,7 +455,7 @@ export default function PesananTable() {
             <thead>
               <tr>
                 <TableIconCell icon={FileText} />
-                <SortableTh label="No. Pesanan" icon={Hash} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} center />
+                <SortableTh label="No. Pesanan" icon={ClipboardList} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} center />
                 <SortableTh label="Pelanggan" icon={User} active={sortField === "pelanggan"} direction={sortDir} onClick={() => toggleSort("pelanggan")} center />
                 <SortableTh label="Tanggal" icon={Calendar} active={sortField === "tanggal"} direction={sortDir} onClick={() => toggleSort("tanggal")} center />
                 <SortableTh label="Status" icon={Tag} active={sortField === "status"} direction={sortDir} onClick={() => toggleSort("status")} center />
@@ -481,8 +466,8 @@ export default function PesananTable() {
               {paginated.map((o) => (
                 <tr key={o.id}>
                   <td>
-                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/40">
-                      <FileText size={15} className="text-blue-600 dark:text-blue-400" />
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700/50">
+                      <FileText size={15} className="text-gray-500 dark:text-gray-400" />
                     </span>
                   </td>
                   <td className="font-semibold text-black dark:text-white text-center">{o.no_pesanan}</td>
@@ -654,8 +639,13 @@ export default function PesananTable() {
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 p-4 overflow-y-auto">
           <div className="card card-modal w-full max-w-lg my-8 max-h-[90vh] overflow-y-auto" style={{ border: "none" }}>
+            {/* Nomor pesanan TIDAK ditampilkan di sini lagi -- dulu bisa
+                "ditebak" sebelum disimpan karena nomor urut (DJ + counter),
+                sekarang kodenya acak dan baru ditentukan pas disimpan ke
+                database (lihat generateUniqueCode), jadi tidak ada lagi
+                nomor yang bisa diprediksi di sini. */}
             <h2 className="font-display text-base font-semibold text-black dark:text-white">
-              Pesanan Baru — DJ{String(orderSeq).padStart(5, "0")}
+              Pesanan Baru
             </h2>
             <form onSubmit={handleSave} className="mt-4 space-y-4">
               <div>

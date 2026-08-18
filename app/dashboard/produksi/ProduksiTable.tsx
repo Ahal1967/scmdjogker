@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Search, Factory, Activity, CheckCircle2, ChevronLeft, ChevronRight, ChevronDown, Trash2, Hash, User, Gauge, MoreHorizontal } from "lucide-react";
+import { Search, Factory, Activity, CheckCircle2, ChevronLeft, ChevronRight, ChevronDown, Trash2, ClipboardList, User, Gauge, MoreHorizontal } from "lucide-react";
 import { useConfirm } from "@/components/useConfirm";
 import { useToast } from "@/components/useToast";
 import SortableTh from "@/components/SortableTh";
@@ -207,7 +207,7 @@ export default function ProduksiTable({
               <tr>
                 <TableIconCell icon={Factory} />
                 <SortableTh label="No. Produksi" icon={Factory} active={sortField === "no_produksi"} direction={sortDir} onClick={() => toggleSort("no_produksi")} center />
-                <SortableTh label="No. Pesanan" icon={Hash} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} center />
+                <SortableTh label="No. Pesanan" icon={ClipboardList} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} center />
                 <SortableTh label="Pelanggan" icon={User} active={sortField === "pelanggan"} direction={sortDir} onClick={() => toggleSort("pelanggan")} center />
                 <SortableTh label="Status" icon={Activity} active={sortField === "status"} direction={sortDir} onClick={() => toggleSort("status")} center />
                 <SortableTh label="Progress" icon={Gauge} active={sortField === "progress"} direction={sortDir} onClick={() => toggleSort("progress")} center />
@@ -218,8 +218,8 @@ export default function ProduksiTable({
               {paginated.map((p) => (
                 <tr key={p.id}>
                   <td>
-                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/40">
-                      <Factory size={15} className="text-blue-600 dark:text-blue-400" />
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700/50">
+                      <Factory size={15} className="text-gray-500 dark:text-gray-400" />
                     </span>
                   </td>
                   <td className="font-semibold text-black dark:text-white text-center">{p.no_produksi || "-"}</td>
