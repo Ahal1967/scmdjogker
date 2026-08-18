@@ -34,18 +34,15 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-blue-50 via-white to-blue-50 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900 flex items-center justify-center px-4 py-10">
-      {/* Blob dekoratif organik di background */}
-      <div className="pointer-events-none absolute -left-24 -top-24 h-96 w-96 rounded-full bg-blue-100 dark:bg-blue-900/20 opacity-70 blur-2xl" />
-      <div className="pointer-events-none absolute -right-32 top-1/4 h-[28rem] w-[28rem] rounded-full bg-blue-200/50 dark:bg-blue-900/20 blur-3xl" />
-      <div className="pointer-events-none absolute -bottom-32 left-1/4 h-80 w-80 rounded-full bg-blue-100/60 dark:bg-blue-900/10 blur-3xl" />
-
-      {/* Pola titik dekoratif mengambang */}
-      <div className="pointer-events-none absolute right-[8%] top-1/2 hidden -translate-y-1/2 grid-cols-3 gap-2 opacity-40 md:grid">
-        {Array.from({ length: 12 }).map((_, i) => (
-          <span key={i} className="h-1.5 w-1.5 rounded-full bg-blue-400 dark:bg-blue-600" />
-        ))}
-      </div>
+    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-blue-50 via-white to-blue-100 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900 flex items-center justify-center px-4 py-10">
+      {/* Dekorasi wave/blob besar di pojok -- diganti dari blob bulat kecil
+          buram jadi bentuk wave lebih besar & lebih "berani" (atas
+          permintaan user, biar sesuai referensi desain yang dikasih),
+          masih pakai warna biru brand yang sama, cuma bentuk & skalanya
+          beda. pointer-events-none + z-0 supaya tetap di belakang card. */}
+      <div className="pointer-events-none absolute -bottom-40 -left-20 z-0 h-[36rem] w-[36rem] rounded-full bg-gradient-to-tr from-blue-300 to-blue-100 opacity-60 dark:from-blue-900/30 dark:to-blue-900/10 blur-[2px] md:blur-none" style={{ borderRadius: "45% 55% 60% 40% / 50% 45% 55% 50%" }} />
+      <div className="pointer-events-none absolute -right-32 -top-32 z-0 h-[26rem] w-[26rem] rounded-full bg-gradient-to-bl from-blue-200 to-blue-50 opacity-70 dark:from-blue-900/20 dark:to-transparent blur-[2px] md:blur-none" style={{ borderRadius: "60% 40% 45% 55% / 55% 60% 40% 45%" }} />
+      <div className="pointer-events-none absolute -bottom-24 -right-16 z-0 h-72 w-72 rounded-full bg-blue-100/70 dark:bg-blue-900/10 blur-2xl" />
 
       <div
         className="relative z-10 w-full max-w-md rounded-3xl border border-blue-100 dark:border-gray-700 bg-white dark:bg-gray-800 p-6 md:p-8"
@@ -75,7 +72,9 @@ export default function LoginPage() {
         </div>
 
         <div className="mb-6 border-t border-gray-100 dark:border-gray-700 pt-6 text-center">
-          <h1 className="text-2xl font-bold text-black dark:text-white font-display">Selamat Datang!</h1>
+          <h1 className="text-2xl font-bold text-black dark:text-white font-display">
+            Selamat <span style={{ color: "var(--djoker-blue)" }}>Datang!</span>
+          </h1>
           <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
             Silakan login untuk melanjutkan ke dashboard.
           </p>
@@ -91,7 +90,7 @@ export default function LoginPage() {
           <div>
             <label className="mb-2 block text-xs font-medium text-gray-700 dark:text-gray-300">Email</label>
             <div className="relative">
-              <Mail size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+              <Mail size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-blue-500 dark:text-blue-400" />
               <input
                 type="email"
                 value={email}
@@ -106,7 +105,7 @@ export default function LoginPage() {
           <div>
             <label className="mb-2 block text-xs font-medium text-gray-700 dark:text-gray-300">Password</label>
             <div className="relative">
-              <Lock size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+              <Lock size={16} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-blue-500 dark:text-blue-400" />
               <input
                 type={showPassword ? "text" : "password"}
                 value={password}
@@ -154,14 +153,14 @@ export default function LoginPage() {
         <div className="mt-4 flex items-center justify-center gap-2">
           <Link
             href="/tracking"
-            className="inline-flex items-center gap-1.5 rounded-full border border-blue-100 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/40 px-3 py-1.5 text-xs font-medium text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 dark:border-blue-800 bg-white dark:bg-transparent px-3 py-1.5 text-xs font-medium text-blue-600 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/40 transition-colors"
           >
             <FileSearch size={13} />
             Lacak Pesanan
           </Link>
           <Link
             href="/upload"
-            className="inline-flex items-center gap-1.5 rounded-full border border-blue-100 dark:border-blue-800 bg-blue-50 dark:bg-blue-900/40 px-3 py-1.5 text-xs font-medium text-blue-700 dark:text-blue-300 hover:bg-blue-100 dark:hover:bg-blue-900 transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 dark:border-blue-800 bg-white dark:bg-transparent px-3 py-1.5 text-xs font-medium text-blue-600 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/40 transition-colors"
           >
             <UploadCloud size={13} />
             Upload Desain
