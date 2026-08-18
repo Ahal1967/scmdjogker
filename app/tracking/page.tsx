@@ -17,6 +17,10 @@ import {
   CheckCircle2,
   Circle,
   MessageCircle,
+  ChevronRight,
+  Clock,
+  Package,
+  Headset,
 } from "lucide-react";
 
 export const dynamic = "force-dynamic";
@@ -141,22 +145,22 @@ export default function TrackingPage() {
       />
 
       <div className="mx-auto max-w-xl">
-        <div className="mb-5 flex items-center justify-between">
+        <div className="mb-4 flex items-center justify-between">
           <Link
             href="/login"
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+            className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
           >
-            <ArrowLeft size={14} strokeWidth={2.5} />
+            <ArrowLeft size={13} strokeWidth={2.5} />
             Login
           </Link>
 
           <div className="flex gap-0.5 rounded-full border border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/70 p-1 shadow-sm">
-            <span className="rounded-full bg-blue-600 px-3.5 py-1.5 text-xs font-bold text-white shadow-sm">
+            <span className="rounded-full bg-blue-600 px-3 py-1 text-[11px] font-bold text-white shadow-sm">
               Lacak Pesanan
             </span>
             <Link
               href="/upload"
-              className="rounded-full px-3.5 py-1.5 text-xs font-bold text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+              className="rounded-full px-3 py-1 text-[11px] font-bold text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
             >
               Upload Desain
             </Link>
@@ -164,74 +168,136 @@ export default function TrackingPage() {
         </div>
 
         <div className="mb-6 text-center">
-          <div
-            className="mx-auto mb-3.5 flex h-14 w-14 items-center justify-center rounded-2xl"
-            style={{
-              background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
-              boxShadow: "0 10px 24px -6px rgba(37,99,235,0.5)",
-            }}
-          >
-            <Shirt size={26} className="text-white" />
+          {/* Ikon hero -- diganti dari kotak gradien biru+ikon putih jadi
+              lingkaran putih+ikon outline biru, sesuai referensi desain
+              yang dikasih user. Sama persis dipakai di halaman Upload
+              Desain (belum ditarik jadi 1 komponen bersama -- 2 halaman
+              publik ini sudah lama duplikasi markup hero yang mirip,
+              bukan hal baru dari perubahan ini). */}
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white dark:bg-gray-800 shadow-md border border-gray-100 dark:border-gray-700">
+            <Shirt size={22} strokeWidth={1.8} className="text-blue-500 dark:text-blue-400" />
           </div>
-          <span className="mb-3 inline-flex items-center rounded-full bg-blue-50 dark:bg-blue-900/40 px-3 py-1 text-[10.5px] font-extrabold tracking-widest text-blue-600 dark:text-blue-300">
+          <span className="mb-2.5 inline-flex items-center rounded-full bg-blue-50 dark:bg-blue-900/40 px-2.5 py-0.5 text-[9.5px] font-extrabold tracking-widest text-blue-600 dark:text-blue-300">
             DJOGKER SABLON KAOS
           </span>
-          <h1 className="font-display text-2xl font-extrabold tracking-tight text-black dark:text-white">
-            Lacak Pesanan Kamu
+          <h1 className="font-display text-lg font-extrabold tracking-tight text-black dark:text-white">
+            Lacak <span style={{ color: "var(--djoker-blue)" }}>Pesanan</span> Kamu
           </h1>
-          <p className="mx-auto mt-1.5 max-w-sm text-[13.5px] text-gray-500 dark:text-gray-400">
+          <p className="mx-auto mt-1 max-w-sm text-[12px] text-gray-500 dark:text-gray-400">
             Masukkan nomor pesanan untuk melihat status produksi &amp; pengiriman secara real-time.
           </p>
         </div>
 
-        <div className="bg-white dark:bg-[#161d2e] mb-5 rounded-[20px] border border-gray-200 dark:border-gray-700 p-5 shadow-lg">
-          <form onSubmit={handleSubmit} className="flex gap-2.5">
+        <div className="bg-white dark:bg-[#161d2e] mb-4 rounded-[16px] border border-gray-200 dark:border-gray-700 p-4 shadow-lg">
+          <form onSubmit={handleSubmit} className="flex gap-2">
             <div className="relative flex-1">
-              <Search size={17} className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400" />
+              <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
                 value={noPesanan}
                 onChange={(e) => setNoPesanan(e.target.value)}
                 placeholder="Contoh: DJ00125"
-                className="input-field pl-10"
+                className="input-field pl-9 py-2 text-[13px]"
                 required
               />
             </div>
-            <button type="submit" disabled={loading} className="btn-primary whitespace-nowrap rounded-[13px]">
+            <button type="submit" disabled={loading} className="btn-primary flex items-center gap-1 whitespace-nowrap rounded-[12px] py-2 px-3.5 text-[13px]">
               {loading ? "Mencari..." : "Lacak"}
+              {!loading && <ChevronRight size={14} />}
             </button>
           </form>
-          <p className="mt-2.5 pl-0.5 text-[11.5px] text-gray-400 dark:text-gray-500">
+          <p className="mt-2 pl-0.5 text-[10.5px] text-gray-400 dark:text-gray-500">
             Contoh format: DJ00125 — cek di struk atau pesan konfirmasi WhatsApp kamu.
           </p>
 
           {error && (
-            <div className="mt-4 rounded-xl border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-900/20 px-4 py-3 text-center text-sm text-red-700 dark:text-red-400">
+            <div className="mt-3 rounded-xl border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-900/20 px-3.5 py-2.5 text-center text-[12.5px] text-red-700 dark:text-red-400">
               {error}
             </div>
           )}
         </div>
 
+        {/* Baris fitur + card bantuan -- CUMA tampil sebelum ada hasil
+            pencarian (atas permintaan user, sesuai referensi desain).
+            Begitu "order" terisi, blok ini otomatis hilang biar tidak
+            dobel sama card hasil pesanan/timeline di bawahnya. */}
+        {!order && (
+          <>
+            <div className="mb-4 grid grid-cols-3 gap-2.5 rounded-[16px] border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#161d2e] p-4 shadow-lg">
+              <div className="text-center">
+                <span className="mx-auto mb-1.5 flex h-8 w-8 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-900/40">
+                  <Clock size={14} className="text-blue-600 dark:text-blue-400" />
+                </span>
+                <p className="text-[11.5px] font-bold text-black dark:text-white">Real-time</p>
+                <p className="mt-0.5 text-[9.5px] leading-snug text-gray-500 dark:text-gray-400">
+                  Pantau status produksi dan pengiriman terkini.
+                </p>
+              </div>
+              <div className="text-center">
+                <span className="mx-auto mb-1.5 flex h-8 w-8 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-900/40">
+                  <Package size={14} className="text-blue-600 dark:text-blue-400" />
+                </span>
+                <p className="text-[11.5px] font-bold text-black dark:text-white">Akurat</p>
+                <p className="mt-0.5 text-[9.5px] leading-snug text-gray-500 dark:text-gray-400">
+                  Informasi akurat langsung dari sistem kami.
+                </p>
+              </div>
+              <div className="text-center">
+                <span className="mx-auto mb-1.5 flex h-8 w-8 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-900/40">
+                  <ShieldCheck size={14} className="text-blue-600 dark:text-blue-400" />
+                </span>
+                <p className="text-[11.5px] font-bold text-black dark:text-white">Aman</p>
+                <p className="mt-0.5 text-[9.5px] leading-snug text-gray-500 dark:text-gray-400">
+                  Data pesanan kamu terjamin keamanannya.
+                </p>
+              </div>
+            </div>
+
+            <div className="mb-4 flex items-center justify-between gap-3 rounded-[16px] border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#161d2e] p-3.5 shadow-lg">
+              <div className="flex items-center gap-2.5">
+                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-600">
+                  <Headset size={16} className="text-white" />
+                </span>
+                <div>
+                  <p className="text-[12px] font-bold text-black dark:text-white">Butuh bantuan?</p>
+                  <p className="text-[10px] text-gray-500 dark:text-gray-400">
+                    Hubungi tim admin kami jika kamu mengalami kendala.
+                  </p>
+                </div>
+              </div>
+              <a
+                href="https://wa.me/628812798805"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-outline flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full py-1.5 px-3 text-[10.5px]"
+              >
+                Hubungi Admin
+                <ChevronRight size={12} />
+              </a>
+            </div>
+          </>
+        )}
+
         {order && (
-          <div className="space-y-4">
-            <div className="bg-white dark:bg-[#161d2e] rounded-[20px] border border-gray-200 dark:border-gray-700 p-5 shadow-lg">
+          <div className="space-y-3.5">
+            <div className="bg-white dark:bg-[#161d2e] rounded-[16px] border border-gray-200 dark:border-gray-700 p-4 shadow-lg">
               <div className="flex items-start justify-between">
                 <div>
-                  <h2 className="font-display text-lg font-extrabold tracking-tight text-black dark:text-white">
+                  <h2 className="font-display text-base font-extrabold tracking-tight text-black dark:text-white">
                     {order.no_pesanan}
                   </h2>
-                  <p className="mt-0.5 text-[12.5px] text-gray-500 dark:text-gray-400">{order.pelanggan ?? "-"}</p>
+                  <p className="mt-0.5 text-[11.5px] text-gray-500 dark:text-gray-400">{order.pelanggan ?? "-"}</p>
                 </div>
                 <span
-                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-extrabold ${statusColorClass}`}
+                  className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-extrabold ${statusColorClass}`}
                 >
                   <span className="h-1.5 w-1.5 rounded-full bg-current" />
                   {order.status}
                 </span>
               </div>
 
-              <div className="mt-4 space-y-1.5 border-t border-dashed border-gray-200 dark:border-gray-700 pt-3.5">
+              <div className="mt-3.5 space-y-1.5 border-t border-dashed border-gray-200 dark:border-gray-700 pt-3">
                 {order.items.map((it, i) => (
-                  <div key={i} className="flex justify-between text-[13px]">
+                  <div key={i} className="flex justify-between text-[12px]">
                     <span className="text-gray-700 dark:text-gray-300">
                       {it.nama_produk} × {it.jumlah}
                     </span>
@@ -242,48 +308,48 @@ export default function TrackingPage() {
                 ))}
               </div>
 
-              <div className="mt-2.5 flex justify-between border-t border-gray-200 dark:border-gray-700 pt-3 text-sm">
+              <div className="mt-2 flex justify-between border-t border-gray-200 dark:border-gray-700 pt-2.5 text-[13px]">
                 <span className="text-gray-500 dark:text-gray-400">Total</span>
-                <span className="text-base font-extrabold text-black dark:text-white">{formatRupiah(order.total)}</span>
+                <span className="text-[14px] font-extrabold text-black dark:text-white">{formatRupiah(order.total)}</span>
               </div>
 
               {order.alamat_pengiriman && (
-                <div className="mt-4 flex gap-2.5">
-                  <span className="flex h-[30px] w-[30px] shrink-0 items-center justify-center rounded-[9px] bg-blue-50 dark:bg-blue-900/40">
-                    <MapPin size={15} className="text-blue-600 dark:text-blue-400" />
+                <div className="mt-3.5 flex gap-2.5">
+                  <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[8px] bg-blue-50 dark:bg-blue-900/40">
+                    <MapPin size={13} className="text-blue-600 dark:text-blue-400" />
                   </span>
                   <div>
-                    <p className="text-[11px] font-bold uppercase tracking-wide text-gray-400 dark:text-gray-500">
+                    <p className="text-[10px] font-bold uppercase tracking-wide text-gray-400 dark:text-gray-500">
                       Alamat Pengiriman
                     </p>
-                    <p className="mt-0.5 text-[13px] text-gray-700 dark:text-gray-300">{order.alamat_pengiriman}</p>
+                    <p className="mt-0.5 text-[12px] text-gray-700 dark:text-gray-300">{order.alamat_pengiriman}</p>
                   </div>
                 </div>
               )}
 
               {order.desain_url && (
-                <div className="mt-4">
-                  <p className="mb-2 text-[11px] font-bold uppercase tracking-wide text-gray-400 dark:text-gray-500">
+                <div className="mt-3.5">
+                  <p className="mb-1.5 text-[10px] font-bold uppercase tracking-wide text-gray-400 dark:text-gray-500">
                     Desain Terupload
                   </p>
-                  <div className="relative h-20 w-20 overflow-hidden rounded-[14px] border border-gray-200 dark:border-gray-700">
+                  <div className="relative h-16 w-16 overflow-hidden rounded-[12px] border border-gray-200 dark:border-gray-700">
                     <Image src={order.desain_url} alt="Desain" fill className="object-contain" />
                   </div>
                 </div>
               )}
             </div>
 
-            <div className="bg-white dark:bg-[#161d2e] rounded-[20px] border border-gray-200 dark:border-gray-700 p-5 shadow-lg">
-              <h3 className="mb-4 text-[14.5px] font-extrabold text-black dark:text-white">Riwayat Status</h3>
+            <div className="bg-white dark:bg-[#161d2e] rounded-[16px] border border-gray-200 dark:border-gray-700 p-4 shadow-lg">
+              <h3 className="mb-3.5 text-[13px] font-extrabold text-black dark:text-white">Riwayat Status</h3>
               <div className="space-y-0">
                 {tracking.map((t, i) => {
                   const Icon = iconForTahap(t.tahap);
                   const isCurrent = i === lastIncompleteIdx;
                   return (
-                    <div key={i} className="flex gap-3">
+                    <div key={i} className="flex gap-2.5">
                       <div className="flex flex-col items-center">
                         <div
-                          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
+                          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${
                             t.selesai
                               ? "bg-gradient-to-br from-blue-500 to-blue-600 shadow-md shadow-blue-600/30"
                               : isCurrent
@@ -292,7 +358,7 @@ export default function TrackingPage() {
                           }`}
                         >
                           <Icon
-                            size={15}
+                            size={13}
                             className={
                               t.selesai
                                 ? "text-white"
@@ -304,30 +370,38 @@ export default function TrackingPage() {
                         </div>
                         {i < tracking.length - 1 && (
                           <div
-                            className={`min-h-[24px] w-[2.5px] flex-1 rounded ${
+                            className={`min-h-[22px] w-[2.5px] flex-1 rounded ${
                               t.selesai ? "bg-blue-500" : "bg-gray-200 dark:bg-gray-700"
                             }`}
                           />
                         )}
                       </div>
-                      <div className="pb-5">
-                        <p
-                          className={`text-[13.5px] font-bold ${
-                            t.selesai
-                              ? "text-black dark:text-white"
-                              : isCurrent
-                              ? "text-blue-600 dark:text-blue-400"
-                              : "text-gray-400 dark:text-gray-500"
-                          }`}
-                        >
-                          {t.tahap}
-                          {isCurrent && (
-                            <span className="ml-2 rounded-full bg-blue-50 dark:bg-blue-900/40 px-2 py-0.5 text-[9.5px] font-extrabold text-blue-600 dark:text-blue-400">
-                              Berlangsung
-                            </span>
-                          )}
-                        </p>
-                        <p className="mt-0.5 text-[11.5px] text-gray-400 dark:text-gray-500">{formatWaktu(t.waktu)}</p>
+                      <div className="flex flex-1 items-start justify-between gap-3 pb-4">
+                        <div>
+                          <p
+                            className={`text-[12.5px] font-bold ${
+                              t.selesai
+                                ? "text-black dark:text-white"
+                                : isCurrent
+                                ? "text-blue-600 dark:text-blue-400"
+                                : "text-gray-400 dark:text-gray-500"
+                            }`}
+                          >
+                            {t.tahap}
+                          </p>
+                          <p className="mt-0.5 text-[10.5px] text-gray-400 dark:text-gray-500">{formatWaktu(t.waktu)}</p>
+                        </div>
+                        {t.selesai && (
+                          <span className="mt-0.5 inline-flex shrink-0 items-center gap-1 rounded-full bg-green-50 dark:bg-green-900/30 px-2 py-0.5 text-[9px] font-extrabold text-green-600 dark:text-green-400">
+                            <CheckCircle2 size={10} strokeWidth={2.5} />
+                            Selesai
+                          </span>
+                        )}
+                        {isCurrent && (
+                          <span className="mt-0.5 inline-flex shrink-0 items-center rounded-full bg-blue-50 dark:bg-blue-900/40 px-2 py-0.5 text-[9px] font-extrabold text-blue-600 dark:text-blue-400">
+                            Berlangsung
+                          </span>
+                        )}
                       </div>
                     </div>
                   );
@@ -344,13 +418,21 @@ export default function TrackingPage() {
               )}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center justify-center gap-2 rounded-[15px] border-[1.5px] border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 px-4 py-3.5 text-[13.5px] font-bold text-green-700 dark:text-green-400 transition-colors hover:bg-green-100 dark:hover:bg-green-900/30"
+              className="flex items-center justify-center gap-2 rounded-[13px] border-[1.5px] border-green-200 dark:border-green-800 bg-green-50 dark:bg-green-900/20 px-4 py-3 text-[12.5px] font-bold text-green-700 dark:text-green-400 transition-colors hover:bg-green-100 dark:hover:bg-green-900/30"
             >
-              <MessageCircle size={17} />
+              <MessageCircle size={15} />
               Hubungi Admin via WhatsApp
             </a>
           </div>
         )}
+
+        <div className="mt-5 flex items-start justify-center gap-1.5 border-t border-gray-100 dark:border-gray-700 pt-3.5 text-center text-[10px] text-gray-400 dark:text-gray-500">
+          <MapPin size={11} className="mt-0.5 shrink-0" />
+          <div>
+            <p>Jl. Wates Km 4,5 Gg. Ablar No 5</p>
+            <p>Gamping Kidul RT 03/17 Ambarketawang Sleman, Yogyakarta 55294</p>
+          </div>
+        </div>
       </div>
     </div>
   );
