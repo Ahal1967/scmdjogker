@@ -263,7 +263,7 @@ export default function TrackingPageClient() {
                 </div>
               </div>
               <a
-                href="https://wa.me/628812798805"
+                href="https://wa.me/628812798005"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-outline flex shrink-0 items-center gap-1 whitespace-nowrap rounded-full py-1.5 px-3 text-[10.5px]"
@@ -408,7 +408,7 @@ export default function TrackingPageClient() {
             </div>
 
             <a
-              href={`https://wa.me/628812798805?text=${encodeURIComponent(
+              href={`https://wa.me/628812798005?text=${encodeURIComponent(
                 `Halo, saya mau tanya soal pesanan ${order.no_pesanan}`
               )}`}
               target="_blank"
