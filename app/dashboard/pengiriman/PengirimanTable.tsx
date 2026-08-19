@@ -226,11 +226,11 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
               </tr>
             </thead>
             <tbody>
-              {paginated.map((s) => (
+              {paginated.map((s, idx) => (
                 <tr key={s.id}>
                   <td>
-                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700/50">
-                      <Truck size={15} className="text-gray-500 dark:text-gray-400" />
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700/50 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                      {(currentPage - 1) * pageSize + idx + 1}
                     </span>
                   </td>
                   <td className="font-semibold text-black dark:text-white text-center">{s.orders?.no_pesanan ?? "-"}</td>

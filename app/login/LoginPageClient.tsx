@@ -5,10 +5,8 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Mail, Lock, Eye, EyeOff, LogIn, FileSearch, UploadCloud, MapPin } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
 
 export default function LoginPageClient() {
-  const supabase = createClient();
   const router = useRouter();
 
   const [email, setEmail] = useState("");
@@ -17,20 +15,36 @@ export default function LoginPageClient() {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  // Login diproses lewat Route Handler (/api/auth/login), BUKAN
+  // manggil supabase.auth.signInWithPassword() langsung dari sini,
+  // supaya percobaan gagal bisa dihitung & dikunci sementara di
+  // server (lihat komentar di route.ts) -- kalau dihitung di browser,
+  // gampang dilewati cuma dengan refresh/incognito.
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setErrorMsg(null);
     setLoading(true);
 
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+      const result = await res.json().catch(() => ({}));
 
-    if (error) {
-      setErrorMsg(error.message);
+      if (!res.ok) {
+        setErrorMsg(result?.error || "Gagal login. Coba lagi.");
+        setLoading(false);
+        return;
+      }
+
+      router.push("/dashboard");
+      router.refresh();
+    } catch {
+      setErrorMsg("Tidak bisa terhubung ke server. Cek koneksi internet Anda.");
       setLoading(false);
-      return;
     }
-
-    router.push("/dashboard");
   }
 
   return (

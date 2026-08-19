@@ -164,11 +164,11 @@ export default function PackingTable({ initialPacking }: { initialPacking: Packi
               </tr>
             </thead>
             <tbody>
-              {paginated.map((p) => (
+              {paginated.map((p, idx) => (
                 <tr key={p.id}>
                   <td>
-                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700/50">
-                      <Package size={15} className="text-gray-500 dark:text-gray-400" />
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700/50 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                      {(currentPage - 1) * pageSize + idx + 1}
                     </span>
                   </td>
                   <td className="font-semibold text-black dark:text-white text-center">{p.no_packing}</td>

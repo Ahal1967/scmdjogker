@@ -1,6 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import Link from "next/link";
-import { Plus, Settings } from "lucide-react";
+import { Settings } from "lucide-react";
 import PengaturanTable from "./PengaturanTable";
 import PageHeaderCard from "@/components/PageHeaderCard";
 
@@ -70,14 +69,12 @@ export default async function PengaturanPage() {
             <span className={formatRoleBadge(myProfile?.role || "admin")}>
               {myProfile?.role || "admin"}
             </span>
-            <Link
-              href="/dashboard/settings"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-blue-200 dark:border-blue-800 bg-white/60 dark:bg-blue-900/20 px-3.5 py-2 text-xs font-semibold text-blue-700 dark:text-blue-300 hover:bg-white dark:hover:bg-blue-900/40 hover:-translate-y-0.5 hover:shadow-sm transition-all duration-200"
-            >
-              Edit Profil Saya
-            </Link>
           </div>
         </div>
+
+        <p className="relative z-10 mt-3 text-xs text-gray-500 dark:text-gray-400">
+          Mau ganti nama sendiri? Klik ikon pensil di baris nama kamu pada daftar di bawah.
+        </p>
 
         {myProfile?.created_at && (
           <p className="relative z-10 mt-4 text-xs text-gray-500 dark:text-gray-400 border-t border-blue-100 dark:border-blue-900 pt-3">
@@ -92,18 +89,11 @@ export default async function PengaturanPage() {
       </div>
 
       <div className="card overflow-hidden p-0" style={{ border: "none" }}>
-        <div className="mb-0 flex items-center justify-between p-5 pb-4">
-          <h2 className="text-base font-semibold text-black dark:text-white">Daftar Pengguna</h2>
-          <Link
-            href="/dashboard/pengaturan/tambah"
-            className="inline-flex items-center justify-center gap-1.5 rounded-full bg-blue-600 px-4 py-2 text-xs md:text-sm font-semibold text-white shadow-sm shadow-blue-600/30 hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 whitespace-nowrap"
-          >
-            <Plus size={15} />
-            Tambah Pengguna
-          </Link>
-        </div>
-
-        <PengaturanTable profiles={profiles ?? []} />
+        <PengaturanTable
+          initialProfiles={profiles ?? []}
+          currentUserId={user?.id ?? ""}
+          isAdmin={myProfile?.role === "admin"}
+        />
       </div>
     </div>
   );

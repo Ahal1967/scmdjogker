@@ -35,6 +35,31 @@ type Product = {
 
 type BomRow = { raw_material_id: string; qty_per_unit: number };
 
+// Estimasi pemakaian bahan per 1 kaos, berdasarkan angka umum industri
+// sablon yang dikasih Ahal langsung (bukan saya karang) -- ini cuma
+// TITIK AWAL biar staf tidak perlu ngitung sendiri dari nol, bukan angka
+// pasti. Realisasinya tetap bisa beda tergantung ukuran desain, cakupan
+// warna, mix ukuran kaos (S/M/L/XL), dan teknik sablonnya -- karena itu
+// hasil estimasi ini tetap ngisi field yang sama dan tetap bisa diedit
+// manual sebelum disimpan, bukan dikunci.
+const ESTIMASI_BAHAN = [
+  {
+    key: "tinta",
+    label: "Tinta rubber/waterbase -- ±85 kaos per liter/kg (rentang umum 70-100)",
+    qtyPerUnit: 1 / 85,
+  },
+  {
+    key: "kain30s",
+    label: "Kain Cotton Combed 30s (tipis/sedang) -- ±122 kaos per roll ±25kg (rentang 120-125)",
+    qtyPerUnit: 1 / 122.5,
+  },
+  {
+    key: "kain24s",
+    label: "Kain Cotton Combed 24s (lebih tebal) -- ±105 kaos per roll ±25kg (rentang 100-110)",
+    qtyPerUnit: 1 / 105,
+  },
+];
+
 function formatRupiah(n: number) {
   return "Rp " + n.toLocaleString("id-ID");
 }
@@ -276,11 +301,11 @@ export default function ProdukTable({
               </tr>
             </thead>
             <tbody>
-              {paginated.map((p) => (
+              {paginated.map((p, idx) => (
                 <tr key={p.id}>
                   <td>
-                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700/50">
-                      <Shirt size={15} className="text-gray-500 dark:text-gray-400" />
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700/50 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                      {(currentPage - 1) * pageSize + idx + 1}
                     </span>
                   </td>
                   <td className="font-semibold text-black dark:text-white text-center">{p.nama_produk}</td>
@@ -496,40 +521,62 @@ export default function ProdukTable({
                   {recipeRows.map((r, idx) => {
                     const material = rawMaterials.find((m) => m.id === r.raw_material_id);
                     return (
-                      <div key={idx} className="flex items-center gap-2">
+                      <div key={idx} className="space-y-1 rounded-lg border border-gray-100 dark:border-gray-700 p-2">
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                          <select
+                            value={r.raw_material_id}
+                            onChange={(e) => updateRecipeRow(idx, "raw_material_id", e.target.value)}
+                            className="input-field min-w-0 flex-1"
+                          >
+                            {rawMaterials.length === 0 && <option value="">- Belum ada bahan di Gudang -</option>}
+                            {rawMaterials.map((m) => (
+                              <option key={m.id} value={m.id}>
+                                {m.nama_bahan}
+                              </option>
+                            ))}
+                          </select>
+                          {/* Qty/satuan/hapus digabung 1 baris terpisah di layar sempit (HP)
+                              supaya tidak berdesakan dengan select bahan di atas -- di layar
+                              >=sm baru sejajar lagi jadi 1 baris penuh. */}
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="number"
+                              min={0}
+                              step="any"
+                              placeholder="Jumlah"
+                              value={r.qty_per_unit || ""}
+                              onChange={(e) =>
+                                updateRecipeRow(idx, "qty_per_unit", e.target.value === "" ? 0 : Number(e.target.value))
+                              }
+                              className="input-field w-24"
+                            />
+                            <span className="w-14 shrink-0 text-xs text-gray-400 dark:text-gray-500">
+                              {material?.satuan ?? ""}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => removeRecipeRow(idx)}
+                              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        </div>
                         <select
-                          value={r.raw_material_id}
-                          onChange={(e) => updateRecipeRow(idx, "raw_material_id", e.target.value)}
-                          className="input-field flex-1"
+                          value=""
+                          onChange={(e) => {
+                            const preset = ESTIMASI_BAHAN.find((p) => p.key === e.target.value);
+                            if (preset) updateRecipeRow(idx, "qty_per_unit", Number(preset.qtyPerUnit.toFixed(5)));
+                          }}
+                          className="w-full rounded-lg border border-dashed border-gray-200 dark:border-gray-600 bg-transparent px-2 py-1 text-[10.5px] text-gray-400 dark:text-gray-500"
                         >
-                          {rawMaterials.length === 0 && <option value="">- Belum ada bahan di Gudang -</option>}
-                          {rawMaterials.map((m) => (
-                            <option key={m.id} value={m.id}>
-                              {m.nama_bahan}
+                          <option value="">Isi cepat: pakai estimasi umum industri...</option>
+                          {ESTIMASI_BAHAN.map((p) => (
+                            <option key={p.key} value={p.key}>
+                              {p.label}
                             </option>
                           ))}
                         </select>
-                        <input
-                          type="number"
-                          min={0}
-                          step="any"
-                          placeholder="Jumlah"
-                          value={r.qty_per_unit || ""}
-                          onChange={(e) =>
-                            updateRecipeRow(idx, "qty_per_unit", e.target.value === "" ? 0 : Number(e.target.value))
-                          }
-                          className="input-field w-24"
-                        />
-                        <span className="w-14 shrink-0 text-xs text-gray-400 dark:text-gray-500">
-                          {material?.satuan ?? ""}
-                        </span>
-                        <button
-                          type="button"
-                          onClick={() => removeRecipeRow(idx)}
-                          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30"
-                        >
-                          <Trash2 size={14} />
-                        </button>
                       </div>
                     );
                   })}

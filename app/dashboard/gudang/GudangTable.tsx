@@ -2,12 +2,13 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { Search, Plus, Package, Boxes, AlertTriangle, CheckCircle2, ChevronLeft, ChevronRight, Pencil, Trash2, Loader2, PackageOpen, Tag, Ruler, Truck, MoreHorizontal } from "lucide-react";
+import { Search, Plus, Package, Boxes, AlertTriangle, CheckCircle2, ChevronLeft, ChevronRight, Pencil, Trash2, Loader2, PackageOpen, Tag, Ruler, Truck, MoreHorizontal, Download } from "lucide-react";
 import { useToast } from "@/components/useToast";
 import { useConfirm } from "@/components/useConfirm";
 import SortableTh from "@/components/SortableTh";
 import TableIconCell from "@/components/TableIconCell";
 import { compareValues } from "@/lib/sortUtils";
+import { exportToExcel } from "@/lib/exportData";
 
 type Supplier = { id: string; nama_supplier: string };
 
@@ -189,6 +190,22 @@ export default function GudangTable({
     }
   }
 
+  function handleExport() {
+    exportToExcel(
+      "stok-bahan-baku",
+      "Gudang",
+      sorted.map((m) => ({
+        "Nama Bahan": m.nama_bahan,
+        Kategori: m.kategori ?? "-",
+        Satuan: m.satuan ?? "-",
+        Stok: m.stok,
+        "Stok Minimum": m.stok_minimum,
+        Supplier: m.suppliers?.nama_supplier ?? "-",
+        Status: m.status,
+      }))
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -204,6 +221,15 @@ export default function GudangTable({
             className="input-field rounded-full pl-10"
           />
         </div>
+        <button
+          type="button"
+          onClick={handleExport}
+          disabled={sorted.length === 0}
+          className="inline-flex items-center justify-center gap-1.5 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 transition-colors whitespace-nowrap"
+        >
+          <Download size={15} />
+          Export
+        </button>
         <button
           onClick={openAdd}
           className="inline-flex items-center justify-center gap-1.5 rounded-full bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm shadow-blue-600/30 hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 whitespace-nowrap"
@@ -230,11 +256,11 @@ export default function GudangTable({
               </tr>
             </thead>
             <tbody>
-              {paginated.map((m) => (
+              {paginated.map((m, idx) => (
                 <tr key={m.id}>
                   <td>
-                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700/50">
-                      <Package size={15} className="text-gray-500 dark:text-gray-400" />
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700/50 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                      {(currentPage - 1) * pageSize + idx + 1}
                     </span>
                   </td>
                   <td className="font-semibold text-black dark:text-white text-center">{m.nama_bahan}</td>

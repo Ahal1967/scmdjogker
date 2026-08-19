@@ -72,11 +72,11 @@ export default function PelangganTable({ dataPelanggan }: { dataPelanggan: Pelan
               </tr>
             </thead>
             <tbody>
-              {paginated.map((c) => (
+              {paginated.map((c, idx) => (
                 <tr key={c.id}>
                   <td>
-                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700/50">
-                      <User size={15} className="text-gray-500 dark:text-gray-400" />
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700/50 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                      {(currentPage - 1) * pageSize + idx + 1}
                     </span>
                   </td>
                   <td className="font-semibold text-black dark:text-white text-center">{c.nama}</td>

@@ -264,11 +264,11 @@ export default function QcTable({
                 </tr>
               </thead>
               <tbody>
-                {sortedPending.map((p) => (
+                {sortedPending.map((p, idx) => (
                   <tr key={p.id}>
                     <td>
-                      <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700/50">
-                        <ShieldCheck size={15} className="text-gray-500 dark:text-gray-400" />
+                      <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700/50 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                        {idx + 1}
                       </span>
                     </td>
                     <td className="font-semibold text-black dark:text-white">{p.no_produksi}</td>
@@ -320,11 +320,11 @@ export default function QcTable({
               </tr>
             </thead>
             <tbody>
-              {paginated.map((r) => (
+              {paginated.map((r, idx) => (
                 <tr key={r.id}>
                   <td>
-                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700/50">
-                      <ClipboardCheck size={15} className="text-gray-500 dark:text-gray-400" />
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700/50 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                      {(currentPage - 1) * pageSize + idx + 1}
                     </span>
                   </td>
                   <td className="font-semibold text-black dark:text-white text-center">{r.no_qc}</td>

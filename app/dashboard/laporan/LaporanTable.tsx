@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Search, FileText, ChevronLeft, ChevronRight, Pencil, Trash2, ClipboardList, Calendar, Wallet, CreditCard, Receipt, CheckCircle2, MapPin, MoreHorizontal } from "lucide-react";
+import { Search, FileText, ChevronLeft, ChevronRight, Pencil, Trash2, ClipboardList, Calendar, Wallet, CreditCard, Receipt, CheckCircle2, MapPin, MoreHorizontal, Download } from "lucide-react";
 import SortableTh from "@/components/SortableTh";
 import TableIconCell from "@/components/TableIconCell";
 import { compareValues } from "@/lib/sortUtils";
+import { exportToExcel } from "@/lib/exportData";
 
 type Order = {
   id: string;
@@ -86,19 +87,49 @@ export default function LaporanTable({ dataOrders }: { dataOrders: Order[] }) {
   const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize));
   const paginated = sorted.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
+  // Export yang lagi kelihatan di layar (kena filter pencarian & sort),
+  // BUKAN cuma 1 halaman pagination -- itu yang biasanya dimaksud orang
+  // waktu klik "Export" di tabel manapun.
+  function handleExport() {
+    exportToExcel(
+      "laporan-pesanan",
+      "Laporan Pesanan",
+      sorted.map((o) => ({
+        "No. Pesanan": o.no_pesanan ?? "-",
+        Tanggal: formatTanggal(o.tanggal ?? o.created_at),
+        Total: Number(o.total) || 0,
+        DP: Number(o.dp) || 0,
+        "Sisa Pembayaran": Number(o.sisa_pembayaran) || 0,
+        Status: o.status ?? "-",
+        "Alamat Pengiriman": o.alamat_pengiriman ?? "-",
+      }))
+    );
+  }
+
   return (
     <div className="space-y-4">
-      <div className="relative max-w-md">
-        <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-        <input
-          placeholder="Cari no. pesanan..."
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setCurrentPage(1);
-          }}
-          className="input-field rounded-full pl-10"
-        />
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative flex-1 max-w-md">
+          <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            placeholder="Cari no. pesanan..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="input-field rounded-full pl-10"
+          />
+        </div>
+        <button
+          type="button"
+          onClick={handleExport}
+          disabled={sorted.length === 0}
+          className="inline-flex items-center justify-center gap-1.5 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 transition-colors whitespace-nowrap"
+        >
+          <Download size={15} />
+          Export Excel
+        </button>
       </div>
 
       <div className="card overflow-hidden p-0" style={{ border: "none" }}>
@@ -118,11 +149,11 @@ export default function LaporanTable({ dataOrders }: { dataOrders: Order[] }) {
               </tr>
             </thead>
             <tbody>
-              {paginated.map((order) => (
+              {paginated.map((order, idx) => (
                 <tr key={order.id}>
                   <td>
-                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700/50">
-                      <FileText size={15} className="text-gray-500 dark:text-gray-400" />
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700/50 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                      {(currentPage - 1) * pageSize + idx + 1}
                     </span>
                   </td>
                   <td className="font-semibold text-black dark:text-white text-center">{order.no_pesanan || "-"}</td>

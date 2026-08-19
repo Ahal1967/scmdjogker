@@ -12,6 +12,7 @@ import {
   BadgeCheck,
   ListChecks,
   Gauge,
+  AlertTriangle,
 } from "lucide-react";
 import PageHeaderCard from "@/components/PageHeaderCard";
 import {
@@ -53,6 +54,13 @@ export default function DashboardPage() {
     { status: "Dikirim", count: 0 },
     { status: "Selesai", count: 0 },
   ]);
+  // Sebelumnya admin cuma tahu ada bahan baku yang stoknya kritis kalau
+  // kebetulan buka halaman Gudang dan lihat sendiri badge "Kritis"-nya --
+  // ditampilkan aktif di sini (halaman pertama setelah login) supaya
+  // ketahuan dari awal, bukan pas produksi sudah kepentok kehabisan bahan.
+  const [criticalMaterials, setCriticalMaterials] = useState<
+    { id: string; nama_bahan: string; stok: number; stok_minimum: number; satuan: string | null }[]
+  >([]);
   const [monthlyRevenue, setMonthlyRevenue] = useState<{ bulan: string; pendapatan: number }[]>([]);
   const [revenueTrend, setRevenueTrend] = useState<{ total: number; changePct: number | null }>({
     total: 0,
@@ -103,6 +111,7 @@ export default function DashboardPage() {
       { data: allOrders },
       { data: recentOrders },
       { data: prevPeriodOrders },
+      { data: criticalMaterialsData },
     ] = await Promise.all([
       supabase.auth.getUser(),
       supabase.from("orders").select("*", { count: "exact", head: true }),
@@ -115,7 +124,14 @@ export default function DashboardPage() {
       supabase.from("orders").select("status"),
       supabase.from("orders").select("total, tanggal, created_at").gte("created_at", sixMonthsAgo),
       supabase.from("orders").select("total").gte("created_at", twelveMonthsAgo).lt("created_at", sixMonthsAgo),
+      supabase
+        .from("raw_materials")
+        .select("id, nama_bahan, stok, stok_minimum, satuan")
+        .eq("status", "Kritis")
+        .order("stok", { ascending: true }),
     ]);
+
+    setCriticalMaterials(criticalMaterialsData ?? []);
 
     if (user) {
       const { data: profile } = await supabase
@@ -230,6 +246,29 @@ export default function DashboardPage() {
         title="Dashboard"
         subtitle="Ringkasan aktivitas SCM Djogker."
       />
+
+      {criticalMaterials.length > 0 && (
+        <Link
+          href="/dashboard/gudang"
+          className="flex items-start gap-3 rounded-2xl border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-900/20 p-4 transition-colors hover:bg-red-100 dark:hover:bg-red-900/30"
+        >
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/50">
+            <AlertTriangle size={16} className="text-red-600 dark:text-red-400" />
+          </span>
+          <div className="min-w-0">
+            <p className="text-sm font-semibold text-red-700 dark:text-red-300">
+              {criticalMaterials.length} bahan baku stoknya kritis
+            </p>
+            <p className="mt-0.5 truncate text-xs text-red-600/90 dark:text-red-400/90">
+              {criticalMaterials
+                .slice(0, 4)
+                .map((m) => `${m.nama_bahan} (${m.stok}${m.satuan ? " " + m.satuan : ""})`)
+                .join(", ")}
+              {criticalMaterials.length > 4 ? `, +${criticalMaterials.length - 4} lagi` : ""} -- klik buat cek Gudang.
+            </p>
+          </div>
+        </Link>
+      )}
 
       <div className="welcome-hero">
         <div className="welcome-hero-content">

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Search, Plus, FileText, ShoppingBag, CheckCircle2, TrendingUp, ChevronLeft, ChevronRight, ChevronDown, Eye, Trash2, User, Loader2, PackageOpen, ClipboardList, Calendar, Tag, MoreHorizontal, MessageCircle } from "lucide-react";
+import { Search, Plus, FileText, ShoppingBag, CheckCircle2, TrendingUp, ChevronLeft, ChevronRight, ChevronDown, Eye, Trash2, User, Loader2, PackageOpen, ClipboardList, Calendar, Tag, MoreHorizontal, MessageCircle, Download } from "lucide-react";
 import { useConfirm } from "@/components/useConfirm";
 import { useToast } from "@/components/useToast";
 import { createClient } from "@/lib/supabase/client";
@@ -11,6 +11,7 @@ import SortableTh from "@/components/SortableTh";
 import TableIconCell from "@/components/TableIconCell";
 import { compareValues } from "@/lib/sortUtils";
 import { generateUniqueCode } from "@/lib/generateCode";
+import { exportToExcel } from "@/lib/exportData";
 
 type Customer = {
   id: string;
@@ -36,6 +37,36 @@ type Product = {
   nama_produk: string;
   harga_default: number;
 };
+
+type RawMaterial = {
+  id: string;
+  nama_bahan: string;
+  satuan: string | null;
+};
+
+type BomRow = { raw_material_id: string; qty_per_unit: number };
+
+// Sama seperti di halaman Produk (ProdukTable.tsx) -- angka umum industri
+// sablon yang dikasih langsung oleh Ahal, dipakai sebagai titik awal isi
+// cepat qty_per_unit, bukan angka final yang dikunci. Staf tetap bisa
+// timpa manual kalau desain/teknik sablonnya beda dari rata-rata.
+const ESTIMASI_BAHAN = [
+  {
+    key: "tinta",
+    label: "Tinta rubber/waterbase -- ±85 kaos per liter/kg (rentang umum 70-100)",
+    qtyPerUnit: 1 / 85,
+  },
+  {
+    key: "kain30s",
+    label: "Kain Cotton Combed 30s (tipis/sedang) -- ±122 kaos per roll ±25kg (rentang 120-125)",
+    qtyPerUnit: 1 / 122.5,
+  },
+  {
+    key: "kain24s",
+    label: "Kain Cotton Combed 24s (lebih tebal) -- ±105 kaos per roll ±25kg (rentang 100-110)",
+    qtyPerUnit: 1 / 105,
+  },
+];
 
 const UKURAN_OPTIONS = ["S", "M", "L", "XL", "XXL", "3XL", "All Size"];
 
@@ -105,6 +136,90 @@ function buildWaLink(noTelepon: string | null | undefined, order: Order) {
 // (no_qc/no_packing) -- lihat komentar di file itu buat penjelasan lengkap
 // kenapa kode acak, bukan nomor urut.
 
+// Kotak input produk pesanan: gabungan "cari & pilih dari katalog" dan
+// "ketik manual" jadi satu field, supaya staf tidak perlu pindah-pindah
+// antara dropdown dan input teks (keluhan sebelumnya). Ngetik sambil
+// difilter (search-as-you-type), dan kalau nama yang diketik belum ada
+// di katalog, muncul pilihan "+ Tambah sebagai produk baru" biar staf
+// bisa daftarin produk baru tanpa pindah ke halaman Produk.
+function ProductCombobox({
+  value,
+  productId,
+  products,
+  onChangeText,
+  onSelectProduct,
+  onQuickAdd,
+}: {
+  value: string;
+  productId: string | null;
+  products: Product[];
+  onChangeText: (text: string) => void;
+  onSelectProduct: (p: Product) => void;
+  onQuickAdd: (text: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const q = value.trim().toLowerCase();
+  const filtered = q ? products.filter((p) => p.nama_produk.toLowerCase().includes(q)) : products;
+  const exactMatch = products.some((p) => p.nama_produk.toLowerCase() === q);
+
+  return (
+    <div className="relative">
+      <input
+        placeholder="Ketik atau pilih produk..."
+        value={value}
+        onChange={(e) => onChangeText(e.target.value)}
+        onFocus={() => setOpen(true)}
+        onBlur={() => setTimeout(() => setOpen(false), 150)}
+        className="input-field w-full"
+      />
+      {productId ? (
+        <span className="mt-1 inline-flex items-center gap-1 text-[10px] font-semibold text-green-600 dark:text-green-400">
+          <CheckCircle2 size={11} /> Terhubung katalog -- stok bahan otomatis kepotong
+        </span>
+      ) : value.trim() ? (
+        <span className="mt-1 inline-block text-[10px] text-gray-400 dark:text-gray-500">
+          Teks manual -- stok bahan tidak otomatis kepotong
+        </span>
+      ) : null}
+      {open && (
+        <div className="absolute z-20 mt-1 max-h-48 w-full overflow-y-auto rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg">
+          {filtered.length > 0 ? (
+            filtered.map((p) => (
+              <button
+                type="button"
+                key={p.id}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  onSelectProduct(p);
+                  setOpen(false);
+                }}
+                className="block w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
+              >
+                {p.nama_produk}
+              </button>
+            ))
+          ) : (
+            <div className="px-3 py-2 text-xs text-gray-400">Tidak ada produk katalog yang cocok.</div>
+          )}
+          {value.trim() && !exactMatch && (
+            <button
+              type="button"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                onQuickAdd(value.trim());
+                setOpen(false);
+              }}
+              className="flex w-full items-center gap-1.5 border-t border-gray-100 dark:border-gray-700 px-3 py-2 text-left text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+            >
+              <Plus size={13} /> Tambah &quot;{value.trim()}&quot; sebagai produk baru
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function PesananTable() {
   const supabase = createClient();
   const router = useRouter();
@@ -115,7 +230,17 @@ export default function PesananTable() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+  const [rawMaterials, setRawMaterials] = useState<RawMaterial[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Modal "Tambah Produk Baru" versi cepat, dipicu langsung dari dalam
+  // form Pesanan (lihat ProductCombobox) -- staf tidak perlu pindah ke
+  // halaman Produk cuma buat daftarin 1 produk baru.
+  const [showQuickAdd, setShowQuickAdd] = useState(false);
+  const [quickAddIdx, setQuickAddIdx] = useState<number | null>(null);
+  const [quickAddForm, setQuickAddForm] = useState({ nama_produk: "", kategori: "", harga_default: 0 });
+  const [quickAddRecipeRows, setQuickAddRecipeRows] = useState<BomRow[]>([{ raw_material_id: "", qty_per_unit: 0 }]);
+  const [savingQuickAdd, setSavingQuickAdd] = useState(false);
 
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -186,6 +311,7 @@ export default function PesananTable() {
         { data: ordersData, error: ordersError },
         { data: customersData, error: customersError },
         { data: productsData, error: productsError },
+        { data: rawMaterialsData, error: rawMaterialsError },
       ] = await Promise.all([
         supabase
           .from("orders")
@@ -193,19 +319,22 @@ export default function PesananTable() {
           .order("created_at", { ascending: false }),
         supabase.from("customers").select("*").order("nama", { ascending: true }),
         supabase.from("products").select("id, nama_produk, harga_default").order("nama_produk", { ascending: true }),
+        supabase.from("raw_materials").select("id, nama_bahan, satuan").order("nama_bahan", { ascending: true }),
       ]);
 
       if (ordersError) console.error(ordersError);
       if (customersError) console.error(customersError);
-      // Tabel "products" baru ada setelah migrasi katalog produk/resep
-      // dijalankan -- kalau belum, biarkan saja kosong (mode manual tetap
-      // jalan seperti biasa), jangan sampai error ini mem-block seluruh
-      // halaman Pesanan.
+      // Tabel "products"/"raw_materials" baru relevan setelah migrasi
+      // katalog produk/resep dijalankan -- kalau belum, biarkan saja
+      // kosong (mode manual tetap jalan seperti biasa), jangan sampai
+      // error ini mem-block seluruh halaman Pesanan.
       if (productsError) console.error(productsError);
+      if (rawMaterialsError) console.error(rawMaterialsError);
 
       if (ordersData) setOrders(ordersData as Order[]);
       if (customersData) setCustomers(customersData as Customer[]);
       if (productsData) setProducts(productsData as Product[]);
+      if (rawMaterialsData) setRawMaterials(rawMaterialsData as RawMaterial[]);
 
       setLoading(false);
     };
@@ -284,11 +413,13 @@ export default function PesananTable() {
     setItems((prev) => prev.map((it, i) => (i === idx ? { ...it, [field]: value } : it)));
   }
 
-  // Pilih produk dari katalog -- otomatis isi nama produk (dikunci, biar
-  // konsisten sama resep BOM-nya) dan harga default kalau harga masih
-  // kosong. Pilih "-- Ketik manual --" (value kosong) buat balik ke mode
-  // teks bebas seperti sebelumnya (produk itu tidak ikut potong stok
-  // otomatis, karena tidak tertaut ke resep apa pun).
+  // Dipanggil waktu staf klik salah satu saran produk di ProductCombobox
+  // -- otomatis isi nama produk & harga default (kalau harga masih
+  // kosong), dan mengunci product_id supaya resep BOM-nya ikut kepakai.
+  // Kalau staf terus ngetik teks bebas tanpa milih saran, product_id
+  // tetap null (lihat onChangeText di ProductCombobox) -- itu bukan
+  // error, produk itu cuma tidak ikut potong stok bahan otomatis karena
+  // tidak tertaut ke resep apa pun.
   function selectProduct(idx: number, productId: string) {
     if (!productId) {
       setItems((prev) => prev.map((it, i) => (i === idx ? { ...it, product_id: null } : it)));
@@ -308,6 +439,88 @@ export default function PesananTable() {
           : it
       )
     );
+  }
+
+  function addQuickAddRecipeRow() {
+    setQuickAddRecipeRows((prev) => [...prev, { raw_material_id: rawMaterials[0]?.id ?? "", qty_per_unit: 0 }]);
+  }
+
+  function removeQuickAddRecipeRow(i: number) {
+    setQuickAddRecipeRows((prev) => prev.filter((_, idx) => idx !== i));
+  }
+
+  function updateQuickAddRecipeRow(i: number, field: keyof BomRow, value: string | number) {
+    setQuickAddRecipeRows((prev) => prev.map((r, idx) => (idx === i ? { ...r, [field]: value } : r)));
+  }
+
+  // Daftarin produk baru langsung dari dalam form Pesanan (dipicu dari
+  // ProductCombobox), lalu langsung pakai produk itu di baris item yang
+  // memicunya -- staf tidak perlu pindah ke halaman Produk & balik lagi.
+  async function handleSaveQuickAdd(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (quickAddIdx === null) return;
+    setSavingQuickAdd(true);
+
+    const { data: newProduct, error: prodError } = await supabase
+      .from("products")
+      .insert({
+        nama_produk: quickAddForm.nama_produk.trim(),
+        kategori: quickAddForm.kategori.trim() || null,
+        harga_default: quickAddForm.harga_default,
+      })
+      .select()
+      .single();
+
+    if (prodError || !newProduct) {
+      showToast("Gagal menambah produk baru: " + (prodError?.message ?? "tidak diketahui"));
+      setSavingQuickAdd(false);
+      return;
+    }
+
+    const validRecipeRows = quickAddRecipeRows.filter((r) => r.raw_material_id && Number(r.qty_per_unit) > 0);
+    if (validRecipeRows.length > 0) {
+      const { error: recipeError } = await supabase.from("product_materials").insert(
+        validRecipeRows.map((r) => ({
+          product_id: newProduct.id,
+          raw_material_id: r.raw_material_id,
+          qty_per_unit: Number(r.qty_per_unit),
+        }))
+      );
+      if (recipeError) {
+        showToast("Produk tersimpan, tapi resep bahan gagal disimpan: " + recipeError.message);
+      }
+    }
+
+    // Tambahkan ke daftar produk lokal supaya langsung muncul di combobox
+    // manapun tanpa perlu reload halaman. Dipakai objek newProduct
+    // langsung (bukan lewat selectProduct/state products) karena state
+    // "products" hasil setProducts di bawah ini belum ke-update saat
+    // baris berikutnya jalan (closure lama) -- jadi lebih aman isi
+    // item-nya langsung dari newProduct.
+    setProducts((prev) =>
+      [...prev, { id: newProduct.id, nama_produk: newProduct.nama_produk, harga_default: newProduct.harga_default }].sort(
+        (a, b) => a.nama_produk.localeCompare(b.nama_produk)
+      )
+    );
+
+    const targetIdx = quickAddIdx;
+    setItems((prev) =>
+      prev.map((it, i) =>
+        i === targetIdx
+          ? {
+              ...it,
+              product_id: newProduct.id,
+              nama_produk: newProduct.nama_produk,
+              harga: it.harga || Number(newProduct.harga_default) || 0,
+            }
+          : it
+      )
+    );
+
+    showToast(`Produk "${newProduct.nama_produk}" ditambahkan ke katalog & dipakai di pesanan ini.`);
+    setShowQuickAdd(false);
+    setSavingQuickAdd(false);
+    setQuickAddIdx(null);
   }
 
   async function handleSave(e: React.FormEvent<HTMLFormElement>) {
@@ -387,12 +600,16 @@ export default function PesananTable() {
     });
 
     const noProduksi = await generateUniqueCode(supabase, "production", "no_produksi", "PRO-");
-    const { error: prodError } = await supabase.from("production").insert({
-      no_produksi: noProduksi,
-      order_id: orderData.id,
-      status: "Produksi",
-      progress: 0,
-    });
+    const { data: prodData, error: prodError } = await supabase
+      .from("production")
+      .insert({
+        no_produksi: noProduksi,
+        order_id: orderData.id,
+        status: "Produksi",
+        progress: 0,
+      })
+      .select()
+      .single();
 
     if (prodError) {
       showToast("Pesanan tersimpan, tapi gagal membuat entri produksi otomatis: " + prodError.message);
@@ -438,6 +655,25 @@ export default function PesananTable() {
             "Pesanan tersimpan, tapi stok bahan baku gagal dipotong otomatis: " +
               (pesanError ?? "cek koneksi/migrasi database.")
           );
+        } else {
+          // Catat PERSIS berapa yang barusan dipotong per bahan, supaya
+          // kalau pesanan ini dihapus nanti (lihat handleDelete), stoknya
+          // bisa dibalikin akurat -- tidak dihitung ulang dari resep
+          // TERKINI, karena resepnya bisa saja sudah berubah sejak
+          // pesanan ini dibuat.
+          const { error: ledgerError } = await supabase.from("order_material_usage").insert(
+            Array.from(pemakaian.entries()).map(([rawMaterialId, qty]) => ({
+              order_id: orderData.id,
+              raw_material_id: rawMaterialId,
+              qty,
+            }))
+          );
+          if (ledgerError) {
+            console.error("Gagal mencatat ledger pemakaian bahan:", ledgerError.message);
+          }
+          if (prodData?.id) {
+            await supabase.from("production").update({ stok_dipotong: true }).eq("id", prodData.id);
+          }
         }
       }
     }
@@ -549,6 +785,33 @@ export default function PesananTable() {
     if (!ok) return;
 
     try {
+      // Balikin stok bahan baku SEBELUM pesanan dihapus -- baca dulu
+      // ledger persis apa yang kepotong buat pesanan ini (order_id-nya
+      // masih valid), baru hapus. Kalau ini dilakukan SETELAH hapus
+      // pesanan, baris order_material_usage-nya sudah ikut kehapus
+      // duluan (on delete cascade dari orders), jadi tidak akan tahu
+      // lagi berapa yang harus dibalikin.
+      const { data: usageRows, error: usageError } = await supabase
+        .from("order_material_usage")
+        .select("raw_material_id, qty")
+        .eq("order_id", id);
+
+      if (usageError) {
+        console.error("Gagal membaca ledger pemakaian bahan:", usageError.message);
+      } else if (usageRows && usageRows.length > 0) {
+        const hasilBalikStok = await Promise.all(
+          usageRows.map((u) => supabase.rpc("increment_stok", { p_raw_material_id: u.raw_material_id, p_qty: Number(u.qty) }))
+        );
+        const gagalBalikStok = hasilBalikStok.some((r) => r.error);
+        if (gagalBalikStok) {
+          const pesanError = hasilBalikStok.find((r) => r.error)?.error?.message;
+          showToast(
+            "Pesanan dihapus, tapi stok bahan baku gagal dikembalikan otomatis: " +
+              (pesanError ?? "cek migrasi database (increment_stok belum ada?).")
+          );
+        }
+      }
+
       const { error: itemsError } = await supabase.from("order_items").delete().eq("order_id", id);
       if (itemsError) {
         showToast("Gagal menghapus item pesanan: " + itemsError.message);
@@ -571,6 +834,25 @@ export default function PesananTable() {
     return <div className="py-8 text-center text-gray-500 dark:text-gray-400">Memuat data pesanan...</div>;
   }
 
+  // Export yang lagi kelihatan (kena filter pencarian & sort), bukan cuma
+  // 1 halaman pagination.
+  function handleExport() {
+    exportToExcel(
+      "pesanan",
+      "Pesanan",
+      sorted.map((o) => ({
+        "No. Pesanan": o.no_pesanan,
+        Pelanggan: o.customers?.nama ?? "-",
+        Tanggal: o.tanggal ? new Date(o.tanggal).toLocaleDateString("id-ID") : "-",
+        Total: Number(o.total) || 0,
+        DP: Number(o.dp) || 0,
+        "Sisa Pembayaran": Number(o.sisa_pembayaran) || 0,
+        Status: o.status ?? "-",
+        "Alamat Pengiriman": o.alamat_pengiriman ?? "-",
+      }))
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -586,6 +868,15 @@ export default function PesananTable() {
             className="input-field rounded-full pl-10"
           />
         </div>
+        <button
+          type="button"
+          onClick={handleExport}
+          disabled={sorted.length === 0}
+          className="inline-flex items-center justify-center gap-1.5 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 transition-colors whitespace-nowrap"
+        >
+          <Download size={15} />
+          Export
+        </button>
         <button
           onClick={openAdd}
           className="inline-flex items-center justify-center gap-1.5 rounded-full bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm shadow-blue-600/30 hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 whitespace-nowrap"
@@ -609,11 +900,11 @@ export default function PesananTable() {
               </tr>
             </thead>
             <tbody>
-              {paginated.map((o) => (
+              {paginated.map((o, idx) => (
                 <tr key={o.id}>
                   <td>
-                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700/50">
-                      <FileText size={15} className="text-gray-500 dark:text-gray-400" />
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700/50 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                      {(currentPage - 1) * pageSize + idx + 1}
                     </span>
                   </td>
                   <td className="font-semibold text-black dark:text-white text-center">{o.no_pesanan}</td>
@@ -871,26 +1162,23 @@ export default function PesananTable() {
                     >
                       <div className="flex items-center gap-2">
                         <div className="flex-1 space-y-1.5">
-                          <select
-                            value={it.product_id ?? ""}
-                            onChange={(e) => selectProduct(idx, e.target.value)}
-                            className="input-field w-full"
-                          >
-                            <option value="">-- Ketik manual --</option>
-                            {products.map((p) => (
-                              <option key={p.id} value={p.id}>
-                                {p.nama_produk}
-                              </option>
-                            ))}
-                          </select>
-                          {!it.product_id && (
-                            <input
-                              placeholder="Nama produk (mis. Kaos Hitam)"
-                              value={it.nama_produk}
-                              onChange={(e) => updateItem(idx, "nama_produk", e.target.value)}
-                              className="input-field w-full"
-                            />
-                          )}
+                          <ProductCombobox
+                            value={it.nama_produk}
+                            productId={it.product_id ?? null}
+                            products={products}
+                            onChangeText={(text) =>
+                              setItems((prev) =>
+                                prev.map((row, i) => (i === idx ? { ...row, nama_produk: text, product_id: null } : row))
+                              )
+                            }
+                            onSelectProduct={(p) => selectProduct(idx, p.id)}
+                            onQuickAdd={(text) => {
+                              setQuickAddIdx(idx);
+                              setQuickAddForm({ nama_produk: text, kategori: "", harga_default: 0 });
+                              setQuickAddRecipeRows([{ raw_material_id: rawMaterials[0]?.id ?? "", qty_per_unit: 0 }]);
+                              setShowQuickAdd(true);
+                            }}
+                          />
                         </div>
                         {items.length > 1 && (
                           <button
@@ -1011,6 +1299,143 @@ export default function PesananTable() {
                 <button type="submit" disabled={saving} className="btn-primary flex-1 flex items-center justify-center gap-2">
                   {saving && <Loader2 size={15} className="animate-spin" />}
                   {saving ? "Menyimpan..." : "Simpan Pesanan"}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showQuickAdd && (
+        <div className="fixed inset-0 z-[60] flex items-start justify-center bg-black/60 p-4 overflow-y-auto">
+          <div className="card card-modal w-full max-w-md my-8 max-h-[90vh] overflow-y-auto" style={{ border: "none" }}>
+            <h2 className="font-display text-base font-semibold text-black dark:text-white">Tambah Produk Baru</h2>
+            <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
+              Produk ini langsung masuk katalog & dipakai di pesanan yang sedang kamu buat. Isi resep bahan
+              (opsional) supaya stok Gudang otomatis kepotong tiap kali produk ini dipesan lagi nanti.
+            </p>
+            <form onSubmit={handleSaveQuickAdd} className="mt-4 space-y-3">
+              <input
+                required
+                autoFocus
+                placeholder="Nama Produk"
+                value={quickAddForm.nama_produk}
+                onChange={(e) => setQuickAddForm((f) => ({ ...f, nama_produk: e.target.value }))}
+                className="input-field w-full"
+              />
+              <input
+                placeholder="Kategori (opsional, mis. Kaos, Hoodie)"
+                value={quickAddForm.kategori}
+                onChange={(e) => setQuickAddForm((f) => ({ ...f, kategori: e.target.value }))}
+                className="input-field w-full"
+              />
+              <div>
+                <label className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 block">
+                  Harga Default
+                </label>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  required
+                  value={quickAddForm.harga_default === 0 ? "" : quickAddForm.harga_default.toLocaleString("id-ID")}
+                  onChange={(e) => {
+                    const raw = e.target.value.replace(/\D/g, "");
+                    setQuickAddForm((f) => ({ ...f, harga_default: raw === "" ? 0 : Number(raw) }));
+                  }}
+                  className="input-field w-full"
+                />
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Resep Bahan (opsional)</label>
+                  {rawMaterials.length > 0 && (
+                    <button type="button" onClick={addQuickAddRecipeRow} className="text-xs text-blue-600 hover:underline">
+                      + Bahan
+                    </button>
+                  )}
+                </div>
+                {rawMaterials.length === 0 ? (
+                  <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
+                    Belum ada bahan baku di Gudang -- lewati bagian ini dulu, atau tambah bahan di halaman Gudang lalu
+                    lengkapi resepnya lewat halaman Produk.
+                  </p>
+                ) : (
+                  <div className="mt-2 space-y-2">
+                    {quickAddRecipeRows.map((r, i) => {
+                      const material = rawMaterials.find((m) => m.id === r.raw_material_id);
+                      return (
+                        <div key={i} className="space-y-1 rounded-lg border border-gray-100 dark:border-gray-700 p-2">
+                          <div className="flex items-center gap-2">
+                            <select
+                              value={r.raw_material_id}
+                              onChange={(e) => updateQuickAddRecipeRow(i, "raw_material_id", e.target.value)}
+                              className="input-field flex-1"
+                            >
+                              <option value="">-- Pilih bahan --</option>
+                              {rawMaterials.map((m) => (
+                                <option key={m.id} value={m.id}>
+                                  {m.nama_bahan}
+                                </option>
+                              ))}
+                            </select>
+                            <input
+                              type="number"
+                              min={0}
+                              step="any"
+                              placeholder="Jumlah"
+                              value={r.qty_per_unit || ""}
+                              onChange={(e) =>
+                                updateQuickAddRecipeRow(i, "qty_per_unit", e.target.value === "" ? 0 : Number(e.target.value))
+                              }
+                              className="input-field w-24"
+                            />
+                            <span className="w-12 shrink-0 text-xs text-gray-400 dark:text-gray-500">
+                              {material?.satuan ?? ""}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => removeQuickAddRecipeRow(i)}
+                              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                          <select
+                            value=""
+                            onChange={(e) => {
+                              const preset = ESTIMASI_BAHAN.find((p) => p.key === e.target.value);
+                              if (preset) updateQuickAddRecipeRow(i, "qty_per_unit", Number(preset.qtyPerUnit.toFixed(5)));
+                            }}
+                            className="w-full rounded-lg border border-dashed border-gray-200 dark:border-gray-600 bg-transparent px-2 py-1 text-[10.5px] text-gray-400 dark:text-gray-500"
+                          >
+                            <option value="">Isi cepat: pakai estimasi umum industri...</option>
+                            {ESTIMASI_BAHAN.map((p) => (
+                              <option key={p.key} value={p.key}>
+                                {p.label}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowQuickAdd(false);
+                    setQuickAddIdx(null);
+                  }}
+                  className="btn-outline flex-1"
+                >
+                  Batal
+                </button>
+                <button type="submit" disabled={savingQuickAdd} className="btn-primary flex-1">
+                  {savingQuickAdd ? "Menyimpan..." : "Simpan & Pakai"}
                 </button>
               </div>
             </form>
