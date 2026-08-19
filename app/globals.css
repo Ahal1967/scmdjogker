@@ -31,17 +31,27 @@
 /* Versi gelap: cuma ganti isi variable-nya, semua class yang sudah pakai
    var(--djoker-*) (.card, .input-field, .sidebar-link, .table-djoker, dll)
    otomatis ikut berubah tanpa perlu disentuh satu-satu. */
+/* Diganti dari navy gelap (#0f1420 dkk) ke hitam pekat beneran atas
+   permintaan user -- sebelumnya dark mode kelihatan "bukan hitam
+   beneran" karena dasarnya biru-abu gelap, bukan hitam. --djoker-bg
+   dipakai buat latar halaman (paling gelap, #000000 murni),
+   --djoker-surface/-2 buat kartu & elemen yang "mengambang" di atas
+   latar (sedikit lebih terang, #0a0a0a / #141414, supaya batas antar
+   elemen masih kelihatan tanpa border yang mencolok). --djoker-text
+   sengaja TIDAK putih murni (#ffffff) -- dilembutkan ke #f0f0f2 supaya
+   tidak menyilaukan di layar OLED/AMOLED saat latar belakang hitam
+   pekat. */
 .dark {
-  --djoker-bg: #0f1420;
-  --djoker-bg-2: #161d2e;
-  --djoker-surface: #161d2e;
-  --djoker-surface-2: #1e2740;
+  --djoker-bg: #000000;
+  --djoker-bg-2: #0a0a0a;
+  --djoker-surface: #0a0a0a;
+  --djoker-surface-2: #141414;
 
-  --djoker-border: #2a3350;
+  --djoker-border: #262626;
   --djoker-border-blue: #2563eb;
 
-  --djoker-text: #e5e9f5;
-  --djoker-text-2: #c7cfe6;
+  --djoker-text: #f0f0f2;
+  --djoker-text-2: #d4d4d8;
   --djoker-muted: #8b93b0;
   --djoker-hover-bg: rgba(59, 130, 246, 0.12);
 }
@@ -97,26 +107,27 @@ body::before {
     radial-gradient(circle at 0% 100%, rgba(165, 180, 252, 0.35) 0%, transparent 45%);
 }
 
+/* PENTING: rule ini sebelumnya masih pakai gradient navy hardcode
+   (#0f1420 -> #161d3a), sama sekali TIDAK ikut berubah waktu
+   --djoker-bg diganti ke hitam pekat -- soalnya selector ".dark body"
+   (1 class + 1 tag) specificity-nya lebih tinggi dari class Tailwind
+   "bg-djoker-bg" (cuma 1 class) yang dipasang di <body> lewat
+   layout.tsx, jadi rule inilah yang sebenarnya menang dan kelihatan,
+   bukan variabelnya. Ini kemungkinan besar penyebab dark mode masih
+   kelihatan "belum hitam beneran" walau --djoker-bg sudah diganti.
+   Sekarang solid hitam pekat, dan glow/tekstur biru di bawah sengaja
+   DIMATIKAN (bukan cuma diredupkan) supaya benar-benar bersih, sesuai
+   permintaan "hitam bersih" -- tidak ada lagi tint biru di pojok. */
 .dark body {
-  background: linear-gradient(135deg, #0f1420 0%, #161d3a 100%);
+  background: #000000;
 }
 
-/* Dark mode: gradient dasar (di atas) + 1 glow kanan-atas + tekstur titik
-   samar di area kiri-bawah -- ini versi yang sudah kamu setujui duluan. */
 .dark body::before {
-  background: radial-gradient(circle at 100% 0%, rgba(59, 130, 246, 0.22) 0%, transparent 45%);
+  background: none;
 }
 
 .dark body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  opacity: 0.5;
-  background-image: radial-gradient(rgba(96, 165, 250, 0.08) 1px, transparent 1px);
-  background-size: 22px 22px;
-  -webkit-mask-image: radial-gradient(ellipse 500px 350px at 30% 90%, black 20%, transparent 70%);
-  mask-image: radial-gradient(ellipse 500px 350px at 30% 90%, black 20%, transparent 70%);
+  content: none;
 }
 
 
@@ -152,7 +163,7 @@ body::before {
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: #3a4568;
+  background: #333333;
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
@@ -685,16 +696,22 @@ body::before {
      sebagai satu-satunya pemisah -- tidak ada lagi shadow/glow.
      text-transform:uppercase SUDAH DIHAPUS atas permintaan user (label
      ditulis apa adanya sesuai casing di JSX, misal "No. Pesanan" bukan
-     lagi "NO. PESANAN") -- ukuran font dinaikkan sedikit (11px) dan
-     letter-spacing dikecilkan karena huruf kapital-kecil butuh spacing
-     lebih rapat daripada huruf kapital semua biar tetap enak dibaca. */
+     lagi "NO. PESANAN").
+
+     "Opsi 1: Minimal" (revisi kedua, dipilih user dari mockup
+     mockup_header_tabel.html) sempat nurunin font-weight ke 600, TAPI
+     user minta dikembalikan cetak tebal (font-weight 700) lagi setelah
+     dicoba -- jadi SEMUA label header sekarang bold 700 (bukan cuma
+     kolom aktif). Ikon bulat per kolom (.icon-chip) tetap dihapus dari
+     SortableTh.tsx -- itu bagian dari Opsi 1 yang dipertahankan, cuma
+     bobot fontnya yang dikembalikan. */
   .table-djoker thead th {
     background: transparent;
     color: var(--djoker-muted);
     font-family: var(--font-display), sans-serif;
     font-weight: 700;
     font-size: 0.6875rem !important;
-    letter-spacing: 0.01em;
+    letter-spacing: 0.02em;
     padding: 12px 16px;
     text-align: left;
     border: none;
@@ -703,6 +720,15 @@ body::before {
 
   .dark .table-djoker thead th {
     color: var(--djoker-muted);
+  }
+
+  /* Kolom yang sedang jadi urutan sortir aktif -- sekarang cuma beda
+     WARNA (teks utama, bukan abu-abu) dibanding kolom lain, bukan lagi
+     beda bobot font (dulu perlu beda font-weight karena default-nya
+     600, sekarang base-nya sudah 700/bold semua jadi tidak ada beda lagi
+     buat dibedakan lewat weight). */
+  .table-djoker thead th.th-active {
+    color: var(--djoker-text);
   }
 
   /* Kolom paling kiri (<th className="w-10">) -- text-align:center DI SINI
@@ -740,6 +766,35 @@ body::before {
     text-align: center;
   }
 
+  /* Dipakai buat kolom angka/uang (Total, Harga, Stok Minimum, dst) yang
+     BUKAN kolom terakhir -- rata kanan supaya digit satuan/puluhan/
+     ratusan sejajar ke bawah antar baris (konvensi tabel akuntansi),
+     jadi gampang dibandingkan sekilas. Butuh class terpisah dengan
+     specificity ganda, sama persis alasannya seperti .th-center di
+     atas (Tailwind "text-right" biasa kalah lawan ".table-djoker
+     thead th"). Kolom TERAKHIR (Aksi) sudah otomatis rata kanan lewat
+     ":last-child" di atas, jadi tidak perlu class ini. */
+  .table-djoker thead th.th-right {
+    text-align: right;
+  }
+
+  .table-djoker thead th.th-right .th-flex {
+    justify-content: flex-end;
+  }
+
+  /* Kebalikan .th-right: dipakai kalau kolom TERAKHIR tabel isinya teks
+     bebas (misal "Catatan" di riwayat QC) yang lebih enak rata KIRI,
+     bukan rata kanan (default paksaan ":last-child" di atas). Sengaja
+     ditulis SETELAH ":last-child" di atas supaya menang lewat urutan
+     (specificity-nya sama-sama 2 "class-like" + 2 tag). */
+  .table-djoker thead th.th-left {
+    text-align: left;
+  }
+
+  .table-djoker thead th.th-left .th-flex {
+    justify-content: flex-start;
+  }
+
   /* Sama seperti .th-center, tapi buat <td> di kolom yang KEBETULAN jadi
      kolom terakhir tabel (contoh: "Total Belanja Diterima" di Pelanggan,
      "Catatan" di riwayat QC -- tabel ini tidak punya kolom Aksi).
@@ -753,9 +808,22 @@ body::before {
     text-align: center !important;
   }
 
-  /* Isi tiap header: ikon bulat + label + panah sortir, sejajar
-     horizontal. Dipakai di dalam <th>, tidak mengubah box model <th>
-     itu sendiri (jadi tidak menyentuh alignment kolom). */
+  /* Kebalikan dari .td-center di atas: dipakai kalau kolom TERAKHIR
+     tabel isinya teks bebas (misal "Catatan" di riwayat QC) yang lebih
+     enak dibaca rata KIRI, bukan rata kanan (default paksaan
+     ":last-child" di atas) atau rata tengah. Butuh !important dengan
+     alasan yang sama persis seperti .td-center. */
+  .table-djoker tbody td.td-left {
+    text-align: left !important;
+  }
+
+  /* Isi tiap header: label + panah sortir, sejajar horizontal. Dipakai
+     di dalam <th>, tidak mengubah box model <th> itu sendiri (jadi
+     tidak menyentuh alignment kolom). Dulu juga menampung ikon bulat
+     (.icon-chip) di depan label -- SUDAH DIHAPUS dari SortableTh.tsx
+     sebagai bagian dari "Opsi 1: Minimal", jadi CSS-nya (.icon-chip,
+     .dark .icon-chip) ikut dihapus di bawah karena sudah tidak dipakai
+     komponen mana pun lagi. */
   .th-flex {
     display: inline-flex;
     align-items: center;
@@ -764,23 +832,6 @@ body::before {
 
   .table-djoker thead th:last-child .th-flex {
     justify-content: flex-end;
-  }
-
-  .icon-chip {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    background: rgba(37, 99, 235, 0.12);
-    color: var(--djoker-blue-dark);
-    flex-shrink: 0;
-  }
-
-  .dark .icon-chip {
-    background: rgba(37, 99, 235, 0.25);
-    color: #93c5fd;
   }
 
   .col-label {
@@ -798,23 +849,48 @@ body::before {
     color: var(--djoker-blue);
   }
 
+  /* Panah sortir -- dulu selalu solid tampil di SEMUA kolom sekaligus,
+     salah satu penyebab header terasa ramai. Sekarang default-nya nyaris
+     transparan (opacity 0.35 lewat warna rgba di bawah TIDAK cukup,
+     makanya ditambah opacity eksplisit), baru naik ke penuh terlihat
+     pas kolom itu di-hover ATAU memang sedang jadi urutan aktif --
+     supaya affordance "bisa diklik buat sort" tetap ada tapi tidak
+     menyala terus-menerus di kondisi diam. */
   .sort-chevron {
     display: inline-flex;
     align-items: center;
-    color: rgba(37, 99, 235, 0.35);
+    color: var(--djoker-blue-dark);
     flex-shrink: 0;
+    opacity: 0;
+    transition: opacity 0.12s ease;
   }
 
+  .th-sortable:hover .sort-chevron,
   .sort-chevron.active {
-    color: var(--djoker-blue-dark);
+    opacity: 1;
   }
 
   .dark .sort-chevron {
-    color: rgba(147, 197, 253, 0.35);
+    color: #93c5fd;
   }
 
-  .dark .sort-chevron.active {
-    color: #93c5fd;
+  /* Kotak kosong TAK TERLIHAT, lebar persis sama kayak .sort-chevron
+     (12px, sama seperti prop size={12} di ikonnya) -- ditaruh SEBELUM
+     label di kolom yang sortable. Alasannya: sebelum ini, chevron cuma
+     ditaruh di kanan label tanpa penyeimbang di kiri -- walau opacity-nya
+     0 pas tidak aktif/di-hover, LEBARNYA tetap dihitung browser (opacity
+     beda dengan display:none), jadi seluruh baris ".th-flex" (label +
+     chevron) jadi lebih lebar ke kanan, dan text-align:center di <th>
+     nge-center KOTAK GABUNGAN itu, bukan label-nya sendiri -- akibatnya
+     label kegeser dikit ke KIRI dari titik tengah kolom, tidak presisi
+     lagi sama teks di <td> di bawahnya yang tidak punya elemen hantu
+     serupa. Spacer ini nyeimbangin dari sisi kiri (lebar + gap-nya sama
+     persis kayak chevron di kanan), jadi LABEL-nya sendiri yang selalu
+     tepat di tengah, bukan lagi label+chevron sebagai satu kotak. */
+  .chevron-spacer {
+    display: inline-flex;
+    width: 12px;
+    flex-shrink: 0;
   }
 
   .table-djoker tbody tr:first-child td {
@@ -858,19 +934,35 @@ body::before {
 
   /* Badge -- gaya "soft pill": latar pastel tipis (dari STATUS_COLORS /
      HASIL_COLORS di tiap tabel, misal bg-blue-100), tanpa border/outline,
-     dipakai buat semua badge status/role. */
+     dipakai buat semua badge status/role. font-family:inherit ditambah
+     supaya aman dipakai baik di <span> (read-only, mayoritas tabel)
+     maupun <button> (trigger StatusDropdown.tsx di Pesanan & Produksi)
+     -- browser suka kasih <button> font sistem sendiri kalau tidak
+     di-reset. */
   .badge {
     display: inline-flex;
     align-items: center;
     gap: 6px;
     padding: 5px 12px;
     border-radius: 9999px;
+    font-family: inherit;
     font-size: 0.7rem;
     font-weight: 600;
     letter-spacing: 0.025em;
     border: none;
     background: transparent;
     transition: background-color 0.2s ease, color 0.2s ease;
+  }
+
+  /* Reset khusus buat badge yang berupa <button> (trigger dropdown status
+     yang BISA diklik) -- selector "button.badge" otomatis TIDAK kena ke
+     badge <span> yang read-only di tabel lain, jadi cursor:pointer tidak
+     salah kasih kesan "bisa diklik" di badge yang sebenarnya cuma
+     tampilan statis. */
+  button.badge {
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
   }
 
   /* Titik bulat kecil di depan label status -- warnanya ikut currentColor
@@ -883,42 +975,112 @@ body::before {
     flex-shrink: 0;
   }
 
-  /* Panah kecil di kolom status yang BISA diklik (select asli), warnanya
-     sengaja dibikin redup/netral (bukan ikut warna status) supaya jelas
-     itu cuma indikator "bisa dipilih", bukan bagian dari label. */
+  /* Panah kecil di kolom status yang BISA diklik, warnanya sengaja
+     dibikin redup/netral (bukan ikut warna status) supaya jelas itu cuma
+     indikator "bisa dipilih", bukan bagian dari label. Dipakai sekarang
+     oleh trigger <button> di StatusDropdown.tsx (Pesanan & Produksi) --
+     berputar 180 derajat via .status-chevron-open saat panelnya terbuka,
+     sebagai isyarat visual tambahan (bukan cuma panel yang muncul). */
   .status-chevron {
     flex-shrink: 0;
     opacity: 0.55;
+    transition: transform 0.15s ease;
   }
 
-  /* Overlay <select> asli yang menutupi SELURUH pill secara transparan --
-     supaya utuh 1 area itu bisa diklik dan tetap pakai dropdown native
-     browser (aksesibel, jalan di HP), sementara yang KELIHATAN (titik +
-     teks + panah) murni dekorasi di baliknya. Trik umum buat custom-style
-     elemen <select> tanpa kehilangan fungsinya. */
-  .status-select-overlay {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    cursor: pointer;
-    border: none;
-    appearance: none;
-    -webkit-appearance: none;
-  }
-
-  /* Daftar pilihan (option) di dropdown status itu dirender langsung oleh
-     browser, bukan ikut warna kategori badge -- dipaksa pakai warna netral
-     yang pasti kebaca di kedua tema, supaya tidak ada kasus teks terang
-     nyaris tak terlihat di atas latar terang (atau sebaliknya). */
-  select.badge option {
-    background-color: var(--djoker-surface);
-    color: var(--djoker-text);
+  .status-chevron-open {
+    transform: rotate(180deg);
   }
 
   .badge:hover {
     transform: scale(1.05);
+  }
+
+  /* ===== StatusDropdown.tsx -- panel custom pengganti <select> native
+     (dulu status-select-overlay, dihapus karena <select> browser tidak
+     bisa dikasih ikon/checkmark/kartu). Panel-nya dirender lewat React
+     Portal ke document.body (posisi position:fixed dihitung manual di
+     komponen dari getBoundingClientRect trigger-nya) SUPAYA TIDAK
+     kepotong overflow:hidden milik .card yang membungkus tabel -- kalau
+     panel ini ditaruh biasa di dalam <td>, dia bakal kepotong batas
+     kartu/tabel karena .card sengaja overflow:hidden buat sudut
+     melengkung. Cuma dipakai di kolom Status tabel Pesanan & Produksi. */
+  .status-dd-panel {
+    z-index: 60;
+    width: 208px;
+    max-height: 320px;
+    overflow-y: auto;
+    background: var(--djoker-surface);
+    border: 1px solid var(--djoker-border);
+    border-radius: 14px;
+    padding: 6px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16), 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  .dark .status-dd-panel {
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6), 0 2px 8px rgba(0, 0, 0, 0.4);
+  }
+
+  .status-dd-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 8px 10px;
+    border: none;
+    background: transparent;
+    border-radius: 9px;
+    font-family: var(--font-inter), sans-serif;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: var(--djoker-text-2);
+    text-align: left;
+    cursor: pointer;
+    transition: background-color 0.12s ease;
+  }
+
+  .status-dd-option:hover {
+    background: var(--djoker-hover-bg);
+  }
+
+  .status-dd-option-active {
+    background: var(--djoker-hover-bg);
+    color: var(--djoker-blue-dark);
+    font-weight: 700;
+  }
+
+  .dark .status-dd-option-active {
+    color: #93c5fd;
+  }
+
+  .status-dd-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: rgba(37, 99, 235, 0.12);
+    color: var(--djoker-blue-dark);
+    flex-shrink: 0;
+  }
+
+  .dark .status-dd-icon {
+    background: rgba(37, 99, 235, 0.25);
+    color: #93c5fd;
+  }
+
+  .status-dd-label {
+    flex: 1;
+    white-space: nowrap;
+  }
+
+  .status-dd-check {
+    flex-shrink: 0;
+    color: var(--djoker-blue-dark);
+  }
+
+  .dark .status-dd-check {
+    color: #93c5fd;
   }
 
   /* Token warna SEMANTIK (success/warning/danger/info) -- dipusatkan di

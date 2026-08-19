@@ -257,24 +257,24 @@ export default function QcTable({
               <thead>
                 <tr>
                   <TableIconCell icon={ShieldCheck} />
-                  <SortableTh label="No. Produksi" icon={Factory} active={pendingSortField === "no_produksi"} direction={pendingSortDir} onClick={() => togglePendingSort("no_produksi")} />
-                  <SortableTh label="No. Pesanan" icon={ClipboardList} active={pendingSortField === "no_pesanan"} direction={pendingSortDir} onClick={() => togglePendingSort("no_pesanan")} />
-                  <SortableTh label="Pelanggan" icon={User} active={pendingSortField === "pelanggan"} direction={pendingSortDir} onClick={() => togglePendingSort("pelanggan")} />
-                  <SortableTh label="Aksi" icon={MoreHorizontal} sortable={false} />
+                  <SortableTh label="No. Produksi" icon={Factory} active={pendingSortField === "no_produksi"} direction={pendingSortDir} onClick={() => togglePendingSort("no_produksi")} center />
+                  <SortableTh label="No. Pesanan" icon={ClipboardList} active={pendingSortField === "no_pesanan"} direction={pendingSortDir} onClick={() => togglePendingSort("no_pesanan")} center />
+                  <SortableTh label="Pelanggan" icon={User} active={pendingSortField === "pelanggan"} direction={pendingSortDir} onClick={() => togglePendingSort("pelanggan")} center />
+                  <SortableTh label="Aksi" icon={MoreHorizontal} sortable={false} center />
                 </tr>
               </thead>
               <tbody>
                 {sortedPending.map((p, idx) => (
                   <tr key={p.id}>
                     <td>
-                      <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700/50 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                      <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-[#171717]/50 text-xs font-semibold text-gray-500 dark:text-gray-400">
                         {idx + 1}
                       </span>
                     </td>
-                    <td className="font-semibold text-black dark:text-white">{p.no_produksi}</td>
-                    <td className="text-sm text-gray-700 dark:text-gray-300">{p.orders?.no_pesanan ?? "-"}</td>
-                    <td className="text-sm text-gray-700 dark:text-gray-300">{p.orders?.customers?.nama ?? "-"}</td>
-                    <td className="text-right">
+                    <td className="text-black dark:text-white text-center">{p.no_produksi}</td>
+                    <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{p.orders?.no_pesanan ?? "-"}</td>
+                    <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{p.orders?.customers?.nama ?? "-"}</td>
+                    <td className="td-center">
                       <button
                         onClick={() => openCheck(p)}
                         className="inline-flex items-center gap-1.5 rounded-full bg-blue-600 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 transition-colors"
@@ -323,11 +323,11 @@ export default function QcTable({
               {paginated.map((r, idx) => (
                 <tr key={r.id}>
                   <td>
-                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700/50 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-[#171717]/50 text-xs font-semibold text-gray-500 dark:text-gray-400">
                       {(currentPage - 1) * pageSize + idx + 1}
                     </span>
                   </td>
-                  <td className="font-semibold text-black dark:text-white text-center">{r.no_qc}</td>
+                  <td className="text-black dark:text-white text-center">{r.no_qc}</td>
                   <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{r.production?.no_produksi ?? "-"}</td>
                   <td className="text-sm text-gray-600 dark:text-gray-400 text-center">
                     {new Date(r.tanggal).toLocaleDateString("id-ID", {
@@ -359,7 +359,7 @@ export default function QcTable({
         </div>
 
         {filteredRecords.length > 0 && (
-          <div className="flex flex-col gap-3 border-t border-gray-100 dark:border-gray-700 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-3 border-t border-gray-100 dark:border-[#262626] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-xs text-gray-500 dark:text-gray-400">
               Menampilkan {paginated.length} dari {filteredRecords.length} riwayat
             </p>
@@ -368,7 +368,7 @@ export default function QcTable({
                 <button
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-[#262626] text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-[#171717]"
                 >
                   <ChevronLeft size={14} />
                 </button>
@@ -378,7 +378,7 @@ export default function QcTable({
                 <button
                   onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-[#262626] text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-[#171717]"
                 >
                   <ChevronRight size={14} />
                 </button>
@@ -389,7 +389,7 @@ export default function QcTable({
                   setPageSize(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2 py-1 text-xs text-gray-600 dark:text-gray-300"
+                className="rounded-lg border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#0a0a0a] px-2 py-1 text-xs text-gray-600 dark:text-gray-300"
               >
                 <option value={10}>10 / halaman</option>
                 <option value={25}>25 / halaman</option>

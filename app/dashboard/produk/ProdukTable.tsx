@@ -297,22 +297,22 @@ export default function ProdukTable({
                 <SortableTh label="Nama Produk" icon={Shirt} active={sortField === "nama_produk"} direction={sortDir} onClick={() => toggleSort("nama_produk")} center />
                 <SortableTh label="Kategori" icon={Tag} active={sortField === "kategori"} direction={sortDir} onClick={() => toggleSort("kategori")} center />
                 <SortableTh label="Harga Default" icon={Wallet} active={sortField === "harga_default"} direction={sortDir} onClick={() => toggleSort("harga_default")} center />
-                <SortableTh label="Aksi" icon={MoreHorizontal} sortable={false} />
+                <SortableTh label="Aksi" icon={MoreHorizontal} sortable={false} center />
               </tr>
             </thead>
             <tbody>
               {paginated.map((p, idx) => (
                 <tr key={p.id}>
                   <td>
-                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700/50 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-[#171717]/50 text-xs font-semibold text-gray-500 dark:text-gray-400">
                       {(currentPage - 1) * pageSize + idx + 1}
                     </span>
                   </td>
-                  <td className="font-semibold text-black dark:text-white text-center">{p.nama_produk}</td>
+                  <td className="text-black dark:text-white text-center">{p.nama_produk}</td>
                   <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{p.kategori ?? "-"}</td>
                   <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{formatRupiah(p.harga_default)}</td>
-                  <td className="text-right">
-                    <div className="flex justify-end gap-1.5">
+                  <td className="td-center">
+                    <div className="flex justify-center gap-1.5">
                       <button
                         onClick={() => openRecipe(p)}
                         title="Kelola Resep Bahan"
@@ -371,7 +371,7 @@ export default function ProdukTable({
         </div>
 
         {filtered.length > 0 && (
-          <div className="flex flex-col gap-3 border-t border-gray-100 dark:border-gray-700 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-3 border-t border-gray-100 dark:border-[#262626] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-xs text-gray-500 dark:text-gray-400">
               Menampilkan {paginated.length} dari {filtered.length} produk
             </p>
@@ -380,7 +380,7 @@ export default function ProdukTable({
                 <button
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-[#262626] text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-[#171717]"
                 >
                   <ChevronLeft size={14} />
                 </button>
@@ -390,7 +390,7 @@ export default function ProdukTable({
                 <button
                   onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-[#262626] text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-[#171717]"
                 >
                   <ChevronRight size={14} />
                 </button>
@@ -401,7 +401,7 @@ export default function ProdukTable({
                   setPageSize(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2 py-1 text-xs text-gray-600 dark:text-gray-300"
+                className="rounded-lg border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#0a0a0a] px-2 py-1 text-xs text-gray-600 dark:text-gray-300"
               >
                 <option value={10}>10 / halaman</option>
                 <option value={25}>25 / halaman</option>
@@ -500,7 +500,7 @@ export default function ProdukTable({
               </div>
               <button
                 onClick={() => setShowRecipeModal(false)}
-                className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+                className="flex h-8 w-8 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 dark:hover:bg-[#171717]"
               >
                 <X size={16} />
               </button>
@@ -521,7 +521,7 @@ export default function ProdukTable({
                   {recipeRows.map((r, idx) => {
                     const material = rawMaterials.find((m) => m.id === r.raw_material_id);
                     return (
-                      <div key={idx} className="space-y-1 rounded-lg border border-gray-100 dark:border-gray-700 p-2">
+                      <div key={idx} className="space-y-1 rounded-lg border border-gray-100 dark:border-[#262626] p-2">
                         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                           <select
                             value={r.raw_material_id}
@@ -568,7 +568,7 @@ export default function ProdukTable({
                             const preset = ESTIMASI_BAHAN.find((p) => p.key === e.target.value);
                             if (preset) updateRecipeRow(idx, "qty_per_unit", Number(preset.qtyPerUnit.toFixed(5)));
                           }}
-                          className="w-full rounded-lg border border-dashed border-gray-200 dark:border-gray-600 bg-transparent px-2 py-1 text-[10.5px] text-gray-400 dark:text-gray-500"
+                          className="w-full rounded-lg border border-dashed border-gray-200 dark:border-[#333333] bg-transparent px-2 py-1 text-[10.5px] text-gray-400 dark:text-gray-500"
                         >
                           <option value="">Isi cepat: pakai estimasi umum industri...</option>
                           {ESTIMASI_BAHAN.map((p) => (
@@ -584,7 +584,7 @@ export default function ProdukTable({
                   <button
                     type="button"
                     onClick={addRecipeRow}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-gray-300 dark:border-gray-600 px-3 py-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400 hover:border-blue-400 hover:text-blue-600 transition-colors"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-gray-300 dark:border-[#333333] px-3 py-1.5 text-xs font-semibold text-gray-500 dark:text-gray-400 hover:border-blue-400 hover:text-blue-600 transition-colors"
                   >
                     <Plus size={13} />
                     Tambah Bahan

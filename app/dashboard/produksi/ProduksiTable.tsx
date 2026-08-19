@@ -3,11 +3,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Search, Factory, Activity, CheckCircle2, ChevronLeft, ChevronRight, ChevronDown, Trash2, ClipboardList, User, Gauge, MoreHorizontal } from "lucide-react";
+import { Search, Factory, Activity, CheckCircle2, ChevronLeft, ChevronRight, Trash2, ClipboardList, User, Gauge, MoreHorizontal } from "lucide-react";
 import { useConfirm } from "@/components/useConfirm";
 import { useToast } from "@/components/useToast";
 import SortableTh from "@/components/SortableTh";
 import TableIconCell from "@/components/TableIconCell";
+import StatusDropdown from "@/components/StatusDropdown";
 import { compareValues } from "@/lib/sortUtils";
 
 export type ProductionRow = {
@@ -211,42 +212,32 @@ export default function ProduksiTable({
                 <SortableTh label="Pelanggan" icon={User} active={sortField === "pelanggan"} direction={sortDir} onClick={() => toggleSort("pelanggan")} center />
                 <SortableTh label="Status" icon={Activity} active={sortField === "status"} direction={sortDir} onClick={() => toggleSort("status")} center />
                 <SortableTh label="Progress" icon={Gauge} active={sortField === "progress"} direction={sortDir} onClick={() => toggleSort("progress")} center />
-                <SortableTh label="Aksi" icon={MoreHorizontal} sortable={false} />
+                <SortableTh label="Aksi" icon={MoreHorizontal} sortable={false} center />
               </tr>
             </thead>
             <tbody>
               {paginated.map((p, idx) => (
                 <tr key={p.id}>
                   <td>
-                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700/50 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-[#171717]/50 text-xs font-semibold text-gray-500 dark:text-gray-400">
                       {(currentPage - 1) * pageSize + idx + 1}
                     </span>
                   </td>
-                  <td className="font-semibold text-black dark:text-white text-center">{p.no_produksi || "-"}</td>
+                  <td className="text-black dark:text-white text-center">{p.no_produksi || "-"}</td>
                   <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{p.orders?.no_pesanan ?? "-"}</td>
                   <td className="text-sm text-gray-800 dark:text-gray-200 text-center">{p.orders?.customers?.nama ?? "-"}</td>
                   <td className="text-center">
-                    <span className={`badge relative ${STATUS_COLORS[p.status || ""] ?? ""}`}>
-                      <span className="status-dot" />
-                      {p.status || "Produksi"}
-                      <ChevronDown size={12} className="status-chevron" />
-                      <select
-                        value={p.status || "Produksi"}
-                        onChange={(e) => updateStatus(p, e.target.value)}
-                        className="status-select-overlay"
-                        aria-label="Ubah status produksi"
-                      >
-                        {STATUS_OPTIONS.map((s) => (
-                          <option key={s} value={s}>
-                            {s}
-                          </option>
-                        ))}
-                      </select>
-                    </span>
+                    <StatusDropdown
+                      value={p.status || "Produksi"}
+                      options={STATUS_OPTIONS}
+                      colorClasses={STATUS_COLORS}
+                      onChange={(status) => updateStatus(p, status)}
+                      ariaLabel="Ubah status produksi"
+                    />
                   </td>
                   <td className="text-sm text-gray-700 dark:text-gray-300">
                     <div className="mx-auto flex max-w-[170px] items-center gap-2">
-                      <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+                      <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-200 dark:bg-[#171717]">
                         <div
                           className="h-full bg-blue-600 transition-all"
                           style={{ width: `${Number(p.progress || 0)}%` }}
@@ -269,16 +260,16 @@ export default function ProduksiTable({
                             return next;
                           })
                         }
-                        className="w-14 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-black dark:text-white py-1 text-center text-xs"
+                        className="w-14 rounded border border-gray-300 dark:border-[#333333] bg-white dark:bg-[#0a0a0a] text-black dark:text-white py-1 text-center text-xs"
                       />
                       <span className="text-xs text-gray-600 dark:text-gray-400">%</span>
                     </div>
                   </td>
-                  <td className="text-right">
+                  <td className="td-center">
                     <button
                       onClick={() => handleDelete(p.id)}
                       title="Hapus"
-                      className="flex h-8 w-8 items-center justify-center rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/40 transition-colors ml-auto"
+                      className="flex h-8 w-8 items-center justify-center rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/40 transition-colors mx-auto"
                     >
                       <Trash2 size={15} />
                     </button>
@@ -300,7 +291,7 @@ export default function ProduksiTable({
         </div>
 
         {filtered.length > 0 && (
-          <div className="flex flex-col gap-3 border-t border-gray-100 dark:border-gray-700 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-3 border-t border-gray-100 dark:border-[#262626] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-xs text-gray-500 dark:text-gray-400">
               Menampilkan {paginated.length} dari {filtered.length} produksi
             </p>
@@ -309,7 +300,7 @@ export default function ProduksiTable({
                 <button
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-[#262626] text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-[#171717]"
                 >
                   <ChevronLeft size={14} />
                 </button>
@@ -319,7 +310,7 @@ export default function ProduksiTable({
                 <button
                   onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-[#262626] text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-[#171717]"
                 >
                   <ChevronRight size={14} />
                 </button>
@@ -330,7 +321,7 @@ export default function ProduksiTable({
                   setPageSize(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2 py-1 text-xs text-gray-600 dark:text-gray-300"
+                className="rounded-lg border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#0a0a0a] px-2 py-1 text-xs text-gray-600 dark:text-gray-300"
               >
                 <option value={10}>10 / halaman</option>
                 <option value={25}>25 / halaman</option>

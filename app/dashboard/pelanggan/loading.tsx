@@ -1,6 +1,6 @@
-/* Skeleton loading khusus halaman Pengiriman (header + tabel, tanpa kartu
-   ringkasan) -- lihat komentar di gudang/loading.tsx untuk alasannya. */
-export default function PengirimanLoading() {
+/* Skeleton loading khusus halaman Pelanggan (header + 3 kartu ringkasan +
+   tabel) -- lihat komentar di gudang/loading.tsx untuk alasannya. */
+export default function PelangganLoading() {
   return (
     <div className="space-y-4 md:space-y-6 animate-pulse" aria-hidden="true">
       <div className="card w-full max-w-[420px] rounded-[20px] px-5 py-4 md:px-7 md:py-5">
@@ -9,11 +9,22 @@ export default function PengirimanLoading() {
         <div className="mt-2 h-3 w-56 rounded bg-gray-200 dark:bg-[#171717]" />
       </div>
 
+      <div className="card p-0 overflow-hidden">
+        <div className="grid grid-cols-1 divide-y divide-gray-100 dark:divide-[#262626] sm:grid-cols-3 sm:divide-y-0 sm:divide-x">
+          {Array.from({ length: 3 }).map((_, i) => (
+            <div key={i} className="p-3">
+              <div className="h-5 w-16 rounded bg-gray-200 dark:bg-[#171717]" />
+              <div className="mt-2 h-3 w-20 rounded bg-gray-200 dark:bg-[#171717]" />
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div className="h-11 w-full max-w-md rounded-full bg-gray-200 dark:bg-[#171717]" />
 
       <div className="card p-0 overflow-hidden">
         <div className="h-10 border-b border-gray-100 dark:border-[#262626]" />
-        {Array.from({ length: 7 }).map((_, i) => (
+        {Array.from({ length: 6 }).map((_, i) => (
           <div key={i} className="h-12 border-b border-gray-100 dark:border-[#1a1a1a] last:border-0" />
         ))}
       </div>

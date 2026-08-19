@@ -133,7 +133,7 @@ export default function TrackingPageClient() {
   );
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-white dark:bg-[#0f1420] px-4 py-8 md:py-12">
+    <div className="min-h-screen relative overflow-hidden bg-white dark:bg-[#000000] px-4 py-8 md:py-12">
       <div
         className="pointer-events-none fixed inset-0 -z-10"
         style={{
@@ -152,7 +152,7 @@ export default function TrackingPageClient() {
             Login
           </Link>
 
-          <div className="flex gap-0.5 rounded-full border border-gray-200 dark:border-gray-700 bg-white/70 dark:bg-gray-800/70 p-1 shadow-sm">
+          <div className="flex gap-0.5 rounded-full border border-gray-200 dark:border-[#262626] bg-white/70 dark:bg-[#0a0a0a]/70 p-1 shadow-sm">
             <span className="rounded-full bg-blue-600 px-3 py-1 text-[11px] font-bold text-white shadow-sm">
               Lacak Pesanan
             </span>
@@ -172,7 +172,7 @@ export default function TrackingPageClient() {
               Desain (belum ditarik jadi 1 komponen bersama -- 2 halaman
               publik ini sudah lama duplikasi markup hero yang mirip,
               bukan hal baru dari perubahan ini). */}
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white dark:bg-gray-800 shadow-md border border-gray-100 dark:border-gray-700">
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white dark:bg-[#0a0a0a] shadow-md border border-gray-100 dark:border-[#262626]">
             <Shirt size={22} strokeWidth={1.8} className="text-blue-500 dark:text-blue-400" />
           </div>
           <span className="mb-2.5 inline-flex items-center rounded-full bg-blue-50 dark:bg-blue-900/40 px-2.5 py-0.5 text-[9.5px] font-extrabold tracking-widest text-blue-600 dark:text-blue-300">
@@ -186,7 +186,7 @@ export default function TrackingPageClient() {
           </p>
         </div>
 
-        <div className="bg-white dark:bg-[#161d2e] mb-4 rounded-[16px] border border-gray-200 dark:border-gray-700 p-4 shadow-lg">
+        <div className="bg-white dark:bg-[#0a0a0a] mb-4 rounded-[16px] border border-gray-200 dark:border-[#262626] p-4 shadow-lg">
           <form onSubmit={handleSubmit} className="flex gap-2">
             <div className="relative flex-1">
               <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -220,7 +220,7 @@ export default function TrackingPageClient() {
             dobel sama card hasil pesanan/timeline di bawahnya. */}
         {!order && (
           <>
-            <div className="mb-4 grid grid-cols-3 gap-2.5 rounded-[16px] border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#161d2e] p-4 shadow-lg">
+            <div className="mb-4 grid grid-cols-3 gap-2.5 rounded-[16px] border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#0a0a0a] p-4 shadow-lg">
               <div className="text-center">
                 <span className="mx-auto mb-1.5 flex h-8 w-8 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-900/40">
                   <Clock size={14} className="text-blue-600 dark:text-blue-400" />
@@ -250,7 +250,7 @@ export default function TrackingPageClient() {
               </div>
             </div>
 
-            <div className="mb-4 flex items-center justify-between gap-3 rounded-[16px] border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#161d2e] p-3.5 shadow-lg">
+            <div className="mb-4 flex items-center justify-between gap-3 rounded-[16px] border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#0a0a0a] p-3.5 shadow-lg">
               <div className="flex items-center gap-2.5">
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-600">
                   <Headset size={16} className="text-white" />
@@ -277,7 +277,7 @@ export default function TrackingPageClient() {
 
         {order && (
           <div className="space-y-3.5">
-            <div className="bg-white dark:bg-[#161d2e] rounded-[16px] border border-gray-200 dark:border-gray-700 p-4 shadow-lg">
+            <div className="bg-white dark:bg-[#0a0a0a] rounded-[16px] border border-gray-200 dark:border-[#262626] p-4 shadow-lg">
               <div className="flex items-start justify-between">
                 <div>
                   <h2 className="font-display text-base font-extrabold tracking-tight text-black dark:text-white">
@@ -293,7 +293,7 @@ export default function TrackingPageClient() {
                 </span>
               </div>
 
-              <div className="mt-3.5 space-y-1.5 border-t border-dashed border-gray-200 dark:border-gray-700 pt-3">
+              <div className="mt-3.5 space-y-1.5 border-t border-dashed border-gray-200 dark:border-[#262626] pt-3">
                 {order.items.map((it, i) => (
                   <div key={i} className="text-[12px]">
                     <span className="text-gray-700 dark:text-gray-300">
@@ -303,7 +303,7 @@ export default function TrackingPageClient() {
                 ))}
               </div>
 
-              <div className="mt-2 flex justify-between border-t border-gray-200 dark:border-gray-700 pt-2.5 text-[13px]">
+              <div className="mt-2 flex justify-between border-t border-gray-200 dark:border-[#262626] pt-2.5 text-[13px]">
                 <span className="text-gray-500 dark:text-gray-400">Total</span>
                 <span className="text-[14px] font-extrabold text-black dark:text-white">{formatRupiah(order.total)}</span>
               </div>
@@ -327,14 +327,14 @@ export default function TrackingPageClient() {
                   <p className="mb-1.5 text-[10px] font-bold uppercase tracking-wide text-gray-400 dark:text-gray-500">
                     Desain Terupload
                   </p>
-                  <div className="relative h-16 w-16 overflow-hidden rounded-[12px] border border-gray-200 dark:border-gray-700">
+                  <div className="relative h-16 w-16 overflow-hidden rounded-[12px] border border-gray-200 dark:border-[#262626]">
                     <Image src={order.desain_url} alt="Desain" fill className="object-contain" />
                   </div>
                 </div>
               )}
             </div>
 
-            <div className="bg-white dark:bg-[#161d2e] rounded-[16px] border border-gray-200 dark:border-gray-700 p-4 shadow-lg">
+            <div className="bg-white dark:bg-[#0a0a0a] rounded-[16px] border border-gray-200 dark:border-[#262626] p-4 shadow-lg">
               <h3 className="mb-3.5 text-[13px] font-extrabold text-black dark:text-white">Riwayat Status</h3>
               <div className="space-y-0">
                 {tracking.map((t, i) => {
@@ -348,8 +348,8 @@ export default function TrackingPageClient() {
                             t.selesai
                               ? "bg-gradient-to-br from-blue-500 to-blue-600 shadow-md shadow-blue-600/30"
                               : isCurrent
-                              ? "border-2 border-blue-500 bg-white dark:bg-gray-800"
-                              : "border-2 border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800"
+                              ? "border-2 border-blue-500 bg-white dark:bg-[#0a0a0a]"
+                              : "border-2 border-gray-200 dark:border-[#262626] bg-gray-50 dark:bg-[#0a0a0a]"
                           }`}
                         >
                           <Icon
@@ -366,7 +366,7 @@ export default function TrackingPageClient() {
                         {i < tracking.length - 1 && (
                           <div
                             className={`min-h-[22px] w-[2.5px] flex-1 rounded ${
-                              t.selesai ? "bg-blue-500" : "bg-gray-200 dark:bg-gray-700"
+                              t.selesai ? "bg-blue-500" : "bg-gray-200 dark:bg-[#171717]"
                             }`}
                           />
                         )}
@@ -421,7 +421,7 @@ export default function TrackingPageClient() {
           </div>
         )}
 
-        <div className="mt-5 flex items-start justify-center gap-1.5 border-t border-gray-100 dark:border-gray-700 pt-3.5 text-center text-[10px] text-gray-400 dark:text-gray-500">
+        <div className="mt-5 flex items-start justify-center gap-1.5 border-t border-gray-100 dark:border-[#262626] pt-3.5 text-center text-[10px] text-gray-400 dark:text-gray-500">
           <MapPin size={11} className="mt-0.5 shrink-0" />
           <div>
             <p>Jl. Wates Km 4,5 Gg. Ablar No 5</p>

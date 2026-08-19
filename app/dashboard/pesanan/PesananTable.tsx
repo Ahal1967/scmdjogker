@@ -3,12 +3,13 @@
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Search, Plus, FileText, ShoppingBag, CheckCircle2, TrendingUp, ChevronLeft, ChevronRight, ChevronDown, Eye, Trash2, User, Loader2, PackageOpen, ClipboardList, Calendar, Tag, MoreHorizontal, MessageCircle, Download } from "lucide-react";
+import { Search, Plus, FileText, ShoppingBag, CheckCircle2, TrendingUp, ChevronLeft, ChevronRight, Eye, Trash2, User, Loader2, PackageOpen, ClipboardList, Calendar, Tag, MoreHorizontal, MessageCircle, Download } from "lucide-react";
 import { useConfirm } from "@/components/useConfirm";
 import { useToast } from "@/components/useToast";
 import { createClient } from "@/lib/supabase/client";
 import SortableTh from "@/components/SortableTh";
 import TableIconCell from "@/components/TableIconCell";
+import StatusDropdown from "@/components/StatusDropdown";
 import { compareValues } from "@/lib/sortUtils";
 import { generateUniqueCode } from "@/lib/generateCode";
 import { exportToExcel } from "@/lib/exportData";
@@ -182,7 +183,7 @@ function ProductCombobox({
         </span>
       ) : null}
       {open && (
-        <div className="absolute z-20 mt-1 max-h-48 w-full overflow-y-auto rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-lg">
+        <div className="absolute z-20 mt-1 max-h-48 w-full overflow-y-auto rounded-lg border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#0a0a0a] shadow-lg">
           {filtered.length > 0 ? (
             filtered.map((p) => (
               <button
@@ -193,7 +194,7 @@ function ProductCombobox({
                   onSelectProduct(p);
                   setOpen(false);
                 }}
-                className="block w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
+                className="block w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#171717]"
               >
                 {p.nama_produk}
               </button>
@@ -209,7 +210,7 @@ function ProductCombobox({
                 onQuickAdd(value.trim());
                 setOpen(false);
               }}
-              className="flex w-full items-center gap-1.5 border-t border-gray-100 dark:border-gray-700 px-3 py-2 text-left text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+              className="flex w-full items-center gap-1.5 border-t border-gray-100 dark:border-[#262626] px-3 py-2 text-left text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20"
             >
               <Plus size={13} /> Tambah &quot;{value.trim()}&quot; sebagai produk baru
             </button>
@@ -872,7 +873,7 @@ export default function PesananTable() {
           type="button"
           onClick={handleExport}
           disabled={sorted.length === 0}
-          className="inline-flex items-center justify-center gap-1.5 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 transition-colors whitespace-nowrap"
+          className="inline-flex items-center justify-center gap-1.5 rounded-full border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#0a0a0a] px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-[#171717] disabled:cursor-not-allowed disabled:opacity-50 transition-colors whitespace-nowrap"
         >
           <Download size={15} />
           Export
@@ -896,18 +897,18 @@ export default function PesananTable() {
                 <SortableTh label="Pelanggan" icon={User} active={sortField === "pelanggan"} direction={sortDir} onClick={() => toggleSort("pelanggan")} center />
                 <SortableTh label="Tanggal" icon={Calendar} active={sortField === "tanggal"} direction={sortDir} onClick={() => toggleSort("tanggal")} center />
                 <SortableTh label="Status" icon={Tag} active={sortField === "status"} direction={sortDir} onClick={() => toggleSort("status")} center />
-                <SortableTh label="Aksi" icon={MoreHorizontal} sortable={false} />
+                <SortableTh label="Aksi" icon={MoreHorizontal} sortable={false} center />
               </tr>
             </thead>
             <tbody>
               {paginated.map((o, idx) => (
                 <tr key={o.id}>
                   <td>
-                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700/50 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-[#171717]/50 text-xs font-semibold text-gray-500 dark:text-gray-400">
                       {(currentPage - 1) * pageSize + idx + 1}
                     </span>
                   </td>
-                  <td className="font-semibold text-black dark:text-white text-center">{o.no_pesanan}</td>
+                  <td className="text-black dark:text-white text-center">{o.no_pesanan}</td>
                   <td className="text-sm text-gray-800 dark:text-gray-200 text-center">{o.customers?.nama ?? "-"}</td>
                   <td className="text-sm text-gray-600 dark:text-gray-400 text-center">
                     {o.tanggal
@@ -919,26 +920,16 @@ export default function PesananTable() {
                       : "-"}
                   </td>
                   <td className="text-center">
-                    <span className={`badge relative ${STATUS_COLORS[o.status ?? ""] ?? ""}`}>
-                      <span className="status-dot" />
-                      {o.status ?? "Pesanan"}
-                      <ChevronDown size={12} className="status-chevron" />
-                      <select
-                        value={o.status ?? "Pesanan"}
-                        onChange={(e) => updateStatus(o, e.target.value)}
-                        className="status-select-overlay"
-                        aria-label="Ubah status pesanan"
-                      >
-                        {STATUS_OPTIONS.map((s) => (
-                          <option key={s} value={s}>
-                            {s}
-                          </option>
-                        ))}
-                      </select>
-                    </span>
+                    <StatusDropdown
+                      value={o.status ?? "Pesanan"}
+                      options={STATUS_OPTIONS}
+                      colorClasses={STATUS_COLORS}
+                      onChange={(status) => updateStatus(o, status)}
+                      ariaLabel="Ubah status pesanan"
+                    />
                   </td>
-                  <td className="text-right">
-                    <div className="flex justify-end gap-1.5">
+                  <td className="td-center">
+                    <div className="flex justify-center gap-1.5">
                       <button
                         onClick={() => {
                           setDetailOrder(o);
@@ -1003,7 +994,7 @@ export default function PesananTable() {
         </div>
 
         {filtered.length > 0 && (
-          <div className="flex flex-col gap-3 border-t border-gray-100 dark:border-gray-700 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-3 border-t border-gray-100 dark:border-[#262626] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-xs text-gray-500 dark:text-gray-400">
               Menampilkan {paginated.length} dari {filtered.length} pesanan
             </p>
@@ -1013,7 +1004,7 @@ export default function PesananTable() {
                 <button
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-[#262626] text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-[#171717]"
                 >
                   <ChevronLeft size={14} />
                 </button>
@@ -1023,7 +1014,7 @@ export default function PesananTable() {
                 <button
                   onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-[#262626] text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-[#171717]"
                 >
                   <ChevronRight size={14} />
                 </button>
@@ -1035,7 +1026,7 @@ export default function PesananTable() {
                   setPageSize(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2 py-1 text-xs text-gray-600 dark:text-gray-300"
+                className="rounded-lg border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#0a0a0a] px-2 py-1 text-xs text-gray-600 dark:text-gray-300"
               >
                 <option value={10}>10 / halaman</option>
                 <option value={25}>25 / halaman</option>
@@ -1158,7 +1149,7 @@ export default function PesananTable() {
                   {items.map((it, idx) => (
                     <div
                       key={idx}
-                      className="flex flex-col gap-2 rounded-lg border border-gray-100 dark:border-gray-700 p-2.5 sm:flex-row sm:items-start sm:border-0 sm:p-0"
+                      className="flex flex-col gap-2 rounded-lg border border-gray-100 dark:border-[#262626] p-2.5 sm:flex-row sm:items-start sm:border-0 sm:p-0"
                     >
                       <div className="flex items-center gap-2">
                         <div className="flex-1 space-y-1.5">
@@ -1277,7 +1268,7 @@ export default function PesananTable() {
                 />
               </div>
 
-              <div className="border-t border-gray-200 dark:border-gray-700 pt-3">
+              <div className="border-t border-gray-200 dark:border-[#262626] pt-3">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-gray-600 dark:text-gray-400">Total Pesanan</span>
                   <span className="font-display text-xl font-bold text-black dark:text-white">
@@ -1365,7 +1356,7 @@ export default function PesananTable() {
                     {quickAddRecipeRows.map((r, i) => {
                       const material = rawMaterials.find((m) => m.id === r.raw_material_id);
                       return (
-                        <div key={i} className="space-y-1 rounded-lg border border-gray-100 dark:border-gray-700 p-2">
+                        <div key={i} className="space-y-1 rounded-lg border border-gray-100 dark:border-[#262626] p-2">
                           <div className="flex items-center gap-2">
                             <select
                               value={r.raw_material_id}
@@ -1407,7 +1398,7 @@ export default function PesananTable() {
                               const preset = ESTIMASI_BAHAN.find((p) => p.key === e.target.value);
                               if (preset) updateQuickAddRecipeRow(i, "qty_per_unit", Number(preset.qtyPerUnit.toFixed(5)));
                             }}
-                            className="w-full rounded-lg border border-dashed border-gray-200 dark:border-gray-600 bg-transparent px-2 py-1 text-[10.5px] text-gray-400 dark:text-gray-500"
+                            className="w-full rounded-lg border border-dashed border-gray-200 dark:border-[#333333] bg-transparent px-2 py-1 text-[10.5px] text-gray-400 dark:text-gray-500"
                           >
                             <option value="">Isi cepat: pakai estimasi umum industri...</option>
                             {ESTIMASI_BAHAN.map((p) => (
@@ -1475,7 +1466,7 @@ export default function PesananTable() {
               </div>
 
               <p className="mt-5 mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">Item Pesanan</p>
-              <div className="space-y-2 rounded-xl bg-gray-50 dark:bg-gray-900/50 p-3">
+              <div className="space-y-2 rounded-xl bg-gray-50 dark:bg-[#000000]/50 p-3">
                 {(detailOrder.order_items ?? []).map((it, i) => (
                   <div key={i} className="text-sm">
                     <span className="text-gray-700 dark:text-gray-300">
@@ -1487,7 +1478,7 @@ export default function PesananTable() {
                 ))}
               </div>
 
-              <div className="mt-4 space-y-2 rounded-xl border border-gray-100 dark:border-gray-700 p-3 text-sm">
+              <div className="mt-4 space-y-2 rounded-xl border border-gray-100 dark:border-[#262626] p-3 text-sm">
                 <div className="flex justify-between">
                   <span className="text-gray-500 dark:text-gray-400">Total</span>
                   <span className="font-semibold text-black dark:text-white">
@@ -1500,7 +1491,7 @@ export default function PesananTable() {
                     {formatRupiah(Number(detailOrder.dp) || 0)}
                   </span>
                 </div>
-                <div className="flex justify-between border-t border-gray-100 dark:border-gray-700 pt-2">
+                <div className="flex justify-between border-t border-gray-100 dark:border-[#262626] pt-2">
                   <span className="text-gray-500 dark:text-gray-400">Sisa Pembayaran</span>
                   <span className="font-semibold text-orange-600">
                     {formatRupiah(Number(detailOrder.sisa_pembayaran) || 0)}
@@ -1548,7 +1539,7 @@ export default function PesananTable() {
                 {paymentHistory.length === 0 ? (
                   <p className="text-xs text-gray-400 dark:text-gray-500">Belum ada pembayaran tercatat.</p>
                 ) : (
-                  <div className="space-y-1.5 rounded-xl bg-gray-50 dark:bg-gray-900/50 p-3">
+                  <div className="space-y-1.5 rounded-xl bg-gray-50 dark:bg-[#000000]/50 p-3">
                     {paymentHistory.map((pmt) => (
                       <div key={pmt.id} className="flex justify-between text-sm">
                         <span className="text-gray-500 dark:text-gray-400">
@@ -1587,7 +1578,7 @@ export default function PesananTable() {
                         href={detailOrder.desain_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="block relative w-full h-48 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900"
+                        className="block relative w-full h-48 rounded-xl overflow-hidden border border-gray-200 dark:border-[#262626] bg-gray-50 dark:bg-[#000000]"
                       >
                         <Image
                           src={detailOrder.desain_url}

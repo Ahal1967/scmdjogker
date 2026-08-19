@@ -2,11 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Search, FileText, ChevronLeft, ChevronRight, Pencil, Trash2, ClipboardList, Calendar, Wallet, CreditCard, Receipt, CheckCircle2, MapPin, MoreHorizontal, Download } from "lucide-react";
+import { Search, FileText, ChevronLeft, ChevronRight, Pencil, Trash2, ClipboardList, Calendar, Wallet, CreditCard, Receipt, CheckCircle2, MapPin, MoreHorizontal } from "lucide-react";
 import SortableTh from "@/components/SortableTh";
 import TableIconCell from "@/components/TableIconCell";
 import { compareValues } from "@/lib/sortUtils";
-import { exportToExcel } from "@/lib/exportData";
 
 type Order = {
   id: string;
@@ -87,49 +86,19 @@ export default function LaporanTable({ dataOrders }: { dataOrders: Order[] }) {
   const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize));
   const paginated = sorted.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
-  // Export yang lagi kelihatan di layar (kena filter pencarian & sort),
-  // BUKAN cuma 1 halaman pagination -- itu yang biasanya dimaksud orang
-  // waktu klik "Export" di tabel manapun.
-  function handleExport() {
-    exportToExcel(
-      "laporan-pesanan",
-      "Laporan Pesanan",
-      sorted.map((o) => ({
-        "No. Pesanan": o.no_pesanan ?? "-",
-        Tanggal: formatTanggal(o.tanggal ?? o.created_at),
-        Total: Number(o.total) || 0,
-        DP: Number(o.dp) || 0,
-        "Sisa Pembayaran": Number(o.sisa_pembayaran) || 0,
-        Status: o.status ?? "-",
-        "Alamat Pengiriman": o.alamat_pengiriman ?? "-",
-      }))
-    );
-  }
-
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <div className="relative flex-1 max-w-md">
-          <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-          <input
-            placeholder="Cari no. pesanan..."
-            value={search}
-            onChange={(e) => {
-              setSearch(e.target.value);
-              setCurrentPage(1);
-            }}
-            className="input-field rounded-full pl-10"
-          />
-        </div>
-        <button
-          type="button"
-          onClick={handleExport}
-          disabled={sorted.length === 0}
-          className="inline-flex items-center justify-center gap-1.5 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 disabled:cursor-not-allowed disabled:opacity-50 transition-colors whitespace-nowrap"
-        >
-          <Download size={15} />
-          Export Excel
-        </button>
+      <div className="relative max-w-md">
+        <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+        <input
+          placeholder="Cari no. pesanan..."
+          value={search}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setCurrentPage(1);
+          }}
+          className="input-field rounded-full pl-10"
+        />
       </div>
 
       <div className="card overflow-hidden p-0" style={{ border: "none" }}>
@@ -145,18 +114,18 @@ export default function LaporanTable({ dataOrders }: { dataOrders: Order[] }) {
                 <SortableTh label="Sisa" icon={Receipt} active={sortField === "sisa"} direction={sortDir} onClick={() => toggleSort("sisa")} center />
                 <SortableTh label="Status" icon={CheckCircle2} active={sortField === "status"} direction={sortDir} onClick={() => toggleSort("status")} center />
                 <SortableTh label="Alamat" icon={MapPin} active={sortField === "alamat"} direction={sortDir} onClick={() => toggleSort("alamat")} center />
-                <SortableTh label="Aksi" icon={MoreHorizontal} sortable={false} />
+                <SortableTh label="Aksi" icon={MoreHorizontal} sortable={false} center />
               </tr>
             </thead>
             <tbody>
               {paginated.map((order, idx) => (
                 <tr key={order.id}>
                   <td>
-                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700/50 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-[#171717]/50 text-xs font-semibold text-gray-500 dark:text-gray-400">
                       {(currentPage - 1) * pageSize + idx + 1}
                     </span>
                   </td>
-                  <td className="font-semibold text-black dark:text-white text-center">{order.no_pesanan || "-"}</td>
+                  <td className="text-black dark:text-white text-center">{order.no_pesanan || "-"}</td>
                   <td className="text-sm text-gray-600 dark:text-gray-400 text-center">{formatTanggal(order.tanggal || order.created_at)}</td>
                   <td className="text-sm font-medium text-black dark:text-white whitespace-nowrap text-center">{formatRupiah(Number(order.total) || 0)}</td>
                   <td className="text-sm text-gray-700 dark:text-gray-300 text-center whitespace-nowrap">{formatRupiah(Number(order.dp) || 0)}</td>
@@ -168,7 +137,7 @@ export default function LaporanTable({ dataOrders }: { dataOrders: Order[] }) {
                     {formatRupiah(Number(order.sisa_pembayaran) || 0)}
                   </td>
                   <td className="text-center">
-                    <span className={`badge ${STATUS_COLORS[order.status || ""] ?? "bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400"}`}>
+                    <span className={`badge ${STATUS_COLORS[order.status || ""] ?? "bg-gray-100 text-gray-600 dark:bg-[#171717] dark:text-gray-400"}`}>
                       <span className="status-dot" />
                       {order.status || "-"}
                     </span>
@@ -176,8 +145,8 @@ export default function LaporanTable({ dataOrders }: { dataOrders: Order[] }) {
                   <td className="max-w-[10rem] truncate text-sm text-gray-700 dark:text-gray-300 md:max-w-xs text-center">
                     {order.alamat_pengiriman || "-"}
                   </td>
-                  <td className="text-right">
-                    <div className="flex justify-end gap-1.5">
+                  <td className="td-center">
+                    <div className="flex justify-center gap-1.5">
                       <Link
                         href={`/dashboard/laporan/edit/${order.id}`}
                         title="Edit"
@@ -211,7 +180,7 @@ export default function LaporanTable({ dataOrders }: { dataOrders: Order[] }) {
         </div>
 
         {filtered.length > 0 && (
-          <div className="flex flex-col gap-3 border-t border-gray-100 dark:border-gray-700 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-3 border-t border-gray-100 dark:border-[#262626] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-xs text-gray-500 dark:text-gray-400">
               Menampilkan {paginated.length} dari {filtered.length} pesanan
             </p>
@@ -220,7 +189,7 @@ export default function LaporanTable({ dataOrders }: { dataOrders: Order[] }) {
                 <button
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-[#262626] text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-[#171717]"
                 >
                   <ChevronLeft size={14} />
                 </button>
@@ -230,7 +199,7 @@ export default function LaporanTable({ dataOrders }: { dataOrders: Order[] }) {
                 <button
                   onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-[#262626] text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-[#171717]"
                 >
                   <ChevronRight size={14} />
                 </button>
@@ -241,7 +210,7 @@ export default function LaporanTable({ dataOrders }: { dataOrders: Order[] }) {
                   setPageSize(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2 py-1 text-xs text-gray-600 dark:text-gray-300"
+                className="rounded-lg border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#0a0a0a] px-2 py-1 text-xs text-gray-600 dark:text-gray-300"
               >
                 <option value={10}>10 / halaman</option>
                 <option value={25}>25 / halaman</option>

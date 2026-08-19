@@ -167,18 +167,18 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
                 <SortableTh label="No. Telepon" icon={Smartphone} active={sortField === "no_telepon"} direction={sortDir} onClick={() => toggleSort("no_telepon")} center />
                 <SortableTh label="Alamat" icon={MapPin} active={sortField === "alamat"} direction={sortDir} onClick={() => toggleSort("alamat")} center />
                 <SortableTh label="Status" icon={Tag} active={sortField === "status"} direction={sortDir} onClick={() => toggleSort("status")} center />
-                <SortableTh label="Aksi" icon={MoreHorizontal} sortable={false} />
+                <SortableTh label="Aksi" icon={MoreHorizontal} sortable={false} center />
               </tr>
             </thead>
             <tbody>
               {paginated.map((s, idx) => (
                 <tr key={s.id}>
                   <td>
-                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700/50 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-[#171717]/50 text-xs font-semibold text-gray-500 dark:text-gray-400">
                       {(currentPage - 1) * pageSize + idx + 1}
                     </span>
                   </td>
-                  <td className="font-semibold text-black dark:text-white text-center">{s.nama_supplier}</td>
+                  <td className="text-black dark:text-white text-center">{s.nama_supplier}</td>
                   <td className="text-gray-700 dark:text-gray-300 text-center">{s.kontak || "-"}</td>
                   <td className="text-gray-700 dark:text-gray-300 text-center">{s.no_telepon || "-"}</td>
                   <td className="text-gray-600 dark:text-gray-400 max-w-xs truncate text-center">{s.alamat || "-"}</td>
@@ -187,15 +187,15 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
                       className={`badge ${
                         s.status === "Aktif"
                           ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300"
-                          : "bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400"
+                          : "bg-gray-100 dark:bg-[#171717] text-gray-600 dark:text-gray-400"
                       }`}
                     >
                       <span className="status-dot" />
                       {s.status}
                     </span>
                   </td>
-                  <td className="text-right">
-                    <div className="flex justify-end gap-1.5">
+                  <td className="td-center">
+                    <div className="flex justify-center gap-1.5">
                       <button
                         onClick={() => openEdit(s)}
                         title="Edit"
@@ -245,7 +245,7 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
         </div>
 
         {filtered.length > 0 && (
-          <div className="flex flex-col gap-3 border-t border-gray-100 dark:border-gray-700 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-3 border-t border-gray-100 dark:border-[#262626] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-xs text-gray-500 dark:text-gray-400">
               Menampilkan {paginated.length} dari {filtered.length} supplier
             </p>
@@ -254,7 +254,7 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
                 <button
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-[#262626] text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-[#171717]"
                 >
                   <ChevronLeft size={14} />
                 </button>
@@ -264,7 +264,7 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
                 <button
                   onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-[#262626] text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-[#171717]"
                 >
                   <ChevronRight size={14} />
                 </button>
@@ -275,7 +275,7 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
                   setPageSize(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2 py-1 text-xs text-gray-600 dark:text-gray-300"
+                className="rounded-lg border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#0a0a0a] px-2 py-1 text-xs text-gray-600 dark:text-gray-300"
               >
                 <option value={10}>10 / halaman</option>
                 <option value={25}>25 / halaman</option>
@@ -307,7 +307,7 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
             </div>
           </div>
           <div className="flex items-center gap-3 p-5">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gray-100 dark:bg-gray-700">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gray-100 dark:bg-[#171717]">
               <Ban size={20} className="text-gray-500 dark:text-gray-400" />
             </span>
             <div>

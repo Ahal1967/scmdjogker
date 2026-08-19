@@ -283,14 +283,14 @@ export default function DashboardLayout({
              ikut berubah karena ini scoped ke header saja. */
           className={`sticky top-0 z-40 flex h-16 items-center justify-between border-b px-4 transition-colors duration-300 md:justify-end md:px-6 ${
             headerScrolled
-              ? "bg-white/90 dark:bg-gray-900/90 shadow-sm"
+              ? "bg-white/90 dark:bg-[#000000]/90 shadow-sm"
               : "bg-transparent"
           }`}
           style={{ borderColor: "var(--djoker-border)" }}
         >
           <button
             type="button"
-            className="rounded-lg p-2 hover:bg-gray-100 dark:hover:bg-gray-700 md:hidden"
+            className="rounded-lg p-2 hover:bg-gray-100 dark:hover:bg-[#171717] md:hidden"
             onClick={() => setSidebarOpen((s) => !s)}
             aria-label="Toggle sidebar"
           >
@@ -313,7 +313,7 @@ export default function DashboardLayout({
 
             <Menu as="div" className="relative">
             <Menu.Button
-              className="flex items-center gap-3 rounded-full border bg-white/50 px-2 py-1.5 shadow-sm backdrop-blur-md transition hover:bg-white/70 dark:bg-gray-800/50 dark:hover:bg-gray-800/70"
+              className="flex items-center gap-3 rounded-full border bg-white/50 px-2 py-1.5 shadow-sm backdrop-blur-md transition hover:bg-white/70 dark:bg-[#0a0a0a]/50 dark:hover:bg-[#141414]/70"
               style={{ borderColor: "var(--djoker-border)" }}
             >
               <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border bg-white">
@@ -345,14 +345,14 @@ export default function DashboardLayout({
               </svg>
             </Menu.Button>
 
-            <Menu.Items className="absolute right-0 z-50 mt-3 w-56 origin-top-right rounded-xl border bg-white/70 dark:bg-gray-800/70 backdrop-blur-md p-2 shadow-xl focus:outline-none"
+            <Menu.Items className="absolute right-0 z-50 mt-3 w-56 origin-top-right rounded-xl border bg-white/70 dark:bg-[#0a0a0a]/70 backdrop-blur-md p-2 shadow-xl focus:outline-none"
               style={{ borderColor: "var(--djoker-border)" }}>
               <Menu.Item>
                 {({ active }) => (
                   <Link
                     href="/dashboard/profile"
                     className={`flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm transition ${
-                      active ? "bg-blue-50 text-blue-600" : "text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
+                      active ? "bg-blue-50 text-blue-600" : "text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#171717]"
                     }`}
                   >
                     <User size={16} strokeWidth={2} />
@@ -366,7 +366,7 @@ export default function DashboardLayout({
                   <Link
                     href="/dashboard/settings"
                     className={`flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm transition ${
-                      active ? "bg-blue-50 text-blue-600" : "text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700"
+                      active ? "bg-blue-50 text-blue-600" : "text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#171717]"
                     }`}
                   >
                     <Settings size={16} strokeWidth={2} />

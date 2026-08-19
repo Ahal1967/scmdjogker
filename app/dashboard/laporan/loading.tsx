@@ -1,17 +1,36 @@
-export default function Loading() {
+/* Skeleton loading khusus halaman Laporan Pesanan (header + 4 kartu
+   ringkasan + tabel) -- lihat komentar di gudang/loading.tsx untuk alasan
+   kenapa tiap halaman dashboard punya skeleton sendiri, bukan cuma pakai
+   yang generik di app/dashboard/loading.tsx. */
+export default function LaporanLoading() {
   return (
-    <div className="space-y-4 animate-pulse">
-      <div className="h-8 w-48 rounded-lg bg-gray-200 dark:bg-gray-700" />
-      <div className="h-4 w-72 rounded bg-gray-200 dark:bg-gray-700" />
-      <div className="card overflow-hidden p-0" style={{ border: "none" }}>
-        <div className="h-12 bg-gray-100 dark:bg-gray-700" />
-        {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="h-14 border-t border-gray-100 dark:border-gray-700 flex items-center px-4 gap-4">
-            <div className="h-8 w-8 rounded-lg bg-gray-200 dark:bg-gray-700 shrink-0" />
-            <div className="h-3 w-32 rounded bg-gray-200 dark:bg-gray-700" />
-            <div className="h-3 w-24 rounded bg-gray-200 dark:bg-gray-700" />
-            <div className="h-3 w-20 rounded bg-gray-200 dark:bg-gray-700 ml-auto" />
-          </div>
+    <div className="space-y-4 md:space-y-6 animate-pulse" aria-hidden="true">
+      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+        <div className="card w-full max-w-[420px] rounded-[20px] px-5 py-4 md:px-7 md:py-5">
+          <div className="h-4 w-24 rounded-full bg-gray-200 dark:bg-[#171717]" />
+          <div className="mt-3 h-5 w-40 rounded bg-gray-200 dark:bg-[#171717]" />
+          <div className="mt-2 h-3 w-56 rounded bg-gray-200 dark:bg-[#171717]" />
+        </div>
+        <div className="h-9 w-40 rounded-lg bg-gray-200 dark:bg-[#171717]" />
+      </div>
+
+      <div className="card p-0 overflow-hidden">
+        <div className="grid grid-cols-1 divide-y divide-gray-100 dark:divide-[#262626] sm:grid-cols-2 sm:divide-y-0 sm:divide-x lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="p-3">
+              <div className="h-5 w-16 rounded bg-gray-200 dark:bg-[#171717]" />
+              <div className="mt-2 h-3 w-20 rounded bg-gray-200 dark:bg-[#171717]" />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="h-11 w-full max-w-md rounded-full bg-gray-200 dark:bg-[#171717]" />
+
+      <div className="card p-0 overflow-hidden">
+        <div className="h-10 border-b border-gray-100 dark:border-[#262626]" />
+        {Array.from({ length: 7 }).map((_, i) => (
+          <div key={i} className="h-12 border-b border-gray-100 dark:border-[#1a1a1a] last:border-0" />
         ))}
       </div>
     </div>

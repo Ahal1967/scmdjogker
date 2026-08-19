@@ -222,18 +222,18 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
                 <SortableTh label="Kurir" icon={Truck} active={sortField === "kurir"} direction={sortDir} onClick={() => toggleSort("kurir")} center />
                 <SortableTh label="No. Resi" icon={Barcode} active={sortField === "no_resi"} direction={sortDir} onClick={() => toggleSort("no_resi")} center />
                 <SortableTh label="Status" icon={CheckCircle2} active={sortField === "status"} direction={sortDir} onClick={() => toggleSort("status")} center />
-                <SortableTh label="Aksi" icon={MoreHorizontal} sortable={false} />
+                <SortableTh label="Aksi" icon={MoreHorizontal} sortable={false} center />
               </tr>
             </thead>
             <tbody>
               {paginated.map((s, idx) => (
                 <tr key={s.id}>
                   <td>
-                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-700/50 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-[#171717]/50 text-xs font-semibold text-gray-500 dark:text-gray-400">
                       {(currentPage - 1) * pageSize + idx + 1}
                     </span>
                   </td>
-                  <td className="font-semibold text-black dark:text-white text-center">{s.orders?.no_pesanan ?? "-"}</td>
+                  <td className="text-black dark:text-white text-center">{s.orders?.no_pesanan ?? "-"}</td>
                   <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{s.orders?.customers?.nama ?? "-"}</td>
                   <td className="text-sm text-gray-600 dark:text-gray-400 max-w-xs truncate text-center">
                     {s.orders?.alamat_pengiriman ?? "-"}
@@ -246,7 +246,7 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
                       {s.status}
                     </span>
                   </td>
-                  <td className="text-right">
+                  <td className="td-center">
                     {s.status === "Diproses" && (
                       <button
                         onClick={() => openEdit(s)}
@@ -282,7 +282,7 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
         </div>
 
         {filtered.length > 0 && (
-          <div className="flex flex-col gap-3 border-t border-gray-100 dark:border-gray-700 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-3 border-t border-gray-100 dark:border-[#262626] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-xs text-gray-500 dark:text-gray-400">
               Menampilkan {paginated.length} dari {filtered.length} pengiriman
             </p>
@@ -291,7 +291,7 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
                 <button
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-[#262626] text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-[#171717]"
                 >
                   <ChevronLeft size={14} />
                 </button>
@@ -301,7 +301,7 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
                 <button
                   onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-gray-700"
+                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-[#262626] text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-[#171717]"
                 >
                   <ChevronRight size={14} />
                 </button>
@@ -312,7 +312,7 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
                   setPageSize(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2 py-1 text-xs text-gray-600 dark:text-gray-300"
+                className="rounded-lg border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#0a0a0a] px-2 py-1 text-xs text-gray-600 dark:text-gray-300"
               >
                 <option value={10}>10 / halaman</option>
                 <option value={25}>25 / halaman</option>
