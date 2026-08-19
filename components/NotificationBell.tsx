@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { Menu } from "@headlessui/react";
-import { Bell, AlertTriangle, ShieldCheck } from "lucide-react";
+import { Bell, AlertTriangle, ShieldCheck, ClipboardList, Wallet, XCircle } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 type NotifItem = {
@@ -20,12 +20,30 @@ export default function NotificationBell() {
 
   useEffect(() => {
     async function fetchCounts() {
-      const [{ data: materials }, { count: qcCount }] = await Promise.all([
-        supabase.from("raw_materials").select("id, status").eq("status", "Kritis"),
-        supabase.from("production").select("*", { count: "exact", head: true }).eq("status", "QC"),
-      ]);
+      const [{ data: materials }, { count: qcCount }, { count: pesananBaruCount }, { data: belumLunas }, { data: qcBermasalah }] =
+        await Promise.all([
+          supabase.from("raw_materials").select("id, status").eq("status", "Kritis"),
+          supabase.from("production").select("*", { count: "exact", head: true }).eq("status", "QC"),
+          // Pesanan yang baru masuk & belum mulai diproses (masih di status awal).
+          supabase.from("orders").select("*", { count: "exact", head: true }).eq("status", "Pesanan"),
+          // Proksi "jatuh tempo" -- belum ada kolom tanggal jatuh tempo di database,
+          // jadi dianggap paling mendesak ditagih: barang sudah di tangan pelanggan
+          // (Dikirim/Selesai) tapi sisa pembayaran masih ada.
+          supabase.from("orders").select("id, sisa_pembayaran").in("status", ["Dikirim", "Selesai"]).gt("sisa_pembayaran", 0),
+          // Hasil QC yang butuh tindak lanjut (bukan sekadar menunggu diperiksa).
+          supabase.from("quality_control").select("id, hasil").in("hasil", ["Perbaikan", "Gagal"]),
+        ]);
 
       const list: NotifItem[] = [];
+      if (pesananBaruCount && pesananBaruCount > 0) {
+        list.push({
+          label: "Pesanan baru masuk",
+          count: pesananBaruCount,
+          href: "/dashboard/pesanan",
+          icon: ClipboardList,
+          color: "text-blue-600 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400",
+        });
+      }
       if (materials && materials.length > 0) {
         list.push({
           label: "Bahan baku stok kritis",
@@ -35,6 +53,15 @@ export default function NotificationBell() {
           color: "text-red-600 bg-red-50 dark:bg-red-900/30 dark:text-red-400",
         });
       }
+      if (qcBermasalah && qcBermasalah.length > 0) {
+        list.push({
+          label: "Hasil QC butuh tindak lanjut",
+          count: qcBermasalah.length,
+          href: "/dashboard/qc",
+          icon: XCircle,
+          color: "text-orange-600 bg-orange-50 dark:bg-orange-900/30 dark:text-orange-400",
+        });
+      }
       if (qcCount && qcCount > 0) {
         list.push({
           label: "Menunggu pemeriksaan QC",
@@ -42,6 +69,15 @@ export default function NotificationBell() {
           href: "/dashboard/qc",
           icon: ShieldCheck,
           color: "text-purple-600 bg-purple-50 dark:bg-purple-900/30 dark:text-purple-400",
+        });
+      }
+      if (belumLunas && belumLunas.length > 0) {
+        list.push({
+          label: "Pesanan terkirim, belum lunas",
+          count: belumLunas.length,
+          href: "/dashboard/laporan",
+          icon: Wallet,
+          color: "text-yellow-600 bg-yellow-50 dark:bg-yellow-900/30 dark:text-yellow-400",
         });
       }
       setItems(list);
