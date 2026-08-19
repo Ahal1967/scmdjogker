@@ -13,6 +13,7 @@ import {
   Share2,
   Users2,
   Warehouse,
+  Shirt,
   FileText,
   Factory,
   ShieldCheck,
@@ -31,6 +32,7 @@ const NAV_ICONS: Record<string, any> = {
   "/dashboard/alur": Share2,
   "/dashboard/supplier": Users2,
   "/dashboard/gudang": Warehouse,
+  "/dashboard/produk": Shirt,
   "/dashboard/pesanan": FileText,
   "/dashboard/pelanggan": Users2,
   "/dashboard/produksi": Factory,
@@ -48,6 +50,7 @@ const NAV_SECTIONS = [
     hrefs: [
       "/dashboard/supplier",
       "/dashboard/gudang",
+      "/dashboard/produk",
       "/dashboard/pesanan",
       "/dashboard/pelanggan",
       "/dashboard/produksi",

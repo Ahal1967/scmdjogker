@@ -3,6 +3,13 @@ import { Boxes } from "lucide-react";
 import GudangTable from "./GudangTable";
 import PageHeaderCard from "@/components/PageHeaderCard";
 
+// Stok di halaman ini harus selalu angka terbaru dari database -- kalau
+// Next.js sempat nge-cache hasil query Supabase di sini, admin bisa lihat
+// angka stok yang sudah basi padahal di database sudah kepotong (misalnya
+// abis pemotongan stok otomatis dari pesanan baru). force-dynamic matiin
+// caching itu, sama seperti yang dipakai di halaman tracking/upload publik.
+export const dynamic = "force-dynamic";
+
 export default async function GudangPage() {
   const supabase = createClient();
 

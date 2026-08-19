@@ -3,6 +3,7 @@ export const navItems = [
   { label: "Alur Supply Chain", href: "/dashboard/alur" },
   { label: "Supplier", href: "/dashboard/supplier" },
   { label: "Gudang", href: "/dashboard/gudang" },
+  { label: "Produk", href: "/dashboard/produk" },
   { label: "Pesanan", href: "/dashboard/pesanan" },
   { label: "Pelanggan", href: "/dashboard/pelanggan" },
   { label: "Produksi", href: "/dashboard/produksi" },

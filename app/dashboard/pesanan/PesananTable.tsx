@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Search, Plus, FileText, ShoppingBag, CheckCircle2, TrendingUp, ChevronLeft, ChevronRight, ChevronDown, Eye, Trash2, User, Loader2, PackageOpen, ClipboardList, Calendar, Tag, MoreHorizontal } from "lucide-react";
+import { Search, Plus, FileText, ShoppingBag, CheckCircle2, TrendingUp, ChevronLeft, ChevronRight, ChevronDown, Eye, Trash2, User, Loader2, PackageOpen, ClipboardList, Calendar, Tag, MoreHorizontal, MessageCircle } from "lucide-react";
 import { useConfirm } from "@/components/useConfirm";
 import { useToast } from "@/components/useToast";
 import { createClient } from "@/lib/supabase/client";
@@ -25,6 +25,16 @@ type OrderItem = {
   ukuran: string;
   jumlah: number;
   harga: number;
+  // Tautan ke katalog produk (lib resep/BOM) -- null berarti "ketik
+  // manual", produk tidak ada di katalog, jadi tidak ikut memotong stok
+  // bahan baku otomatis waktu pesanan disimpan.
+  product_id?: string | null;
+};
+
+type Product = {
+  id: string;
+  nama_produk: string;
+  harga_default: number;
 };
 
 const UKURAN_OPTIONS = ["S", "M", "L", "XL", "XXL", "3XL", "All Size"];
@@ -39,7 +49,7 @@ type Order = {
   status: string | null;
   alamat_pengiriman: string | null;
   desain_url: string | null;
-  customers: { nama: string | null } | null;
+  customers: { nama: string | null; no_telepon: string | null } | null;
   order_items: OrderItem[] | null;
 };
 
@@ -69,6 +79,27 @@ function formatRupiah(n: number) {
   return "Rp " + n.toLocaleString("id-ID");
 }
 
+// Belum ada integrasi WhatsApp Business API (butuh nomor terverifikasi +
+// biaya berlangganan) -- ini jalan pintas praktis yang bisa jalan hari
+// ini: admin tinggal klik, WhatsApp Web/App kebuka dengan pesan status
+// terkini sudah terisi otomatis, tinggal kirim manual. Bukan notifikasi
+// otomatis penuh, tapi menghapus kerja ketik ulang pesan tiap kali status
+// berubah.
+const TRACKING_URL = "https://scmdjogker.vercel.app/tracking";
+
+function buildWaLink(noTelepon: string | null | undefined, order: Order) {
+  if (!noTelepon) return null;
+  const digits = noTelepon.replace(/\D/g, "");
+  if (!digits) return null;
+  const normalized = digits.startsWith("0") ? "62" + digits.slice(1) : digits.startsWith("62") ? digits : "62" + digits;
+  const pesan = `Halo ${order.customers?.nama ?? "Kak"}, update status pesanan kamu:\n\nNo. Pesanan: *${
+    order.no_pesanan
+  }*\nStatus: *${
+    order.status ?? "-"
+  }*\n\nKamu bisa cek status pesanan ini kapan saja secara real-time lewat halaman Lacak Pesanan di ${TRACKING_URL} -- tinggal masukkan nomor pesanan di atas.\n\nTerima kasih sudah berbelanja di DJOGKER Sablon Kaos!`;
+  return `https://wa.me/${normalized}?text=${encodeURIComponent(pesan)}`;
+}
+
 // generateUniqueCode (buat no_pesanan/no_produksi) ditarik ke
 // @/lib/generateCode supaya bisa dipakai bareng sama QcTable.tsx
 // (no_qc/no_packing) -- lihat komentar di file itu buat penjelasan lengkap
@@ -83,6 +114,7 @@ export default function PesananTable() {
   }, []);
   const [orders, setOrders] = useState<Order[]>([]);
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [search, setSearch] = useState("");
@@ -93,6 +125,31 @@ export default function PesananTable() {
   const { showToast, ToastBanner } = useToast();
   const [detailOrder, setDetailOrder] = useState<Order | null>(null);
   const [pelunasanInput, setPelunasanInput] = useState("");
+  const [paymentHistory, setPaymentHistory] = useState<
+    { id: string; jumlah: number; catatan: string | null; created_at: string }[]
+  >([]);
+
+  // Ambil ulang riwayat pembayaran tiap kali modal detail pesanan dibuka /
+  // gonta-ganti pesanan -- dipisah dari handleCatatPembayaran supaya juga
+  // kepanggil waktu detail dibuka dari tombol "Lihat" (bukan cuma sesudah
+  // bayar).
+  useEffect(() => {
+    if (!detailOrder) {
+      setPaymentHistory([]);
+      return;
+    }
+    supabase
+      .from("payments")
+      .select("id, jumlah, catatan, created_at")
+      .eq("order_id", detailOrder.id)
+      .order("created_at", { ascending: false })
+      .then(({ data, error }) => {
+        if (!error && data) setPaymentHistory(data);
+        // Tabel "payments" baru ada setelah migrasi dijalankan -- kalau
+        // belum, diamkan saja (riwayat tampil kosong, tidak mem-block
+        // modal detail buat dibuka).
+      });
+  }, [detailOrder?.id]);
   const [payingOff, setPayingOff] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -128,19 +185,27 @@ export default function PesananTable() {
       const [
         { data: ordersData, error: ordersError },
         { data: customersData, error: customersError },
+        { data: productsData, error: productsError },
       ] = await Promise.all([
         supabase
           .from("orders")
-          .select("*, customers(nama), order_items(id, nama_produk, ukuran, jumlah, harga)")
+          .select("*, customers(nama, no_telepon), order_items(id, nama_produk, ukuran, jumlah, harga, product_id)")
           .order("created_at", { ascending: false }),
         supabase.from("customers").select("*").order("nama", { ascending: true }),
+        supabase.from("products").select("id, nama_produk, harga_default").order("nama_produk", { ascending: true }),
       ]);
 
       if (ordersError) console.error(ordersError);
       if (customersError) console.error(customersError);
+      // Tabel "products" baru ada setelah migrasi katalog produk/resep
+      // dijalankan -- kalau belum, biarkan saja kosong (mode manual tetap
+      // jalan seperti biasa), jangan sampai error ini mem-block seluruh
+      // halaman Pesanan.
+      if (productsError) console.error(productsError);
 
       if (ordersData) setOrders(ordersData as Order[]);
       if (customersData) setCustomers(customersData as Customer[]);
+      if (productsData) setProducts(productsData as Product[]);
 
       setLoading(false);
     };
@@ -203,12 +268,12 @@ export default function PesananTable() {
     setNewCustomer({ nama: "", no_telepon: "", alamat: "" });
     setAlamatPengiriman("");
     setDp(0);
-    setItems([{ nama_produk: "", ukuran: "", jumlah: 1, harga: 0 }]);
+    setItems([{ nama_produk: "", ukuran: "", jumlah: 1, harga: 0, product_id: null }]);
     setShowModal(true);
   }
 
   function addItemRow() {
-    setItems((prev) => [...prev, { nama_produk: "", ukuran: "", jumlah: 1, harga: 0 }]);
+    setItems((prev) => [...prev, { nama_produk: "", ukuran: "", jumlah: 1, harga: 0, product_id: null }]);
   }
 
   function removeItemRow(idx: number) {
@@ -217,6 +282,32 @@ export default function PesananTable() {
 
   function updateItem(idx: number, field: keyof OrderItem, value: string | number) {
     setItems((prev) => prev.map((it, i) => (i === idx ? { ...it, [field]: value } : it)));
+  }
+
+  // Pilih produk dari katalog -- otomatis isi nama produk (dikunci, biar
+  // konsisten sama resep BOM-nya) dan harga default kalau harga masih
+  // kosong. Pilih "-- Ketik manual --" (value kosong) buat balik ke mode
+  // teks bebas seperti sebelumnya (produk itu tidak ikut potong stok
+  // otomatis, karena tidak tertaut ke resep apa pun).
+  function selectProduct(idx: number, productId: string) {
+    if (!productId) {
+      setItems((prev) => prev.map((it, i) => (i === idx ? { ...it, product_id: null } : it)));
+      return;
+    }
+    const p = products.find((pr) => pr.id === productId);
+    if (!p) return;
+    setItems((prev) =>
+      prev.map((it, i) =>
+        i === idx
+          ? {
+              ...it,
+              product_id: p.id,
+              nama_produk: p.nama_produk,
+              harga: it.harga || Number(p.harga_default) || 0,
+            }
+          : it
+      )
+    );
   }
 
   async function handleSave(e: React.FormEvent<HTMLFormElement>) {
@@ -271,7 +362,7 @@ export default function PesananTable() {
         status: "Pesanan",
         alamat_pengiriman: alamatPengiriman,
       })
-      .select("*, customers(nama)")
+      .select("*, customers(nama, no_telepon)")
       .single();
 
     if (orderError || !orderData) {
@@ -307,6 +398,50 @@ export default function PesananTable() {
       showToast("Pesanan tersimpan, tapi gagal membuat entri produksi otomatis: " + prodError.message);
     }
 
+    // Potong stok bahan baku otomatis sesuai resep (BOM) dari produk katalog
+    // yang dipesan. Item yang diketik manual (product_id kosong) dilewati --
+    // itu bukan error, memang tidak semua produk wajib ada di katalog.
+    const productIdsDipesan = Array.from(
+      new Set(validItems.map((it) => it.product_id).filter((id): id is string => !!id))
+    );
+
+    if (productIdsDipesan.length > 0) {
+      const { data: bomRows, error: bomError } = await supabase
+        .from("product_materials")
+        .select("product_id, raw_material_id, qty_per_unit")
+        .in("product_id", productIdsDipesan);
+
+      if (bomError) {
+        console.error("Gagal mengambil resep produk:", bomError.message);
+      } else if (bomRows && bomRows.length > 0) {
+        // Jumlahkan total pemakaian per bahan (1 bahan bisa dipakai lebih
+        // dari 1 produk yang dipesan sekaligus).
+        const pemakaian = new Map<string, number>();
+        for (const it of validItems) {
+          if (!it.product_id) continue;
+          for (const b of bomRows.filter((r) => r.product_id === it.product_id)) {
+            const kebutuhan = Number(b.qty_per_unit) * Number(it.jumlah || 0);
+            pemakaian.set(b.raw_material_id, (pemakaian.get(b.raw_material_id) ?? 0) + kebutuhan);
+          }
+        }
+
+        const hasilPotongStok = await Promise.all(
+          Array.from(pemakaian.entries()).map(([rawMaterialId, qty]) =>
+            supabase.rpc("decrement_stok", { p_raw_material_id: rawMaterialId, p_qty: qty })
+          )
+        );
+        const gagalPotongStok = hasilPotongStok.some((r) => r.error);
+        if (gagalPotongStok) {
+          const pesanError = hasilPotongStok.find((r) => r.error)?.error?.message;
+          console.error("Gagal memotong stok bahan baku:", pesanError);
+          showToast(
+            "Pesanan tersimpan, tapi stok bahan baku gagal dipotong otomatis: " +
+              (pesanError ?? "cek koneksi/migrasi database.")
+          );
+        }
+      }
+    }
+
     setOrders((prev) => [
       { ...(orderData as Order), order_items: (itemsData as OrderItem[]) ?? validItems },
       ...prev,
@@ -331,7 +466,7 @@ export default function PesananTable() {
       .from("orders")
       .update({ sisa_pembayaran: sisaBaru })
       .eq("id", order.id)
-      .select("*, customers(nama), order_items(id, nama_produk, ukuran, jumlah, harga)")
+      .select("*, customers(nama, no_telepon), order_items(id, nama_produk, ukuran, jumlah, harga)")
       .single();
     setPayingOff(false);
 
@@ -343,6 +478,17 @@ export default function PesananTable() {
     setOrders((prev) => prev.map((o) => (o.id === order.id ? (data as Order) : o)));
     setDetailOrder(data as Order);
     setPelunasanInput("");
+
+    const { data: paymentRow, error: paymentError } = await supabase
+      .from("payments")
+      .insert({ order_id: order.id, jumlah })
+      .select()
+      .single();
+    if (paymentError) {
+      console.error("Gagal mencatat riwayat pembayaran:", paymentError.message);
+    } else if (paymentRow) {
+      setPaymentHistory((prev) => [paymentRow, ...prev]);
+    }
 
     await supabase.from("order_tracking").insert({
       order_id: order.id,
@@ -361,7 +507,7 @@ export default function PesananTable() {
       .from("orders")
       .update({ status })
       .eq("id", order.id)
-      .select("*, customers(nama), order_items(id, nama_produk, ukuran, jumlah, harga)")
+      .select("*, customers(nama, no_telepon), order_items(id, nama_produk, ukuran, jumlah, harga)")
       .single();
 
     if (!error && data) {
@@ -512,6 +658,17 @@ export default function PesananTable() {
                       >
                         <Eye size={15} />
                       </button>
+                      {buildWaLink(o.customers?.no_telepon, o) && (
+                        <a
+                          href={buildWaLink(o.customers?.no_telepon, o) ?? "#"}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title="Kabari status via WhatsApp"
+                          className="flex h-8 w-8 items-center justify-center rounded-lg text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/40 transition-colors"
+                        >
+                          <MessageCircle size={15} />
+                        </a>
+                      )}
                       <button
                         onClick={() => handleDelete(o.id)}
                         title="Hapus Pesanan"
@@ -713,12 +870,28 @@ export default function PesananTable() {
                       className="flex flex-col gap-2 rounded-lg border border-gray-100 dark:border-gray-700 p-2.5 sm:flex-row sm:items-start sm:border-0 sm:p-0"
                     >
                       <div className="flex items-center gap-2">
-                        <input
-                          placeholder="Nama produk (mis. Kaos Hitam)"
-                          value={it.nama_produk}
-                          onChange={(e) => updateItem(idx, "nama_produk", e.target.value)}
-                          className="input-field flex-1"
-                        />
+                        <div className="flex-1 space-y-1.5">
+                          <select
+                            value={it.product_id ?? ""}
+                            onChange={(e) => selectProduct(idx, e.target.value)}
+                            className="input-field w-full"
+                          >
+                            <option value="">-- Ketik manual --</option>
+                            {products.map((p) => (
+                              <option key={p.id} value={p.id}>
+                                {p.nama_produk}
+                              </option>
+                            ))}
+                          </select>
+                          {!it.product_id && (
+                            <input
+                              placeholder="Nama produk (mis. Kaos Hitam)"
+                              value={it.nama_produk}
+                              onChange={(e) => updateItem(idx, "nama_produk", e.target.value)}
+                              className="input-field w-full"
+                            />
+                          )}
+                        </div>
                         {items.length > 1 && (
                           <button
                             type="button"
@@ -879,14 +1052,11 @@ export default function PesananTable() {
               <p className="mt-5 mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">Item Pesanan</p>
               <div className="space-y-2 rounded-xl bg-gray-50 dark:bg-gray-900/50 p-3">
                 {(detailOrder.order_items ?? []).map((it, i) => (
-                  <div key={i} className="flex justify-between text-sm">
+                  <div key={i} className="text-sm">
                     <span className="text-gray-700 dark:text-gray-300">
                       {it.nama_produk}
                       {it.ukuran && <span className="text-gray-400"> ({it.ukuran})</span>}{" "}
                       <span className="text-gray-400">× {it.jumlah}</span>
-                    </span>
-                    <span className="font-medium text-gray-900 dark:text-gray-100">
-                      {formatRupiah(it.jumlah * it.harga)}
                     </span>
                   </div>
                 ))}
@@ -945,6 +1115,32 @@ export default function PesananTable() {
                   </button>
                 </div>
               )}
+
+              <div className="mt-4">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                  Riwayat Pembayaran
+                </p>
+                {paymentHistory.length === 0 ? (
+                  <p className="text-xs text-gray-400 dark:text-gray-500">Belum ada pembayaran tercatat.</p>
+                ) : (
+                  <div className="space-y-1.5 rounded-xl bg-gray-50 dark:bg-gray-900/50 p-3">
+                    {paymentHistory.map((pmt) => (
+                      <div key={pmt.id} className="flex justify-between text-sm">
+                        <span className="text-gray-500 dark:text-gray-400">
+                          {new Date(pmt.created_at).toLocaleDateString("id-ID", {
+                            day: "2-digit",
+                            month: "short",
+                            year: "numeric",
+                          })}
+                        </span>
+                        <span className="font-medium text-gray-900 dark:text-gray-100">
+                          {formatRupiah(Number(pmt.jumlah) || 0)}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
 
               {detailOrder.desain_url && (
                 <div className="mt-4">

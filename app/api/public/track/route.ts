@@ -26,7 +26,7 @@ export async function GET(request: Request) {
   const { data: order, error } = await supabase
     .from("orders")
     .select(
-      "id, no_pesanan, tanggal, status, total, alamat_pengiriman, desain_url, customers(nama), order_items(nama_produk, jumlah, harga)"
+      "id, no_pesanan, tanggal, status, total, alamat_pengiriman, desain_url, customers(nama), order_items(nama_produk, jumlah)"
     )
     .ilike("no_pesanan", noPesanan)
     .maybeSingle();
@@ -45,13 +45,23 @@ export async function GET(request: Request) {
     .eq("order_id", order.id)
     .order("waktu", { ascending: true });
 
+  // Endpoint ini publik -- siapa pun yang tahu/nebak no_pesanan bisa akses,
+  // dan kode acaknya bukan proteksi absolut (bisa saja screenshot/link-nya
+  // ke-forward ke orang yang salah). Jadi sengaja jangan kirim alamat
+  // lengkap; cukup kota/provinsi (segmen setelah koma pertama) supaya
+  // pelanggan tetap bisa mengonfirmasi pesanannya benar tanpa membocorkan
+  // alamat rumah persis ke siapa pun yang kebetulan pegang kodenya.
+  const alamatRingkas = order.alamat_pengiriman
+    ? order.alamat_pengiriman.split(",").slice(1).join(",").trim() || order.alamat_pengiriman
+    : null;
+
   return NextResponse.json({
     order: {
       no_pesanan: order.no_pesanan,
       tanggal: order.tanggal,
       status: order.status,
       total: order.total,
-      alamat_pengiriman: order.alamat_pengiriman,
+      alamat_pengiriman: alamatRingkas,
       desain_url: order.desain_url,
       pelanggan: (order.customers as any)?.nama ?? null,
       items: order.order_items ?? [],
