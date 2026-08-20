@@ -69,7 +69,13 @@ export default function StatusDropdown({
     const panelWidth = 208;
     const estPanelHeight = Math.min(options.length * 44 + 16, 320);
 
-    let left = rect.left;
+    // Panel disejajarkan ke TITIK TENGAH trigger-nya, bukan ke sisi kiri
+    // trigger -- sebelum ini "left = rect.left" bikin sisi kiri panel
+    // nempel pas di sisi kiri pill, sementara panel jauh lebih lebar
+    // (208px) daripada pill-nya sendiri (~120px), jadi keliatan nyorong
+    // ke kanan/tidak center. Sekarang titik tengah panel disamakan sama
+    // titik tengah pill, baru diclamp ke tepi layar kalau kepotong.
+    let left = rect.left + rect.width / 2 - panelWidth / 2;
     if (left + panelWidth > window.innerWidth - 8) {
       left = window.innerWidth - panelWidth - 8;
     }
