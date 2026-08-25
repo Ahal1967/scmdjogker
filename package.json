@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@dnd-kit/core": "^6.1.0",
     "@headlessui/react": "^2.2.10",
     "@supabase/ssr": "^0.5.1",
     "@supabase/supabase-js": "^2.45.4",

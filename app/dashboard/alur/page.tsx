@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import { createClient } from "@/lib/supabase/server";
 import Link from "next/link";
 import {
@@ -65,6 +66,43 @@ export default async function AlurPage() {
     konsumen: { value: konsumenCount ?? 0, hint: "pesanan selesai" },
   };
 
+  // Kartu satu tahap -- dipakai ulang baik di layout "berkelok" (desktop,
+  // lg ke atas) maupun layout tumpuk vertikal (mobile/tablet, di bawah lg).
+  // Index yang ditampilkan (01-09) selalu urutan global, bukan urutan
+  // posisi baris, supaya penomoran tetap konsisten di kedua layout.
+  function renderStageCard(stage: (typeof STAGES)[number], globalIdx: number) {
+    const Icon = stage.icon;
+    return (
+      <Link
+        href={stage.href}
+        className="card alur-stage-card relative block min-w-0 flex-1 cursor-pointer bg-blue-50/60 dark:bg-blue-900/10"
+        style={{ border: "none" }}
+      >
+        <span className="absolute top-3 right-3 text-[10px] font-display font-bold text-gray-300 dark:text-gray-600">
+          {String(globalIdx + 1).padStart(2, "0")}
+        </span>
+
+        <div className={`mb-2 flex h-8 w-8 items-center justify-center rounded-lg ${stage.iconBg} shadow-sm`}>
+          <Icon className="text-white" size={15} />
+        </div>
+
+        <p className="text-sm font-semibold text-black dark:text-white">{stage.label}</p>
+        <p className="text-[11px] text-gray-500 dark:text-gray-400 mb-2">{stage.desc}</p>
+
+        <div className="pt-2 border-t border-gray-100 dark:border-[#262626] flex items-end justify-between">
+          <p className="font-display text-lg font-bold" style={{ color: stage.accent }}>
+            {VALUES[stage.key].value}
+          </p>
+          <p className="text-[10px] text-gray-500 dark:text-gray-400 text-right">
+            {VALUES[stage.key].hint}
+          </p>
+        </div>
+      </Link>
+    );
+  }
+
+  const rows = [STAGES.slice(0, 3), STAGES.slice(3, 6), STAGES.slice(6, 9)];
+
   return (
     <div className="space-y-4 md:space-y-6">
       <PageHeaderCard
@@ -74,38 +112,64 @@ export default async function AlurPage() {
         subtitle="Ringkasan tiap tahap dari bahan baku sampai produk diterima pelanggan."
       />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        {STAGES.map((stage, idx) => {
-          const Icon = stage.icon;
+      {/* Desktop (lg ke atas): grid 3 kolom berkelok (snake) dengan panah
+          antar kartu. Baris tengah dibalik arahnya (flex-row-reverse) supaya
+          panah antar-baris bisa lurus ke bawah, tanpa perlu garis diagonal. */}
+      <div className="hidden lg:flex lg:flex-col">
+        {rows.map((row, rIdx) => {
+          const reversed = rIdx === 1;
           return (
-            <Link
-              key={stage.key}
-              href={stage.href}
-              className="card alur-stage-card relative block cursor-pointer bg-blue-50/60 dark:bg-blue-900/10"
-              style={{ border: "none" }}
-            >
-              <span className="absolute top-3 right-3 text-[10px] font-display font-bold text-gray-300 dark:text-gray-600">
-                {String(idx + 1).padStart(2, "0")}
-              </span>
-
-              <div className={`mb-2 flex h-8 w-8 items-center justify-center rounded-lg ${stage.iconBg} shadow-sm`}>
-                <Icon className="text-white" size={15} />
+            <div key={rIdx}>
+              <div className={`flex items-center gap-3 ${reversed ? "flex-row-reverse" : ""}`}>
+                {row.map((stage, i) => {
+                  const globalIdx = rIdx * 3 + i;
+                  return (
+                    <Fragment key={stage.key}>
+                      {renderStageCard(stage, globalIdx)}
+                      {i < row.length - 1 && (
+                        <span
+                          className="flex-shrink-0 text-lg font-bold text-gray-300 dark:text-gray-600"
+                          aria-hidden="true"
+                        >
+                          {reversed ? "←" : "→"}
+                        </span>
+                      )}
+                    </Fragment>
+                  );
+                })}
               </div>
-
-              <p className="text-sm font-semibold text-black dark:text-white">{stage.label}</p>
-              <p className="text-[11px] text-gray-500 dark:text-gray-400 mb-2">{stage.desc}</p>
-
-              <div className="pt-2 border-t border-gray-100 dark:border-[#262626] flex items-end justify-between">
-                <p className="font-display text-lg font-bold" style={{ color: stage.accent }}>
-                  {VALUES[stage.key].value}
-                </p>
-                <p className="text-[10px] text-gray-500 dark:text-gray-400 text-right">
-                  {VALUES[stage.key].hint}
-                </p>
-              </div>
-            </Link>
+              {rIdx < rows.length - 1 && (
+                <div
+                  className={`flex py-1 ${rIdx % 2 === 0 ? "justify-end pr-[15%]" : "justify-start pl-[15%]"}`}
+                >
+                  <span className="text-lg font-bold text-gray-300 dark:text-gray-600" aria-hidden="true">
+                    ↓
+                  </span>
+                </div>
+              )}
+            </div>
           );
         })}
+      </div>
+
+      {/* Mobile/tablet (di bawah lg): tumpuk vertikal 1 kolom dengan panah
+          ke bawah antar kartu. Sengaja tidak dipaksakan jadi grid 2 kolom
+          berkelok -- pola kiri-kanan-kiri cuma masuk akal kalau jumlah
+          kolom per baris genap/konsisten, dan 1 kolom lurus ke bawah lebih
+          gampang dibaca di layar sempit daripada zigzag 2 kolom. */}
+      <div className="flex flex-col lg:hidden">
+        {STAGES.map((stage, idx) => (
+          <div key={stage.key}>
+            {renderStageCard(stage, idx)}
+            {idx < STAGES.length - 1 && (
+              <div className="flex justify-center py-1">
+                <span className="text-lg font-bold text-gray-300 dark:text-gray-600" aria-hidden="true">
+                  ↓
+                </span>
+              </div>
+            )}
+          </div>
+        ))}
       </div>
     </div>
   );

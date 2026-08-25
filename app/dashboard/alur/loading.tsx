@@ -1,6 +1,8 @@
 /* Skeleton loading khusus halaman Alur Kerja -- halaman ini TIDAK punya
-   tabel, melainkan grid 6 kartu tahapan (lihat page.tsx baris 60-104),
-   jadi skeleton nya meniru bentuk kartu, bukan tabel. */
+   tabel, melainkan 9 kartu tahapan (grid berkelok di desktop, tumpuk
+   vertikal di mobile/tablet -- lihat page.tsx), jadi skeleton nya meniru
+   bentuk kartu dalam grid 3 kolom sederhana tanpa panah, cukup untuk
+   mendekati ukuran layout final tanpa perlu meniru pola zigzag-nya. */
 export default function AlurLoading() {
   return (
     <div className="space-y-4 md:space-y-6 animate-pulse" aria-hidden="true">
@@ -11,7 +13,7 @@ export default function AlurLoading() {
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 6 }).map((_, i) => (
+        {Array.from({ length: 9 }).map((_, i) => (
           <div key={i} className="card space-y-3 p-5">
             <div className="h-10 w-10 rounded-xl bg-gray-200 dark:bg-[#171717]" />
             <div className="h-4 w-28 rounded bg-gray-200 dark:bg-[#171717]" />

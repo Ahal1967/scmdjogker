@@ -3,12 +3,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Search, Factory, Activity, CheckCircle2, ChevronLeft, ChevronRight, Trash2, ClipboardList, User, Gauge, MoreHorizontal } from "lucide-react";
+import { Search, Factory, Activity, CheckCircle2, ChevronLeft, ChevronRight, Trash2, ClipboardList, User, Gauge, MoreHorizontal, ShieldCheck, Package, List, LayoutGrid } from "lucide-react";
 import { useConfirm } from "@/components/useConfirm";
 import { useToast } from "@/components/useToast";
 import SortableTh from "@/components/SortableTh";
 import TableIconCell from "@/components/TableIconCell";
 import StatusDropdown from "@/components/StatusDropdown";
+import ProduksiKanban from "@/components/ProduksiKanban";
 import { compareValues } from "@/lib/sortUtils";
 
 export type ProductionRow = {
@@ -34,6 +35,30 @@ const STATUS_COLORS: Record<string, string> = {
   Selesai: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300",
 };
 
+// Warna SOLID (bukan pastel) khusus bar progress di kartu Papan --
+// STATUS_COLORS di atas dipakai buat badge/header (pastel, biar teksnya
+// kebaca), bar progress butuh warna pekat sendiri supaya kontras di atas
+// track abu-abu. Hue-nya sengaja disamakan per status biar bahasa warna
+// tetap konsisten antara Tabel dan Papan.
+const KANBAN_BAR_COLORS: Record<string, string> = {
+  Produksi: "bg-blue-600",
+  QC: "bg-purple-600",
+  Packing: "bg-orange-600",
+  Selesai: "bg-green-600",
+};
+
+// Kolom Papan drag-and-drop -- urutan & isinya SENGAJA disamakan persis
+// dengan STATUS_OPTIONS (4 tahap produksi, tanpa "Pesanan"/"Dikirim"
+// karena itu di luar cakupan modul Produksi). Ikon per kolom dipilih
+// supaya gampang dibedakan sekilas: Factory (produksi jalan), ShieldCheck
+// (pemeriksaan QC), Package (proses packing), CheckCircle2 (selesai).
+const KANBAN_COLUMNS = [
+  { key: "Produksi", label: "Produksi", icon: Factory },
+  { key: "QC", label: "QC", icon: ShieldCheck },
+  { key: "Packing", label: "Packing", icon: Package },
+  { key: "Selesai", label: "Selesai", icon: CheckCircle2 },
+];
+
 
 export default function ProduksiTable({
   initialProductions,
@@ -48,6 +73,11 @@ export default function ProduksiTable({
   }, []);
   const [productions, setProductions] = useState<ProductionRow[]>(initialProductions);
   const [search, setSearch] = useState("");
+  // Tabel (default, ada search/sort/pagination) atau Papan (drag-and-drop
+  // antar tahap, Halaman 07). Keduanya baca dari state `productions` yang
+  // sama dan manggil `updateStatus` yang sama -- cuma cara nampilkan dan
+  // cara ubah status yang beda (klik dropdown vs geser kartu).
+  const [viewMode, setViewMode] = useState<"table" | "papan">("table");
   const [currentPage, setCurrentPage] = useState(1);
   const [progressDraft, setProgressDraft] = useState<Record<string, string>>({});
   const { confirm, ConfirmDialog } = useConfirm();
@@ -188,19 +218,64 @@ export default function ProduksiTable({
 
   return (
     <div className="space-y-4">
-      <div className="relative">
-        <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-        <input
-          placeholder="Cari no. produksi / no. pesanan..."
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setCurrentPage(1);
-          }}
-          className="input-field rounded-full pl-10 max-w-md"
-        />
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative flex-1">
+          <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            placeholder="Cari no. produksi / no. pesanan..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="input-field rounded-full pl-10 max-w-md"
+          />
+        </div>
+        {/* Toggle Tabel/Papan -- tampilan tambahan, bukan pengganti tabel
+            (keputusan user), jadi defaultnya tetap "table" saat halaman
+            dibuka supaya perilaku lama tidak berubah buat yang belum
+            sadar ada opsi baru. */}
+        <div className="inline-flex items-center gap-1 self-start rounded-full border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#0a0a0a] p-1">
+          <button
+            type="button"
+            onClick={() => setViewMode("table")}
+            aria-pressed={viewMode === "table"}
+            className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+              viewMode === "table"
+                ? "bg-blue-600 text-white"
+                : "text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#171717]"
+            }`}
+          >
+            <List size={14} />
+            Tabel
+          </button>
+          <button
+            type="button"
+            onClick={() => setViewMode("papan")}
+            aria-pressed={viewMode === "papan"}
+            className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+              viewMode === "papan"
+                ? "bg-blue-600 text-white"
+                : "text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#171717]"
+            }`}
+          >
+            <LayoutGrid size={14} />
+            Papan
+          </button>
+        </div>
       </div>
 
+      {viewMode === "papan" && (
+        <ProduksiKanban
+          productions={filtered}
+          columns={KANBAN_COLUMNS}
+          colorClasses={STATUS_COLORS}
+          barClasses={KANBAN_BAR_COLORS}
+          onStatusChange={updateStatus}
+        />
+      )}
+
+      {viewMode === "table" && (
       <div className="card overflow-hidden p-0" style={{ border: "none" }}>
         <div className="overflow-x-auto">
           <table className="table-djoker w-full">
@@ -331,6 +406,7 @@ export default function ProduksiTable({
           </div>
         )}
       </div>
+      )}
 
       <div className="card p-0 overflow-hidden" style={{ border: "none" }}>
         <div className="grid grid-cols-1 divide-y divide-gray-100 dark:divide-gray-700 sm:grid-cols-3 sm:divide-y-0 sm:divide-x">
