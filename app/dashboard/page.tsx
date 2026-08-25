@@ -15,6 +15,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import PageHeaderCard from "@/components/PageHeaderCard";
+import FetchErrorBanner from "@/components/FetchErrorBanner";
 import {
   AreaChart,
   Area,
@@ -67,6 +68,10 @@ export default function DashboardPage() {
     changePct: null,
   });
   const [loading, setLoading] = useState(true);
+  // Sebelumnya tidak ada satu pun dari 12 query paralel di bawah yang dicek
+  // errornya -- kalau salah satu gagal, dashboard cuma nampilin 0/kosong
+  // tanpa indikasi bahwa itu KEGAGALAN, bukan memang datanya kosong.
+  const [fetchError, setFetchError] = useState<string | null>(null);
 
   /* Cuma 2 angka yang tidak ditampilkan di tempat lain manapun di Dashboard
      (Total Pesanan/Produksi/Pelanggan/Pendapatan semuanya sudah kelihatan di
@@ -101,17 +106,17 @@ export default function DashboardPage() {
       {
         data: { user },
       },
-      { count: ordersCount },
-      { count: productionCount },
-      { count: customersCount },
-      { count: suppliersCount },
-      { data: ordersData },
-      { count: pesananBulanIni },
-      { count: produksiSelesai },
-      { data: allOrders },
-      { data: recentOrders },
-      { data: prevPeriodOrders },
-      { data: criticalMaterialsData },
+      { count: ordersCount, error: ordersCountError },
+      { count: productionCount, error: productionCountError },
+      { count: customersCount, error: customersCountError },
+      { count: suppliersCount, error: suppliersCountError },
+      { data: ordersData, error: ordersDataError },
+      { count: pesananBulanIni, error: pesananBulanIniError },
+      { count: produksiSelesai, error: produksiSelesaiError },
+      { data: allOrders, error: allOrdersError },
+      { data: recentOrders, error: recentOrdersError },
+      { data: prevPeriodOrders, error: prevPeriodOrdersError },
+      { data: criticalMaterialsData, error: criticalMaterialsError },
     ] = await Promise.all([
       supabase.auth.getUser(),
       supabase.from("orders").select("*", { count: "exact", head: true }),
@@ -130,6 +135,28 @@ export default function DashboardPage() {
         .eq("status", "Kritis")
         .order("stok", { ascending: true }),
     ]);
+
+    const queryErrors = [
+      ordersCountError,
+      productionCountError,
+      customersCountError,
+      suppliersCountError,
+      ordersDataError,
+      pesananBulanIniError,
+      produksiSelesaiError,
+      allOrdersError,
+      recentOrdersError,
+      prevPeriodOrdersError,
+      criticalMaterialsError,
+    ].filter(Boolean);
+    if (queryErrors.length > 0) {
+      queryErrors.forEach((e) => console.error("Dashboard fetch error:", e?.message));
+      setFetchError(
+        "sebagian statistik mungkin tidak akurat (" + queryErrors.length + " query gagal dimuat)"
+      );
+    } else {
+      setFetchError(null);
+    }
 
     setCriticalMaterials(criticalMaterialsData ?? []);
 
@@ -246,6 +273,8 @@ export default function DashboardPage() {
         title="Dashboard"
         subtitle="Ringkasan aktivitas SCM Djogker."
       />
+
+      <FetchErrorBanner message={fetchError} />
 
       {criticalMaterials.length > 0 && (
         <Link

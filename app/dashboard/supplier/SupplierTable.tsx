@@ -129,6 +129,12 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
     const { error } = await supabase.from("suppliers").delete().eq("id", id);
     if (!error) {
       setSuppliers((prev) => prev.filter((s) => s.id !== id));
+    } else {
+      // Sebelumnya tidak ada cabang ini -- kalau delete gagal (misal
+      // ke-block foreign key dari data Gudang), baris tetap ada di tabel
+      // tanpa penjelasan apa pun ke user.
+      console.error("Gagal menghapus supplier:", error.message);
+      showToast("Gagal menghapus supplier: " + error.message);
     }
   }
 

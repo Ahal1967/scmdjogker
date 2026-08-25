@@ -145,16 +145,32 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
 
     setShipments((prev) => prev.map((s) => (s.id === activeShipment.id ? data : s)));
 
-    await supabase.from("orders").update({ status: "Dikirim" }).eq("id", activeShipment.order_id);
-    await supabase.from("order_tracking").insert({
+    const warnings: string[] = [];
+    const { error: orderError } = await supabase
+      .from("orders")
+      .update({ status: "Dikirim" })
+      .eq("id", activeShipment.order_id);
+    if (orderError) {
+      console.error("Gagal update status pesanan ke Dikirim:", orderError.message);
+      warnings.push("status pesanan induk gagal disinkronkan");
+    }
+    const { error: trackingError } = await supabase.from("order_tracking").insert({
       order_id: activeShipment.order_id,
       tahap: "Dikirim",
       selesai: true,
     });
+    if (trackingError) {
+      console.error("Gagal mencatat riwayat 'Dikirim':", trackingError.message);
+      warnings.push("riwayat pesanan gagal dicatat");
+    }
 
     setShowModal(false);
     setSaving(false);
-    showToast("Data pengiriman tersimpan, status berubah jadi Dikirim.", "success");
+    if (warnings.length > 0) {
+      showToast("Data pengiriman tersimpan, tapi ada langkah lanjutan yang gagal: " + warnings.join(", ") + ".");
+    } else {
+      showToast("Data pengiriman tersimpan, status berubah jadi Dikirim.", "success");
+    }
   }
 
   async function markTerkirim(s: Shipment) {
@@ -172,19 +188,36 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
 
     setShipments((prev) => prev.map((item) => (item.id === s.id ? data : item)));
 
-    await supabase.from("orders").update({ status: "Selesai" }).eq("id", s.order_id);
-    await supabase.from("order_tracking").insert({
+    const warnings: string[] = [];
+    const { error: orderError } = await supabase.from("orders").update({ status: "Selesai" }).eq("id", s.order_id);
+    if (orderError) {
+      console.error("Gagal update status pesanan ke Selesai:", orderError.message);
+      warnings.push("status pesanan induk gagal disinkronkan");
+    }
+    const { error: trackingError } = await supabase.from("order_tracking").insert({
       order_id: s.order_id,
       tahap: "Terkirim",
       selesai: true,
     });
+    if (trackingError) {
+      console.error("Gagal mencatat riwayat 'Terkirim':", trackingError.message);
+      warnings.push("riwayat pesanan gagal dicatat");
+    }
 
-    await supabase
+    const { error: prodError } = await supabase
       .from("production")
       .update({ status: "Selesai", progress: 100 })
       .eq("order_id", s.order_id);
+    if (prodError) {
+      console.error("Gagal update status produksi ke Selesai:", prodError.message);
+      warnings.push("status produksi gagal disinkronkan");
+    }
 
-    showToast("Pesanan selesai! Otomatis lanjut ke halaman Laporan.", "success");
+    if (warnings.length > 0) {
+      showToast("Pesanan selesai, tapi ada langkah lanjutan yang gagal: " + warnings.join(", ") + ".");
+    } else {
+      showToast("Pesanan selesai! Otomatis lanjut ke halaman Laporan.", "success");
+    }
     setTimeout(() => {
       router.push("/dashboard/laporan");
       router.refresh();

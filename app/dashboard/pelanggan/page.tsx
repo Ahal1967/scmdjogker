@@ -3,14 +3,22 @@ import PelangganTable from "./PelangganTable";
 import ExportButtonsPelanggan from "./ExportButtonsPelanggan";
 import { Users2, ShoppingBag, Wallet } from "lucide-react";
 import PageHeaderCard from "@/components/PageHeaderCard";
+import FetchErrorBanner from "@/components/FetchErrorBanner";
 
 export default async function PelangganPage() {
   const supabase = createClient();
 
-  const [{ data: customers }, { data: orders }] = await Promise.all([
+  const [
+    { data: customers, error: customersError },
+    { data: orders, error: ordersError },
+  ] = await Promise.all([
     supabase.from("customers").select("*").order("created_at", { ascending: false }),
     supabase.from("orders").select("customer_id, total, sisa_pembayaran"),
   ]);
+
+  if (customersError) console.error("Pelanggan customers fetch error:", customersError.message);
+  if (ordersError) console.error("Pelanggan orders fetch error:", ordersError.message);
+  const fetchErrorMsg = [customersError?.message, ordersError?.message].filter(Boolean).join("; ") || null;
 
   const customerList = customers || [];
   const orderList = orders || [];
@@ -40,6 +48,8 @@ export default async function PelangganPage() {
         />
         <ExportButtonsPelanggan dataPelanggan={dataPelanggan} />
       </div>
+
+      <FetchErrorBanner message={fetchErrorMsg} />
 
       <div className="card p-0 overflow-hidden" style={{ border: "none" }}>
         <div className="grid grid-cols-1 divide-y divide-gray-100 dark:divide-gray-700 sm:grid-cols-3 sm:divide-y-0 sm:divide-x">

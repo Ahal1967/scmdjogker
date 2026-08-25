@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { Settings } from "lucide-react";
 import PengaturanTable from "./PengaturanTable";
 import PageHeaderCard from "@/components/PageHeaderCard";
+import FetchErrorBanner from "@/components/FetchErrorBanner";
 
 export default async function PengaturanPage() {
   const supabase = createClient();
@@ -10,12 +11,19 @@ export default async function PengaturanPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  const [{ data: profiles }, { data: myProfile }] = await Promise.all([
+  const [
+    { data: profiles, error: profilesError },
+    { data: myProfile, error: myProfileError },
+  ] = await Promise.all([
     supabase.from("profiles").select("*").order("created_at", { ascending: false }),
     user
       ? supabase.from("profiles").select("*").eq("id", user.id).single()
-      : Promise.resolve({ data: null }),
+      : Promise.resolve({ data: null, error: null }),
   ]);
+
+  if (profilesError) console.error("Pengaturan profiles fetch error:", profilesError.message);
+  if (myProfileError) console.error("Pengaturan myProfile fetch error:", myProfileError.message);
+  const fetchErrorMsg = [profilesError?.message, myProfileError?.message].filter(Boolean).join("; ") || null;
 
   const ROLE_COLORS: Record<string, string> = {
     admin: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
@@ -37,6 +45,8 @@ export default async function PengaturanPage() {
         title="Pengaturan"
         subtitle="Manajemen profil pengguna dan role akses."
       />
+
+      <FetchErrorBanner message={fetchErrorMsg} />
 
       <div
         className="relative overflow-hidden rounded-2xl p-6 bg-white/55 dark:bg-[#0a0a0a]/55 backdrop-blur-xl"

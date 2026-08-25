@@ -3,6 +3,7 @@ import ExportButtons from "./ExportButtons";
 import LaporanTable from "./LaporanTable";
 import { ShoppingBag, Wallet, HandCoins, AlertCircle, FileText } from "lucide-react";
 import PageHeaderCard from "@/components/PageHeaderCard";
+import FetchErrorBanner from "@/components/FetchErrorBanner";
 
 type Order = {
   id: string;
@@ -23,10 +24,12 @@ function formatRupiah(n: number) {
 export default async function LaporanPage() {
   const supabase = createClient();
 
-  const { data: orders } = await supabase
+  const { data: orders, error: ordersError } = await supabase
     .from("orders")
     .select("*")
     .order("created_at", { ascending: false });
+
+  if (ordersError) console.error("Laporan orders fetch error:", ordersError.message);
 
   const dataOrders = (orders || []) as Order[];
 
@@ -89,6 +92,8 @@ export default async function LaporanPage() {
           </div>
         </div>
       </div>
+
+      <FetchErrorBanner message={ordersError?.message} />
 
       <LaporanTable dataOrders={dataOrders} />
     </div>

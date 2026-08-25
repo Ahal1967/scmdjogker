@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import { Search, FileText, ChevronLeft, ChevronRight, Pencil, Trash2, ClipboardList, Calendar, Wallet, CreditCard, Receipt, CheckCircle2, MapPin, MoreHorizontal } from "lucide-react";
+import { Search, FileText, ChevronLeft, ChevronRight, ClipboardList, Calendar, Wallet, CreditCard, Receipt, CheckCircle2, MapPin } from "lucide-react";
 import SortableTh from "@/components/SortableTh";
 import TableIconCell from "@/components/TableIconCell";
 import { compareValues } from "@/lib/sortUtils";
@@ -114,7 +113,6 @@ export default function LaporanTable({ dataOrders }: { dataOrders: Order[] }) {
                 <SortableTh label="Sisa" icon={Receipt} active={sortField === "sisa"} direction={sortDir} onClick={() => toggleSort("sisa")} center />
                 <SortableTh label="Status" icon={CheckCircle2} active={sortField === "status"} direction={sortDir} onClick={() => toggleSort("status")} center />
                 <SortableTh label="Alamat" icon={MapPin} active={sortField === "alamat"} direction={sortDir} onClick={() => toggleSort("alamat")} center />
-                <SortableTh label="Aksi" icon={MoreHorizontal} sortable={false} center />
               </tr>
             </thead>
             <tbody>
@@ -145,30 +143,12 @@ export default function LaporanTable({ dataOrders }: { dataOrders: Order[] }) {
                   <td className="max-w-[10rem] truncate text-sm text-gray-700 dark:text-gray-300 md:max-w-xs text-center">
                     {order.alamat_pengiriman || "-"}
                   </td>
-                  <td className="td-center">
-                    <div className="flex justify-center gap-1.5">
-                      <Link
-                        href={`/dashboard/laporan/edit/${order.id}`}
-                        title="Edit"
-                        className="flex h-8 w-8 items-center justify-center rounded-lg text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/40 transition-colors"
-                      >
-                        <Pencil size={15} />
-                      </Link>
-                      <Link
-                        href={`/dashboard/laporan/hapus/${order.id}`}
-                        title="Hapus"
-                        className="flex h-8 w-8 items-center justify-center rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/40 transition-colors"
-                      >
-                        <Trash2 size={15} />
-                      </Link>
-                    </div>
-                  </td>
                 </tr>
               ))}
 
               {filtered.length === 0 && (
                 <tr>
-                  <td colSpan={9}>
+                  <td colSpan={8}>
                     <div className="flex min-h-[140px] items-center justify-center py-8 text-gray-500 dark:text-gray-400">
                       Belum ada pesanan.
                     </div>

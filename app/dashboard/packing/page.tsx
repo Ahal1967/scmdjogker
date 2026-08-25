@@ -2,14 +2,17 @@ import { createClient } from "@/lib/supabase/server";
 import { PackageCheck } from "lucide-react";
 import PackingTable from "./PackingTable";
 import PageHeaderCard from "@/components/PageHeaderCard";
+import FetchErrorBanner from "@/components/FetchErrorBanner";
 
 export default async function PackingPage() {
   const supabase = createClient();
 
-  const { data: packingRaw } = await supabase
+  const { data: packingRaw, error: packingError } = await supabase
     .from("packing")
     .select("*, orders(no_pesanan, customers(nama))")
     .order("created_at", { ascending: false });
+
+  if (packingError) console.error("Packing fetch error:", packingError.message);
 
   const packingList = (packingRaw ?? []).map((p: any) => {
     const orderRaw = Array.isArray(p.orders) ? p.orders[0] ?? null : p.orders;
@@ -34,6 +37,8 @@ export default async function PackingPage() {
         title="Packing"
         subtitle="Packing – siapkan pesanan untuk dikirim ke pelanggan."
       />
+
+      <FetchErrorBanner message={packingError?.message} />
 
       <PackingTable initialPacking={packingList ?? []} />
     </div>

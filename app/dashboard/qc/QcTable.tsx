@@ -178,11 +178,21 @@ export default function QcTable({
 
     setRecords((prev) => [qcData, ...prev]);
 
+    // Langkah-langkah susulan di bawah ini sekarang dicek errornya
+    // masing-masing -- hasil QC utama sudah tersimpan (di atas) apapun
+    // hasilnya, tapi kalau ada langkah susulan yang gagal, user diberi tahu
+    // lewat toast alih-alih dikira semuanya sinkron.
+    const warnings: string[] = [];
+
     if (hasil === "Lolos") {
-      await supabase
+      const { error: prodUpdateError } = await supabase
         .from("production")
         .update({ status: "Packing", progress: 90 })
         .eq("id", activeProduction.id);
+      if (prodUpdateError) {
+        console.error("Gagal update status produksi ke Packing:", prodUpdateError.message);
+        warnings.push("status produksi gagal disinkronkan");
+      }
 
       const { data: prodFull } = await supabase
         .from("production")
@@ -202,36 +212,64 @@ export default function QcTable({
 
       if (orderId) {
         const noPacking = await generateUniqueCode(supabase, "packing", "no_packing", "PK-");
-        await supabase.from("packing").insert({
+        const { error: packingInsertError } = await supabase.from("packing").insert({
           no_packing: noPacking,
           order_id: orderId,
           jumlah: totalQty,
           status: "Diproses",
         });
+        if (packingInsertError) {
+          console.error("Gagal membuat entri packing:", packingInsertError.message);
+          warnings.push("entri packing gagal dibuat");
+        }
 
-        await supabase.from("orders").update({ status: "Packing" }).eq("id", orderId);
-        await supabase.from("order_tracking").insert({
+        const { error: orderError } = await supabase.from("orders").update({ status: "Packing" }).eq("id", orderId);
+        if (orderError) {
+          console.error("Gagal update status pesanan ke Packing:", orderError.message);
+          warnings.push("status pesanan induk gagal disinkronkan");
+        }
+
+        const { error: trackingError } = await supabase.from("order_tracking").insert({
           order_id: orderId,
           tahap: "QC Lolos",
           selesai: true,
         });
+        if (trackingError) {
+          console.error("Gagal mencatat riwayat 'QC Lolos':", trackingError.message);
+          warnings.push("riwayat pesanan gagal dicatat");
+        }
+      } else {
+        warnings.push("order_id tidak ditemukan, entri packing dilewati");
       }
 
       setPending((prev) => prev.filter((p) => p.id !== activeProduction.id));
     } else {
-      await supabase
+      const { error: prodBackError } = await supabase
         .from("production")
         .update({ status: "Produksi", progress: 40 })
         .eq("id", activeProduction.id);
+      if (prodBackError) {
+        console.error("Gagal mengembalikan status produksi:", prodBackError.message);
+        warnings.push("status produksi gagal dikembalikan ke Produksi");
+      }
       setPending((prev) => prev.filter((p) => p.id !== activeProduction.id));
     }
 
     setShowModal(false);
     setSaving(false);
-    showToast(
-      hasil === "Lolos" ? "QC lolos, otomatis lanjut ke Packing." : "Hasil QC tersimpan, dikembalikan ke Produksi.",
-      "success"
-    );
+    if (warnings.length > 0) {
+      showToast(
+        (hasil === "Lolos" ? "QC lolos, " : "Hasil QC tersimpan, ") +
+          "tapi ada langkah lanjutan yang gagal: " +
+          warnings.join(", ") +
+          "."
+      );
+    } else {
+      showToast(
+        hasil === "Lolos" ? "QC lolos, otomatis lanjut ke Packing." : "Hasil QC tersimpan, dikembalikan ke Produksi.",
+        "success"
+      );
+    }
 
     if (hasil === "Lolos") {
       setTimeout(() => {

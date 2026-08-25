@@ -594,11 +594,14 @@ export default function PesananTable() {
       showToast("Pesanan tersimpan, tapi item produk gagal disimpan: " + itemsError.message);
     }
 
-    await supabase.from("order_tracking").insert({
+    const { error: trackingError } = await supabase.from("order_tracking").insert({
       order_id: orderData.id,
       tahap: "Pesanan Diterima",
       selesai: true,
     });
+    if (trackingError) {
+      console.error("Gagal mencatat riwayat 'Pesanan Diterima':", trackingError.message);
+    }
 
     const noProduksi = await generateUniqueCode(supabase, "production", "no_produksi", "PRO-");
     const { data: prodData, error: prodError } = await supabase
@@ -643,18 +646,28 @@ export default function PesananTable() {
           }
         }
 
-        const hasilPotongStok = await Promise.all(
-          Array.from(pemakaian.entries()).map(([rawMaterialId, qty]) =>
-            supabase.rpc("decrement_stok", { p_raw_material_id: rawMaterialId, p_qty: qty })
-          )
-        );
-        const gagalPotongStok = hasilPotongStok.some((r) => r.error);
-        if (gagalPotongStok) {
-          const pesanError = hasilPotongStok.find((r) => r.error)?.error?.message;
-          console.error("Gagal memotong stok bahan baku:", pesanError);
+        // Dipotong lewat SATU panggilan RPC (decrement_stok_batch), bukan
+        // Promise.all satu-per-bahan seperti sebelumnya -- supaya kalau ada
+        // satu bahan saja yang stoknya tidak cukup, SEMUA potongan di
+        // pesanan ini gagal bersama (rollback otomatis di sisi database),
+        // bukan sebagian bahan terpotong sebagian tidak. Fungsi ini juga
+        // sudah tidak lagi meng-clamp diam-diam ke 0 kalau stok kurang --
+        // lihat supabase/migration_fix_stok_race.sql.
+        const { error: potongStokError } = await supabase.rpc("decrement_stok_batch", {
+          items: Array.from(pemakaian.entries()).map(([rawMaterialId, qty]) => ({
+            raw_material_id: rawMaterialId,
+            qty,
+          })),
+        });
+
+        if (potongStokError) {
+          // Karena batch ini all-or-nothing, di titik ini stok belum
+          // berubah SAMA SEKALI -- aman untuk cuma memberi tahu, tidak
+          // perlu langkah reversal apa pun.
+          console.error("Gagal memotong stok bahan baku:", potongStokError.message);
           showToast(
-            "Pesanan tersimpan, tapi stok bahan baku gagal dipotong otomatis: " +
-              (pesanError ?? "cek koneksi/migrasi database.")
+            "Pesanan tersimpan, tapi stok bahan baku TIDAK dipotong (kemungkinan stok kurang): " +
+              potongStokError.message
           );
         } else {
           // Catat PERSIS berapa yang barusan dipotong per bahan, supaya
@@ -670,10 +683,25 @@ export default function PesananTable() {
             }))
           );
           if (ledgerError) {
+            // Stok SUDAH terpotong di titik ini, tapi catatan buat
+            // reversal-nya gagal disimpan -- ini yang bikin pengembalian
+            // stok saat pesanan dihapus jadi tidak akurat, jadi tetap
+            // diberi tahu (bukan cuma console.error seperti sebelumnya).
             console.error("Gagal mencatat ledger pemakaian bahan:", ledgerError.message);
+            showToast(
+              "Pesanan tersimpan dan stok sudah terpotong, tapi catatan riwayat pemakaian bahan gagal disimpan: " +
+                ledgerError.message +
+                ". Kalau pesanan ini dihapus nanti, pastikan cek stok manual karena pengembaliannya mungkin tidak akurat."
+            );
           }
           if (prodData?.id) {
-            await supabase.from("production").update({ stok_dipotong: true }).eq("id", prodData.id);
+            const { error: prodFlagError } = await supabase
+              .from("production")
+              .update({ stok_dipotong: true })
+              .eq("id", prodData.id);
+            if (prodFlagError) {
+              console.error("Gagal menandai stok_dipotong:", prodFlagError.message);
+            }
           }
         }
       }

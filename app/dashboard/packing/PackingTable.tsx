@@ -102,6 +102,12 @@ export default function PackingTable({ initialPacking }: { initialPacking: Packi
     }
     setPackingList((prev) => prev.map((item) => (item.id === p.id ? data : item)));
 
+    // Langkah susulan ini sekarang dicek errornya masing-masing -- status
+    // packing utama di atas SUDAH tersimpan apapun hasilnya, tapi kalau ada
+    // yang gagal di sini, user diberi tahu lewat toast alih-alih dikira
+    // semuanya sinkron padahal ada yang tertinggal.
+    const warnings: string[] = [];
+
     const { data: existing } = await supabase
       .from("shipments")
       .select("id")
@@ -109,20 +115,40 @@ export default function PackingTable({ initialPacking }: { initialPacking: Packi
       .maybeSingle();
 
     if (!existing) {
-      await supabase.from("shipments").insert({
+      const { error: shipmentError } = await supabase.from("shipments").insert({
         order_id: p.order_id,
         status: "Diproses",
       });
+      if (shipmentError) {
+        console.error("Gagal membuat entri pengiriman:", shipmentError.message);
+        warnings.push("entri pengiriman gagal dibuat");
+      }
     }
 
-    await supabase.from("orders").update({ status: "Dikirim" }).eq("id", p.order_id);
-    await supabase.from("order_tracking").insert({
+    const { error: orderError } = await supabase
+      .from("orders")
+      .update({ status: "Dikirim" })
+      .eq("id", p.order_id);
+    if (orderError) {
+      console.error("Gagal update status pesanan ke Dikirim:", orderError.message);
+      warnings.push("status pesanan induk gagal disinkronkan");
+    }
+
+    const { error: trackingError } = await supabase.from("order_tracking").insert({
       order_id: p.order_id,
       tahap: "Siap Kirim",
       selesai: true,
     });
+    if (trackingError) {
+      console.error("Gagal mencatat riwayat 'Siap Kirim':", trackingError.message);
+      warnings.push("riwayat pesanan gagal dicatat");
+    }
 
-    showToast("Packing siap kirim, otomatis lanjut ke Pengiriman.", "success");
+    if (warnings.length > 0) {
+      showToast("Packing siap kirim, tapi ada langkah lanjutan yang gagal: " + warnings.join(", ") + ".");
+    } else {
+      showToast("Packing siap kirim, otomatis lanjut ke Pengiriman.", "success");
+    }
     setTimeout(() => {
       router.push("/dashboard/pengiriman");
       router.refresh();

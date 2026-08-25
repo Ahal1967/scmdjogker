@@ -2,14 +2,17 @@ import { createClient } from "@/lib/supabase/server";
 import { Factory } from "lucide-react";
 import ProduksiTable, { type ProductionRow } from "./ProduksiTable";
 import PageHeaderCard from "@/components/PageHeaderCard";
+import FetchErrorBanner from "@/components/FetchErrorBanner";
 
 export default async function ProduksiPage() {
   const supabase = createClient();
 
-  const { data: produksiRaw } = await supabase
+  const { data: produksiRaw, error: produksiError } = await supabase
     .from("production")
     .select("*, orders(no_pesanan, customers(nama))")
     .order("created_at", { ascending: false });
+
+  if (produksiError) console.error("Produksi fetch error:", produksiError.message);
 
   // Flatten relasi nested (Supabase mengetik-kan foreign join sebagai array
   // walau sebenarnya cuma 1 row per foreign key).
@@ -42,6 +45,8 @@ export default async function ProduksiPage() {
         title="Produksi"
         subtitle="Kelola dan pantau proses produksi pesanan."
       />
+
+      <FetchErrorBanner message={produksiError?.message} />
 
       <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
         <div className="card p-3">

@@ -156,24 +156,50 @@ export default function ProduksiTable({
         prev.map((prod) => (prod.id === p.id ? (data as ProductionRow) : prod))
       );
 
+      // Kedua langkah susulan ini sekarang dicek errornya -- status produksi
+      // utama di atas SUDAH tersimpan apapun hasilnya, tapi kalau ada yang
+      // gagal di sini, user diberi tahu lewat toast alih-alih dikira
+      // semuanya sinkron. Dikumpulkan dulu ke `warnings` (bukan langsung
+      // showToast di sini) supaya tidak ketimpa toast sukses "lanjut ke QC"
+      // di bawah -- showToast cuma bisa nampilkan satu toast dalam satu
+      // waktu, jadi keputusan toast-nya digabung jadi satu di akhir.
+      const warnings: string[] = [];
+
       if (p.order_id) {
         const orderStatus = status;
 
-        await supabase.from("orders").update({ status: orderStatus }).eq("id", p.order_id);
+        const { error: orderError } = await supabase
+          .from("orders")
+          .update({ status: orderStatus })
+          .eq("id", p.order_id);
+        if (orderError) {
+          console.error("Gagal update status pesanan induk:", orderError.message);
+          warnings.push("status pesanan induk gagal disinkronkan");
+        }
 
-        await supabase.from("order_tracking").insert({
+        const { error: trackingError } = await supabase.from("order_tracking").insert({
           order_id: p.order_id,
           tahap: status === "Selesai" ? "Produksi Selesai" : status,
           selesai: true,
         });
+        if (trackingError) {
+          console.error("Gagal mencatat riwayat produksi:", trackingError.message);
+          warnings.push("riwayat gagal dicatat");
+        }
       }
 
       if (status === "QC") {
-        showToast("Status diubah ke QC, otomatis lanjut ke halaman QC.", "success");
+        if (warnings.length > 0) {
+          showToast("Status diubah ke QC, tapi ada langkah lanjutan yang gagal: " + warnings.join(", ") + ".");
+        } else {
+          showToast("Status diubah ke QC, otomatis lanjut ke halaman QC.", "success");
+        }
         setTimeout(() => {
           router.push("/dashboard/qc");
           router.refresh();
         }, 900);
+      } else if (warnings.length > 0) {
+        showToast("Status produksi tersimpan, tapi ada langkah lanjutan yang gagal: " + warnings.join(", ") + ".");
       }
     } else if (error) {
       showToast("Gagal mengubah status: " + error.message);
@@ -194,6 +220,11 @@ export default function ProduksiTable({
       setProductions((prev) =>
         prev.map((prod) => (prod.id === p.id ? (data as ProductionRow) : prod))
       );
+    } else if (error) {
+      // Sebelumnya tidak ada cabang ini sama sekali -- kalau update gagal,
+      // UI diam tanpa penjelasan apa pun ke user.
+      console.error("Gagal update progress produksi:", error.message);
+      showToast("Gagal update progress: " + error.message);
     }
   }
 
