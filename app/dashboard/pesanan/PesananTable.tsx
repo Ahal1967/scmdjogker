@@ -183,7 +183,7 @@ function ProductCombobox({
         </span>
       ) : null}
       {open && (
-        <div className="absolute z-20 mt-1 max-h-48 w-full overflow-y-auto rounded-lg border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#0a0a0a] shadow-lg">
+        <div className="absolute z-20 mt-1 max-h-48 w-full overflow-y-auto rounded-lg border border-gray-200 dark:border-[#30363d] bg-white dark:bg-[#161b22] shadow-lg">
           {filtered.length > 0 ? (
             filtered.map((p) => (
               <button
@@ -194,7 +194,7 @@ function ProductCombobox({
                   onSelectProduct(p);
                   setOpen(false);
                 }}
-                className="block w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#171717]"
+                className="block w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#21262d]"
               >
                 {p.nama_produk}
               </button>
@@ -210,7 +210,7 @@ function ProductCombobox({
                 onQuickAdd(value.trim());
                 setOpen(false);
               }}
-              className="flex w-full items-center gap-1.5 border-t border-gray-100 dark:border-[#262626] px-3 py-2 text-left text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+              className="flex w-full items-center gap-1.5 border-t border-gray-100 dark:border-[#30363d] px-3 py-2 text-left text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20"
             >
               <Plus size={13} /> Tambah &quot;{value.trim()}&quot; sebagai produk baru
             </button>
@@ -585,13 +585,24 @@ export default function PesananTable() {
       return;
     }
 
+    // Semua peringatan non-fatal (pesanan TETAP tersimpan) dikumpulkan di
+    // sini dan digabung jadi SATU toast di akhir fungsi -- sebelumnya
+    // masing-masing showToast dipanggil langsung di tempat kejadian, tapi
+    // toast "Pesanan berhasil ditambahkan." di baris paling akhir selalu
+    // jalan tanpa syarat sesudahnya dan LANGSUNG MENIMPA peringatan-
+    // peringatan ini (showToast cuma bisa nampilkan 1 toast dalam satu
+    // waktu) -- jadi peringatan seperti "resep gagal disimpan" praktis
+    // tidak pernah kelihatan oleh user sama sekali.
+    const warnings: string[] = [];
+
     const { data: itemsData, error: itemsError } = await supabase
       .from("order_items")
       .insert(validItems.map((it) => ({ ...it, order_id: orderData.id })))
       .select();
 
     if (itemsError) {
-      showToast("Pesanan tersimpan, tapi item produk gagal disimpan: " + itemsError.message);
+      console.error("Gagal menyimpan item produk:", itemsError.message);
+      warnings.push("item produk gagal disimpan: " + itemsError.message);
     }
 
     const { error: trackingError } = await supabase.from("order_tracking").insert({
@@ -616,12 +627,24 @@ export default function PesananTable() {
       .single();
 
     if (prodError) {
-      showToast("Pesanan tersimpan, tapi gagal membuat entri produksi otomatis: " + prodError.message);
+      console.error("Gagal membuat entri produksi otomatis:", prodError.message);
+      warnings.push("entri produksi gagal dibuat otomatis: " + prodError.message);
+    }
+
+    // Item yang nama produknya diketik manual / tidak diklik dari saran
+    // katalog (product_id kosong) SENGAJA dilewati dari pemotongan stok
+    // otomatis di bawah -- bukan error, tapi user perlu tahu, supaya tidak
+    // bingung kenapa stok gudang tidak berkurang untuk item itu (ini
+    // penyebab paling umum kenapa stok "tidak berkurang sedikit pun").
+    const itemManual = validItems.filter((it) => !it.product_id);
+    if (itemManual.length > 0) {
+      warnings.push(
+        `${itemManual.length} item (${itemManual.map((it) => it.nama_produk).join(", ")}) tidak terhubung ke produk katalog -- stok bahan baku TIDAK dipotong otomatis untuk item itu`
+      );
     }
 
     // Potong stok bahan baku otomatis sesuai resep (BOM) dari produk katalog
-    // yang dipesan. Item yang diketik manual (product_id kosong) dilewati --
-    // itu bukan error, memang tidak semua produk wajib ada di katalog.
+    // yang dipesan (item manual di atas sudah tidak ikut di sini).
     const productIdsDipesan = Array.from(
       new Set(validItems.map((it) => it.product_id).filter((id): id is string => !!id))
     );
@@ -634,6 +657,7 @@ export default function PesananTable() {
 
       if (bomError) {
         console.error("Gagal mengambil resep produk:", bomError.message);
+        warnings.push("gagal mengambil data resep produk: " + bomError.message);
       } else if (bomRows && bomRows.length > 0) {
         // Jumlahkan total pemakaian per bahan (1 bahan bisa dipakai lebih
         // dari 1 produk yang dipesan sekaligus).
@@ -665,10 +689,7 @@ export default function PesananTable() {
           // berubah SAMA SEKALI -- aman untuk cuma memberi tahu, tidak
           // perlu langkah reversal apa pun.
           console.error("Gagal memotong stok bahan baku:", potongStokError.message);
-          showToast(
-            "Pesanan tersimpan, tapi stok bahan baku TIDAK dipotong (kemungkinan stok kurang): " +
-              potongStokError.message
-          );
+          warnings.push("stok bahan baku TIDAK dipotong (kemungkinan stok kurang): " + potongStokError.message);
         } else {
           // Catat PERSIS berapa yang barusan dipotong per bahan, supaya
           // kalau pesanan ini dihapus nanti (lihat handleDelete), stoknya
@@ -688,10 +709,8 @@ export default function PesananTable() {
             // stok saat pesanan dihapus jadi tidak akurat, jadi tetap
             // diberi tahu (bukan cuma console.error seperti sebelumnya).
             console.error("Gagal mencatat ledger pemakaian bahan:", ledgerError.message);
-            showToast(
-              "Pesanan tersimpan dan stok sudah terpotong, tapi catatan riwayat pemakaian bahan gagal disimpan: " +
-                ledgerError.message +
-                ". Kalau pesanan ini dihapus nanti, pastikan cek stok manual karena pengembaliannya mungkin tidak akurat."
+            warnings.push(
+              "catatan riwayat pemakaian bahan gagal disimpan, stok sudah terpotong -- kalau pesanan ini dihapus nanti, cek stok manual"
             );
           }
           if (prodData?.id) {
@@ -704,6 +723,13 @@ export default function PesananTable() {
             }
           }
         }
+      } else {
+        // productIdsDipesan ada isinya, tapi query product_materials pulang
+        // kosong -- berarti produk katalog yang dipesan belum diatur resep
+        // bahannya sama sekali (beda kasus dari item manual di atas: ini
+        // produk yang SUDAH ada di katalog, tapi resepnya belum diisi lewat
+        // "Kelola Resep Bahan" di modul Produk).
+        warnings.push("produk yang dipesan belum punya resep bahan (BOM) tersimpan -- stok tidak dipotong otomatis");
       }
     }
 
@@ -713,7 +739,12 @@ export default function PesananTable() {
     ]);
     setShowModal(false);
     setSaving(false);
-    showToast("Pesanan berhasil ditambahkan.", "success");
+
+    if (warnings.length > 0) {
+      showToast("Pesanan tersimpan, tapi ada yang perlu dicek: " + warnings.join(" | "));
+    } else {
+      showToast("Pesanan berhasil ditambahkan.", "success");
+    }
   }
 
   async function handleCatatPembayaran(order: Order) {
@@ -901,7 +932,7 @@ export default function PesananTable() {
           type="button"
           onClick={handleExport}
           disabled={sorted.length === 0}
-          className="inline-flex items-center justify-center gap-1.5 rounded-full border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#0a0a0a] px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-[#171717] disabled:cursor-not-allowed disabled:opacity-50 transition-colors whitespace-nowrap"
+          className="inline-flex items-center justify-center gap-1.5 rounded-full border border-gray-200 dark:border-[#30363d] bg-white dark:bg-[#161b22] px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-[#21262d] disabled:cursor-not-allowed disabled:opacity-50 transition-colors whitespace-nowrap"
         >
           <Download size={15} />
           Export
@@ -932,7 +963,7 @@ export default function PesananTable() {
               {paginated.map((o, idx) => (
                 <tr key={o.id}>
                   <td>
-                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-[#171717]/50 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-[#21262d]/50 text-xs font-semibold text-gray-500 dark:text-gray-400">
                       {(currentPage - 1) * pageSize + idx + 1}
                     </span>
                   </td>
@@ -1022,7 +1053,7 @@ export default function PesananTable() {
         </div>
 
         {filtered.length > 0 && (
-          <div className="flex flex-col gap-3 border-t border-gray-100 dark:border-[#262626] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-3 border-t border-gray-100 dark:border-[#30363d] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-xs text-gray-500 dark:text-gray-400">
               Menampilkan {paginated.length} dari {filtered.length} pesanan
             </p>
@@ -1032,7 +1063,7 @@ export default function PesananTable() {
                 <button
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-[#262626] text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-[#171717]"
+                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-[#30363d] text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-[#21262d]"
                 >
                   <ChevronLeft size={14} />
                 </button>
@@ -1042,7 +1073,7 @@ export default function PesananTable() {
                 <button
                   onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-[#262626] text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-[#171717]"
+                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-[#30363d] text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-[#21262d]"
                 >
                   <ChevronRight size={14} />
                 </button>
@@ -1054,7 +1085,7 @@ export default function PesananTable() {
                   setPageSize(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="rounded-lg border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#0a0a0a] px-2 py-1 text-xs text-gray-600 dark:text-gray-300"
+                className="rounded-lg border border-gray-200 dark:border-[#30363d] bg-white dark:bg-[#161b22] px-2 py-1 text-xs text-gray-600 dark:text-gray-300"
               >
                 <option value={10}>10 / halaman</option>
                 <option value={25}>25 / halaman</option>
@@ -1177,7 +1208,7 @@ export default function PesananTable() {
                   {items.map((it, idx) => (
                     <div
                       key={idx}
-                      className="flex flex-col gap-2 rounded-lg border border-gray-100 dark:border-[#262626] p-2.5 sm:flex-row sm:items-start sm:border-0 sm:p-0"
+                      className="flex flex-col gap-2 rounded-lg border border-gray-100 dark:border-[#30363d] p-2.5 sm:flex-row sm:items-start sm:border-0 sm:p-0"
                     >
                       <div className="flex items-center gap-2">
                         <div className="flex-1 space-y-1.5">
@@ -1296,7 +1327,7 @@ export default function PesananTable() {
                 />
               </div>
 
-              <div className="border-t border-gray-200 dark:border-[#262626] pt-3">
+              <div className="border-t border-gray-200 dark:border-[#30363d] pt-3">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-gray-600 dark:text-gray-400">Total Pesanan</span>
                   <span className="font-display text-xl font-bold text-black dark:text-white">
@@ -1384,7 +1415,7 @@ export default function PesananTable() {
                     {quickAddRecipeRows.map((r, i) => {
                       const material = rawMaterials.find((m) => m.id === r.raw_material_id);
                       return (
-                        <div key={i} className="space-y-1 rounded-lg border border-gray-100 dark:border-[#262626] p-2">
+                        <div key={i} className="space-y-1 rounded-lg border border-gray-100 dark:border-[#30363d] p-2">
                           <div className="flex items-center gap-2">
                             <select
                               value={r.raw_material_id}
@@ -1426,7 +1457,7 @@ export default function PesananTable() {
                               const preset = ESTIMASI_BAHAN.find((p) => p.key === e.target.value);
                               if (preset) updateQuickAddRecipeRow(i, "qty_per_unit", Number(preset.qtyPerUnit.toFixed(5)));
                             }}
-                            className="w-full rounded-lg border border-dashed border-gray-200 dark:border-[#333333] bg-transparent px-2 py-1 text-[10.5px] text-gray-400 dark:text-gray-500"
+                            className="w-full rounded-lg border border-dashed border-gray-200 dark:border-[#3d444d] bg-transparent px-2 py-1 text-[10.5px] text-gray-400 dark:text-gray-500"
                           >
                             <option value="">Isi cepat: pakai estimasi umum industri...</option>
                             {ESTIMASI_BAHAN.map((p) => (
@@ -1494,7 +1525,7 @@ export default function PesananTable() {
               </div>
 
               <p className="mt-5 mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">Item Pesanan</p>
-              <div className="space-y-2 rounded-xl bg-gray-50 dark:bg-[#000000]/50 p-3">
+              <div className="space-y-2 rounded-xl bg-gray-50 dark:bg-[#0d1117]/50 p-3">
                 {(detailOrder.order_items ?? []).map((it, i) => (
                   <div key={i} className="text-sm">
                     <span className="text-gray-700 dark:text-gray-300">
@@ -1506,7 +1537,7 @@ export default function PesananTable() {
                 ))}
               </div>
 
-              <div className="mt-4 space-y-2 rounded-xl border border-gray-100 dark:border-[#262626] p-3 text-sm">
+              <div className="mt-4 space-y-2 rounded-xl border border-gray-100 dark:border-[#30363d] p-3 text-sm">
                 <div className="flex justify-between">
                   <span className="text-gray-500 dark:text-gray-400">Total</span>
                   <span className="font-semibold text-black dark:text-white">
@@ -1519,7 +1550,7 @@ export default function PesananTable() {
                     {formatRupiah(Number(detailOrder.dp) || 0)}
                   </span>
                 </div>
-                <div className="flex justify-between border-t border-gray-100 dark:border-[#262626] pt-2">
+                <div className="flex justify-between border-t border-gray-100 dark:border-[#30363d] pt-2">
                   <span className="text-gray-500 dark:text-gray-400">Sisa Pembayaran</span>
                   <span className="font-semibold text-orange-600">
                     {formatRupiah(Number(detailOrder.sisa_pembayaran) || 0)}
@@ -1567,7 +1598,7 @@ export default function PesananTable() {
                 {paymentHistory.length === 0 ? (
                   <p className="text-xs text-gray-400 dark:text-gray-500">Belum ada pembayaran tercatat.</p>
                 ) : (
-                  <div className="space-y-1.5 rounded-xl bg-gray-50 dark:bg-[#000000]/50 p-3">
+                  <div className="space-y-1.5 rounded-xl bg-gray-50 dark:bg-[#0d1117]/50 p-3">
                     {paymentHistory.map((pmt) => (
                       <div key={pmt.id} className="flex justify-between text-sm">
                         <span className="text-gray-500 dark:text-gray-400">
@@ -1606,7 +1637,7 @@ export default function PesananTable() {
                         href={detailOrder.desain_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="block relative w-full h-48 rounded-xl overflow-hidden border border-gray-200 dark:border-[#262626] bg-gray-50 dark:bg-[#000000]"
+                        className="block relative w-full h-48 rounded-xl overflow-hidden border border-gray-200 dark:border-[#30363d] bg-gray-50 dark:bg-[#0d1117]"
                       >
                         <Image
                           src={detailOrder.desain_url}

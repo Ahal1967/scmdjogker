@@ -225,7 +225,7 @@ export default function GudangTable({
           type="button"
           onClick={handleExport}
           disabled={sorted.length === 0}
-          className="inline-flex items-center justify-center gap-1.5 rounded-full border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#0a0a0a] px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-[#171717] disabled:cursor-not-allowed disabled:opacity-50 transition-colors whitespace-nowrap"
+          className="inline-flex items-center justify-center gap-1.5 rounded-full border border-gray-200 dark:border-[#30363d] bg-white dark:bg-[#161b22] px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-[#21262d] disabled:cursor-not-allowed disabled:opacity-50 transition-colors whitespace-nowrap"
         >
           <Download size={15} />
           Export
@@ -259,7 +259,7 @@ export default function GudangTable({
               {paginated.map((m, idx) => (
                 <tr key={m.id}>
                   <td>
-                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-[#171717]/50 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-[#21262d]/50 text-xs font-semibold text-gray-500 dark:text-gray-400">
                       {(currentPage - 1) * pageSize + idx + 1}
                     </span>
                   </td>
@@ -270,14 +270,14 @@ export default function GudangTable({
                     <div className="flex items-center justify-center gap-2">
                       <button
                         onClick={() => quickAdjustStock(m, -1)}
-                        className="w-6 h-6 rounded border border-gray-300 dark:border-[#333333] text-xs hover:border-blue-600"
+                        className="w-6 h-6 rounded border border-gray-300 dark:border-[#3d444d] text-xs hover:border-blue-600"
                       >
                         −
                       </button>
                       <span className="w-8 text-center text-sm text-gray-800 dark:text-gray-200">{m.stok}</span>
                       <button
                         onClick={() => quickAdjustStock(m, 1)}
-                        className="w-6 h-6 rounded border border-gray-300 dark:border-[#333333] text-xs hover:border-blue-600"
+                        className="w-6 h-6 rounded border border-gray-300 dark:border-[#3d444d] text-xs hover:border-blue-600"
                       >
                         +
                       </button>
@@ -348,7 +348,7 @@ export default function GudangTable({
         </div>
 
         {filtered.length > 0 && (
-          <div className="flex flex-col gap-3 border-t border-gray-100 dark:border-[#262626] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-3 border-t border-gray-100 dark:border-[#30363d] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-xs text-gray-500 dark:text-gray-400">
               Menampilkan {paginated.length} dari {filtered.length} bahan
             </p>
@@ -357,7 +357,7 @@ export default function GudangTable({
                 <button
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-[#262626] text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-[#171717]"
+                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-[#30363d] text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-[#21262d]"
                 >
                   <ChevronLeft size={14} />
                 </button>
@@ -367,7 +367,7 @@ export default function GudangTable({
                 <button
                   onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-[#262626] text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-[#171717]"
+                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-[#30363d] text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-[#21262d]"
                 >
                   <ChevronRight size={14} />
                 </button>
@@ -378,7 +378,7 @@ export default function GudangTable({
                   setPageSize(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="rounded-lg border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#0a0a0a] px-2 py-1 text-xs text-gray-600 dark:text-gray-300"
+                className="rounded-lg border border-gray-200 dark:border-[#30363d] bg-white dark:bg-[#161b22] px-2 py-1 text-xs text-gray-600 dark:text-gray-300"
               >
                 <option value={10}>10 / halaman</option>
                 <option value={25}>25 / halaman</option>

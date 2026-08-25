@@ -28,12 +28,12 @@ export default async function PengaturanPage() {
   const ROLE_COLORS: Record<string, string> = {
     admin: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
     staff: "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/40 dark:text-cyan-300",
-    user: "bg-gray-100 text-gray-600 dark:bg-[#171717] dark:text-gray-400",
+    user: "bg-gray-100 text-gray-600 dark:bg-[#21262d] dark:text-gray-400",
   };
 
   function formatRoleBadge(role: string) {
     const base = "badge";
-    const color = ROLE_COLORS[role] ?? "bg-gray-100 text-gray-600 dark:bg-[#171717] dark:text-gray-400";
+    const color = ROLE_COLORS[role] ?? "bg-gray-100 text-gray-600 dark:bg-[#21262d] dark:text-gray-400";
     return `${base} ${color}`;
   }
 
@@ -49,7 +49,7 @@ export default async function PengaturanPage() {
       <FetchErrorBanner message={fetchErrorMsg} />
 
       <div
-        className="relative overflow-hidden rounded-2xl p-6 bg-white/55 dark:bg-[#0a0a0a]/55 backdrop-blur-xl"
+        className="relative overflow-hidden rounded-2xl p-6 bg-white/55 dark:bg-[#161b22]/55 backdrop-blur-xl"
         style={{ boxShadow: "0 4px 16px rgba(30,58,138,0.1)" }}
       >
         <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl">

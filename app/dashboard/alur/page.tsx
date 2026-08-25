@@ -89,7 +89,7 @@ export default async function AlurPage() {
         <p className="text-sm font-semibold text-black dark:text-white">{stage.label}</p>
         <p className="text-[11px] text-gray-500 dark:text-gray-400 mb-2">{stage.desc}</p>
 
-        <div className="pt-2 border-t border-gray-100 dark:border-[#262626] flex items-end justify-between">
+        <div className="pt-2 border-t border-gray-100 dark:border-[#30363d] flex items-end justify-between">
           <p className="font-display text-lg font-bold" style={{ color: stage.accent }}>
             {VALUES[stage.key].value}
           </p>

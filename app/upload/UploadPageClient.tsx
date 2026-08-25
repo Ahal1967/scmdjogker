@@ -83,7 +83,7 @@ export default function UploadPageClient() {
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-white dark:bg-[#000000] px-4 py-8 md:py-12">
+    <div className="min-h-screen relative overflow-hidden bg-white dark:bg-[#0d1117] px-4 py-8 md:py-12">
       <div
         className="pointer-events-none fixed inset-0 -z-10"
         style={{
@@ -102,7 +102,7 @@ export default function UploadPageClient() {
             Login
           </Link>
 
-          <div className="flex gap-0.5 rounded-full border border-gray-200 dark:border-[#262626] bg-white/70 dark:bg-[#0a0a0a]/70 p-1 shadow-sm">
+          <div className="flex gap-0.5 rounded-full border border-gray-200 dark:border-[#30363d] bg-white/70 dark:bg-[#161b22]/70 p-1 shadow-sm">
             <Link
               href="/tracking"
               className="rounded-full px-3 py-1 text-[11px] font-bold text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
@@ -119,7 +119,7 @@ export default function UploadPageClient() {
           {/* Ikon hero -- disamakan dengan halaman Lacak Pesanan (lingkaran
               putih + ikon outline biru), sesuai referensi desain yang
               dikasih user. */}
-          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white dark:bg-[#0a0a0a] shadow-md border border-gray-100 dark:border-[#262626]">
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-white dark:bg-[#161b22] shadow-md border border-gray-100 dark:border-[#30363d]">
             <Shirt size={22} strokeWidth={1.8} className="text-blue-500 dark:text-blue-400" />
           </div>
           <span className="mb-2.5 inline-flex items-center rounded-full bg-blue-50 dark:bg-blue-900/40 px-2.5 py-0.5 text-[9.5px] font-extrabold tracking-widest text-blue-600 dark:text-blue-300">
@@ -133,7 +133,7 @@ export default function UploadPageClient() {
           </p>
         </div>
 
-        <div className="bg-white dark:bg-[#0a0a0a] rounded-[16px] border border-gray-200 dark:border-[#262626] p-4 shadow-lg">
+        <div className="bg-white dark:bg-[#161b22] rounded-[16px] border border-gray-200 dark:border-[#30363d] p-4 shadow-lg">
           {success ? (
             <div className="py-2 text-center">
               {/* Sebelumnya pakai style={{...}} inline dengan warna hijau
@@ -190,7 +190,7 @@ export default function UploadPageClient() {
                 </label>
 
                 {file ? (
-                  <div className="flex items-center gap-2.5 rounded-xl border-[1.5px] border-gray-200 dark:border-[#262626] bg-gray-50 dark:bg-[#0a0a0a]/60 p-2.5">
+                  <div className="flex items-center gap-2.5 rounded-xl border-[1.5px] border-gray-200 dark:border-[#30363d] bg-gray-50 dark:bg-[#161b22]/60 p-2.5">
                     <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-blue-50 dark:bg-blue-900/40">
                       {preview ? (
                         <div className="relative h-full w-full">
@@ -224,10 +224,10 @@ export default function UploadPageClient() {
                     className={`cursor-pointer rounded-xl border-2 border-dashed p-5 text-center transition-colors ${
                       dragging
                         ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20"
-                        : "border-blue-200 dark:border-[#333333] bg-gradient-to-b from-blue-50/60 to-blue-50/20 dark:from-gray-800/40 dark:to-gray-800/10 hover:border-blue-400"
+                        : "border-blue-200 dark:border-[#3d444d] bg-gradient-to-b from-blue-50/60 to-blue-50/20 dark:from-gray-800/40 dark:to-gray-800/10 hover:border-blue-400"
                     }`}
                   >
-                    <div className="mx-auto mb-2.5 flex h-11 w-11 items-center justify-center rounded-full bg-white dark:bg-[#0a0a0a] shadow-md border border-gray-100 dark:border-[#262626]">
+                    <div className="mx-auto mb-2.5 flex h-11 w-11 items-center justify-center rounded-full bg-white dark:bg-[#161b22] shadow-md border border-gray-100 dark:border-[#30363d]">
                       <UploadCloud size={20} strokeWidth={1.8} className="text-blue-500 dark:text-blue-400" />
                     </div>
                     <p className="text-[12.5px] font-bold text-black dark:text-white">Klik atau tarik file ke sini</p>
@@ -275,7 +275,7 @@ export default function UploadPageClient() {
           </div>
         )}
 
-        <div className="mt-5 flex items-start justify-center gap-1.5 border-t border-gray-100 dark:border-[#262626] pt-3.5 text-center text-[10px] text-gray-400 dark:text-gray-500">
+        <div className="mt-5 flex items-start justify-center gap-1.5 border-t border-gray-100 dark:border-[#30363d] pt-3.5 text-center text-[10px] text-gray-400 dark:text-gray-500">
           <MapPin size={11} className="mt-0.5 shrink-0" />
           <div>
             <p>Jl. Wates Km 4,5 Gg. Ablar No 5</p>

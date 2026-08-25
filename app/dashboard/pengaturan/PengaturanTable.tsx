@@ -30,11 +30,11 @@ type Profile = {
 const ROLE_COLORS: Record<string, string> = {
   admin: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
   staff: "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/40 dark:text-cyan-300",
-  user: "bg-gray-100 text-gray-600 dark:bg-[#171717] dark:text-gray-400",
+  user: "bg-gray-100 text-gray-600 dark:bg-[#21262d] dark:text-gray-400",
 };
 
 function formatRoleBadge(role: string) {
-  const color = ROLE_COLORS[role] ?? "bg-gray-100 text-gray-600 dark:bg-[#171717] dark:text-gray-400";
+  const color = ROLE_COLORS[role] ?? "bg-gray-100 text-gray-600 dark:bg-[#21262d] dark:text-gray-400";
   return `badge ${color}`;
 }
 
@@ -226,7 +226,7 @@ export default function PengaturanTable({
             {sorted.map((profile, idx) => (
               <tr key={profile.id}>
                 <td>
-                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-[#171717]/50 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                  <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-[#21262d]/50 text-xs font-semibold text-gray-500 dark:text-gray-400">
                     {idx + 1}
                   </span>
                 </td>

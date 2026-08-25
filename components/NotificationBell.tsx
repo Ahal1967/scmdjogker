@@ -92,7 +92,7 @@ export default function NotificationBell() {
 
   return (
     <Menu as="div" className="relative">
-      <Menu.Button className="relative flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#0a0a0a] text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#171717] transition-colors">
+      <Menu.Button className="relative flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 dark:border-[#30363d] bg-white dark:bg-[#161b22] text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-[#21262d] transition-colors">
         <Bell size={16} />
         {totalCount > 0 && (
           <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
@@ -101,7 +101,7 @@ export default function NotificationBell() {
         )}
       </Menu.Button>
 
-      <Menu.Items className="absolute right-0 z-50 mt-3 w-72 origin-top-right rounded-xl border border-gray-200 dark:border-[#262626] bg-white/70 dark:bg-[#0a0a0a]/70 backdrop-blur-md p-2 shadow-xl focus:outline-none">
+      <Menu.Items className="absolute right-0 z-50 mt-3 w-72 origin-top-right rounded-xl border border-gray-200 dark:border-[#30363d] bg-white/70 dark:bg-[#161b22]/70 backdrop-blur-md p-2 shadow-xl focus:outline-none">
         <p className="px-3 py-2 text-xs font-semibold uppercase tracking-wide text-gray-400">Notifikasi</p>
 
         {items.length === 0 && (
@@ -118,7 +118,7 @@ export default function NotificationBell() {
                 <Link
                   href={item.href}
                   className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition ${
-                    active ? "bg-gray-50 dark:bg-[#171717]" : ""
+                    active ? "bg-gray-50 dark:bg-[#21262d]" : ""
                   }`}
                 >
                   <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${item.color}`}>

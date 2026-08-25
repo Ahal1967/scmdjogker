@@ -237,17 +237,17 @@ export default function DashboardPage() {
     return (
       <div className="space-y-4 md:space-y-6 animate-pulse">
         <div>
-          <div className="h-6 w-40 rounded-full bg-gray-200 dark:bg-[#171717] mb-3" />
-          <div className="h-8 w-56 rounded-lg bg-gray-200 dark:bg-[#171717]" />
+          <div className="h-6 w-40 rounded-full bg-gray-200 dark:bg-[#21262d] mb-3" />
+          <div className="h-8 w-56 rounded-lg bg-gray-200 dark:bg-[#21262d]" />
         </div>
 
-        <div className="rounded-2xl p-6 md:p-8 backdrop-blur-xl bg-white/55 dark:bg-[#0a0a0a]/55">
-          <div className="h-4 w-24 rounded-full bg-gray-200 dark:bg-[#171717] mb-3" />
-          <div className="h-6 w-64 rounded bg-gray-200 dark:bg-[#171717] mb-2" />
-          <div className="h-4 w-48 rounded bg-gray-200 dark:bg-[#171717] mb-4" />
+        <div className="rounded-2xl p-6 md:p-8 backdrop-blur-xl bg-white/55 dark:bg-[#161b22]/55">
+          <div className="h-4 w-24 rounded-full bg-gray-200 dark:bg-[#21262d] mb-3" />
+          <div className="h-6 w-64 rounded bg-gray-200 dark:bg-[#21262d] mb-2" />
+          <div className="h-4 w-48 rounded bg-gray-200 dark:bg-[#21262d] mb-4" />
           <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="h-16 rounded-xl bg-gray-100 dark:bg-[#0a0a0a]" />
+              <div key={i} className="h-16 rounded-xl bg-gray-100 dark:bg-[#161b22]" />
             ))}
           </div>
         </div>

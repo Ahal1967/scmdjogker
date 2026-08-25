@@ -266,7 +266,7 @@ export default function ProduksiTable({
             (keputusan user), jadi defaultnya tetap "table" saat halaman
             dibuka supaya perilaku lama tidak berubah buat yang belum
             sadar ada opsi baru. */}
-        <div className="inline-flex items-center gap-1 self-start rounded-full border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#0a0a0a] p-1">
+        <div className="inline-flex items-center gap-1 self-start rounded-full border border-gray-200 dark:border-[#30363d] bg-white dark:bg-[#161b22] p-1">
           <button
             type="button"
             onClick={() => setViewMode("table")}
@@ -274,7 +274,7 @@ export default function ProduksiTable({
             className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${
               viewMode === "table"
                 ? "bg-blue-600 text-white"
-                : "text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#171717]"
+                : "text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#21262d]"
             }`}
           >
             <List size={14} />
@@ -287,7 +287,7 @@ export default function ProduksiTable({
             className={`inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${
               viewMode === "papan"
                 ? "bg-blue-600 text-white"
-                : "text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#171717]"
+                : "text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#21262d]"
             }`}
           >
             <LayoutGrid size={14} />
@@ -325,7 +325,7 @@ export default function ProduksiTable({
               {paginated.map((p, idx) => (
                 <tr key={p.id}>
                   <td>
-                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-[#171717]/50 text-xs font-semibold text-gray-500 dark:text-gray-400">
+                    <span className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-gray-100 dark:bg-[#21262d]/50 text-xs font-semibold text-gray-500 dark:text-gray-400">
                       {(currentPage - 1) * pageSize + idx + 1}
                     </span>
                   </td>
@@ -343,7 +343,7 @@ export default function ProduksiTable({
                   </td>
                   <td className="text-sm text-gray-700 dark:text-gray-300">
                     <div className="mx-auto flex max-w-[170px] items-center gap-2">
-                      <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-200 dark:bg-[#171717]">
+                      <div className="h-2 flex-1 overflow-hidden rounded-full bg-gray-200 dark:bg-[#21262d]">
                         <div
                           className="h-full bg-blue-600 transition-all"
                           style={{ width: `${Number(p.progress || 0)}%` }}
@@ -366,7 +366,7 @@ export default function ProduksiTable({
                             return next;
                           })
                         }
-                        className="w-14 rounded border border-gray-300 dark:border-[#333333] bg-white dark:bg-[#0a0a0a] text-black dark:text-white py-1 text-center text-xs"
+                        className="w-14 rounded border border-gray-300 dark:border-[#3d444d] bg-white dark:bg-[#161b22] text-black dark:text-white py-1 text-center text-xs"
                       />
                       <span className="text-xs text-gray-600 dark:text-gray-400">%</span>
                     </div>
@@ -397,7 +397,7 @@ export default function ProduksiTable({
         </div>
 
         {filtered.length > 0 && (
-          <div className="flex flex-col gap-3 border-t border-gray-100 dark:border-[#262626] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-3 border-t border-gray-100 dark:border-[#30363d] px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-xs text-gray-500 dark:text-gray-400">
               Menampilkan {paginated.length} dari {filtered.length} produksi
             </p>
@@ -406,7 +406,7 @@ export default function ProduksiTable({
                 <button
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-[#262626] text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-[#171717]"
+                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-[#30363d] text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-[#21262d]"
                 >
                   <ChevronLeft size={14} />
                 </button>
@@ -416,7 +416,7 @@ export default function ProduksiTable({
                 <button
                   onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
-                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-[#262626] text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-[#171717]"
+                  className="flex h-7 w-7 items-center justify-center rounded-lg border border-gray-200 dark:border-[#30363d] text-gray-500 disabled:opacity-30 hover:bg-gray-50 dark:hover:bg-[#21262d]"
                 >
                   <ChevronRight size={14} />
                 </button>
@@ -427,7 +427,7 @@ export default function ProduksiTable({
                   setPageSize(Number(e.target.value));
                   setCurrentPage(1);
                 }}
-                className="rounded-lg border border-gray-200 dark:border-[#262626] bg-white dark:bg-[#0a0a0a] px-2 py-1 text-xs text-gray-600 dark:text-gray-300"
+                className="rounded-lg border border-gray-200 dark:border-[#30363d] bg-white dark:bg-[#161b22] px-2 py-1 text-xs text-gray-600 dark:text-gray-300"
               >
                 <option value={10}>10 / halaman</option>
                 <option value={25}>25 / halaman</option>

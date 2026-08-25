@@ -66,7 +66,7 @@ function ProductionCard({ p, colorClass }: { p: ProductionRow; colorClass: strin
         {p.orders?.no_pesanan ?? "-"} &middot; {p.orders?.customers?.nama ?? "-"}
       </p>
       <div className="flex items-center gap-2">
-        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-gray-200 dark:bg-[#171717]">
+        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-gray-200 dark:bg-[#21262d]">
           <div className={`h-full rounded-full transition-all ${colorClass}`} style={{ width: `${Number(p.progress || 0)}%` }} />
         </div>
         <span className="text-[10.5px] text-gray-400 dark:text-gray-500">{Number(p.progress || 0)}%</span>

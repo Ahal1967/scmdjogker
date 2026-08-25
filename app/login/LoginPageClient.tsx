@@ -59,13 +59,13 @@ export default function LoginPageClient() {
       <div className="pointer-events-none absolute -bottom-24 -right-16 z-0 h-72 w-72 rounded-full bg-blue-100/70 dark:bg-blue-900/10 blur-2xl" />
 
       <div
-        className="relative z-10 w-full max-w-md rounded-3xl border border-blue-100 dark:border-[#262626] bg-white dark:bg-[#0a0a0a] p-6 md:p-8"
+        className="relative z-10 w-full max-w-md rounded-3xl border border-blue-100 dark:border-[#30363d] bg-white dark:bg-[#161b22] p-6 md:p-8"
         style={{ boxShadow: "0 1px 2px rgba(37,99,235,0.06), 0 24px 48px -12px rgba(37,99,235,0.25)" }}
       >
         {/* Logo, nama, badge */}
         <div className="mb-6 flex flex-col items-center text-center">
           <div
-            className="mb-3 h-20 w-20 overflow-hidden rounded-full border-2 border-gray-200 dark:border-[#333333] shadow-md"
+            className="mb-3 h-20 w-20 overflow-hidden rounded-full border-2 border-gray-200 dark:border-[#3d444d] shadow-md"
             style={{ backgroundColor: "#ffffff" }}
           >
             <Image
@@ -85,7 +85,7 @@ export default function LoginPageClient() {
           </p>
         </div>
 
-        <div className="mb-6 border-t border-gray-100 dark:border-[#262626] pt-6 text-center">
+        <div className="mb-6 border-t border-gray-100 dark:border-[#30363d] pt-6 text-center">
           <h1 className="text-2xl font-bold text-black dark:text-white font-display">
             Selamat <span style={{ color: "var(--djoker-blue)" }}>Datang!</span>
           </h1>
@@ -181,7 +181,7 @@ export default function LoginPageClient() {
           </Link>
         </div>
 
-        <div className="mt-6 flex items-start justify-center gap-1.5 border-t border-gray-100 dark:border-[#262626] pt-4 text-center text-[11px] text-gray-400 dark:text-gray-500">
+        <div className="mt-6 flex items-start justify-center gap-1.5 border-t border-gray-100 dark:border-[#30363d] pt-4 text-center text-[11px] text-gray-400 dark:text-gray-500">
           <MapPin size={12} className="mt-0.5 shrink-0" />
           <div>
             <p>Jl. Wates Km 4,5 Gg. Ablar No 5</p>

@@ -31,29 +31,29 @@
 /* Versi gelap: cuma ganti isi variable-nya, semua class yang sudah pakai
    var(--djoker-*) (.card, .input-field, .sidebar-link, .table-djoker, dll)
    otomatis ikut berubah tanpa perlu disentuh satu-satu. */
-/* Diganti dari navy gelap (#0f1420 dkk) ke hitam pekat beneran atas
-   permintaan user -- sebelumnya dark mode kelihatan "bukan hitam
-   beneran" karena dasarnya biru-abu gelap, bukan hitam. --djoker-bg
-   dipakai buat latar halaman (paling gelap, #000000 murni),
-   --djoker-surface/-2 buat kartu & elemen yang "mengambang" di atas
-   latar (sedikit lebih terang, #0a0a0a / #141414, supaya batas antar
-   elemen masih kelihatan tanpa border yang mencolok). --djoker-text
-   sengaja TIDAK putih murni (#ffffff) -- dilembutkan ke #f0f0f2 supaya
-   tidak menyilaukan di layar OLED/AMOLED saat latar belakang hitam
-   pekat. */
+/* Riwayat: navy gelap (#0f1420 dkk) -> hitam pekat murni (#000000 dkk,
+   permintaan user waktu itu supaya kelihatan "hitam beneran") -> sekarang
+   diganti lagi ke abu gelap ala GitHub/Linear (#0d1117 / #161b22 / #21262d)
+   atas permintaan user, karena hitam pekat murni terasa terlalu keras di
+   mata untuk dipakai lama. Warna ini TIDAK PERNAH hitam murni -- selisih
+   antar --djoker-bg/-surface/-surface-2 sengaja dibikin lebih kentara
+   (bukan cuma beda beberapa persen seperti hitam pekat sebelumnya) supaya
+   kartu terasa lebih "mengambang" di atas latar, mengurangi kesan datar.
+   --djoker-text juga disesuaikan ke abu-putih GitHub (#e6edf3) yang
+   sedikit lebih redup dibanding putih hampir-murni sebelumnya. */
 .dark {
-  --djoker-bg: #000000;
-  --djoker-bg-2: #0a0a0a;
-  --djoker-surface: #0a0a0a;
-  --djoker-surface-2: #141414;
+  --djoker-bg: #0d1117;
+  --djoker-bg-2: #161b22;
+  --djoker-surface: #161b22;
+  --djoker-surface-2: #21262d;
 
-  --djoker-border: #262626;
-  --djoker-border-blue: #2563eb;
+  --djoker-border: #30363d;
+  --djoker-border-blue: #388bfd;
 
-  --djoker-text: #f0f0f2;
-  --djoker-text-2: #d4d4d8;
-  --djoker-muted: #8b93b0;
-  --djoker-hover-bg: rgba(59, 130, 246, 0.12);
+  --djoker-text: #e6edf3;
+  --djoker-text-2: #c9d1d9;
+  --djoker-muted: #8b949e;
+  --djoker-hover-bg: rgba(56, 139, 253, 0.15);
 }
 
 
@@ -107,19 +107,20 @@ body::before {
     radial-gradient(circle at 0% 100%, rgba(165, 180, 252, 0.35) 0%, transparent 45%);
 }
 
-/* PENTING: rule ini sebelumnya masih pakai gradient navy hardcode
-   (#0f1420 -> #161d3a), sama sekali TIDAK ikut berubah waktu
-   --djoker-bg diganti ke hitam pekat -- soalnya selector ".dark body"
-   (1 class + 1 tag) specificity-nya lebih tinggi dari class Tailwind
-   "bg-djoker-bg" (cuma 1 class) yang dipasang di <body> lewat
-   layout.tsx, jadi rule inilah yang sebenarnya menang dan kelihatan,
-   bukan variabelnya. Ini kemungkinan besar penyebab dark mode masih
-   kelihatan "belum hitam beneran" walau --djoker-bg sudah diganti.
-   Sekarang solid hitam pekat, dan glow/tekstur biru di bawah sengaja
-   DIMATIKAN (bukan cuma diredupkan) supaya benar-benar bersih, sesuai
-   permintaan "hitam bersih" -- tidak ada lagi tint biru di pojok. */
+/* PENTING: selector ".dark body" (1 class + 1 tag) specificity-nya lebih
+   tinggi dari class Tailwind "bg-djoker-bg" (cuma 1 class) yang dipasang
+   di <body> lewat layout.tsx, jadi rule inilah yang sebenarnya menang dan
+   kelihatan, bukan class Tailwind itu. Sempat kejadian dua kali rule ini
+   di-hardcode ke warna tertentu (gradient navy, lalu #000000 hitam pekat)
+   dan lupa ikut di-update tiap kali --djoker-bg diganti di .dark {} atas
+   -- itulah kenapa background masih kelihatan "belum ikut ganti" padahal
+   variabelnya sudah benar. Sekarang pakai var(--djoker-bg) supaya rule
+   ini otomatis ikut warna .dark {} apa pun, tidak perlu disentuh lagi
+   kalau palet dark mode diganti lagi nanti. Glow/tekstur biru di bawah
+   tetap dimatikan di dark mode (::before/::after) sesuai permintaan
+   "hitam/abu bersih" -- tidak ada tint biru di pojok. */
 .dark body {
-  background: #000000;
+  background: var(--djoker-bg);
 }
 
 .dark body::before {
@@ -163,7 +164,7 @@ body::before {
 }
 
 .dark ::-webkit-scrollbar-thumb {
-  background: #333333;
+  background: #3d444d;
 }
 
 .dark ::-webkit-scrollbar-thumb:hover {
@@ -198,7 +199,18 @@ body::before {
   }
 
   .dark .card {
-    background: rgba(22, 29, 58, 0.45);
+    /* Ini rule PALING SERING kepakai di seluruh app (.card dipakai di semua
+       tabel, semua stat card, dll -- lihat komentar ".card" di atas), tapi
+       waktu palet diganti ke abu gelap GitHub-style, rule ini KELEWAT --
+       masih rgba(22,29,58,...) sisa dari tema navy yang jauh lebih lama,
+       sama sekali tidak berhubungan dengan var(--djoker-*) yang sudah
+       diupdate. Ini kemungkinan besar penyebab utama kenapa hampir semua
+       halaman masih kelihatan "belum ganti warna" -- variabelnya sudah
+       benar, tapi class yang paling banyak dipakai untuk background
+       kartu/tabel malah tidak pernah membaca variabel itu sama sekali.
+       Sekarang dipakai rgb dari --djoker-bg-2/-surface (22,27,34) supaya
+       akhirnya konsisten dan otomatis ikut kalau palet diganti lagi. */
+    background: rgba(22, 27, 34, 0.6);
     border-color: rgba(255, 255, 255, 0.08);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
   }
