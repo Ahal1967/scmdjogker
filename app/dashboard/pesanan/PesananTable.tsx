@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Search, Plus, FileText, ShoppingBag, CheckCircle2, TrendingUp, ChevronLeft, ChevronRight, Eye, Trash2, User, Loader2, PackageOpen, ClipboardList, Calendar, Tag, MoreHorizontal, MessageCircle, Download } from "lucide-react";
+import { Search, Plus, Minus, ChevronDown, Wallet, FileText, ShoppingBag, CheckCircle2, TrendingUp, ChevronLeft, ChevronRight, Eye, Trash2, User, Loader2, PackageOpen, ClipboardList, Calendar, Tag, MoreHorizontal, MessageCircle, Download } from "lucide-react";
 import { useConfirm } from "@/components/useConfirm";
 import { useToast } from "@/components/useToast";
 import { createClient } from "@/lib/supabase/client";
@@ -165,13 +165,20 @@ function ProductCombobox({
 
   return (
     <div className="relative">
+      {/* Search icon kiri -- murni dekoratif (bukan tombol), cuma nunjukin
+          field ini bisa diketik buat cari, mengikuti mockup yang sudah
+          disetujui. Icon "+" kanan di mockup SENGAJA tidak ikut ditambah
+          di sini -- quick-add produk baru cuma kepicu lewat item
+          "Tambah ... sebagai produk baru" di dropdown-nya di bawah, jadi
+          icon terpisah yang tidak bisa diklik cuma bakal menyesatkan. */}
+      <Search size={13} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
       <input
         placeholder="Ketik atau pilih produk..."
         value={value}
         onChange={(e) => onChangeText(e.target.value)}
         onFocus={() => setOpen(true)}
         onBlur={() => setTimeout(() => setOpen(false), 150)}
-        className="input-field w-full"
+        className="input-field w-full pl-8"
       />
       {productId ? (
         <span className="mt-1 inline-flex items-center gap-1 text-[10px] font-semibold text-green-600 dark:text-green-400">
@@ -1144,15 +1151,34 @@ export default function PesananTable() {
               bawah diubah dari flex-row 3-kolom lebar tetap jadi grid-3-
               kolom yang otomatis menyesuaikan lebar kartu, jadi tidak
               butuh lebar ekstra lagi. */}
-          <div className="modal-fade-in card card-modal w-full max-w-md my-8 max-h-[90vh] overflow-y-auto shadow-2xl" style={{ border: "none" }}>
+          {/* my-8/max-h-90vh -> my-4/max-h-95vh -- masih butuh scroll
+              internal di layar desktop yang jendelanya tidak setinggi HP
+              (viewport HP kebetulan lebih tinggi secara efektif). Ini
+              nambah ruang tersedia sedikit lagi, dikombinasi sama
+              pemadatan spacing di bawah. */}
+          <div className="modal-fade-in card card-modal w-full max-w-md my-4 max-h-[95vh] overflow-y-auto shadow-2xl" style={{ border: "none" }}>
             {/* Nomor pesanan TIDAK ditampilkan di sini lagi -- dulu bisa
                 "ditebak" sebelum disimpan karena nomor urut (DJ + counter),
                 sekarang kodenya acak dan baru ditentukan pas disimpan ke
                 database (lihat generateUniqueCode), jadi tidak ada lagi
                 nomor yang bisa diprediksi di sini. */}
-            <h2 className="font-display text-base font-semibold text-black dark:text-white">
-              Pesanan Baru
-            </h2>
+            <div className="flex items-center gap-3">
+              <div
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-white"
+                style={{
+                  background: "linear-gradient(135deg, #3b82f6, #2563eb)",
+                  boxShadow: "0 4px 12px rgba(37,99,235,0.35)",
+                }}
+              >
+                <ShoppingBag size={16} />
+              </div>
+              <div>
+                <h2 className="font-display text-base font-semibold text-black dark:text-white leading-tight">
+                  Pesanan Baru
+                </h2>
+                <p className="text-[11px] text-gray-400">Isi detail pesanan pelanggan</p>
+              </div>
+            </div>
             {/* mt-4/space-y-4 dirapatkan ke mt-3/space-y-3 -- form ini
                 sebelumnya sering melebihi max-h-[90vh] dan butuh scroll
                 internal sendiri di dalam kartu modal (kelihatan di
@@ -1161,7 +1187,7 @@ export default function PesananTable() {
                 Harga). Merapatkan jarak antar section adalah cara yang
                 aman buat bikin form ini muat tanpa scroll internal di
                 kebanyakan layar, tanpa mengorbankan lebar. */}
-            <form onSubmit={handleSave} className="mt-3 space-y-3">
+            <form onSubmit={handleSave} className="mt-2 space-y-2">
               <div>
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Pelanggan</label>
@@ -1228,7 +1254,7 @@ export default function PesananTable() {
                   {items.map((it, idx) => (
                     <div
                       key={idx}
-                      className="flex flex-col gap-2 rounded-lg border border-gray-100 dark:border-[#30363d] p-2.5"
+                      className="flex flex-col gap-1.5 rounded-lg border border-gray-100 dark:border-[#30363d] p-2"
                     >
                       <div className="flex items-center gap-2">
                         <div className="flex-1 space-y-1.5">
@@ -1264,43 +1290,77 @@ export default function PesananTable() {
                       <div className="grid grid-cols-3 gap-2">
                         <div>
                           <span className="mb-1 block text-[11px] text-gray-400">Ukuran</span>
-                          <select
-                            value={it.ukuran}
-                            onChange={(e) => updateItem(idx, "ukuran", e.target.value)}
-                            className="input-field w-full"
-                          >
-                            <option value="">Ukuran</option>
-                            {UKURAN_OPTIONS.map((u) => (
-                              <option key={u} value={u}>
-                                {u}
-                              </option>
-                            ))}
-                          </select>
+                          {/* Mockup-nya nunjukin Ukuran sebagai pill selector
+                              (S/M/L/XL langsung kelihatan semua) -- tapi
+                              UKURAN_OPTIONS di app ini ada 7 (termasuk
+                              "3XL"/"All Size"), tidak muat kalau dipaksa
+                              jadi tombol sejajar di kolom sesempit ini.
+                              Jadi tetap <select>, cuma dibikin bulat penuh
+                              (rounded-full) senada gaya pill dari mockup,
+                              dengan teks di tengah + chevron sendiri
+                              (appearance-none supaya chevron bawaan
+                              browser tidak dobel). */}
+                          <div className="relative">
+                            <select
+                              value={it.ukuran}
+                              onChange={(e) => updateItem(idx, "ukuran", e.target.value)}
+                              className="input-field w-full appearance-none rounded-full pr-7 text-center"
+                            >
+                              <option value="">Ukuran</option>
+                              {UKURAN_OPTIONS.map((u) => (
+                                <option key={u} value={u}>
+                                  {u}
+                                </option>
+                              ))}
+                            </select>
+                            <ChevronDown size={13} className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                          </div>
                         </div>
                         <div>
                           <span className="mb-1 block text-[11px] text-gray-400">Jumlah</span>
-                          <input
-                            type="number"
-                            min={1}
-                            placeholder="Qty"
-                            value={it.jumlah || ""}
-                            onChange={(e) => updateItem(idx, "jumlah", e.target.value === "" ? 0 : Number(e.target.value))}
-                            className="input-field w-full"
-                          />
+                          <div className="flex items-center overflow-hidden rounded-lg border border-gray-200 dark:border-[#30363d]">
+                            <button
+                              type="button"
+                              onClick={() => updateItem(idx, "jumlah", Math.max(1, (it.jumlah || 1) - 1))}
+                              className="flex h-[38px] w-7 shrink-0 items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#21262d]"
+                              aria-label="Kurangi jumlah"
+                            >
+                              <Minus size={12} />
+                            </button>
+                            <input
+                              type="number"
+                              min={1}
+                              placeholder="1"
+                              value={it.jumlah || ""}
+                              onChange={(e) => updateItem(idx, "jumlah", e.target.value === "" ? 0 : Number(e.target.value))}
+                              className="w-full min-w-0 border-0 bg-transparent px-0 text-center text-sm text-black dark:text-white outline-none"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => updateItem(idx, "jumlah", (it.jumlah || 0) + 1)}
+                              className="flex h-[38px] w-7 shrink-0 items-center justify-center text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-[#21262d]"
+                              aria-label="Tambah jumlah"
+                            >
+                              <Plus size={12} />
+                            </button>
+                          </div>
                         </div>
                         <div>
                           <span className="mb-1 block text-[11px] text-gray-400">Harga</span>
-                          <input
-                            type="text"
-                            inputMode="numeric"
-                            placeholder="Harga"
-                            value={it.harga === 0 ? "" : it.harga.toLocaleString("id-ID")}
-                            onChange={(e) => {
-                              const raw = e.target.value.replace(/\D/g, "");
-                              updateItem(idx, "harga", raw === "" ? 0 : Number(raw));
-                            }}
-                            className="input-field w-full"
-                          />
+                          <div className="relative">
+                            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">Rp</span>
+                            <input
+                              type="text"
+                              inputMode="numeric"
+                              placeholder="0"
+                              value={it.harga === 0 ? "" : it.harga.toLocaleString("id-ID")}
+                              onChange={(e) => {
+                                const raw = e.target.value.replace(/\D/g, "");
+                                updateItem(idx, "harga", raw === "" ? 0 : Number(raw));
+                              }}
+                              className="input-field w-full pl-7"
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -1323,37 +1383,52 @@ export default function PesananTable() {
                 rows={2}
               />
 
-              <div>
-                <label className="text-xs font-medium text-gray-600 dark:text-gray-400">DP (Uang Muka)</label>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  placeholder="0"
-                  value={dp === 0 ? "" : dp.toLocaleString("id-ID")}
-                  onChange={(e) => {
-                    const raw = e.target.value.replace(/\D/g, "");
-                    setDp(raw === "" ? 0 : Number(raw));
-                  }}
-                  className="mt-2 input-field"
-                />
-              </div>
+              {/* DP + Total + Sisa sebelumnya 2 blok terpisah (field DP
+                  sendiri, lalu blok total di bawahnya cuma dipisah garis
+                  tipis) -- digabung jadi 1 panel "ringkasan pembayaran"
+                  bertinta biru, sesuai mockup yang disetujui. Selain
+                  lebih ringkas (1 section dibanding 2), ini juga bikin
+                  hubungan DP -> Sisa Pembayaran terasa lebih jelas
+                  karena keduanya sekarang nempel dalam 1 kotak. */}
+              <div className="rounded-xl border border-blue-100 dark:border-blue-900/30 bg-blue-50/60 dark:bg-blue-900/10 p-3.5 space-y-2.5">
+                <div>
+                  <label className="flex items-center gap-1.5 text-xs font-medium text-gray-600 dark:text-gray-400">
+                    <Wallet size={12} className="text-gray-500 dark:text-gray-400" />
+                    DP (Uang Muka)
+                  </label>
+                  <div className="relative mt-1.5">
+                    <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">Rp</span>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      placeholder="0"
+                      value={dp === 0 ? "" : dp.toLocaleString("id-ID")}
+                      onChange={(e) => {
+                        const raw = e.target.value.replace(/\D/g, "");
+                        setDp(raw === "" ? 0 : Number(raw));
+                      }}
+                      className="input-field w-full bg-white dark:bg-[#0d1117] pl-7"
+                    />
+                  </div>
+                </div>
 
-              <div className="border-t border-gray-200 dark:border-[#30363d] pt-2">
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-gray-600 dark:text-gray-400">Total Pesanan</span>
+                <div className="h-px bg-blue-100 dark:bg-blue-900/30" />
+
+                <div className="flex items-baseline justify-between">
+                  <span className="text-sm text-gray-600 dark:text-gray-400">Total Pesanan</span>
                   <span className="font-display text-xl font-bold text-black dark:text-white">
                     {formatRupiah(total)}
                   </span>
                 </div>
-                <div className="mt-1 flex items-center justify-between text-sm">
-                  <span className="text-gray-600 dark:text-gray-400">Sisa Pembayaran</span>
-                  <span className="font-medium text-gray-800 dark:text-gray-200">
+                <div className="-mt-1 flex items-center justify-between">
+                  <span className="text-[11.5px] text-gray-500 dark:text-gray-400">Sisa Pembayaran</span>
+                  <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
                     {formatRupiah(total - dp)}
                   </span>
                 </div>
               </div>
 
-              <div className="flex gap-3 pt-2">
+              <div className="flex gap-3 pt-1">
                 <button type="button" onClick={() => setShowModal(false)} className="btn-outline flex-1">
                   Batal
                 </button>
@@ -1369,42 +1444,72 @@ export default function PesananTable() {
 
       {showQuickAdd && (
         <div className="fixed inset-0 z-[60] flex items-start justify-center bg-black/60 p-4 overflow-y-auto">
-          <div className="modal-fade-in card card-modal w-full max-w-md my-8 max-h-[90vh] overflow-y-auto shadow-2xl" style={{ border: "none" }}>
-            <h2 className="font-display text-base font-semibold text-black dark:text-white">Tambah Produk Baru</h2>
-            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-              Produk ini langsung masuk katalog & dipakai di pesanan yang sedang kamu buat. Isi resep bahan
-              (opsional) supaya stok Gudang otomatis kepotong tiap kali produk ini dipesan lagi nanti.
-            </p>
-            <form onSubmit={handleSaveQuickAdd} className="mt-4 space-y-3">
-              <input
-                required
-                autoFocus
-                placeholder="Nama Produk"
-                value={quickAddForm.nama_produk}
-                onChange={(e) => setQuickAddForm((f) => ({ ...f, nama_produk: e.target.value }))}
-                className="input-field w-full"
-              />
-              <input
-                placeholder="Kategori (opsional, mis. Kaos, Hoodie)"
-                value={quickAddForm.kategori}
-                onChange={(e) => setQuickAddForm((f) => ({ ...f, kategori: e.target.value }))}
-                className="input-field w-full"
-              />
+          <div className="modal-fade-in card card-modal w-full max-w-md my-8 max-h-[90vh] overflow-y-auto p-0 shadow-2xl" style={{ border: "none" }}>
+            <div className="rounded-t-2xl bg-blue-50 dark:bg-blue-900/30 px-6 py-5 flex items-center gap-3">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 shadow-sm shadow-blue-600/30">
+                <PackageOpen size={18} className="text-white" />
+              </span>
               <div>
-                <label className="text-xs font-medium text-gray-600 dark:text-gray-400 mb-1 block">
+                <h2 className="font-display font-bold text-base text-black dark:text-white">Tambah Produk Baru</h2>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Langsung masuk katalog & dipakai di pesanan ini</p>
+              </div>
+            </div>
+            <form onSubmit={handleSaveQuickAdd} className="space-y-3 px-6 py-5">
+              <p className="-mt-1 text-xs text-gray-500 dark:text-gray-400">
+                Isi resep bahan (opsional) supaya stok Gudang otomatis kepotong tiap kali produk ini dipesan lagi
+                nanti.
+              </p>
+              <div>
+                <span className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-gray-600 dark:text-gray-400">
+                  <PackageOpen size={12} className="text-gray-500 dark:text-gray-400" />
+                  Nama Produk
+                </span>
+                <div className="relative">
+                  <PackageOpen size={14} className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input
+                    required
+                    autoFocus
+                    placeholder="mis. Kaos Polos Combed 30s"
+                    value={quickAddForm.nama_produk}
+                    onChange={(e) => setQuickAddForm((f) => ({ ...f, nama_produk: e.target.value }))}
+                    className="input-field w-full pl-8"
+                  />
+                </div>
+              </div>
+              <div>
+                <span className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-gray-600 dark:text-gray-400">
+                  <Tag size={12} className="text-gray-500 dark:text-gray-400" />
+                  Kategori <span className="font-normal text-gray-400">(opsional)</span>
+                </span>
+                <div className="relative">
+                  <Tag size={14} className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input
+                    placeholder="mis. Kaos, Hoodie"
+                    value={quickAddForm.kategori}
+                    onChange={(e) => setQuickAddForm((f) => ({ ...f, kategori: e.target.value }))}
+                    className="input-field w-full pl-8"
+                  />
+                </div>
+              </div>
+              <div className="rounded-xl border border-blue-100 dark:border-blue-900/30 bg-blue-50/60 dark:bg-blue-900/10 p-3.5">
+                <span className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-gray-600 dark:text-gray-400">
+                  <Wallet size={12} className="text-gray-500 dark:text-gray-400" />
                   Harga Default
-                </label>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  required
-                  value={quickAddForm.harga_default === 0 ? "" : quickAddForm.harga_default.toLocaleString("id-ID")}
-                  onChange={(e) => {
-                    const raw = e.target.value.replace(/\D/g, "");
-                    setQuickAddForm((f) => ({ ...f, harga_default: raw === "" ? 0 : Number(raw) }));
-                  }}
-                  className="input-field w-full"
-                />
+                </span>
+                <div className="relative">
+                  <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">Rp</span>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    required
+                    value={quickAddForm.harga_default === 0 ? "" : quickAddForm.harga_default.toLocaleString("id-ID")}
+                    onChange={(e) => {
+                      const raw = e.target.value.replace(/\D/g, "");
+                      setQuickAddForm((f) => ({ ...f, harga_default: raw === "" ? 0 : Number(raw) }));
+                    }}
+                    className="input-field w-full bg-white dark:bg-[#0d1117] pl-7"
+                  />
+                </div>
               </div>
 
               <div>
@@ -1428,18 +1533,21 @@ export default function PesananTable() {
                       return (
                         <div key={i} className="space-y-1 rounded-lg border border-gray-100 dark:border-[#30363d] p-2">
                           <div className="flex items-center gap-2">
-                            <select
-                              value={r.raw_material_id}
-                              onChange={(e) => updateQuickAddRecipeRow(i, "raw_material_id", e.target.value)}
-                              className="input-field flex-1"
-                            >
-                              <option value="">-- Pilih bahan --</option>
-                              {rawMaterials.map((m) => (
-                                <option key={m.id} value={m.id}>
-                                  {m.nama_bahan}
-                                </option>
-                              ))}
-                            </select>
+                            <div className="relative flex-1">
+                              <select
+                                value={r.raw_material_id}
+                                onChange={(e) => updateQuickAddRecipeRow(i, "raw_material_id", e.target.value)}
+                                className="input-field w-full appearance-none pr-7"
+                              >
+                                <option value="">-- Pilih bahan --</option>
+                                {rawMaterials.map((m) => (
+                                  <option key={m.id} value={m.id}>
+                                    {m.nama_bahan}
+                                  </option>
+                                ))}
+                              </select>
+                              <ChevronDown size={13} className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                            </div>
                             <input
                               type="number"
                               min={0}

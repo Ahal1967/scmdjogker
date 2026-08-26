@@ -42,7 +42,7 @@ export default async function LaporanPage() {
     <div className="space-y-4 md:space-y-6">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <PageHeaderCard
-          badge="ANALISIS"
+          badge="Analisis"
           icon={FileText}
           title="Laporan Pesanan"
           subtitle="Ringkasan dan daftar semua pesanan pelanggan."

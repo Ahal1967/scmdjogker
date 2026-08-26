@@ -488,24 +488,59 @@ export default function QcTable({
             </div>
             <form onSubmit={handleSubmit} className="space-y-3 px-6 py-5">
               <div>
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">Hasil Pemeriksaan</label>
-                <select
-                  value={hasil}
-                  onChange={(e) => setHasil(e.target.value as any)}
-                  className="input-field"
-                >
-                  <option value="Lolos">Lolos</option>
-                  <option value="Perbaikan">Perbaikan</option>
-                  <option value="Gagal">Gagal</option>
-                </select>
+                <span className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-gray-600 dark:text-gray-400">
+                  <ClipboardCheck size={12} className="text-gray-500 dark:text-gray-400" />
+                  Hasil Pemeriksaan
+                </span>
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setHasil("Lolos" as any)}
+                    className={`flex items-center justify-center gap-1.5 rounded-lg border py-2 text-sm font-medium transition-colors ${
+                      hasil === "Lolos"
+                        ? "border-transparent bg-green-600 text-white shadow-sm shadow-green-600/30"
+                        : "border-gray-200 dark:border-[#30363d] text-gray-500 dark:text-gray-400"
+                    }`}
+                  >
+                    <CheckCircle2 size={14} /> Lolos
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setHasil("Perbaikan" as any)}
+                    className={`flex items-center justify-center gap-1.5 rounded-lg border py-2 text-sm font-medium transition-colors ${
+                      hasil === "Perbaikan"
+                        ? "border-transparent bg-amber-500 text-white shadow-sm shadow-amber-500/30"
+                        : "border-gray-200 dark:border-[#30363d] text-gray-500 dark:text-gray-400"
+                    }`}
+                  >
+                    Perbaikan
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setHasil("Gagal" as any)}
+                    className={`flex items-center justify-center gap-1.5 rounded-lg border py-2 text-sm font-medium transition-colors ${
+                      hasil === "Gagal"
+                        ? "border-transparent bg-red-600 text-white shadow-sm shadow-red-600/30"
+                        : "border-gray-200 dark:border-[#30363d] text-gray-500 dark:text-gray-400"
+                    }`}
+                  >
+                    <XCircle size={14} /> Gagal
+                  </button>
+                </div>
               </div>
-              <textarea
-                placeholder="Catatan (opsional)"
-                value={catatan}
-                onChange={(e) => setCatatan(e.target.value)}
-                className="input-field"
-                rows={3}
-              />
+              <div>
+                <span className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-gray-600 dark:text-gray-400">
+                  <FileText size={12} className="text-gray-500 dark:text-gray-400" />
+                  Catatan <span className="font-normal text-gray-400">(opsional)</span>
+                </span>
+                <textarea
+                  placeholder="Tulis catatan pemeriksaan di sini..."
+                  value={catatan}
+                  onChange={(e) => setCatatan(e.target.value)}
+                  className="input-field w-full"
+                  rows={3}
+                />
+              </div>
               <p className="text-xs text-gray-500 dark:text-gray-400">
                 {hasil === "Lolos"
                   ? "Produksi akan otomatis lanjut ke tahap Packing."

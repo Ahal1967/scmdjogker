@@ -22,7 +22,7 @@ export default async function ProdukPage() {
   return (
     <div className="space-y-4 md:space-y-6">
       <PageHeaderCard
-        badge="KATALOG"
+        badge="Katalog"
         icon={Shirt}
         title="Produk"
         subtitle="Kelola daftar produk & resep bahan baku, supaya stok gudang otomatis terpotong saat pesanan dibuat."

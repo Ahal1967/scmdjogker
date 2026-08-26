@@ -39,7 +39,7 @@ export default async function GudangPage() {
   return (
     <div className="space-y-4 md:space-y-6">
       <PageHeaderCard
-        badge="INVENTORI"
+        badge="Inventori"
         icon={Boxes}
         title="Gudang"
         subtitle="Kelola stok bahan baku produksi."

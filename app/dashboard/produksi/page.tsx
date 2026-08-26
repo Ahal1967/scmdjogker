@@ -40,7 +40,7 @@ export default async function ProduksiPage() {
   return (
     <div className="space-y-4 md:space-y-6">
       <PageHeaderCard
-        badge="PROSES PRODUKSI"
+        badge="Proses Produksi"
         icon={Factory}
         title="Produksi"
         subtitle="Kelola dan pantau proses produksi pesanan."

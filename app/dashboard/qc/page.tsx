@@ -66,7 +66,7 @@ export default async function QCPage() {
   return (
     <div className="space-y-4 md:space-y-6">
       <PageHeaderCard
-        badge="QUALITY CONTROL"
+        badge="Quality Control"
         icon={ShieldCheck}
         title="QC"
         subtitle="Quality Control – periksa hasil produksi sebelum packing."

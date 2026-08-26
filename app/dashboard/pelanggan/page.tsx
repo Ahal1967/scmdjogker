@@ -41,7 +41,7 @@ export default async function PelangganPage() {
     <div className="space-y-4 md:space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <PageHeaderCard
-          badge="PELANGGAN"
+          badge="Pelanggan"
           icon={Users2}
           title="Pelanggan"
           subtitle="Daftar pelanggan dan riwayat belanja mereka."

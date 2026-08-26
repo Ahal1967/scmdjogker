@@ -33,7 +33,7 @@ export default async function PengirimanPage() {
   return (
     <div className="space-y-4 md:space-y-6">
       <PageHeaderCard
-        badge="LOGISTIK"
+        badge="Logistik"
         icon={Send}
         title="Pengiriman"
         subtitle="Pantau dan kelola pesanan yang sedang dikirim ke pelanggan."

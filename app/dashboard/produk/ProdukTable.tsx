@@ -17,6 +17,7 @@ import {
   ListChecks,
   MoreHorizontal,
   X,
+  ChevronDown,
 } from "lucide-react";
 import { useToast } from "@/components/useToast";
 import { useConfirm } from "@/components/useConfirm";
@@ -455,36 +456,66 @@ export default function ProdukTable({
                 {editing ? "Edit Produk" : "Produk Baru"}
               </h2>
             </div>
+            {/* Polesan sama seperti modal "Bahan Masuk" di Gudang dan
+                "Pesanan Baru": ikon di dalam field, label kecil buat
+                field yang sebelumnya cuma placeholder tanpa label, dan
+                Harga Default dibungkus panel bertinta biru + prefix "Rp"
+                (bahasa visual yang sama dipakai buat semua field uang di
+                app ini -- DP di Pesanan Baru juga begitu). */}
             <form onSubmit={handleSave} className="space-y-3 px-6 py-5">
-              <input
-                required
-                placeholder="Nama Produk (mis. Kaos Cotton Combed 30s)"
-                value={form.nama_produk}
-                onChange={(e) => setForm({ ...form, nama_produk: e.target.value })}
-                className="input-field"
-              />
-              <input
-                placeholder="Kategori (opsional, mis. Kaos, Hoodie)"
-                value={form.kategori}
-                onChange={(e) => setForm({ ...form, kategori: e.target.value })}
-                className="input-field"
-              />
               <div>
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">
+                <span className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-gray-600 dark:text-gray-400">
+                  <Shirt size={12} className="text-gray-500 dark:text-gray-400" />
+                  Nama Produk
+                </span>
+                <div className="relative">
+                  <Shirt size={13} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input
+                    required
+                    placeholder="mis. Kaos Cotton Combed 30s"
+                    value={form.nama_produk}
+                    onChange={(e) => setForm({ ...form, nama_produk: e.target.value })}
+                    className="input-field pl-8"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <span className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-gray-600 dark:text-gray-400">
+                  <Tag size={12} className="text-gray-500 dark:text-gray-400" />
+                  Kategori <span className="font-normal text-gray-400">(opsional)</span>
+                </span>
+                <div className="relative">
+                  <Tag size={13} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input
+                    placeholder="mis. Kaos, Hoodie"
+                    value={form.kategori}
+                    onChange={(e) => setForm({ ...form, kategori: e.target.value })}
+                    className="input-field pl-8"
+                  />
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-blue-100 dark:border-blue-900/30 bg-blue-50/60 dark:bg-blue-900/10 p-3.5">
+                <span className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-gray-600 dark:text-gray-400">
+                  <Wallet size={12} className="text-gray-500 dark:text-gray-400" />
                   Harga Default
-                </label>
-                <input
-                  type="text"
-                  inputMode="numeric"
-                  required
-                  value={form.harga_default === 0 ? "" : form.harga_default.toLocaleString("id-ID")}
-                  onChange={(e) => {
-                    const raw = e.target.value.replace(/\D/g, "");
-                    setForm({ ...form, harga_default: raw === "" ? 0 : Number(raw) });
-                  }}
-                  className="input-field"
-                />
-                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                </span>
+                <div className="relative">
+                  <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400">Rp</span>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    required
+                    value={form.harga_default === 0 ? "" : form.harga_default.toLocaleString("id-ID")}
+                    onChange={(e) => {
+                      const raw = e.target.value.replace(/\D/g, "");
+                      setForm({ ...form, harga_default: raw === "" ? 0 : Number(raw) });
+                    }}
+                    className="input-field w-full bg-white dark:bg-[#0d1117] pl-7"
+                  />
+                </div>
+                <p className="mt-2 text-[11px] text-gray-500 dark:text-gray-400">
                   Harga ini cuma isi awal saat produk dipilih di form pesanan -- tetap bisa diubah manual per pesanan.
                 </p>
               </div>
@@ -542,18 +573,21 @@ export default function ProdukTable({
                     return (
                       <div key={idx} className="space-y-1 rounded-lg border border-gray-100 dark:border-[#30363d] p-2">
                         <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                          <select
-                            value={r.raw_material_id}
-                            onChange={(e) => updateRecipeRow(idx, "raw_material_id", e.target.value)}
-                            className="input-field min-w-0 flex-1"
-                          >
-                            {rawMaterials.length === 0 && <option value="">- Belum ada bahan di Gudang -</option>}
-                            {rawMaterials.map((m) => (
-                              <option key={m.id} value={m.id}>
-                                {m.nama_bahan}
-                              </option>
-                            ))}
-                          </select>
+                          <div className="relative min-w-0 flex-1">
+                            <select
+                              value={r.raw_material_id}
+                              onChange={(e) => updateRecipeRow(idx, "raw_material_id", e.target.value)}
+                              className="input-field w-full appearance-none pr-7"
+                            >
+                              {rawMaterials.length === 0 && <option value="">- Belum ada bahan di Gudang -</option>}
+                              {rawMaterials.map((m) => (
+                                <option key={m.id} value={m.id}>
+                                  {m.nama_bahan}
+                                </option>
+                              ))}
+                            </select>
+                            <ChevronDown size={13} className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                          </div>
                           {/* Qty/satuan/hapus digabung 1 baris terpisah di layar sempit (HP)
                               supaya tidak berdesakan dengan select bahan di atas -- di layar
                               >=sm baru sejajar lagi jadi 1 baris penuh. */}

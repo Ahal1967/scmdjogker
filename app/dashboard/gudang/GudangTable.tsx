@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { Search, Plus, Package, Boxes, AlertTriangle, CheckCircle2, ChevronLeft, ChevronRight, Pencil, Trash2, Loader2, PackageOpen, Tag, Ruler, Truck, MoreHorizontal, Download } from "lucide-react";
+import { Search, Plus, Package, Boxes, AlertTriangle, CheckCircle2, ChevronLeft, ChevronRight, ChevronDown, Pencil, Trash2, Loader2, PackageOpen, Tag, Ruler, Truck, MoreHorizontal, Download } from "lucide-react";
 import { useToast } from "@/components/useToast";
 import { useConfirm } from "@/components/useConfirm";
 import SortableTh from "@/components/SortableTh";
@@ -434,79 +434,125 @@ export default function GudangTable({
                 {editing ? "Edit Bahan" : "Bahan Masuk"}
               </h2>
             </div>
+            {/* Konsisten sama polesan yang baru dipakai di modal "Pesanan
+                Baru" -- label kecil di tiap field (sebelumnya Kategori/
+                Satuan tidak ada label sama sekali, cuma select polos),
+                ikon kontekstual di tiap label, chevron custom (bukan
+                bawaan browser) di semua <select>, dan Stok Awal/Minimum
+                digabung 1 panel bertinta karena keduanya sama-sama soal
+                ambang stok (sama seperti DP+Total digabung di Pesanan). */}
             <form onSubmit={handleSave} className="space-y-3 px-6 py-5">
-              <input
-                required
-                placeholder="Nama Bahan"
-                value={form.nama_bahan}
-                onChange={(e) => setForm({ ...form, nama_bahan: e.target.value })}
-                className="input-field"
-              />
-
-              <div className="grid grid-cols-2 gap-3">
-                <select
-                  value={form.kategori}
-                  onChange={(e) => setForm({ ...form, kategori: e.target.value })}
-                  className="input-field"
-                >
-                  {KATEGORI_OPTIONS.map((k) => (
-                    <option key={k} value={k}>
-                      {k}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  value={form.satuan}
-                  onChange={(e) => setForm({ ...form, satuan: e.target.value })}
-                  className="input-field"
-                >
-                  {SATUAN_OPTIONS.map((s) => (
-                    <option key={s} value={s}>
-                      {s}
-                    </option>
-                  ))}
-                </select>
+              <div>
+                <span className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-gray-600 dark:text-gray-400">
+                  <Tag size={12} className="text-gray-500 dark:text-gray-400" />
+                  Nama Bahan
+                </span>
+                <div className="relative">
+                  <Package size={13} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input
+                    required
+                    placeholder="mis. Kain Cotton Combed 30s"
+                    value={form.nama_bahan}
+                    onChange={(e) => setForm({ ...form, nama_bahan: e.target.value })}
+                    className="input-field pl-8"
+                  />
+                </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">Stok Awal</label>
-                  <input
-                    type="number"
-                    min={0}
-                    required
-                    value={form.stok || ""}
-                    onChange={(e) => setForm({ ...form, stok: e.target.value === "" ? 0 : Number(e.target.value) })}
-                    className="input-field"
-                  />
+                  <span className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-gray-600 dark:text-gray-400">
+                    <PackageOpen size={12} className="text-gray-500 dark:text-gray-400" />
+                    Kategori
+                  </span>
+                  <div className="relative">
+                    <select
+                      value={form.kategori}
+                      onChange={(e) => setForm({ ...form, kategori: e.target.value })}
+                      className="input-field w-full appearance-none pr-7"
+                    >
+                      {KATEGORI_OPTIONS.map((k) => (
+                        <option key={k} value={k}>
+                          {k}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown size={13} className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                  </div>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">Stok Minimum</label>
-                  <input
-                    type="number"
-                    min={0}
-                    required
-                    value={form.stok_minimum || ""}
-                    onChange={(e) => setForm({ ...form, stok_minimum: e.target.value === "" ? 0 : Number(e.target.value) })}
-                    className="input-field"
-                  />
+                  <span className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-gray-600 dark:text-gray-400">
+                    <Ruler size={12} className="text-gray-500 dark:text-gray-400" />
+                    Satuan
+                  </span>
+                  <div className="relative">
+                    <select
+                      value={form.satuan}
+                      onChange={(e) => setForm({ ...form, satuan: e.target.value })}
+                      className="input-field w-full appearance-none pr-7"
+                    >
+                      {SATUAN_OPTIONS.map((s) => (
+                        <option key={s} value={s}>
+                          {s}
+                        </option>
+                      ))}
+                    </select>
+                    <ChevronDown size={13} className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                  </div>
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-gray-200 dark:border-[#30363d] bg-gray-50/70 dark:bg-[#0d1117] p-3.5">
+                <span className="mb-2.5 flex items-center gap-1.5 text-xs font-medium text-gray-600 dark:text-gray-400">
+                  <Boxes size={12} className="text-gray-500 dark:text-gray-400" />
+                  Level Stok
+                </span>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="mb-1 block text-[11px] text-gray-400">Stok Awal</label>
+                    <input
+                      type="number"
+                      min={0}
+                      required
+                      value={form.stok || ""}
+                      onChange={(e) => setForm({ ...form, stok: e.target.value === "" ? 0 : Number(e.target.value) })}
+                      className="input-field w-full bg-white dark:bg-[#161b22]"
+                    />
+                  </div>
+                  <div>
+                    <label className="mb-1 block text-[11px] text-gray-400">Stok Minimum</label>
+                    <input
+                      type="number"
+                      min={0}
+                      required
+                      value={form.stok_minimum || ""}
+                      onChange={(e) => setForm({ ...form, stok_minimum: e.target.value === "" ? 0 : Number(e.target.value) })}
+                      className="input-field w-full bg-white dark:bg-[#161b22]"
+                    />
+                  </div>
                 </div>
               </div>
 
               <div>
-                <label className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1.5 block">Supplier</label>
-                <select
-                  value={form.supplier_id}
-                  onChange={(e) => setForm({ ...form, supplier_id: e.target.value })}
-                  className="input-field"
-                >
-                  <option value="">- Pilih Supplier -</option>
-                  {suppliers.map((s) => (
-                    <option key={s.id} value={s.id}>
-                      {s.nama_supplier}
-                    </option>
-                  ))}
-                </select>
+                <span className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-gray-600 dark:text-gray-400">
+                  <Truck size={12} className="text-gray-500 dark:text-gray-400" />
+                  Supplier
+                </span>
+                <div className="relative">
+                  <select
+                    value={form.supplier_id}
+                    onChange={(e) => setForm({ ...form, supplier_id: e.target.value })}
+                    className="input-field w-full appearance-none pr-7"
+                  >
+                    <option value="">- Pilih Supplier -</option>
+                    {suppliers.map((s) => (
+                      <option key={s.id} value={s.id}>
+                        {s.nama_supplier}
+                      </option>
+                    ))}
+                  </select>
+                  <ChevronDown size={13} className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                </div>
               </div>
 
               <div className="flex gap-3 pt-2">

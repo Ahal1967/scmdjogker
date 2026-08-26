@@ -268,7 +268,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-4 md:space-y-6">
       <PageHeaderCard
-        badge="RINGKASAN HARI INI"
+        badge="Ringkasan Hari Ini"
         icon={CalendarDays}
         title="Dashboard"
         subtitle="Ringkasan aktivitas SCM Djogker."

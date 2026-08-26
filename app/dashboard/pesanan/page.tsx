@@ -6,7 +6,7 @@ export default function PesananPage() {
   return (
     <div className="space-y-4 md:space-y-6">
       <PageHeaderCard
-        badge="TRANSAKSI"
+        badge="Transaksi"
         icon={ShoppingCart}
         title="Pesanan"
         subtitle="Kelola daftar pesanan pelanggan."

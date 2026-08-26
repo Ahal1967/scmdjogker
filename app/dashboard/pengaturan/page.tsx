@@ -40,7 +40,7 @@ export default async function PengaturanPage() {
   return (
     <div className="space-y-4 md:space-y-6">
       <PageHeaderCard
-        badge="MANAJEMEN AKUN"
+        badge="Manajemen Akun"
         icon={Settings}
         title="Pengaturan"
         subtitle="Manajemen profil pengguna dan role akses."

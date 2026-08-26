@@ -349,41 +349,108 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
                 {editing ? "Edit Supplier" : "Tambah Supplier"}
               </h2>
             </div>
+            {/* Polesan sama seperti modal Bahan Masuk/Produk: ikon di
+                dalam field, label kecil. Status yang tadinya <select>
+                2 opsi diganti jadi toggle 2 tombol (Aktif/Nonaktif) --
+                lebih cepat diklik dibanding buka dropdown buat 2 pilihan,
+                dan warnanya disamakan sama badge status di tabel (hijau
+                buat Aktif, abu buat Nonaktif). */}
             <form onSubmit={handleSave} className="space-y-3 px-6 py-5">
-              <input
-                required
-                placeholder="Nama Supplier"
-                value={form.nama_supplier}
-                onChange={(e) => setForm({ ...form, nama_supplier: e.target.value })}
-                className="input-field"
-              />
-              <input
-                placeholder="Kontak"
-                value={form.kontak}
-                onChange={(e) => setForm({ ...form, kontak: e.target.value })}
-                className="input-field"
-              />
-              <input
-                placeholder="No. Telepon"
-                value={form.no_telepon}
-                onChange={(e) => setForm({ ...form, no_telepon: e.target.value })}
-                className="input-field"
-              />
-              <textarea
-                placeholder="Alamat"
-                value={form.alamat}
-                onChange={(e) => setForm({ ...form, alamat: e.target.value })}
-                className="input-field"
-                rows={2}
-              />
-              <select
-                value={form.status}
-                onChange={(e) => setForm({ ...form, status: e.target.value as "Aktif" | "Nonaktif" })}
-                className="input-field"
-              >
-                <option value="Aktif">Aktif</option>
-                <option value="Nonaktif">Nonaktif</option>
-              </select>
+              <div>
+                <span className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-gray-600 dark:text-gray-400">
+                  <Truck size={12} className="text-gray-500 dark:text-gray-400" />
+                  Nama Supplier
+                </span>
+                <div className="relative">
+                  <Truck size={13} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input
+                    required
+                    placeholder="mis. CV. Maju Jaya"
+                    value={form.nama_supplier}
+                    onChange={(e) => setForm({ ...form, nama_supplier: e.target.value })}
+                    className="input-field pl-8"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <span className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-gray-600 dark:text-gray-400">
+                  <Users2 size={12} className="text-gray-500 dark:text-gray-400" />
+                  Kontak <span className="font-normal text-gray-400">(opsional)</span>
+                </span>
+                <div className="relative">
+                  <Users2 size={13} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input
+                    placeholder="Nama orang yang bisa dihubungi"
+                    value={form.kontak}
+                    onChange={(e) => setForm({ ...form, kontak: e.target.value })}
+                    className="input-field pl-8"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <span className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-gray-600 dark:text-gray-400">
+                  <Phone size={12} className="text-gray-500 dark:text-gray-400" />
+                  No. Telepon <span className="font-normal text-gray-400">(opsional)</span>
+                </span>
+                <div className="relative">
+                  <Phone size={13} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                  <input
+                    placeholder="08xx-xxxx-xxxx"
+                    value={form.no_telepon}
+                    onChange={(e) => setForm({ ...form, no_telepon: e.target.value })}
+                    className="input-field pl-8"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <span className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-gray-600 dark:text-gray-400">
+                  <MapPin size={12} className="text-gray-500 dark:text-gray-400" />
+                  Alamat <span className="font-normal text-gray-400">(opsional)</span>
+                </span>
+                <div className="relative">
+                  <MapPin size={13} className="pointer-events-none absolute left-3 top-3 text-gray-400" />
+                  <textarea
+                    placeholder="Alamat lengkap supplier"
+                    value={form.alamat}
+                    onChange={(e) => setForm({ ...form, alamat: e.target.value })}
+                    className="input-field pl-8"
+                    rows={2}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <span className="mb-1.5 block text-xs font-medium text-gray-600 dark:text-gray-400">Status</span>
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setForm({ ...form, status: "Aktif" })}
+                    className={`flex items-center justify-center gap-1.5 rounded-lg border py-2 text-sm font-medium transition-colors ${
+                      form.status === "Aktif"
+                        ? "border-transparent bg-green-600 text-white shadow-sm shadow-green-600/30"
+                        : "border-gray-200 dark:border-[#30363d] text-gray-500 dark:text-gray-400"
+                    }`}
+                  >
+                    <CheckCircle2 size={14} />
+                    Aktif
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setForm({ ...form, status: "Nonaktif" })}
+                    className={`flex items-center justify-center gap-1.5 rounded-lg border py-2 text-sm font-medium transition-colors ${
+                      form.status === "Nonaktif"
+                        ? "border-transparent bg-gray-500 text-white shadow-sm shadow-gray-500/30"
+                        : "border-gray-200 dark:border-[#30363d] text-gray-500 dark:text-gray-400"
+                    }`}
+                  >
+                    <Ban size={14} />
+                    Nonaktif
+                  </button>
+                </div>
+              </div>
 
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={() => setShowModal(false)} className="btn-outline flex-1">

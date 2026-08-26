@@ -106,7 +106,7 @@ export default async function AlurPage() {
   return (
     <div className="space-y-4 md:space-y-6">
       <PageHeaderCard
-        badge="END-TO-END TRACKING"
+        badge="End-to-End Tracking"
         icon={Route}
         title="Alur Supply Chain"
         subtitle="Ringkasan tiap tahap dari bahan baku sampai produk diterima pelanggan."

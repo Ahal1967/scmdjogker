@@ -171,30 +171,58 @@ export default function DashboardLayout({
           borderColor: "var(--djoker-border)",
         }}
       >
-        <div
-          className="flex h-16 shrink-0 items-center gap-3 border-b px-4"
-          style={{ borderColor: "var(--djoker-border)" }}
-        >
-          <div className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-lg border bg-white shadow-sm">
-            <Image
-              src="/images/logodjogker1.jpeg"
-              alt="Logo DJOGKER"
-              width={36}
-              height={36}
-              className="object-contain p-1"
-              priority
+        {/* Revisi ke-3 dari mockup "Sidebar Header Redesign" (approved) --
+            diadaptasi dari referensi gambar user: gradasi biru-ke-biru-muda
+            yang halus (ganti dari navy-hitam di revisi sebelumnya),
+            wordmark lebih besar/tebal, subtitle jadi teks polos berspasi
+            (bukan pil lagi), + 2 lingkaran glow lembut di latar buat kesan
+            premium (murni dekoratif, tidak merepresentasikan data apa
+            pun -- sengaja TIDAK ikut panel ikon & garis progress dari
+            referensi karena keduanya juga tidak punya makna nyata di
+            sini).
+            Bentuk kartu balik ke "Kartu Membulat + Jarak" (bukan lagi
+            full-bleed) -- kartu ini sengaja dibuat LEBIH SEMPIT dari
+            sidebar (margin 16px kiri/kanan/atas), supaya sudut
+            membulatnya punya "ruang napas" (percobaan rounded-corner
+            full-bleed sebelumnya kelihatan kepotong somplak karena tidak
+            ada margin). Warna kartu tetap fixed sama di light & dark mode
+            (keputusan sadar user) -- yang beda cuma sekelilingnya, latar
+            sidebar & warna menu ikut var(--djoker-*)/dark: seperti biasa. */}
+        <div className="shrink-0 px-4 pt-4">
+          <div
+            className="relative flex flex-col items-center justify-center gap-1 overflow-hidden rounded-[22px] px-4 py-5"
+            style={{
+              background: "linear-gradient(135deg, #1d4ed8 0%, #3b82f6 50%, #93c5fd 100%)",
+              boxShadow: "0 10px 24px rgba(37,99,235,0.3)",
+            }}
+          >
+            <span
+              className="pointer-events-none absolute -right-14 -top-14 h-40 w-40 rounded-full"
+              style={{ border: "1px solid rgba(255,255,255,0.25)" }}
             />
-          </div>
-          <div className="leading-tight">
-            <p className="font-display text-sm font-extrabold tracking-wide bg-gradient-to-r from-blue-600 to-blue-400 bg-clip-text text-transparent dark:from-white dark:to-blue-100">
+            <span
+              className="pointer-events-none absolute -bottom-10 -left-8 h-24 w-24 rounded-full"
+              style={{ background: "rgba(255,255,255,0.08)" }}
+            />
+            <div className="relative flex h-[46px] w-[46px] items-center justify-center overflow-hidden rounded-2xl bg-white shadow-sm">
+              <Image
+                src="/images/logodjogker1.jpeg"
+                alt="Logo DJOGKER"
+                width={46}
+                height={46}
+                className="object-contain p-1"
+                priority
+              />
+            </div>
+            <p className="relative font-display text-base font-extrabold tracking-wide text-white">
               DJOGKER
             </p>
-            <span
-              className="mt-0.5 inline-flex items-center rounded-full px-1.5 py-0.5 text-[8px] font-semibold tracking-widest text-blue-600 dark:text-white"
-              style={{ background: "rgba(59,130,246,0.12)" }}
+            <p
+              className="relative text-[9px] font-bold tracking-[0.16em]"
+              style={{ color: "rgba(255,255,255,0.75)" }}
             >
               SCM SYSTEM
-            </span>
+            </p>
           </div>
         </div>
 
