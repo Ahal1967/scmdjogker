@@ -202,7 +202,7 @@ export default function UploadPageClient() {
                     </div>
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-[12px] font-bold text-black dark:text-white">{file.name}</p>
-                      <p className="mt-0.5 text-[10.5px] text-gray-400 dark:text-gray-500">{formatSize(file.size)}</p>
+                      <p className="mt-0.5 text-[10.5px] text-gray-500 dark:text-gray-400">{formatSize(file.size)}</p>
                     </div>
                     <button
                       type="button"
@@ -231,7 +231,7 @@ export default function UploadPageClient() {
                       <UploadCloud size={20} strokeWidth={1.8} className="text-blue-500 dark:text-blue-400" />
                     </div>
                     <p className="text-[12.5px] font-bold text-black dark:text-white">Klik atau tarik file ke sini</p>
-                    <p className="mt-0.5 text-[10.5px] text-gray-400 dark:text-gray-500">Ukuran maksimal 10MB</p>
+                    <p className="mt-0.5 text-[10.5px] text-gray-500 dark:text-gray-400">Ukuran maksimal 10MB</p>
                     <div className="mt-2.5 flex flex-wrap justify-center gap-1.5">
                       {["PNG", "JPG", "WEBP", "PDF"].map((f) => (
                         <span
@@ -275,7 +275,7 @@ export default function UploadPageClient() {
           </div>
         )}
 
-        <div className="mt-5 flex items-start justify-center gap-1.5 border-t border-gray-100 dark:border-[#30363d] pt-3.5 text-center text-[10px] text-gray-400 dark:text-gray-500">
+        <div className="mt-5 flex items-start justify-center gap-1.5 border-t border-gray-100 dark:border-[#30363d] pt-3.5 text-center text-[10px] text-gray-500 dark:text-gray-400">
           <MapPin size={11} className="mt-0.5 shrink-0" />
           <div>
             <p>Jl. Wates Km 4,5 Gg. Ablar No 5</p>

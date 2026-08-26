@@ -181,7 +181,7 @@ export default function LoginPageClient() {
           </Link>
         </div>
 
-        <div className="mt-6 flex items-start justify-center gap-1.5 border-t border-gray-100 dark:border-[#30363d] pt-4 text-center text-[11px] text-gray-400 dark:text-gray-500">
+        <div className="mt-6 flex items-start justify-center gap-1.5 border-t border-gray-100 dark:border-[#30363d] pt-4 text-center text-[11px] text-gray-500 dark:text-gray-400">
           <MapPin size={12} className="mt-0.5 shrink-0" />
           <div>
             <p>Jl. Wates Km 4,5 Gg. Ablar No 5</p>

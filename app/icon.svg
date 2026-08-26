@@ -1,0 +1,22 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <!-- Monogram "D", pengganti placeholder ikon kaos sebelumnya, dipilih
+       user setelah dibandingkan langsung di ukuran tab browser sungguhan
+       (16/32/64px). Logo asli DJOGKER (wordmark kaligrafi) TIDAK dipakai
+       langsung di sini karena goresan tipisnya hilang total begitu
+       diperkecil sekecil favicon: sudah dicoba crop huruf D-nya, hasil
+       downscale-nya cuma jadi noda abu-abu, bukan salah crop tapi memang
+       batas fisik ukuran ikon vs detail kaligrafi. #6eb9e5 diambil lewat
+       sampling warna langsung dari file logo asli (bagian teks "djogja
+       t-shirt maker"), BUKAN warna tebakan, supaya tetap senada sama
+       identitas asli walau bentuknya disederhanakan. -->
+  <rect width="64" height="64" rx="14" fill="#6eb9e5"/>
+  <text
+    x="32"
+    y="46"
+    font-family="Georgia, 'Times New Roman', serif"
+    font-size="42"
+    font-weight="700"
+    fill="#ffffff"
+    text-anchor="middle"
+  >D</text>
+</svg>

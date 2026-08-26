@@ -375,6 +375,7 @@ export default function ProduksiTable({
                     <button
                       onClick={() => handleDelete(p.id)}
                       title="Hapus"
+                      aria-label="Hapus"
                       className="flex h-8 w-8 items-center justify-center rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/40 transition-colors mx-auto"
                     >
                       <Trash2 size={15} />

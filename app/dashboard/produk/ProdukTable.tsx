@@ -133,6 +133,22 @@ export default function ProdukTable({
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
+
+    // Sebelumnya cuma andalkan HTML5 "required" -- itu cukup buat "nama
+    // tidak boleh kosong", TAPI tidak bisa menegakkan aturan bisnis kayak
+    // "harga harus > 0" (input harga_default ini text+inputMode numeric,
+    // required cuma cek string-nya tidak kosong, jadi kalau kebetulan
+    // hasil parsing-nya 0 tetap lolos). Disamakan ke pola PesananTable.tsx:
+    // validasi eksplisit + showToast bahasa Indonesia.
+    if (!form.nama_produk.trim()) {
+      showToast("Nama produk wajib diisi.");
+      return;
+    }
+    if (!form.harga_default || Number(form.harga_default) <= 0) {
+      showToast("Harga default harus lebih dari 0.");
+      return;
+    }
+
     setSaving(true);
 
     const payload = {
@@ -316,6 +332,7 @@ export default function ProdukTable({
                       <button
                         onClick={() => openRecipe(p)}
                         title="Kelola Resep Bahan"
+                        aria-label="Kelola Resep Bahan"
                         className="flex h-8 w-8 items-center justify-center rounded-lg text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/40 transition-colors"
                       >
                         <ListChecks size={15} />
@@ -323,6 +340,7 @@ export default function ProdukTable({
                       <button
                         onClick={() => openEdit(p)}
                         title="Edit"
+                        aria-label="Edit"
                         className="flex h-8 w-8 items-center justify-center rounded-lg text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/40 transition-colors"
                       >
                         <Pencil size={15} />
@@ -330,6 +348,7 @@ export default function ProdukTable({
                       <button
                         onClick={() => handleDelete(p.id)}
                         title="Hapus"
+                        aria-label="Hapus"
                         className="flex h-8 w-8 items-center justify-center rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/40 transition-colors"
                       >
                         <Trash2 size={15} />
@@ -427,7 +446,7 @@ export default function ProdukTable({
       {/* Modal tambah/edit produk */}
       {showModal && (
         <div className="fixed inset-0 bg-black/60 flex items-start justify-center z-50 p-4 overflow-y-auto backdrop-blur-sm">
-          <div className="card card-modal w-full max-w-md my-8 max-h-[90vh] overflow-y-auto p-0" style={{ border: "none" }}>
+          <div className="modal-fade-in card card-modal w-full max-w-md my-8 max-h-[90vh] overflow-y-auto p-0 shadow-2xl" style={{ border: "none" }}>
             <div className="rounded-t-2xl bg-blue-50 dark:bg-blue-900/30 px-6 py-5 flex items-center gap-3">
               <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 shadow-sm shadow-blue-600/30">
                 <Shirt size={18} className="text-white" />
@@ -465,7 +484,7 @@ export default function ProdukTable({
                   }}
                   className="input-field"
                 />
-                <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
+                <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                   Harga ini cuma isi awal saat produk dipilih di form pesanan -- tetap bisa diubah manual per pesanan.
                 </p>
               </div>
@@ -487,7 +506,7 @@ export default function ProdukTable({
       {/* Modal resep / BOM */}
       {showRecipeModal && recipeProduct && (
         <div className="fixed inset-0 bg-black/60 flex items-start justify-center z-50 p-4 overflow-y-auto backdrop-blur-sm">
-          <div className="card card-modal w-full max-w-lg my-8 max-h-[90vh] overflow-y-auto p-0" style={{ border: "none" }}>
+          <div className="modal-fade-in card card-modal w-full max-w-lg my-8 max-h-[90vh] overflow-y-auto p-0 shadow-2xl" style={{ border: "none" }}>
             <div className="rounded-t-2xl bg-purple-50 dark:bg-purple-900/30 px-6 py-5 flex items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-purple-600 shadow-sm shadow-purple-600/30">
@@ -550,7 +569,7 @@ export default function ProdukTable({
                               }
                               className="input-field w-24"
                             />
-                            <span className="w-14 shrink-0 text-xs text-gray-400 dark:text-gray-500">
+                            <span className="w-14 shrink-0 text-xs text-gray-500 dark:text-gray-400">
                               {material?.satuan ?? ""}
                             </span>
                             <button
@@ -568,7 +587,7 @@ export default function ProdukTable({
                             const preset = ESTIMASI_BAHAN.find((p) => p.key === e.target.value);
                             if (preset) updateRecipeRow(idx, "qty_per_unit", Number(preset.qtyPerUnit.toFixed(5)));
                           }}
-                          className="w-full rounded-lg border border-dashed border-gray-200 dark:border-[#3d444d] bg-transparent px-2 py-1 text-[10.5px] text-gray-400 dark:text-gray-500"
+                          className="w-full rounded-lg border border-dashed border-gray-200 dark:border-[#3d444d] bg-transparent px-2 py-1 text-[10.5px] text-gray-500 dark:text-gray-400"
                         >
                           <option value="">Isi cepat: pakai estimasi umum industri...</option>
                           {ESTIMASI_BAHAN.map((p) => (

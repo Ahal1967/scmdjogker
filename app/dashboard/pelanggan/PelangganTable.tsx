@@ -138,6 +138,7 @@ export default function PelangganTable({ dataPelanggan }: { dataPelanggan: Pelan
                       <button
                         onClick={() => handleDelete(c)}
                         title="Hapus"
+                        aria-label="Hapus"
                         className="flex h-8 w-8 items-center justify-center rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/40 transition-colors"
                       >
                         <Trash2 size={15} />

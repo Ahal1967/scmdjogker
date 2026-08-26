@@ -302,6 +302,7 @@ export default function GudangTable({
                       <button
                         onClick={() => openEdit(m)}
                         title="Edit"
+                        aria-label="Edit"
                         className="flex h-8 w-8 items-center justify-center rounded-lg text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/40 transition-colors"
                       >
                         <Pencil size={15} />
@@ -309,6 +310,7 @@ export default function GudangTable({
                       <button
                         onClick={() => handleDelete(m.id)}
                         title="Hapus"
+                        aria-label="Hapus"
                         className="flex h-8 w-8 items-center justify-center rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/40 transition-colors"
                       >
                         <Trash2 size={15} />
@@ -423,7 +425,7 @@ export default function GudangTable({
 
       {showModal && (
         <div className="fixed inset-0 bg-black/60 flex items-start justify-center z-50 p-4 overflow-y-auto backdrop-blur-sm">
-          <div className="card card-modal w-full max-w-md my-8 max-h-[90vh] overflow-y-auto p-0" style={{ border: "none" }}>
+          <div className="modal-fade-in card card-modal w-full max-w-md my-8 max-h-[90vh] overflow-y-auto p-0 shadow-2xl" style={{ border: "none" }}>
             <div className="rounded-t-2xl bg-blue-50 dark:bg-blue-900/30 px-6 py-5 flex items-center gap-3">
               <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 shadow-sm shadow-blue-600/30">
                 <Package size={18} className="text-white" />

@@ -6,7 +6,6 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { Menu } from "@headlessui/react";
 import {
-  User,
   Settings,
   LogOut,
   LayoutDashboard,
@@ -202,7 +201,7 @@ export default function DashboardLayout({
         <nav className="min-h-0 flex-1 space-y-4 overflow-y-auto px-3 py-4">
           {NAV_SECTIONS.map((section) => (
             <div key={section.title}>
-              <p className="mb-1.5 px-3 text-[11px] font-bold tracking-wide text-gray-400 dark:text-gray-500">
+              <p className="mb-1.5 px-3 text-[11px] font-bold tracking-wide text-gray-500 dark:text-gray-400">
                 {section.title}
               </p>
               <div className="space-y-1">
@@ -347,30 +346,28 @@ export default function DashboardLayout({
 
             <Menu.Items className="absolute right-0 z-50 mt-3 w-56 origin-top-right rounded-xl border bg-white/70 dark:bg-[#161b22]/70 backdrop-blur-md p-2 shadow-xl focus:outline-none"
               style={{ borderColor: "var(--djoker-border)" }}>
+              {/* Sebelumnya 2 item terpisah ("Profile" -> /dashboard/profile,
+                  "Settings" -> /dashboard/settings) yang masing-masing
+                  py sendiri, isinya sebagian besar duplikat dari halaman
+                  Pengaturan (edit nama, lihat role, email, logout) tapi
+                  TIDAK ikut sistem desain yang sama (warna Tailwind acak,
+                  ada garis biru aneh ketauan user lewat screenshot) --
+                  digabung jadi 1 item ke /dashboard/pengaturan supaya
+                  cuma ada SATU tempat buat data profil/akun, tidak ada
+                  lagi 2 sumber kebenaran yang bisa beda sendiri-sendiri.
+                  Folder app/dashboard/profile/ dan app/dashboard/settings/
+                  dihapus manual oleh user (device bridge di sesi ini
+                  tidak bisa hapus file). */}
               <Menu.Item>
                 {({ active }) => (
                   <Link
-                    href="/dashboard/profile"
-                    className={`flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm transition ${
-                      active ? "bg-blue-50 text-blue-600" : "text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#21262d]"
-                    }`}
-                  >
-                    <User size={16} strokeWidth={2} />
-                    Profile
-                  </Link>
-                )}
-              </Menu.Item>
-
-              <Menu.Item>
-                {({ active }) => (
-                  <Link
-                    href="/dashboard/settings"
+                    href="/dashboard/pengaturan"
                     className={`flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm transition ${
                       active ? "bg-blue-50 text-blue-600" : "text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#21262d]"
                     }`}
                   >
                     <Settings size={16} strokeWidth={2} />
-                    Settings
+                    Pengaturan
                   </Link>
                 )}
               </Menu.Item>

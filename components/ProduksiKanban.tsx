@@ -5,6 +5,7 @@ import {
   DndContext,
   DragOverlay,
   PointerSensor,
+  KeyboardSensor,
   useSensor,
   useSensors,
   useDraggable,
@@ -36,7 +37,19 @@ type ColumnDef = {
   icon: LucideIcon;
 };
 
-function ProductionCard({ p, colorClass }: { p: ProductionRow; colorClass: string }) {
+function ProductionCard({
+  p,
+  colorClass,
+  columns,
+  onStatusChange,
+}: {
+  p: ProductionRow;
+  colorClass: string;
+  // columns + onStatusChange dipakai buat <select> di bawah, BUKAN buat
+  // drag -- lihat komentar di select-nya sendiri kenapa ini perlu ada.
+  columns: ColumnDef[];
+  onStatusChange: (p: ProductionRow, status: string) => void;
+}) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: p.id,
   });
@@ -69,8 +82,31 @@ function ProductionCard({ p, colorClass }: { p: ProductionRow; colorClass: strin
         <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-gray-200 dark:bg-[#21262d]">
           <div className={`h-full rounded-full transition-all ${colorClass}`} style={{ width: `${Number(p.progress || 0)}%` }} />
         </div>
-        <span className="text-[10.5px] text-gray-400 dark:text-gray-500">{Number(p.progress || 0)}%</span>
+        <span className="text-[10.5px] text-gray-500 dark:text-gray-400">{Number(p.progress || 0)}%</span>
       </div>
+      {/* Jalur keyboard buat pindah status -- drag-and-drop di atas cuma
+          bisa dipakai mouse/sentuh (PointerSensor), dan tampilan Papan ini
+          tidak pernah menampilkan StatusDropdown seperti tampilan Tabel
+          (komponen ini murni drag, tidak ada dropdown sama sekali sampai
+          sekarang). Tanpa ini, pengguna keyboard-only TIDAK PUNYA CARA
+          SAMA SEKALI buat ubah status lewat tampilan Papan. touch-none di
+          card induk sengaja tidak ikut nge-block select ini karena
+          stopPropagation di bawah -- klik/fokus di select tidak pernah
+          nyampe ke listeners drag di div pembungkus. */}
+      <select
+        value={p.status || columns[0].key}
+        onChange={(e) => onStatusChange(p, e.target.value)}
+        onPointerDown={(e) => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
+        aria-label={`Ubah status ${p.no_produksi || "produksi ini"}`}
+        className="w-full cursor-pointer rounded-lg border border-gray-200 dark:border-[#30363d] bg-white dark:bg-[#161b22] px-2 py-1 text-[11px] text-gray-600 dark:text-gray-300"
+      >
+        {columns.map((c) => (
+          <option key={c.key} value={c.key}>
+            {c.label}
+          </option>
+        ))}
+      </select>
     </div>
   );
 }
@@ -78,13 +114,17 @@ function ProductionCard({ p, colorClass }: { p: ProductionRow; colorClass: strin
 function Column({
   col,
   items,
+  columns,
   colorClasses,
   barClasses,
+  onStatusChange,
 }: {
   col: ColumnDef;
   items: ProductionRow[];
+  columns: ColumnDef[];
   colorClasses: Record<string, string>;
   barClasses: Record<string, string>;
+  onStatusChange: (p: ProductionRow, status: string) => void;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: col.key });
   const Icon = col.icon;
@@ -110,7 +150,13 @@ function Column({
           <p className="py-6 text-center text-xs text-gray-400 dark:text-gray-600">Tidak ada</p>
         )}
         {items.map((p) => (
-          <ProductionCard key={p.id} p={p} colorClass={barClasses[col.key] ?? "bg-blue-600"} />
+          <ProductionCard
+            key={p.id}
+            p={p}
+            colorClass={barClasses[col.key] ?? "bg-blue-600"}
+            columns={columns}
+            onStatusChange={onStatusChange}
+          />
         ))}
       </div>
     </div>
@@ -144,7 +190,14 @@ export default function ProduksiKanban({
       // biasa di kartu (misal buat baca detail) selalu ke-trigger jadi
       // drag walau cuma gerak 1px karena tremor mouse/trackpad.
       activationConstraint: { distance: 8 },
-    })
+    }),
+    // Sebelumnya CUMA PointerSensor -- papan ini sama sekali tidak bisa
+    // dioperasikan lewat keyboard (audit Tier E). KeyboardSensor bawaan
+    // dnd-kit dipakai sebagai tambahan; jalur keyboard yang PALING pasti
+    // jalan tetap <select> per kartu di ProductionCard (drag berbasis
+    // keyboard antar kolom lebih sulit diuji konsisten di semua browser,
+    // jadi bukan satu-satunya cara).
+    useSensor(KeyboardSensor)
   );
 
   const byColumn = new Map<string, ProductionRow[]>(columns.map((c) => [c.key, []]));
@@ -180,8 +233,10 @@ export default function ProduksiKanban({
             key={col.key}
             col={col}
             items={byColumn.get(col.key) ?? []}
+            columns={columns}
             colorClasses={colorClasses}
             barClasses={barClasses}
+            onStatusChange={onStatusChange}
           />
         ))}
       </div>

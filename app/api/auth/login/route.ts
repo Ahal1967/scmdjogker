@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 // POST /api/auth/login -- proses login dipindah ke sini (dari yang
 // sebelumnya langsung manggil supabase.auth.signInWithPassword() di
@@ -11,11 +12,26 @@ import { createAdminClient } from "@/lib/supabase/admin";
 //
 // login_attempts cuma bisa diakses lewat service role key (createAdminClient),
 // karena RLS-nya sengaja tidak punya policy sama sekali.
-
+//
+// Lockout di atas per-EMAIL (5x gagal -> kunci email itu 15 menit), TAPI
+// tidak menahan satu IP yang mencoba banyak email BERBEDA satu-satu (tiap
+// email masih punya jatah 5x sendiri-sendiri) -- itu celah yang sempat
+// dicatat di audit (Tier D). Ditambah rate limit per-IP di sini (pakai
+// lib/rate-limit.ts yang sama seperti endpoint publik lain) supaya satu
+// alamat IP dibatasi totalnya, terlepas dari email mana pun yang dicoba.
 const MAX_ATTEMPTS = 5;
 const LOCKOUT_MINUTES = 15;
 
 export async function POST(request: Request) {
+  const ip = getClientIp(request);
+  const ipAllowed = await checkRateLimit(ip, "login", 15, 15);
+  if (!ipAllowed) {
+    return NextResponse.json(
+      { error: "Terlalu banyak percobaan login dari alamat ini. Coba lagi dalam beberapa menit." },
+      { status: 429 }
+    );
+  }
+
   const body = await request.json().catch(() => null);
   const email = typeof body?.email === "string" ? body.email.trim().toLowerCase() : "";
   const password = typeof body?.password === "string" ? body.password : "";

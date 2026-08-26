@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import {
   User,
   Pencil,
@@ -236,7 +237,7 @@ export default function PengaturanTable({
                 <td className="font-medium text-black dark:text-white text-center">
                   {profile.full_name || "-"}
                   {profile.id === currentUserId && (
-                    <span className="ml-1.5 text-[10px] font-normal text-gray-400 dark:text-gray-500">(kamu)</span>
+                    <span className="ml-1.5 text-[10px] font-normal text-gray-500 dark:text-gray-400">(kamu)</span>
                   )}
                 </td>
                 <td className="text-center">
@@ -251,6 +252,7 @@ export default function PengaturanTable({
                       type="button"
                       onClick={() => openEdit(profile)}
                       title="Edit"
+                      aria-label="Edit"
                       className="flex h-8 w-8 items-center justify-center rounded-lg text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/40 transition-colors"
                     >
                       <Pencil size={15} />
@@ -260,6 +262,7 @@ export default function PengaturanTable({
                         type="button"
                         onClick={() => handleDelete(profile)}
                         title="Hapus"
+                        aria-label="Hapus"
                         className="flex h-8 w-8 items-center justify-center rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/40 transition-colors"
                       >
                         <Trash2 size={15} />
@@ -280,11 +283,21 @@ export default function PengaturanTable({
         </table>
       </div>
 
-      {showAddModal && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 p-4 overflow-y-auto">
-          <div className="card card-modal w-full max-w-md my-8 max-h-[90vh] overflow-y-auto" style={{ border: "none" }}>
+      {/* createPortal ke document.body -- page.tsx membungkus <PengaturanTable>
+          di dalam div ".card overflow-hidden" (buat styling kaca di sekitar
+          tabel), tapi ".card" punya backdrop-filter yang bikin descendant
+          "fixed inset-0" di sini kejebak jadi relatif ke kotak .card itu,
+          bukan ke seluruh layar -- makanya modal ini kelihatan pecah jadi
+          panel kecil ketimpa di posisi tabel, bukan overlay penuh gelap.
+          User lapor ini di halaman Pengaturan (form edit nama). Portal
+          bikin modal ini selalu nempel ke <body>, kebal dari ancestor
+          manapun. */}
+      {showAddModal &&
+        createPortal(
+          <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 p-4 overflow-y-auto">
+          <div className="modal-fade-in card card-modal w-full max-w-md my-8 max-h-[90vh] overflow-y-auto shadow-2xl" style={{ border: "none" }}>
             <h2 className="font-display text-base font-semibold text-black dark:text-white">Tambah Pengguna</h2>
-            <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
               Akun langsung aktif & bisa login begitu disimpan (tidak perlu verifikasi email). Kasih tahu email &
               password ini ke orangnya langsung.
             </p>
@@ -338,12 +351,16 @@ export default function PengaturanTable({
               </div>
             </form>
           </div>
-        </div>
-      )}
+          </div>,
+          document.body
+        )}
 
-      {editingProfile && (
-        <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 p-4 overflow-y-auto">
-          <div className="card card-modal w-full max-w-md my-8 max-h-[90vh] overflow-y-auto" style={{ border: "none" }}>
+      {/* Sama seperti modal Tambah Pengguna di atas -- di-portal ke <body>
+          supaya tidak kejebak backdrop-filter ".card" di page.tsx. */}
+      {editingProfile &&
+        createPortal(
+          <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 p-4 overflow-y-auto">
+          <div className="modal-fade-in card card-modal w-full max-w-md my-8 max-h-[90vh] overflow-y-auto shadow-2xl" style={{ border: "none" }}>
             <h2 className="font-display text-base font-semibold text-black dark:text-white">
               {editingProfile.id === currentUserId ? "Edit Profil Saya" : "Edit Pengguna"}
             </h2>
@@ -366,7 +383,7 @@ export default function PengaturanTable({
                   <option value="admin">Admin</option>
                 </select>
               ) : (
-                <p className="text-xs text-gray-400 dark:text-gray-500">
+                <p className="text-xs text-gray-500 dark:text-gray-400">
                   Role: <span className={formatRoleBadge(editingProfile.role)}>{editingProfile.role}</span> -- role
                   akun sendiri tidak bisa diubah dari sini, minta admin lain kalau perlu.
                 </p>
@@ -387,8 +404,9 @@ export default function PengaturanTable({
               </div>
             </form>
           </div>
-        </div>
-      )}
+          </div>,
+          document.body
+        )}
 
       {ConfirmDialog}
       {ToastBanner}

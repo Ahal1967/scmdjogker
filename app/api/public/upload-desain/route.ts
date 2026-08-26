@@ -5,6 +5,22 @@ import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10MB, sesuai batas di mockup
 const ALLOWED_TYPES = ["image/png", "image/jpeg", "image/webp", "application/pdf"];
 
+// Ekstensi file yang dipakai buat nama penyimpanan HARUS ditarik dari sini
+// (Content-Type yang sudah divalidasi di ALLOWED_TYPES di atas), BUKAN dari
+// nama file asli kiriman user (file.name) -- nama file itu sepenuhnya bisa
+// diatur bebas oleh pengirim request (lewat multipart form field, terpisah
+// dari Content-Type-nya), jadi tidak boleh dipercaya mentah-mentah. Sempat
+// kepakai "file.name.split('.').pop()" sebelumnya, yang berarti orang bisa
+// kirim nama file apa saja (termasuk yang mengandung "/" buat lompat keluar
+// dari pola path yang dimaksud, atau ekstensi tidak dikenal) selama
+// Content-Type-nya masih lolos whitelist di atas.
+const EXT_BY_TYPE: Record<string, string> = {
+  "image/png": "png",
+  "image/jpeg": "jpg",
+  "image/webp": "webp",
+  "application/pdf": "pdf",
+};
+
 export async function POST(request: Request) {
   // Batasi maksimal 5 upload per 10 menit per alamat IP, supaya tidak
   // bisa disalahgunakan buat spam file / boros storage.
@@ -50,7 +66,7 @@ export async function POST(request: Request) {
   }
 
   // 2. Upload ke Storage.
-  const ext = file.name.split(".").pop() || "png";
+  const ext = EXT_BY_TYPE[file.type];
   const path = `${order.no_pesanan}-${Date.now()}.${ext}`;
   const buffer = Buffer.from(await file.arrayBuffer());
 

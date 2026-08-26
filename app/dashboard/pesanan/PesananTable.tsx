@@ -178,7 +178,7 @@ function ProductCombobox({
           <CheckCircle2 size={11} /> Terhubung katalog -- stok bahan otomatis kepotong
         </span>
       ) : value.trim() ? (
-        <span className="mt-1 inline-block text-[10px] text-gray-400 dark:text-gray-500">
+        <span className="mt-1 inline-block text-[10px] text-gray-500 dark:text-gray-400">
           Teks manual -- stok bahan tidak otomatis kepotong
         </span>
       ) : null}
@@ -995,6 +995,7 @@ export default function PesananTable() {
                           setPelunasanInput("");
                         }}
                         title="Lihat Detail"
+                        aria-label="Lihat Detail"
                         className="flex h-8 w-8 items-center justify-center rounded-lg text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/40 transition-colors"
                       >
                         <Eye size={15} />
@@ -1005,6 +1006,7 @@ export default function PesananTable() {
                           target="_blank"
                           rel="noopener noreferrer"
                           title="Kabari status via WhatsApp"
+                          aria-label="Kabari status via WhatsApp"
                           className="flex h-8 w-8 items-center justify-center rounded-lg text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/40 transition-colors"
                         >
                           <MessageCircle size={15} />
@@ -1013,6 +1015,7 @@ export default function PesananTable() {
                       <button
                         onClick={() => handleDelete(o.id)}
                         title="Hapus Pesanan"
+                        aria-label="Hapus Pesanan"
                         className="flex h-8 w-8 items-center justify-center rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/40 transition-colors"
                       >
                         <Trash2 size={15} />
@@ -1136,7 +1139,12 @@ export default function PesananTable() {
 
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 p-4 overflow-y-auto">
-          <div className="card card-modal w-full max-w-lg my-8 max-h-[90vh] overflow-y-auto" style={{ border: "none" }}>
+          {/* Sebelumnya max-w-lg -- diturunkan ke max-w-md (sama seperti
+              modal lain di app ini) setelah baris Ukuran/Jumlah/Harga di
+              bawah diubah dari flex-row 3-kolom lebar tetap jadi grid-3-
+              kolom yang otomatis menyesuaikan lebar kartu, jadi tidak
+              butuh lebar ekstra lagi. */}
+          <div className="modal-fade-in card card-modal w-full max-w-md my-8 max-h-[90vh] overflow-y-auto shadow-2xl" style={{ border: "none" }}>
             {/* Nomor pesanan TIDAK ditampilkan di sini lagi -- dulu bisa
                 "ditebak" sebelum disimpan karena nomor urut (DJ + counter),
                 sekarang kodenya acak dan baru ditentukan pas disimpan ke
@@ -1145,7 +1153,15 @@ export default function PesananTable() {
             <h2 className="font-display text-base font-semibold text-black dark:text-white">
               Pesanan Baru
             </h2>
-            <form onSubmit={handleSave} className="mt-4 space-y-4">
+            {/* mt-4/space-y-4 dirapatkan ke mt-3/space-y-3 -- form ini
+                sebelumnya sering melebihi max-h-[90vh] dan butuh scroll
+                internal sendiri di dalam kartu modal (kelihatan di
+                screenshot user), padahal lebar kartunya sendiri sudah
+                sesuai desain (max-w-lg, perlu buat baris Ukuran/Jumlah/
+                Harga). Merapatkan jarak antar section adalah cara yang
+                aman buat bikin form ini muat tanpa scroll internal di
+                kebanyakan layar, tanpa mengorbankan lebar. */}
+            <form onSubmit={handleSave} className="mt-3 space-y-3">
               <div>
                 <div className="flex items-center justify-between">
                   <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Pelanggan</label>
@@ -1198,17 +1214,21 @@ export default function PesananTable() {
 
               <div>
                 <label className="text-xs font-medium text-gray-600 dark:text-gray-400">Produk Pesanan</label>
-                <div className="mt-2 hidden items-center gap-2 px-0.5 sm:flex">
-                  <span className="flex-1"></span>
-                  <span className="w-24 text-[11px] text-gray-400">Ukuran</span>
-                  <span className="w-20 text-[11px] text-gray-400">Jumlah</span>
-                  <span className="w-28 text-[11px] text-gray-400">Harga Satuan</span>
-                </div>
-                <div className="mt-1 space-y-3 sm:space-y-2">
+                {/* Sebelumnya ada baris label header terpisah (Ukuran/
+                    Jumlah/Harga Satuan) yang cuma muncul di layar sm:
+                    ke atas, DAN 3 kolom Ukuran/Jumlah/Harga punya lebar
+                    tetap (w-24/w-20/w-28) yang cuma pas kalau kartu
+                    modalnya max-w-lg. Sekarang disatukan jadi 1 layout
+                    grid yang sama persis di semua ukuran layar -- label
+                    kecil nempel di tiap field (tidak perlu baris header
+                    terpisah lagi, sedikit lebih pendek), dan 3 kolom
+                    pakai grid-cols-3 yang otomatis menyesuaikan lebar
+                    kartu (tidak lagi butuh kartu selebar max-w-lg). */}
+                <div className="mt-1.5 space-y-2">
                   {items.map((it, idx) => (
                     <div
                       key={idx}
-                      className="flex flex-col gap-2 rounded-lg border border-gray-100 dark:border-[#30363d] p-2.5 sm:flex-row sm:items-start sm:border-0 sm:p-0"
+                      className="flex flex-col gap-2 rounded-lg border border-gray-100 dark:border-[#30363d] p-2.5"
                     >
                       <div className="flex items-center gap-2">
                         <div className="flex-1 space-y-1.5">
@@ -1234,16 +1254,16 @@ export default function PesananTable() {
                           <button
                             type="button"
                             onClick={() => removeItemRow(idx)}
-                            className="shrink-0 px-2 py-2.5 text-xs text-red-600 hover:text-red-700 dark:text-red-300 sm:hidden"
+                            className="shrink-0 px-2 py-2.5 text-xs text-red-600 hover:text-red-700 dark:text-red-300"
                           >
                             ✕
                           </button>
                         )}
                       </div>
 
-                      <div className="flex gap-2">
-                        <div className="flex-1 sm:w-24 sm:flex-none">
-                          <span className="mb-1 block text-[11px] text-gray-400 sm:hidden">Ukuran</span>
+                      <div className="grid grid-cols-3 gap-2">
+                        <div>
+                          <span className="mb-1 block text-[11px] text-gray-400">Ukuran</span>
                           <select
                             value={it.ukuran}
                             onChange={(e) => updateItem(idx, "ukuran", e.target.value)}
@@ -1257,8 +1277,8 @@ export default function PesananTable() {
                             ))}
                           </select>
                         </div>
-                        <div className="flex-1 sm:w-20 sm:flex-none">
-                          <span className="mb-1 block text-[11px] text-gray-400 sm:hidden">Jumlah</span>
+                        <div>
+                          <span className="mb-1 block text-[11px] text-gray-400">Jumlah</span>
                           <input
                             type="number"
                             min={1}
@@ -1268,8 +1288,8 @@ export default function PesananTable() {
                             className="input-field w-full"
                           />
                         </div>
-                        <div className="flex-1 sm:w-28 sm:flex-none">
-                          <span className="mb-1 block text-[11px] text-gray-400 sm:hidden">Harga Satuan</span>
+                        <div>
+                          <span className="mb-1 block text-[11px] text-gray-400">Harga</span>
                           <input
                             type="text"
                             inputMode="numeric"
@@ -1282,15 +1302,6 @@ export default function PesananTable() {
                             className="input-field w-full"
                           />
                         </div>
-                        {items.length > 1 && (
-                          <button
-                            type="button"
-                            onClick={() => removeItemRow(idx)}
-                            className="hidden shrink-0 px-2 py-2.5 text-xs text-red-600 hover:text-red-700 dark:text-red-300 sm:block"
-                          >
-                            ✕
-                          </button>
-                        )}
                       </div>
                     </div>
                   ))}
@@ -1327,7 +1338,7 @@ export default function PesananTable() {
                 />
               </div>
 
-              <div className="border-t border-gray-200 dark:border-[#30363d] pt-3">
+              <div className="border-t border-gray-200 dark:border-[#30363d] pt-2">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-gray-600 dark:text-gray-400">Total Pesanan</span>
                   <span className="font-display text-xl font-bold text-black dark:text-white">
@@ -1358,9 +1369,9 @@ export default function PesananTable() {
 
       {showQuickAdd && (
         <div className="fixed inset-0 z-[60] flex items-start justify-center bg-black/60 p-4 overflow-y-auto">
-          <div className="card card-modal w-full max-w-md my-8 max-h-[90vh] overflow-y-auto" style={{ border: "none" }}>
+          <div className="modal-fade-in card card-modal w-full max-w-md my-8 max-h-[90vh] overflow-y-auto shadow-2xl" style={{ border: "none" }}>
             <h2 className="font-display text-base font-semibold text-black dark:text-white">Tambah Produk Baru</h2>
-            <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
               Produk ini langsung masuk katalog & dipakai di pesanan yang sedang kamu buat. Isi resep bahan
               (opsional) supaya stok Gudang otomatis kepotong tiap kali produk ini dipesan lagi nanti.
             </p>
@@ -1406,7 +1417,7 @@ export default function PesananTable() {
                   )}
                 </div>
                 {rawMaterials.length === 0 ? (
-                  <p className="mt-1 text-xs text-gray-400 dark:text-gray-500">
+                  <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                     Belum ada bahan baku di Gudang -- lewati bagian ini dulu, atau tambah bahan di halaman Gudang lalu
                     lengkapi resepnya lewat halaman Produk.
                   </p>
@@ -1440,7 +1451,7 @@ export default function PesananTable() {
                               }
                               className="input-field w-24"
                             />
-                            <span className="w-12 shrink-0 text-xs text-gray-400 dark:text-gray-500">
+                            <span className="w-12 shrink-0 text-xs text-gray-500 dark:text-gray-400">
                               {material?.satuan ?? ""}
                             </span>
                             <button
@@ -1457,7 +1468,7 @@ export default function PesananTable() {
                               const preset = ESTIMASI_BAHAN.find((p) => p.key === e.target.value);
                               if (preset) updateQuickAddRecipeRow(i, "qty_per_unit", Number(preset.qtyPerUnit.toFixed(5)));
                             }}
-                            className="w-full rounded-lg border border-dashed border-gray-200 dark:border-[#3d444d] bg-transparent px-2 py-1 text-[10.5px] text-gray-400 dark:text-gray-500"
+                            className="w-full rounded-lg border border-dashed border-gray-200 dark:border-[#3d444d] bg-transparent px-2 py-1 text-[10.5px] text-gray-500 dark:text-gray-400"
                           >
                             <option value="">Isi cepat: pakai estimasi umum industri...</option>
                             {ESTIMASI_BAHAN.map((p) => (
@@ -1495,7 +1506,7 @@ export default function PesananTable() {
 
       {detailOrder && (
         <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 p-4 overflow-y-auto backdrop-blur-sm">
-          <div className="card card-modal w-full max-w-md my-8 max-h-[90vh] overflow-y-auto p-0" style={{ border: "none" }}>
+          <div className="modal-fade-in card card-modal w-full max-w-md my-8 max-h-[90vh] overflow-y-auto p-0 shadow-2xl" style={{ border: "none" }}>
             {/* Header biru muda */}
             <div className="rounded-t-2xl bg-blue-50 dark:bg-blue-900/30 px-6 py-5">
               <div className="flex items-center justify-between">
@@ -1596,7 +1607,7 @@ export default function PesananTable() {
                   Riwayat Pembayaran
                 </p>
                 {paymentHistory.length === 0 ? (
-                  <p className="text-xs text-gray-400 dark:text-gray-500">Belum ada pembayaran tercatat.</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Belum ada pembayaran tercatat.</p>
                 ) : (
                   <div className="space-y-1.5 rounded-xl bg-gray-50 dark:bg-[#0d1117]/50 p-3">
                     {paymentHistory.map((pmt) => (

@@ -1473,6 +1473,14 @@ body::before {
   }
 }
 
+/* Keyframe fadeIn di atas sebelumnya didefinisikan tapi TIDAK dipakai di
+   mana pun -- semua modal/dialog di app ini muncul instan tanpa transisi.
+   Class ini dipakai di kartu modal (bukan di overlay-nya) supaya kartunya
+   sedikit naik + fade in pas muncul, kesannya lebih halus/premium. */
+.modal-fade-in {
+  animation: fadeIn 0.2s ease;
+}
+
 input[type="number"]::-webkit-outer-spin-button,
 input[type="number"]::-webkit-inner-spin-button {
   -webkit-appearance: none;

@@ -203,7 +203,7 @@ export default function TrackingPageClient() {
               {!loading && <ChevronRight size={14} />}
             </button>
           </form>
-          <p className="mt-2 pl-0.5 text-[10.5px] text-gray-400 dark:text-gray-500">
+          <p className="mt-2 pl-0.5 text-[10.5px] text-gray-500 dark:text-gray-400">
             Contoh format: DJ00125 — cek di struk atau pesan konfirmasi WhatsApp kamu.
           </p>
 
@@ -314,7 +314,7 @@ export default function TrackingPageClient() {
                     <MapPin size={13} className="text-blue-600 dark:text-blue-400" />
                   </span>
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-wide text-gray-400 dark:text-gray-500">
+                    <p className="text-[10px] font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">
                       Alamat Pengiriman
                     </p>
                     <p className="mt-0.5 text-[12px] text-gray-700 dark:text-gray-300">{order.alamat_pengiriman}</p>
@@ -324,7 +324,7 @@ export default function TrackingPageClient() {
 
               {order.desain_url && (
                 <div className="mt-3.5">
-                  <p className="mb-1.5 text-[10px] font-bold uppercase tracking-wide text-gray-400 dark:text-gray-500">
+                  <p className="mb-1.5 text-[10px] font-bold uppercase tracking-wide text-gray-500 dark:text-gray-400">
                     Desain Terupload
                   </p>
                   <div className="relative h-16 w-16 overflow-hidden rounded-[12px] border border-gray-200 dark:border-[#30363d]">
@@ -379,12 +379,12 @@ export default function TrackingPageClient() {
                                 ? "text-black dark:text-white"
                                 : isCurrent
                                 ? "text-blue-600 dark:text-blue-400"
-                                : "text-gray-400 dark:text-gray-500"
+                                : "text-gray-500 dark:text-gray-400"
                             }`}
                           >
                             {t.tahap}
                           </p>
-                          <p className="mt-0.5 text-[10.5px] text-gray-400 dark:text-gray-500">{formatWaktu(t.waktu)}</p>
+                          <p className="mt-0.5 text-[10.5px] text-gray-500 dark:text-gray-400">{formatWaktu(t.waktu)}</p>
                         </div>
                         {t.selesai && (
                           <span className="mt-0.5 inline-flex shrink-0 items-center gap-1 rounded-full bg-green-50 dark:bg-green-900/30 px-2 py-0.5 text-[9px] font-extrabold text-green-600 dark:text-green-400">
@@ -421,7 +421,7 @@ export default function TrackingPageClient() {
           </div>
         )}
 
-        <div className="mt-5 flex items-start justify-center gap-1.5 border-t border-gray-100 dark:border-[#30363d] pt-3.5 text-center text-[10px] text-gray-400 dark:text-gray-500">
+        <div className="mt-5 flex items-start justify-center gap-1.5 border-t border-gray-100 dark:border-[#30363d] pt-3.5 text-center text-[10px] text-gray-500 dark:text-gray-400">
           <MapPin size={11} className="mt-0.5 shrink-0" />
           <div>
             <p>Jl. Wates Km 4,5 Gg. Ablar No 5</p>
