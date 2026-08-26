@@ -474,16 +474,12 @@ export default function GudangTable({
                   <Tag size={12} className="text-gray-500 dark:text-gray-400" />
                   Nama Bahan
                 </span>
-                <div className="relative">
-                  <Package size={13} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input
-                    required
-                    placeholder="mis. Kain Cotton Combed 30s"
-                    value={form.nama_bahan}
-                    onChange={(e) => setForm({ ...form, nama_bahan: e.target.value })}
-                    className="input-field pl-8"
-                  />
-                </div>
+                <input
+                  required
+                  value={form.nama_bahan}
+                  onChange={(e) => setForm({ ...form, nama_bahan: e.target.value })}
+                  className="input-field"
+                />
               </div>
 
               <div className="grid grid-cols-2 gap-3">

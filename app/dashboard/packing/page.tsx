@@ -32,7 +32,7 @@ export default async function PackingPage() {
   return (
     <div className="space-y-4 md:space-y-6">
       <PageHeaderCard
-        badge="Logistik"
+        badge="Pengemasan"
         icon={PackageCheck}
         title="Packing"
         subtitle="Packing – siapkan pesanan untuk dikirim ke pelanggan."

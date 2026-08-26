@@ -1464,32 +1464,24 @@ export default function PesananTable() {
                   <PackageOpen size={12} className="text-gray-500 dark:text-gray-400" />
                   Nama Produk
                 </span>
-                <div className="relative">
-                  <PackageOpen size={14} className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input
-                    required
-                    autoFocus
-                    placeholder="mis. Kaos Polos Combed 30s"
-                    value={quickAddForm.nama_produk}
-                    onChange={(e) => setQuickAddForm((f) => ({ ...f, nama_produk: e.target.value }))}
-                    className="input-field w-full pl-8"
-                  />
-                </div>
+                <input
+                  required
+                  autoFocus
+                  value={quickAddForm.nama_produk}
+                  onChange={(e) => setQuickAddForm((f) => ({ ...f, nama_produk: e.target.value }))}
+                  className="input-field w-full"
+                />
               </div>
               <div>
                 <span className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-gray-600 dark:text-gray-400">
                   <Tag size={12} className="text-gray-500 dark:text-gray-400" />
                   Kategori <span className="font-normal text-gray-400">(opsional)</span>
                 </span>
-                <div className="relative">
-                  <Tag size={14} className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input
-                    placeholder="mis. Kaos, Hoodie"
-                    value={quickAddForm.kategori}
-                    onChange={(e) => setQuickAddForm((f) => ({ ...f, kategori: e.target.value }))}
-                    className="input-field w-full pl-8"
-                  />
-                </div>
+                <input
+                  value={quickAddForm.kategori}
+                  onChange={(e) => setQuickAddForm((f) => ({ ...f, kategori: e.target.value }))}
+                  className="input-field w-full"
+                />
               </div>
               <div className="rounded-xl border border-blue-100 dark:border-blue-900/30 bg-blue-50/60 dark:bg-blue-900/10 p-3.5">
                 <span className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-gray-600 dark:text-gray-400">

@@ -408,32 +408,24 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
                   <Truck size={12} className="text-gray-500 dark:text-gray-400" />
                   Nama Kurir
                 </span>
-                <div className="relative">
-                  <Truck size={14} className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input
-                    value={kurir}
-                    onChange={(e) => setKurir(e.target.value)}
-                    placeholder="Contoh: JNE, J&T, SiCepat"
-                    className="input-field w-full pl-8"
-                    required
-                  />
-                </div>
+                <input
+                  value={kurir}
+                  onChange={(e) => setKurir(e.target.value)}
+                  className="input-field w-full"
+                  required
+                />
               </div>
               <div>
                 <span className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-gray-600 dark:text-gray-400">
                   <Barcode size={12} className="text-gray-500 dark:text-gray-400" />
                   No. Resi
                 </span>
-                <div className="relative">
-                  <Barcode size={14} className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input
-                    value={noResi}
-                    onChange={(e) => setNoResi(e.target.value)}
-                    placeholder="Contoh: JNE123456789"
-                    className="input-field w-full pl-8"
-                    required
-                  />
-                </div>
+                <input
+                  value={noResi}
+                  onChange={(e) => setNoResi(e.target.value)}
+                  className="input-field w-full"
+                  required
+                />
               </div>
               <p className="text-xs text-gray-500 dark:text-gray-400">
                 Status akan berubah menjadi &quot;Dikirim&quot; setelah data disimpan.

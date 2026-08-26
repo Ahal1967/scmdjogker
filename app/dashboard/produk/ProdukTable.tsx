@@ -521,16 +521,12 @@ export default function ProdukTable({
                   <Shirt size={12} className="text-gray-500 dark:text-gray-400" />
                   Nama Produk
                 </span>
-                <div className="relative">
-                  <Shirt size={13} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input
-                    required
-                    placeholder="mis. Kaos Cotton Combed 30s"
-                    value={form.nama_produk}
-                    onChange={(e) => setForm({ ...form, nama_produk: e.target.value })}
-                    className="input-field pl-8"
-                  />
-                </div>
+                <input
+                  required
+                  value={form.nama_produk}
+                  onChange={(e) => setForm({ ...form, nama_produk: e.target.value })}
+                  className="input-field"
+                />
               </div>
 
               <div>
@@ -538,15 +534,11 @@ export default function ProdukTable({
                   <Tag size={12} className="text-gray-500 dark:text-gray-400" />
                   Kategori <span className="font-normal text-gray-400">(opsional)</span>
                 </span>
-                <div className="relative">
-                  <Tag size={13} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input
-                    placeholder="mis. Kaos, Hoodie"
-                    value={form.kategori}
-                    onChange={(e) => setForm({ ...form, kategori: e.target.value })}
-                    className="input-field pl-8"
-                  />
-                </div>
+                <input
+                  value={form.kategori}
+                  onChange={(e) => setForm({ ...form, kategori: e.target.value })}
+                  className="input-field"
+                />
               </div>
 
               <div className="rounded-xl border border-blue-100 dark:border-blue-900/30 bg-blue-50/60 dark:bg-blue-900/10 p-3.5">
@@ -647,18 +639,18 @@ export default function ProdukTable({
                             const warna = material ? warnaDariNamaBahan(material.nama_bahan) : undefined;
                             return (
                               <span
-                                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
+                                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-lg ${
                                   warna?.bg ?? "bg-purple-50 dark:bg-purple-900/30"
                                 } ${warna?.text ?? "text-purple-600 dark:text-purple-300"}`}
                               >
-                                <KIcon size={15} />
+                                <KIcon size={13} />
                               </span>
                             );
                           })()}
-                          <span className="min-w-0 flex-1 truncate font-display text-[15px] font-bold text-black dark:text-white">
+                          <span className="min-w-0 flex-1 truncate font-display text-[11px] font-bold text-black dark:text-white">
                             {material?.nama_bahan || "- Pilih bahan -"}
                           </span>
-                          <ChevronDown size={15} className="shrink-0 text-gray-400" />
+                          <ChevronDown size={13} className="shrink-0 text-gray-400" />
                         </button>
 
                         {/* Jumlah + satuan (ikut bahan yang dipilih, bukan bisa
@@ -675,9 +667,9 @@ export default function ProdukTable({
                             onChange={(e) =>
                               updateRecipeRow(idx, "qty_per_unit", e.target.value === "" ? 0 : Number(e.target.value))
                             }
-                            className="input-field w-24 bg-white dark:bg-[#161b22]"
+                            className="input-field w-24 bg-white dark:bg-[#161b22] text-[11px]"
                           />
-                          <span className="flex flex-1 items-center justify-center rounded-lg border border-gray-200 dark:border-[#30363d] bg-white dark:bg-[#161b22] px-3 py-2 text-sm text-gray-700 dark:text-gray-300">
+                          <span className="flex flex-1 items-center justify-center rounded-lg border border-gray-200 dark:border-[#30363d] bg-white dark:bg-[#161b22] px-3 py-2 text-[11px] text-gray-700 dark:text-gray-300">
                             {material?.satuan || "-"}
                           </span>
                           <button
@@ -700,7 +692,7 @@ export default function ProdukTable({
                               const preset = ESTIMASI_BAHAN.find((p) => p.key === e.target.value);
                               if (preset) updateRecipeRow(idx, "qty_per_unit", Number(preset.qtyPerUnit.toFixed(5)));
                             }}
-                            className="w-full appearance-none rounded-lg border border-gray-200 dark:border-[#30363d] bg-white dark:bg-[#161b22] py-2 pl-8 pr-7 text-xs text-gray-600 dark:text-gray-400"
+                            className="w-full appearance-none rounded-lg border border-gray-200 dark:border-[#30363d] bg-white dark:bg-[#161b22] py-2 pl-8 pr-7 text-[11px] text-gray-600 dark:text-gray-400"
                           >
                             <option value="">Isi cepat: pakai estimasi umum industri</option>
                             {ESTIMASI_BAHAN.map((p) => (

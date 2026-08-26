@@ -378,16 +378,12 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
                   <Truck size={12} className="text-gray-500 dark:text-gray-400" />
                   Nama Supplier
                 </span>
-                <div className="relative">
-                  <Truck size={13} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input
-                    required
-                    placeholder="mis. CV. Maju Jaya"
-                    value={form.nama_supplier}
-                    onChange={(e) => setForm({ ...form, nama_supplier: e.target.value })}
-                    className="input-field pl-8"
-                  />
-                </div>
+                <input
+                  required
+                  value={form.nama_supplier}
+                  onChange={(e) => setForm({ ...form, nama_supplier: e.target.value })}
+                  className="input-field"
+                />
               </div>
 
               <div>
@@ -395,15 +391,11 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
                   <Users2 size={12} className="text-gray-500 dark:text-gray-400" />
                   Kontak <span className="font-normal text-gray-400">(opsional)</span>
                 </span>
-                <div className="relative">
-                  <Users2 size={13} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input
-                    placeholder="Nama orang yang bisa dihubungi"
-                    value={form.kontak}
-                    onChange={(e) => setForm({ ...form, kontak: e.target.value })}
-                    className="input-field pl-8"
-                  />
-                </div>
+                <input
+                  value={form.kontak}
+                  onChange={(e) => setForm({ ...form, kontak: e.target.value })}
+                  className="input-field"
+                />
               </div>
 
               <div>
@@ -411,15 +403,11 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
                   <Phone size={12} className="text-gray-500 dark:text-gray-400" />
                   No. Telepon <span className="font-normal text-gray-400">(opsional)</span>
                 </span>
-                <div className="relative">
-                  <Phone size={13} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-                  <input
-                    placeholder="08xx-xxxx-xxxx"
-                    value={form.no_telepon}
-                    onChange={(e) => setForm({ ...form, no_telepon: e.target.value })}
-                    className="input-field pl-8"
-                  />
-                </div>
+                <input
+                  value={form.no_telepon}
+                  onChange={(e) => setForm({ ...form, no_telepon: e.target.value })}
+                  className="input-field"
+                />
               </div>
 
               <div>
@@ -427,16 +415,12 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
                   <MapPin size={12} className="text-gray-500 dark:text-gray-400" />
                   Alamat <span className="font-normal text-gray-400">(opsional)</span>
                 </span>
-                <div className="relative">
-                  <MapPin size={13} className="pointer-events-none absolute left-3 top-3 text-gray-400" />
-                  <textarea
-                    placeholder="Alamat lengkap supplier"
-                    value={form.alamat}
-                    onChange={(e) => setForm({ ...form, alamat: e.target.value })}
-                    className="input-field pl-8"
-                    rows={2}
-                  />
-                </div>
+                <textarea
+                  value={form.alamat}
+                  onChange={(e) => setForm({ ...form, alamat: e.target.value })}
+                  className="input-field"
+                  rows={2}
+                />
               </div>
 
               <div>

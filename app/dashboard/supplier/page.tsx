@@ -16,7 +16,7 @@ export default async function SupplierPage() {
   return (
     <div className="space-y-4 md:space-y-6">
       <PageHeaderCard
-        badge="Master Data"
+        badge="Pemasok"
         icon={Truck}
         title="Supplier"
         subtitle="Kelola daftar pemasok bahan baku."
