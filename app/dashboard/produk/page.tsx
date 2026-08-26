@@ -12,7 +12,7 @@ export default async function ProdukPage() {
     { data: rawMaterials, error: rawMaterialsError },
   ] = await Promise.all([
     supabase.from("products").select("*").order("nama_produk", { ascending: true }),
-    supabase.from("raw_materials").select("id, nama_bahan, satuan").order("nama_bahan", { ascending: true }),
+    supabase.from("raw_materials").select("id, nama_bahan, satuan, kategori").order("nama_bahan", { ascending: true }),
   ]);
 
   if (productsError) console.error("Produk products fetch error:", productsError.message);

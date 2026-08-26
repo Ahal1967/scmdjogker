@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { createClient } from "@/lib/supabase/client";
 import {
   Search,
@@ -18,6 +19,13 @@ import {
   MoreHorizontal,
   X,
   ChevronDown,
+  Save,
+  Package,
+  Zap,
+  BookOpen,
+  Droplet,
+  Wrench,
+  LayoutGrid,
 } from "lucide-react";
 import { useToast } from "@/components/useToast";
 import { useConfirm } from "@/components/useConfirm";
@@ -25,7 +33,47 @@ import SortableTh from "@/components/SortableTh";
 import TableIconCell from "@/components/TableIconCell";
 import { compareValues } from "@/lib/sortUtils";
 
-type RawMaterial = { id: string; nama_bahan: string; satuan: string | null };
+type RawMaterial = { id: string; nama_bahan: string; satuan: string | null; kategori: string | null };
+
+/* Ikon per kategori bahan buat picker "Pilih Bahan" di modal Resep Bahan --
+   nilai KATEGORI_OPTIONS-nya SAMA dengan yang di GudangTable.tsx (Kain/
+   Tinta/Alat/Bahan/Lainnya), tapi ikon Kain & Tinta di sini sengaja beda
+   dari KATEGORI_META di Gudang (yang pakai Layers/Tag) -- di sini ikutin
+   referensi user yang lebih baru untuk bagian ini spesifik: Kain pakai
+   ikon buku, Tinta pakai ikon tetesan (lebih pas secara makna buat tinta).
+   Dua referensi user beda ikon buat kategori yang sama -- kalau mau
+   disamakan salah satu, bilang saja. */
+const KATEGORI_ICON: Record<string, typeof Package> = {
+  Kain: BookOpen,
+  Tinta: Droplet,
+  Alat: Wrench,
+  Bahan: Package,
+  Lainnya: LayoutGrid,
+};
+
+/* Warna avatar di picker "Pilih Bahan" ditebak dari kata warna yang ada
+   di nama bahan (mis. "Kain Hitam" -> hitam), sesuai referensi user.
+   Ini heuristik nama, bukan data terstruktur -- bahan yang namanya tidak
+   mengandung kata warna dikenal akan jatuh ke warna netral (abu-abu). */
+const WARNA_DARI_NAMA: { key: string; bg: string; text: string }[] = [
+  { key: "hitam", bg: "bg-gray-900 dark:bg-gray-700", text: "text-white" },
+  { key: "putih", bg: "bg-white border border-gray-300 dark:bg-[#21262d] dark:border-[#3d444d]", text: "text-gray-700 dark:text-gray-300" },
+  { key: "merah", bg: "bg-red-500", text: "text-white" },
+  { key: "pink", bg: "bg-pink-400", text: "text-white" },
+  { key: "biru", bg: "bg-blue-500", text: "text-white" },
+  { key: "kuning", bg: "bg-yellow-400", text: "text-white" },
+  { key: "hijau", bg: "bg-green-500", text: "text-white" },
+  { key: "ungu", bg: "bg-purple-500", text: "text-white" },
+  { key: "coklat", bg: "bg-amber-800", text: "text-white" },
+  { key: "cokelat", bg: "bg-amber-800", text: "text-white" },
+  { key: "abu", bg: "bg-gray-400", text: "text-white" },
+  { key: "oranye", bg: "bg-orange-500", text: "text-white" },
+];
+
+function warnaDariNamaBahan(nama: string) {
+  const lower = nama.toLowerCase();
+  return WARNA_DARI_NAMA.find((w) => lower.includes(w.key));
+}
 
 type Product = {
   id: string;
@@ -92,6 +140,11 @@ export default function ProdukTable({
   const [recipeRows, setRecipeRows] = useState<BomRow[]>([]);
   const [loadingRecipe, setLoadingRecipe] = useState(false);
   const [savingRecipe, setSavingRecipe] = useState(false);
+  // Index baris resep yang lagi milih bahan lewat sheet "Pilih Bahan"
+  // (null = sheet tertutup). Bukan boolean biasa karena tiap baris resep
+  // bisa buka sheet ini sendiri-sendiri.
+  const [bahanPickerRowIdx, setBahanPickerRowIdx] = useState<number | null>(null);
+  const [bahanSearch, setBahanSearch] = useState("");
 
   const filtered = products.filter((p) => {
     const q = search.toLowerCase();
@@ -567,69 +620,97 @@ export default function ProdukTable({
                   <Loader2 size={20} className="animate-spin text-gray-400" />
                 </div>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {recipeRows.map((r, idx) => {
                     const material = rawMaterials.find((m) => m.id === r.raw_material_id);
                     return (
-                      <div key={idx} className="space-y-1 rounded-lg border border-gray-100 dark:border-[#30363d] p-2">
-                        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
-                          <div className="relative min-w-0 flex-1">
-                            <select
-                              value={r.raw_material_id}
-                              onChange={(e) => updateRecipeRow(idx, "raw_material_id", e.target.value)}
-                              className="input-field w-full appearance-none pr-7"
-                            >
-                              {rawMaterials.length === 0 && <option value="">- Belum ada bahan di Gudang -</option>}
-                              {rawMaterials.map((m) => (
-                                <option key={m.id} value={m.id}>
-                                  {m.nama_bahan}
-                                </option>
-                              ))}
-                            </select>
-                            <ChevronDown size={13} className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
-                          </div>
-                          {/* Qty/satuan/hapus digabung 1 baris terpisah di layar sempit (HP)
-                              supaya tidak berdesakan dengan select bahan di atas -- di layar
-                              >=sm baru sejajar lagi jadi 1 baris penuh. */}
-                          <div className="flex items-center gap-2">
-                            <input
-                              type="number"
-                              min={0}
-                              step="any"
-                              placeholder="Jumlah"
-                              value={r.qty_per_unit || ""}
-                              onChange={(e) =>
-                                updateRecipeRow(idx, "qty_per_unit", e.target.value === "" ? 0 : Number(e.target.value))
-                              }
-                              className="input-field w-24"
-                            />
-                            <span className="w-14 shrink-0 text-xs text-gray-500 dark:text-gray-400">
-                              {material?.satuan ?? ""}
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => removeRecipeRow(idx)}
-                              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30"
-                            >
-                              <Trash2 size={14} />
-                            </button>
-                          </div>
-                        </div>
-                        <select
-                          value=""
-                          onChange={(e) => {
-                            const preset = ESTIMASI_BAHAN.find((p) => p.key === e.target.value);
-                            if (preset) updateRecipeRow(idx, "qty_per_unit", Number(preset.qtyPerUnit.toFixed(5)));
+                      <div
+                        key={idx}
+                        className="space-y-2.5 rounded-xl border border-gray-200 dark:border-[#30363d] bg-gray-50/70 dark:bg-[#0d1117] p-3.5"
+                      >
+                        {/* Header baris: avatar ikon + nama bahan. Diganti dari
+                            <select> asli jadi tombol pemicu sheet "Pilih Bahan"
+                            (sesuai contoh dari user) -- lebih enak dipakai kalau
+                            bahan di Gudang banyak, karena ada pencarian. Avatar
+                            ikonnya ikut kategori bahan yang lagi dipilih, warnanya
+                            ditebak dari nama (mis. "Kain Hitam" -> hitam). */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setBahanSearch("");
+                            setBahanPickerRowIdx(idx);
                           }}
-                          className="w-full rounded-lg border border-dashed border-gray-200 dark:border-[#3d444d] bg-transparent px-2 py-1 text-[10.5px] text-gray-500 dark:text-gray-400"
+                          className="flex w-full items-center gap-2.5 text-left"
                         >
-                          <option value="">Isi cepat: pakai estimasi umum industri...</option>
-                          {ESTIMASI_BAHAN.map((p) => (
-                            <option key={p.key} value={p.key}>
-                              {p.label}
-                            </option>
-                          ))}
-                        </select>
+                          {(() => {
+                            const KIcon = (material?.kategori && KATEGORI_ICON[material.kategori]) || Package;
+                            const warna = material ? warnaDariNamaBahan(material.nama_bahan) : undefined;
+                            return (
+                              <span
+                                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${
+                                  warna?.bg ?? "bg-purple-50 dark:bg-purple-900/30"
+                                } ${warna?.text ?? "text-purple-600 dark:text-purple-300"}`}
+                              >
+                                <KIcon size={15} />
+                              </span>
+                            );
+                          })()}
+                          <span className="min-w-0 flex-1 truncate font-display text-[15px] font-bold text-black dark:text-white">
+                            {material?.nama_bahan || "- Pilih bahan -"}
+                          </span>
+                          <ChevronDown size={15} className="shrink-0 text-gray-400" />
+                        </button>
+
+                        {/* Jumlah + satuan (ikut bahan yang dipilih, bukan bisa
+                            diganti bebas -- makanya tanpa chevron, biar tidak
+                            kelihatan seperti dropdown padahal cuma tampilan) +
+                            hapus. */}
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="number"
+                            min={0}
+                            step="any"
+                            placeholder="Jumlah"
+                            value={r.qty_per_unit || ""}
+                            onChange={(e) =>
+                              updateRecipeRow(idx, "qty_per_unit", e.target.value === "" ? 0 : Number(e.target.value))
+                            }
+                            className="input-field w-24 bg-white dark:bg-[#161b22]"
+                          />
+                          <span className="flex flex-1 items-center justify-center rounded-lg border border-gray-200 dark:border-[#30363d] bg-white dark:bg-[#161b22] px-3 py-2 text-sm text-gray-700 dark:text-gray-300">
+                            {material?.satuan || "-"}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => removeRecipeRow(idx)}
+                            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-red-50 text-red-500 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40"
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
+
+                        {/* Isi cepat -- estimasi industri, distyle jadi baris
+                            berbingkai (ikon petir + teks + chevron) senada
+                            dengan select lain, bukan lagi dashed-select tipis. */}
+                        <div className="relative">
+                          <Zap size={13} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-purple-500" />
+                          <select
+                            value=""
+                            onChange={(e) => {
+                              const preset = ESTIMASI_BAHAN.find((p) => p.key === e.target.value);
+                              if (preset) updateRecipeRow(idx, "qty_per_unit", Number(preset.qtyPerUnit.toFixed(5)));
+                            }}
+                            className="w-full appearance-none rounded-lg border border-gray-200 dark:border-[#30363d] bg-white dark:bg-[#161b22] py-2 pl-8 pr-7 text-xs text-gray-600 dark:text-gray-400"
+                          >
+                            <option value="">Isi cepat: pakai estimasi umum industri</option>
+                            {ESTIMASI_BAHAN.map((p) => (
+                              <option key={p.key} value={p.key}>
+                                {p.label}
+                              </option>
+                            ))}
+                          </select>
+                          <ChevronDown size={13} className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
+                        </div>
                       </div>
                     );
                   })}
@@ -655,7 +736,7 @@ export default function ProdukTable({
                   disabled={savingRecipe || loadingRecipe}
                   className="btn-primary flex-1 flex items-center justify-center gap-2"
                 >
-                  {savingRecipe && <Loader2 size={15} className="animate-spin" />}
+                  {savingRecipe ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
                   {savingRecipe ? "Menyimpan..." : "Simpan Resep"}
                 </button>
               </div>
@@ -663,6 +744,101 @@ export default function ProdukTable({
           </div>
         </div>
       )}
+
+      {/* Sheet "Pilih Bahan" -- pola sama dengan Kategori/Satuan di Gudang
+          (createPortal, backdrop gelap, kartu mengambang di desktop / nempel
+          bawah di mobile), tapi aksen warnanya ungu (ikut warna modal Resep
+          Bahan) dan ada pencarian karena daftar bahan bisa banyak & bebas
+          diisi user (beda dari Kategori/Satuan yang cuma 5 pilihan tetap). */}
+      {bahanPickerRowIdx !== null &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[70] flex items-end justify-center bg-black/50 sm:items-center sm:p-4"
+            onClick={() => setBahanPickerRowIdx(null)}
+          >
+            <div
+              className="modal-fade-in flex w-full max-w-sm flex-col rounded-t-3xl bg-white shadow-2xl dark:bg-[#161b22] sm:max-h-[80vh] sm:rounded-3xl"
+              style={{ border: "1px solid var(--djoker-border)" }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-center pt-3 sm:hidden">
+                <span className="h-1 w-10 rounded-full bg-gray-300 dark:bg-[#30363d]" />
+              </div>
+              <div className="flex shrink-0 items-start justify-between px-5 pb-1 pt-3">
+                <div>
+                  <h3 className="font-display text-base font-bold text-black dark:text-white">Pilih Bahan</h3>
+                  <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Cari atau pilih dari daftar bahan di Gudang</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setBahanPickerRowIdx(null)}
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-purple-50 text-purple-600 hover:bg-purple-100 dark:bg-purple-900/30 dark:text-purple-300"
+                >
+                  <X size={15} />
+                </button>
+              </div>
+
+              <div className="relative shrink-0 px-5 pt-3">
+                <Search size={14} className="pointer-events-none absolute left-8 top-1/2 -translate-y-1/2 text-gray-400" />
+                <input
+                  autoFocus
+                  value={bahanSearch}
+                  onChange={(e) => setBahanSearch(e.target.value)}
+                  placeholder="Cari bahan..."
+                  className="input-field w-full pl-9"
+                />
+              </div>
+
+              <div className="min-h-0 flex-1 space-y-2 overflow-y-auto px-5 pb-6 pt-3">
+                {rawMaterials.length === 0 ? (
+                  <p className="py-4 text-center text-xs text-gray-500 dark:text-gray-400">
+                    Belum ada bahan di Gudang.
+                  </p>
+                ) : (
+                  rawMaterials
+                    .filter((m) => m.nama_bahan.toLowerCase().includes(bahanSearch.toLowerCase()))
+                    .map((m) => {
+                      const KIcon = (m.kategori && KATEGORI_ICON[m.kategori]) || Package;
+                      const warna = warnaDariNamaBahan(m.nama_bahan);
+                      const active = bahanPickerRowIdx !== null && recipeRows[bahanPickerRowIdx]?.raw_material_id === m.id;
+                      return (
+                        <button
+                          key={m.id}
+                          type="button"
+                          onClick={() => {
+                            if (bahanPickerRowIdx !== null) updateRecipeRow(bahanPickerRowIdx, "raw_material_id", m.id);
+                            setBahanPickerRowIdx(null);
+                          }}
+                          className={`flex w-full items-center gap-3 rounded-2xl border px-3.5 py-3 text-left transition-colors ${
+                            active
+                              ? "border-purple-300 bg-purple-50/70 dark:border-purple-500/40 dark:bg-purple-900/20"
+                              : "border-gray-200 dark:border-[#30363d]"
+                          }`}
+                        >
+                          <span
+                            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${
+                              warna?.bg ?? "bg-gray-100 dark:bg-[#21262d]"
+                            } ${warna?.text ?? "text-gray-500 dark:text-gray-400"}`}
+                          >
+                            <KIcon size={16} />
+                          </span>
+                          <span className="flex-1 truncate text-sm font-medium text-gray-800 dark:text-gray-200">{m.nama_bahan}</span>
+                          <span
+                            className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${
+                              active ? "border-purple-600" : "border-gray-300 dark:border-[#3d444d]"
+                            }`}
+                          >
+                            {active && <span className="h-2.5 w-2.5 rounded-full bg-purple-600" />}
+                          </span>
+                        </button>
+                      );
+                    })
+                )}
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
 
       {ConfirmDialog}
       {ToastBanner}

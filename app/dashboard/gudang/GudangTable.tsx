@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { createClient } from "@/lib/supabase/client";
-import { Search, Plus, Package, Boxes, AlertTriangle, CheckCircle2, ChevronLeft, ChevronRight, ChevronDown, Pencil, Trash2, Loader2, PackageOpen, Tag, Ruler, Truck, MoreHorizontal, Download } from "lucide-react";
+import { Search, Plus, Package, Boxes, AlertTriangle, CheckCircle2, ChevronLeft, ChevronRight, ChevronDown, Pencil, Trash2, Loader2, PackageOpen, Tag, Ruler, Truck, MoreHorizontal, Download, Layers, Wrench, LayoutGrid, X, Cylinder, Scale, Droplet } from "lucide-react";
 import { useToast } from "@/components/useToast";
 import { useConfirm } from "@/components/useConfirm";
 import SortableTh from "@/components/SortableTh";
@@ -27,6 +28,30 @@ type Material = {
 const KATEGORI_OPTIONS = ["Kain", "Tinta", "Alat", "Bahan", "Lainnya"];
 const SATUAN_OPTIONS = ["Roll", "Kg", "Pcs", "Liter", "Meter"];
 
+/* Mapping ikon+warna per kategori bahan, dipakai di picker "Kategori Bahan"
+   (bottom sheet, sesuai contoh dari user) -- ikon & warnanya diambil persis
+   dari referensi gambar: Kain=biru, Tinta=hijau, Alat=oranye, Bahan=ungu,
+   Lainnya=pink. */
+const KATEGORI_META: Record<string, { icon: typeof Layers; bg: string; text: string }> = {
+  Kain: { icon: Layers, bg: "bg-blue-50 dark:bg-blue-900/30", text: "text-blue-600 dark:text-blue-300" },
+  Tinta: { icon: Tag, bg: "bg-green-50 dark:bg-green-900/30", text: "text-green-600 dark:text-green-300" },
+  Alat: { icon: Wrench, bg: "bg-amber-50 dark:bg-amber-900/30", text: "text-amber-600 dark:text-amber-300" },
+  Bahan: { icon: Package, bg: "bg-purple-50 dark:bg-purple-900/30", text: "text-purple-600 dark:text-purple-300" },
+  Lainnya: { icon: LayoutGrid, bg: "bg-pink-50 dark:bg-pink-900/30", text: "text-pink-600 dark:text-pink-300" },
+};
+
+/* Sama seperti KATEGORI_META, dipakai di picker "Satuan" -- bedanya di
+   referensi user semua ikon Satuan pakai 1 warna biru yang sama (bukan
+   warna beda-beda per pilihan seperti Kategori), jadi bg/text di sini
+   sengaja sama semua. */
+const SATUAN_META: Record<string, { icon: typeof Ruler }> = {
+  Roll: { icon: Cylinder },
+  Kg: { icon: Scale },
+  Pcs: { icon: Package },
+  Liter: { icon: Droplet },
+  Meter: { icon: Ruler },
+};
+
 export default function GudangTable({
   initialMaterials,
   suppliers,
@@ -40,6 +65,8 @@ export default function GudangTable({
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [showModal, setShowModal] = useState(false);
+  const [showKategoriPicker, setShowKategoriPicker] = useState(false);
+  const [showSatuanPicker, setShowSatuanPicker] = useState(false);
   const { confirm, ConfirmDialog } = useConfirm();
   const { showToast, ToastBanner } = useToast();
   const [saving, setSaving] = useState(false);
@@ -465,40 +492,49 @@ export default function GudangTable({
                     <PackageOpen size={12} className="text-gray-500 dark:text-gray-400" />
                     Kategori
                   </span>
-                  <div className="relative">
-                    <select
-                      value={form.kategori}
-                      onChange={(e) => setForm({ ...form, kategori: e.target.value })}
-                      className="input-field w-full appearance-none pr-7"
-                    >
-                      {KATEGORI_OPTIONS.map((k) => (
-                        <option key={k} value={k}>
-                          {k}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown size={13} className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
-                  </div>
+                  {/* Diganti dari <select> polos jadi tombol pemicu bottom
+                      sheet "Kategori Bahan" (sesuai contoh dari user) --
+                      value form.kategori tetap sama persis, cuma cara
+                      memilihnya yang beda. */}
+                  <button
+                    type="button"
+                    onClick={() => setShowKategoriPicker(true)}
+                    className="input-field flex w-full items-center gap-2 text-left"
+                  >
+                    {(() => {
+                      const meta = KATEGORI_META[form.kategori];
+                      const KIcon = meta?.icon ?? Package;
+                      return (
+                        <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-md ${meta?.bg ?? "bg-gray-100 dark:bg-[#21262d]"} ${meta?.text ?? "text-gray-500"}`}>
+                          <KIcon size={11} />
+                        </span>
+                      );
+                    })()}
+                    <span className="flex-1 truncate">{form.kategori}</span>
+                    <ChevronDown size={13} className="shrink-0 text-gray-400" />
+                  </button>
                 </div>
                 <div>
                   <span className="mb-1.5 flex items-center gap-1.5 text-xs font-medium text-gray-600 dark:text-gray-400">
                     <Ruler size={12} className="text-gray-500 dark:text-gray-400" />
                     Satuan
                   </span>
-                  <div className="relative">
-                    <select
-                      value={form.satuan}
-                      onChange={(e) => setForm({ ...form, satuan: e.target.value })}
-                      className="input-field w-full appearance-none pr-7"
-                    >
-                      {SATUAN_OPTIONS.map((s) => (
-                        <option key={s} value={s}>
-                          {s}
-                        </option>
-                      ))}
-                    </select>
-                    <ChevronDown size={13} className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setShowSatuanPicker(true)}
+                    className="input-field flex w-full items-center gap-2 text-left"
+                  >
+                    {(() => {
+                      const SIcon = SATUAN_META[form.satuan]?.icon ?? Ruler;
+                      return (
+                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-300">
+                          <SIcon size={11} />
+                        </span>
+                      );
+                    })()}
+                    <span className="flex-1 truncate">{form.satuan}</span>
+                    <ChevronDown size={13} className="shrink-0 text-gray-400" />
+                  </button>
                 </div>
               </div>
 
@@ -568,6 +604,143 @@ export default function GudangTable({
           </div>
         </div>
       )}
+      {/* Bottom sheet "Kategori Bahan" (sesuai contoh dari user) -- lewat
+          createPortal ke document.body supaya tidak tersandung backdrop-
+          filter ancestor mana pun (pola sama yang dipakai useConfirm/
+          useToast), dan z-index lebih tinggi dari modal Bahan Masuk (z-50)
+          di baliknya. Radio + highlight-nya murni CSS, bukan <input
+          type="radio"> asli, karena tiap baris sudah jadi tombol sendiri. */}
+      {showKategoriPicker &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[70] flex items-end justify-center bg-black/50 sm:items-center sm:p-4"
+            onClick={() => setShowKategoriPicker(false)}
+          >
+            <div
+              className="modal-fade-in w-full max-w-sm rounded-t-3xl bg-white shadow-2xl dark:bg-[#161b22] sm:rounded-3xl"
+              style={{ border: "1px solid var(--djoker-border)" }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-center pt-3 sm:hidden">
+                <span className="h-1 w-10 rounded-full bg-gray-300 dark:bg-[#30363d]" />
+              </div>
+              <div className="flex items-start justify-between px-5 pb-1 pt-3">
+                <div>
+                  <h3 className="font-display text-base font-bold text-black dark:text-white">Kategori Bahan</h3>
+                  <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Pilih kategori bahan yang sesuai</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowKategoriPicker(false)}
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300"
+                >
+                  <X size={15} />
+                </button>
+              </div>
+              <div className="space-y-2 px-5 pb-6 pt-3">
+                {KATEGORI_OPTIONS.map((k) => {
+                  const meta = KATEGORI_META[k];
+                  const KIcon = meta.icon;
+                  const active = form.kategori === k;
+                  return (
+                    <button
+                      key={k}
+                      type="button"
+                      onClick={() => {
+                        setForm({ ...form, kategori: k });
+                        setShowKategoriPicker(false);
+                      }}
+                      className={`flex w-full items-center gap-3 rounded-2xl border px-3.5 py-3 text-left transition-colors ${
+                        active
+                          ? "border-blue-300 bg-blue-50/70 dark:border-blue-500/40 dark:bg-blue-900/20"
+                          : "border-gray-200 dark:border-[#30363d]"
+                      }`}
+                    >
+                      <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${meta.bg} ${meta.text}`}>
+                        <KIcon size={16} />
+                      </span>
+                      <span className="flex-1 text-sm font-medium text-gray-800 dark:text-gray-200">{k}</span>
+                      <span
+                        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${
+                          active ? "border-blue-600" : "border-gray-300 dark:border-[#3d444d]"
+                        }`}
+                      >
+                        {active && <span className="h-2.5 w-2.5 rounded-full bg-blue-600" />}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
+      {/* Bottom sheet "Satuan" -- pola identik sama Kategori Bahan di atas,
+          cuma semua ikonnya 1 warna biru (bukan beda-beda per pilihan). */}
+      {showSatuanPicker &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[70] flex items-end justify-center bg-black/50 sm:items-center sm:p-4"
+            onClick={() => setShowSatuanPicker(false)}
+          >
+            <div
+              className="modal-fade-in w-full max-w-sm rounded-t-3xl bg-white shadow-2xl dark:bg-[#161b22] sm:rounded-3xl"
+              style={{ border: "1px solid var(--djoker-border)" }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-center pt-3 sm:hidden">
+                <span className="h-1 w-10 rounded-full bg-gray-300 dark:bg-[#30363d]" />
+              </div>
+              <div className="flex items-start justify-between px-5 pb-1 pt-3">
+                <div>
+                  <h3 className="font-display text-base font-bold text-black dark:text-white">Satuan</h3>
+                  <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Pilih satuan yang sesuai</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setShowSatuanPicker(false)}
+                  className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-300"
+                >
+                  <X size={15} />
+                </button>
+              </div>
+              <div className="space-y-2 px-5 pb-6 pt-3">
+                {SATUAN_OPTIONS.map((s) => {
+                  const SIcon = SATUAN_META[s]?.icon ?? Ruler;
+                  const active = form.satuan === s;
+                  return (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => {
+                        setForm({ ...form, satuan: s });
+                        setShowSatuanPicker(false);
+                      }}
+                      className={`flex w-full items-center gap-3 rounded-2xl border px-3.5 py-3 text-left transition-colors ${
+                        active
+                          ? "border-blue-300 bg-blue-50/70 dark:border-blue-500/40 dark:bg-blue-900/20"
+                          : "border-gray-200 dark:border-[#30363d]"
+                      }`}
+                    >
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-300">
+                        <SIcon size={16} />
+                      </span>
+                      <span className="flex-1 text-sm font-medium text-gray-800 dark:text-gray-200">{s}</span>
+                      <span
+                        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${
+                          active ? "border-blue-600" : "border-gray-300 dark:border-[#3d444d]"
+                        }`}
+                      >
+                        {active && <span className="h-2.5 w-2.5 rounded-full bg-blue-600" />}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
       {ConfirmDialog}
       {ToastBanner}
     </div>

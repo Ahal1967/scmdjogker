@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { Search, Plus, Truck, Users2, CheckCircle2, Ban, ChevronLeft, ChevronRight, Pencil, Trash2, Loader2, PackageOpen, Phone, Smartphone, MapPin, Tag, MoreHorizontal } from "lucide-react";
+import { Search, Plus, Truck, Users2, CheckCircle2, Ban, ChevronLeft, ChevronRight, Pencil, Trash2, Loader2, PackageOpen, Phone, Smartphone, MapPin, Tag, MoreHorizontal, X } from "lucide-react";
 import { useToast } from "@/components/useToast";
 import { useConfirm } from "@/components/useConfirm";
 import SortableTh from "@/components/SortableTh";
@@ -341,13 +341,30 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
       {showModal && (
         <div className="fixed inset-0 bg-black/60 flex items-start justify-center z-50 p-4 overflow-y-auto backdrop-blur-sm">
           <div className="modal-fade-in card card-modal w-full max-w-md my-8 max-h-[90vh] overflow-y-auto p-0 shadow-2xl" style={{ border: "none" }}>
-            <div className="rounded-t-2xl bg-blue-50 dark:bg-blue-900/30 px-6 py-5 flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 shadow-sm shadow-blue-600/30">
-                <Truck size={18} className="text-white" />
-              </span>
-              <h2 className="font-display font-bold text-base text-black dark:text-white">
-                {editing ? "Edit Supplier" : "Tambah Supplier"}
-              </h2>
+            {/* Header ditambah subtitle + tombol X (sesuai contoh dari
+                user) -- sebelumnya cuma ikon+judul tanpa subtitle & tanpa
+                cara tutup selain tombol Batal di bawah. */}
+            <div className="rounded-t-2xl bg-blue-50 dark:bg-blue-900/30 px-6 py-5 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 shadow-sm shadow-blue-600/30">
+                  <Truck size={18} className="text-white" />
+                </span>
+                <div>
+                  <h2 className="font-display font-bold text-base text-black dark:text-white">
+                    {editing ? "Edit Supplier" : "Tambah Supplier"}
+                  </h2>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {editing ? "Perbarui data supplier" : "Lengkapi data supplier baru"}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowModal(false)}
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-gray-200 dark:border-[#30363d] text-gray-400 hover:bg-white dark:hover:bg-[#21262d]"
+              >
+                <X size={16} />
+              </button>
             </div>
             {/* Polesan sama seperti modal Bahan Masuk/Produk: ikon di
                 dalam field, label kecil. Status yang tadinya <select>
