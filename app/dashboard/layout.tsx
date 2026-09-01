@@ -156,21 +156,54 @@ export default function DashboardLayout({
         />
       )}
 
-      <aside
-        /* flex + flex-col ditambahkan di sini -- sebelumnya <nav> di bawah
-           sudah punya "flex-1 overflow-y-auto" tapi TIDAK PERNAH jalan
-           karena parent-nya (<aside> ini) bukan flex container, jadi
-           "flex-1" itu tidak berarti apa-apa. Akibatnya di layar pendek
-           (HP), daftar menu yang kepanjangan cuma overflow diam-diam tanpa
-           bisa di-scroll, jadi menu paling bawah (Pengaturan) kepotong dan
-           tidak kelihatan/tidak bisa diklik. */
-        className={`sidebar-glass fixed top-0 left-0 z-50 flex h-full w-64 flex-col border-r transition-transform duration-300 ease-in-out md:static md:translate-x-0 ${
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-        style={{
-          borderColor: "var(--djoker-border)",
-        }}
-      >
+      <div className="md:w-64 md:shrink-0" style={{ background: "var(--djoker-bg-2)" }}>
+        {/* Div pembungkus ini cuma "gutter" tempat kartu sidebar mengambang
+            di desktop -- warnanya var(--djoker-bg-2), beda tipis dari latar
+            halaman utama (var(--djoker-bg)), jadi kartu kelihatan terpisah
+            tanpa shadow yang berat. Di mobile lebarnya collapse ke 0 (tidak
+            di-set md:w-64 di situ) karena <aside> di dalamnya "fixed" --
+            tidak butuh ruang dari parent-nya sama sekali, jadi wrapper ini
+            aman walau 0px, tidak boleh "hidden" (kalau di-hidden, elemen
+            fixed di dalamnya ikut hilang total). */}
+        <aside
+          /* flex + flex-col ditambahkan di sini -- sebelumnya <nav> di bawah
+             sudah punya "flex-1 overflow-y-auto" tapi TIDAK PERNAH jalan
+             karena parent-nya (<aside> ini) bukan flex container, jadi
+             "flex-1" itu tidak berarti apa-apa. Akibatnya di layar pendek
+             (HP), daftar menu yang kepanjangan cuma overflow diam-diam tanpa
+             bisa di-scroll, jadi menu paling bawah (Pengaturan) kepotong dan
+             tidak kelihatan/tidak bisa diklik.
+             Opsi A "Kartu Mengambang" -- awalnya cuma di desktop, TAPI user
+             minta konsisten di HP juga. Jadi sekarang base class (tanpa
+             prefix md:) sudah langsung "mengambang": posisi fixed dengan
+             top-3.5/left-3.5/bottom-3.5 (bukan top-0/left-0/h-full lagi) --
+             trik CSS lama, kalau top DAN bottom sama-sama di-set pada
+             elemen fixed, tingginya otomatis ngisi sisa ruang di antara
+             keduanya, jadi tidak perlu hitung height manual. Rounded+shadow
+             juga sudah base (bukan md: lagi). Overlay hitam (bg-black/40)
+             yang sudah ada dari dulu otomatis kelihatan di sekeliling kartu
+             ini sebagai "gutter"-nya versi mobile -- tidak perlu wrapper
+             separuh kayak di desktop.
+             Animasi buka/tutup: dulu pakai "-translate-x-full" (=-100% dari
+             lebar sendiri), sekarang diganti "-translate-x-[120vw]" --
+             soalnya kartunya sekarang punya offset left-3.5, kalau masih
+             pakai -100% sisi kanannya cuma geser sampai x=14px, MASIH
+             sedikit kelihatan nongol di layar. 120vw jamin bener-bener
+             hilang dari layar berapa pun lebar HP-nya.
+             Di desktop (md:): posisi balik ke "static" (bukan fixed lagi,
+             top/left/bottom jadi tidak berlaku otomatis), margin dari
+             my-3.5/ml-3.5, tinggi eksplisit calc(100vh-28px) (karena static
+             tidak bisa pakai trik top+bottom), lebar diperkecil ke 228px
+             (muat di gutter 256px punya <div> pembungkus). "border-r"
+             diganti "border" (4 sisi) dari awal supaya kartunya (mobile
+             maupun desktop) punya garis tepi utuh, bukan cuma kanan. */
+          className={`sidebar-glass fixed left-3.5 top-3.5 bottom-3.5 z-50 flex w-64 flex-col rounded-[20px] border shadow-lg transition-transform duration-300 ease-in-out md:static md:my-3.5 md:ml-3.5 md:h-[calc(100vh-28px)] md:w-[228px] md:translate-x-0 ${
+            sidebarOpen ? "translate-x-0" : "-translate-x-[120vw]"
+          }`}
+          style={{
+            borderColor: "var(--djoker-border)",
+          }}
+        >
         {/* Revisi ke-3 dari mockup "Sidebar Header Redesign" (approved) --
             diadaptasi dari referensi gambar user: gradasi biru-ke-biru-muda
             yang halus (ganti dari navy-hitam di revisi sebelumnya),
@@ -188,40 +221,40 @@ export default function DashboardLayout({
             ada margin). Warna kartu tetap fixed sama di light & dark mode
             (keputusan sadar user) -- yang beda cuma sekelilingnya, latar
             sidebar & warna menu ikut var(--djoker-*)/dark: seperti biasa. */}
-        <div className="shrink-0 px-4 pt-4">
-          <div
-            className="relative flex flex-col items-center justify-center gap-1 overflow-hidden rounded-[22px] px-4 py-5"
-            style={{
-              background: "linear-gradient(135deg, #1d4ed8 0%, #3b82f6 50%, #93c5fd 100%)",
-              boxShadow: "0 10px 24px rgba(37,99,235,0.3)",
-            }}
-          >
-            <span
-              className="pointer-events-none absolute -right-14 -top-14 h-40 w-40 rounded-full"
-              style={{ border: "1px solid rgba(255,255,255,0.25)" }}
+        {/* Header sidebar -- kotak gradasi biru + chip putih sudah dihapus
+            (lihat riwayat sebelumnya). Logo wordmark, teks "DJOGKER"
+            terpisah sudah dihapus (redundan sama tulisan di dalam logo).
+            Revisi ini: (1) tulisan "djogja t-shirt maker" di dalam file
+            logo dihapus manual (mask per-komponen pakai scipy.ndimage
+            biar goresan "r" yang nyambung ke situ tidak ikut kehapus --
+            versi pertama pakai deteksi warna biru doang masih nyisain
+            "hantu" tipis karena noise kompresi JPEG di alpha rendah),
+            (2) tulisan "proud of local product" yang tadinya biru
+            direcolor abu-abu (gray-500 light / gray-400 dark, senada
+            sama caption di bawahnya, bukan biru lagi), (3) ukuran
+            tampilnya diperkecil dari 172px ke 130px sesuai permintaan
+            user. Dua file logo-djogker-light/dark.png sudah di-generate
+            ulang dari master, tetap tajam di ukuran baru ini. */}
+        <div className="shrink-0 border-b border-gray-200 px-5 pb-4 pt-[18px] dark:border-[#30363d]">
+          <div className="flex flex-col items-center justify-center gap-2">
+            <Image
+              src="/images/logo-djogker-light.png"
+              alt="Logo DJOGKER"
+              width={130}
+              height={56}
+              className="object-contain dark:hidden"
+              priority
             />
-            <span
-              className="pointer-events-none absolute -bottom-10 -left-8 h-24 w-24 rounded-full"
-              style={{ background: "rgba(255,255,255,0.08)" }}
+            <Image
+              src="/images/logo-djogker-dark.png"
+              alt="Logo DJOGKER"
+              width={130}
+              height={56}
+              className="hidden object-contain dark:block"
+              priority
             />
-            <div className="relative flex h-[46px] w-[46px] items-center justify-center overflow-hidden rounded-2xl bg-white shadow-sm">
-              <Image
-                src="/images/logodjogker1.jpeg"
-                alt="Logo DJOGKER"
-                width={46}
-                height={46}
-                className="object-contain p-1"
-                priority
-              />
-            </div>
-            <p className="relative font-display text-base font-extrabold tracking-wide text-white">
-              DJOGKER
-            </p>
-            <p
-              className="relative text-[9px] font-bold tracking-[0.16em]"
-              style={{ color: "rgba(255,255,255,0.75)" }}
-            >
-              SCM SYSTEM
+            <p className="text-[9px] font-bold tracking-[0.16em] text-gray-500 dark:text-gray-400">
+              SUPPLY CHAIN SYSTEM
             </p>
           </div>
         </div>
@@ -295,7 +328,8 @@ export default function DashboardLayout({
             </div>
           ))}
         </nav>
-      </aside>
+        </aside>
+      </div>
 
       <div className="flex min-w-0 flex-1 flex-col">
         <header
@@ -307,13 +341,24 @@ export default function DashboardLayout({
              scroll (bukan sekali render). Efek "elevated saat discroll"
              sekarang cuma dari background lebih solid + shadow, bukan blur
              -- scroll jadi mulus, card/tabel lain di halaman lain TIDAK
-             ikut berubah karena ini scoped ke header saja. */
-          className={`sticky top-0 z-40 flex h-16 items-center justify-between border-b px-4 transition-colors duration-300 md:justify-end md:px-6 ${
+             ikut berubah karena ini scoped ke header saja.
+             "border-b" dulu SELALU aktif (tidak ikut kondisi headerScrolled
+             kayak background/shadow-nya) -- akibatnya di posisi paling atas
+             halaman (belum discroll, background transparan), yang muncul
+             cuma garis horizontal sendirian tanpa alasan visual yang jelas
+             (background-nya nyatu sama halaman, tapi garisnya tetap ada).
+             User merasa garis ini mengganggu di dark mode (kontrasnya
+             tinggi, var(--djoker-border) dark #30363d di atas dasar nyaris
+             hitam #0d1117). Diperbaiki dengan masukin border-b ke kondisi
+             yang sama kayak background+shadow -- jadi garis itu cuma
+             muncul BARENGAN elevasi pas discroll (background solid+shadow),
+             bukan berdiri sendiri di posisi diam. */
+          className={`sticky top-0 z-40 flex h-16 items-center justify-between px-4 transition-colors duration-300 md:justify-end md:px-6 ${
             headerScrolled
-              ? "bg-white/90 dark:bg-[#0d1117]/90 shadow-sm"
-              : "bg-transparent"
+              ? "border-b bg-white/90 dark:bg-[#0d1117]/90 shadow-sm"
+              : "border-b border-transparent bg-transparent"
           }`}
-          style={{ borderColor: "var(--djoker-border)" }}
+          style={headerScrolled ? { borderColor: "var(--djoker-border)" } : undefined}
         >
           <button
             type="button"
