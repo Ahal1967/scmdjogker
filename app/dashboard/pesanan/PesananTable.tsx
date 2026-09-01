@@ -2,8 +2,9 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
-import { Search, Plus, Minus, ChevronDown, Wallet, FileText, ShoppingBag, CheckCircle2, TrendingUp, ChevronLeft, ChevronRight, Eye, Trash2, User, Loader2, PackageOpen, ClipboardList, Calendar, Tag, MoreHorizontal, MessageCircle, Download } from "lucide-react";
+import { Search, Plus, Minus, ChevronDown, ChevronUp, Wallet, FileText, ShoppingBag, CheckCircle2, TrendingUp, ChevronLeft, ChevronRight, Eye, Trash2, User, Loader2, PackageOpen, ClipboardList, Calendar, Tag, MoreHorizontal, MessageCircle, Download, Shirt, SquareX, Save } from "lucide-react";
 import { useConfirm } from "@/components/useConfirm";
 import { useToast } from "@/components/useToast";
 import { createClient } from "@/lib/supabase/client";
@@ -165,21 +166,77 @@ function ProductCombobox({
 
   return (
     <div className="relative">
-      {/* Search icon kiri -- murni dekoratif (bukan tombol), cuma nunjukin
-          field ini bisa diketik buat cari, mengikuti mockup yang sudah
-          disetujui. Icon "+" kanan di mockup SENGAJA tidak ikut ditambah
-          di sini -- quick-add produk baru cuma kepicu lewat item
-          "Tambah ... sebagai produk baru" di dropdown-nya di bawah, jadi
-          icon terpisah yang tidak bisa diklik cuma bakal menyesatkan. */}
-      <Search size={13} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-      <input
-        placeholder="Ketik atau pilih produk..."
-        value={value}
-        onChange={(e) => onChangeText(e.target.value)}
-        onFocus={() => setOpen(true)}
-        onBlur={() => setTimeout(() => setOpen(false), 150)}
-        className="input-field w-full pl-8"
-      />
+      {/* Direstyle sesuai contoh gambar dari user -- input dan daftar
+          dropdown-nya sekarang jadi SATU kotak menyatu (bukan 2 kotak
+          terpisah seperti sebelumnya): border kotak luar berubah biru pas
+          dibuka, ada garis pemisah tipis antara baris input dan daftar,
+          dan tiap baris produk sekarang punya avatar ikon kaus (bukan
+          teks polos) senada dengan avatar-avatar di sheet lain (Kategori
+          Bahan/Satuan/Pilih Ukuran/Pilih Pelanggan). */}
+      <div
+        className={`overflow-hidden rounded-xl border transition-colors ${
+          open ? "border-blue-500 shadow-[0_0_0_3px_rgba(59,130,246,0.1)]" : "border-gray-200 dark:border-[#30363d]"
+        }`}
+        style={{ background: "var(--djoker-surface)" }}
+      >
+        <div className="relative">
+          <Search size={13} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            placeholder="Ketik atau pilih produk..."
+            value={value}
+            onChange={(e) => onChangeText(e.target.value)}
+            onFocus={() => setOpen(true)}
+            onBlur={() => setTimeout(() => setOpen(false), 150)}
+            className="w-full border-0 bg-transparent py-2.5 pl-8 pr-9 text-sm text-black outline-none dark:text-white"
+          />
+          {open ? (
+            <ChevronUp size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          ) : (
+            <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          )}
+        </div>
+
+        {open && (
+          <div className="max-h-48 overflow-y-auto border-t border-gray-100 dark:border-[#30363d]">
+            {filtered.length > 0 ? (
+              <div className="divide-y divide-gray-100 dark:divide-[#30363d]">
+                {filtered.map((p) => (
+                  <button
+                    type="button"
+                    key={p.id}
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      onSelectProduct(p);
+                      setOpen(false);
+                    }}
+                    className="flex w-full items-center gap-3 px-3 py-2.5 text-left hover:bg-gray-50 dark:hover:bg-[#21262d]"
+                  >
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-300">
+                      <Shirt size={15} />
+                    </span>
+                    <span className="text-sm text-gray-700 dark:text-gray-200">{p.nama_produk}</span>
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="px-3 py-2 text-xs text-gray-400">Tidak ada produk katalog yang cocok.</div>
+            )}
+            {value.trim() && !exactMatch && (
+              <button
+                type="button"
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  onQuickAdd(value.trim());
+                  setOpen(false);
+                }}
+                className="flex w-full items-center gap-1.5 border-t border-gray-100 dark:border-[#30363d] px-3 py-2 text-left text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20"
+              >
+                <Plus size={13} /> Tambah &quot;{value.trim()}&quot; sebagai produk baru
+              </button>
+            )}
+          </div>
+        )}
+      </div>
       {productId ? (
         <span className="mt-1 inline-flex items-center gap-1 text-[10px] font-semibold text-green-600 dark:text-green-400">
           <CheckCircle2 size={11} /> Terhubung katalog -- stok bahan otomatis kepotong
@@ -189,41 +246,6 @@ function ProductCombobox({
           Teks manual -- stok bahan tidak otomatis kepotong
         </span>
       ) : null}
-      {open && (
-        <div className="absolute z-20 mt-1 max-h-48 w-full overflow-y-auto rounded-lg border border-gray-200 dark:border-[#30363d] bg-white dark:bg-[#161b22] shadow-lg">
-          {filtered.length > 0 ? (
-            filtered.map((p) => (
-              <button
-                type="button"
-                key={p.id}
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  onSelectProduct(p);
-                  setOpen(false);
-                }}
-                className="block w-full px-3 py-2 text-left text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#21262d]"
-              >
-                {p.nama_produk}
-              </button>
-            ))
-          ) : (
-            <div className="px-3 py-2 text-xs text-gray-400">Tidak ada produk katalog yang cocok.</div>
-          )}
-          {value.trim() && !exactMatch && (
-            <button
-              type="button"
-              onMouseDown={(e) => {
-                e.preventDefault();
-                onQuickAdd(value.trim());
-                setOpen(false);
-              }}
-              className="flex w-full items-center gap-1.5 border-t border-gray-100 dark:border-[#30363d] px-3 py-2 text-left text-sm font-medium text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20"
-            >
-              <Plus size={13} /> Tambah &quot;{value.trim()}&quot; sebagai produk baru
-            </button>
-          )}
-        </div>
-      )}
     </div>
   );
 }
@@ -288,10 +310,24 @@ export default function PesananTable() {
 
   const [customerId, setCustomerId] = useState("");
   const [isNewCustomer, setIsNewCustomer] = useState(false);
+  // Sheet "Pilih Pelanggan" (sesuai contoh gambar dari user) -- pola tap-
+  // pilih-langsung-tutup sama seperti sheet Kategori Bahan/Satuan, cuma
+  // tanda pilihannya lingkaran centang biru penuh (CheckCircle2), bukan
+  // ring+dot seperti sheet lain.
+  const [showPelangganPicker, setShowPelangganPicker] = useState(false);
   const [newCustomer, setNewCustomer] = useState({ nama: "", no_telepon: "", alamat: "" });
   const [alamatPengiriman, setAlamatPengiriman] = useState("");
   const [dp, setDp] = useState(0);
   const [items, setItems] = useState<OrderItem[]>([{ nama_produk: "", ukuran: "", jumlah: 1, harga: 0 }]);
+  // Baris item mana yang lagi buka sheet "Pilih Ukuran" -- null = sheet
+  // tertutup. ukuranPickerDraft nampung pilihan sementara di dalam sheet
+  // (baru dipatri ke items pas tombol "Pilih Ukuran" di footer sheet
+  // diklik, bukan langsung pas baris di-tap), karena contoh gambar dari
+  // user pola sheet-nya pakai tombol konfirmasi terpisah (Batal + Pilih
+  // Ukuran), beda dari sheet Kategori Bahan/Satuan di GudangTable.tsx
+  // yang langsung nutup begitu satu baris diklik.
+  const [ukuranPickerRowIdx, setUkuranPickerRowIdx] = useState<number | null>(null);
+  const [ukuranPickerDraft, setUkuranPickerDraft] = useState("");
 
   useEffect(() => {
     function handleBeforeUnload(e: BeforeUnloadEvent) {
@@ -1223,18 +1259,24 @@ export default function PesananTable() {
                     />
                   </div>
                 ) : (
-                  <select
-                    value={customerId}
-                    onChange={(e) => setCustomerId(e.target.value)}
-                    className="mt-2 input-field"
+                  // Diganti dari <select> jadi tombol pembuka bottom sheet
+                  // "Pilih Pelanggan" (persis contoh gambar dari user) --
+                  // lihat sheet-nya sendiri di bawah, dekat penutup
+                  // komponen.
+                  <button
+                    type="button"
+                    onClick={() => setShowPelangganPicker(true)}
+                    className="mt-2 flex w-full items-center gap-2.5 rounded-xl border px-3 py-2.5 text-left transition-colors"
+                    style={{ borderColor: "var(--djoker-border)" }}
                   >
-                    <option value="">- Pilih Pelanggan -</option>
-                    {customers.map((c) => (
-                      <option key={c.id} value={c.id}>
-                        {c.nama}
-                      </option>
-                    ))}
-                  </select>
+                    <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-300">
+                      <User size={14} />
+                    </span>
+                    <span className={`flex-1 text-sm ${customerId ? "text-black dark:text-white" : "text-gray-400"}`}>
+                      {customers.find((c) => c.id === customerId)?.nama || "- Pilih Pelanggan -"}
+                    </span>
+                    <ChevronDown size={14} className="shrink-0 text-gray-400" />
+                  </button>
                 )}
               </div>
 
@@ -1290,31 +1332,23 @@ export default function PesananTable() {
                       <div className="grid grid-cols-3 gap-2">
                         <div>
                           <span className="mb-1 block text-[11px] text-gray-400">Ukuran</span>
-                          {/* Mockup-nya nunjukin Ukuran sebagai pill selector
-                              (S/M/L/XL langsung kelihatan semua) -- tapi
-                              UKURAN_OPTIONS di app ini ada 7 (termasuk
-                              "3XL"/"All Size"), tidak muat kalau dipaksa
-                              jadi tombol sejajar di kolom sesempit ini.
-                              Jadi tetap <select>, cuma dibikin bulat penuh
-                              (rounded-full) senada gaya pill dari mockup,
-                              dengan teks di tengah + chevron sendiri
-                              (appearance-none supaya chevron bawaan
-                              browser tidak dobel). */}
-                          <div className="relative">
-                            <select
-                              value={it.ukuran}
-                              onChange={(e) => updateItem(idx, "ukuran", e.target.value)}
-                              className="input-field w-full appearance-none rounded-full pr-7 text-center"
-                            >
-                              <option value="">Ukuran</option>
-                              {UKURAN_OPTIONS.map((u) => (
-                                <option key={u} value={u}>
-                                  {u}
-                                </option>
-                              ))}
-                            </select>
-                            <ChevronDown size={13} className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400" />
-                          </div>
+                          {/* Diganti dari <select> pill jadi tombol pembuka
+                              bottom sheet "Pilih Ukuran" (persis contoh
+                              gambar dari user) -- lihat sheet-nya sendiri
+                              di bawah, dekat penutup komponen. */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setUkuranPickerDraft(it.ukuran);
+                              setUkuranPickerRowIdx(idx);
+                            }}
+                            className="input-field flex w-full items-center justify-center gap-1 rounded-full pr-2 text-center"
+                          >
+                            <span className={it.ukuran ? "text-black dark:text-white" : "text-gray-400"}>
+                              {it.ukuran || "Ukuran"}
+                            </span>
+                            <ChevronDown size={13} className="shrink-0 text-gray-400" />
+                          </button>
                         </div>
                         <div>
                           <span className="mb-1 block text-[11px] text-gray-400">Jumlah</span>
@@ -1429,11 +1463,16 @@ export default function PesananTable() {
               </div>
 
               <div className="flex gap-3 pt-1">
-                <button type="button" onClick={() => setShowModal(false)} className="btn-outline flex-1">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="btn-outline flex-1 flex items-center justify-center gap-2"
+                >
+                  <SquareX size={15} />
                   Batal
                 </button>
                 <button type="submit" disabled={saving} className="btn-primary flex-1 flex items-center justify-center gap-2">
-                  {saving && <Loader2 size={15} className="animate-spin" />}
+                  {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
                   {saving ? "Menyimpan..." : "Simpan Pesanan"}
                 </button>
               </div>
@@ -1441,6 +1480,154 @@ export default function PesananTable() {
           </div>
         </div>
       )}
+
+      {/* Bottom sheet "Pilih Pelanggan" (sesuai contoh gambar dari user) --
+          pola tap-baris-langsung-tutup sama seperti sheet Kategori Bahan/
+          Satuan di GudangTable.tsx, cuma judulnya polos (label abu-abu,
+          tanpa ikon chip/subjudul/tombol X) dan tanda baris terpilih pakai
+          lingkaran centang biru penuh (CheckCircle2), bukan ring+dot. */}
+      {showPelangganPicker &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[70] flex items-end justify-center bg-black/50 sm:items-center sm:p-4"
+            onClick={() => setShowPelangganPicker(false)}
+          >
+            <div
+              className="modal-fade-in w-full max-w-sm rounded-t-3xl bg-white shadow-2xl dark:bg-[#161b22] sm:rounded-3xl"
+              style={{ border: "1px solid var(--djoker-border)" }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-center pt-3 sm:hidden">
+                <span className="h-1 w-10 rounded-full bg-gray-300 dark:bg-[#30363d]" />
+              </div>
+              <div className="px-5 pb-1 pt-3">
+                <h3 className="text-sm font-semibold text-gray-500 dark:text-gray-400">Pilih Pelanggan</h3>
+              </div>
+              <div className="max-h-[60vh] space-y-2 overflow-y-auto px-5 pb-6 pt-2">
+                {customers.length === 0 ? (
+                  <p className="py-4 text-center text-xs text-gray-500 dark:text-gray-400">Belum ada pelanggan.</p>
+                ) : (
+                  customers.map((c) => {
+                    const active = customerId === c.id;
+                    return (
+                      <button
+                        key={c.id}
+                        type="button"
+                        onClick={() => {
+                          setCustomerId(c.id);
+                          setShowPelangganPicker(false);
+                        }}
+                        className={`flex w-full items-center gap-3 rounded-2xl border px-3.5 py-3 text-left transition-colors ${
+                          active
+                            ? "border-blue-300 bg-blue-50/70 dark:border-blue-500/40 dark:bg-blue-900/20"
+                            : "border-gray-200 dark:border-[#30363d]"
+                        }`}
+                      >
+                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-300">
+                          <User size={16} />
+                        </span>
+                        <span className="flex-1 text-sm font-medium text-gray-800 dark:text-gray-200">{c.nama}</span>
+                        {active ? (
+                          <CheckCircle2 size={20} className="shrink-0 text-blue-600" />
+                        ) : (
+                          <span className="h-5 w-5 shrink-0 rounded-full border-2 border-gray-300 dark:border-[#3d444d]" />
+                        )}
+                      </button>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
+
+      {/* Bottom sheet "Pilih Ukuran" -- pola dasarnya sama seperti sheet
+          Kategori Bahan/Satuan/Pilih Bahan (createPortal ke document.body,
+          kartu rounded-t-3xl di HP -> rounded-3xl di desktop, baris radio
+          custom lewat CSS), TAPI beda di 2 hal sesuai contoh gambar dari
+          user: (1) header pakai ikon baju (Shirt) dalam chip biru muda,
+          bukan tombol X close sendiri, dan (2) footer punya 2 tombol
+          (Batal + "Pilih Ukuran" solid biru) -- makanya pilihan ditampung
+          dulu di ukuranPickerDraft, baru dipatri ke items pas tombol
+          konfirmasi diklik, bukan langsung nutup begitu satu baris ukuran
+          diklik seperti sheet-sheet lain. */}
+      {ukuranPickerRowIdx !== null &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-[70] flex items-end justify-center bg-black/50 sm:items-center sm:p-4"
+            onClick={() => setUkuranPickerRowIdx(null)}
+          >
+            <div
+              className="modal-fade-in w-full max-w-sm rounded-t-3xl bg-white shadow-2xl dark:bg-[#161b22] sm:rounded-3xl"
+              style={{ border: "1px solid var(--djoker-border)" }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-center pt-3 sm:hidden">
+                <span className="h-1 w-10 rounded-full bg-gray-300 dark:bg-[#30363d]" />
+              </div>
+              <div className="flex flex-col items-center gap-2 px-5 pb-1 pt-4 text-center">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-300">
+                  <Shirt size={20} />
+                </span>
+                <div>
+                  <h3 className="font-display text-base font-bold text-black dark:text-white">Pilih Ukuran</h3>
+                  <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">Pilih ukuran produk yang diinginkan</p>
+                </div>
+              </div>
+              <div className="max-h-[50vh] space-y-2 overflow-y-auto px-5 pb-4 pt-3">
+                {UKURAN_OPTIONS.map((u) => {
+                  const active = ukuranPickerDraft === u;
+                  return (
+                    <button
+                      key={u}
+                      type="button"
+                      onClick={() => setUkuranPickerDraft(u)}
+                      className={`flex w-full items-center gap-3 rounded-2xl border px-3.5 py-3 text-left transition-colors ${
+                        active
+                          ? "border-blue-300 bg-blue-50/70 dark:border-blue-500/40 dark:bg-blue-900/20"
+                          : "border-gray-200 dark:border-[#30363d]"
+                      }`}
+                    >
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-300">
+                        <Shirt size={16} />
+                      </span>
+                      <span className="flex-1 text-sm font-medium text-gray-800 dark:text-gray-200">{u}</span>
+                      <span
+                        className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${
+                          active ? "border-blue-600" : "border-gray-300 dark:border-[#3d444d]"
+                        }`}
+                      >
+                        {active && <span className="h-2.5 w-2.5 rounded-full bg-blue-600" />}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+              <div className="flex shrink-0 gap-2 px-5 pb-5 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setUkuranPickerRowIdx(null)}
+                  className="flex-1 rounded-xl border border-gray-200 py-2.5 text-sm font-semibold text-gray-600 hover:bg-gray-50 dark:border-[#30363d] dark:text-gray-300 dark:hover:bg-[#21262d]"
+                >
+                  Batal
+                </button>
+                <button
+                  type="button"
+                  disabled={!ukuranPickerDraft}
+                  onClick={() => {
+                    if (ukuranPickerRowIdx !== null) updateItem(ukuranPickerRowIdx, "ukuran", ukuranPickerDraft);
+                    setUkuranPickerRowIdx(null);
+                  }}
+                  className="flex-1 rounded-xl bg-blue-600 py-2.5 text-sm font-semibold text-white shadow-sm shadow-blue-600/30 hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  Pilih Ukuran
+                </button>
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
 
       {showQuickAdd && (
         <div className="fixed inset-0 z-[60] flex items-start justify-center bg-black/60 p-4 overflow-y-auto">
