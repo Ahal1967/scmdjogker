@@ -10,6 +10,7 @@ export const navItems = [
   { label: "QC", href: "/dashboard/qc" },
   { label: "Packing", href: "/dashboard/packing" },
   { label: "Pengiriman", href: "/dashboard/pengiriman" },
+  { label: "Retur", href: "/dashboard/retur" },
   { label: "Laporan", href: "/dashboard/laporan" },
   { label: "Pengaturan", href: "/dashboard/pengaturan" },
 ];

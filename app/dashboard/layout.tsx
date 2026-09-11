@@ -18,6 +18,7 @@ import {
   ShieldCheck,
   PackageCheck,
   Truck,
+  Undo2,
   BarChart3,
   ChevronRight,
 } from "lucide-react";
@@ -38,6 +39,7 @@ const NAV_ICONS: Record<string, any> = {
   "/dashboard/qc": ShieldCheck,
   "/dashboard/packing": PackageCheck,
   "/dashboard/pengiriman": Truck,
+  "/dashboard/retur": Undo2,
   "/dashboard/laporan": BarChart3,
   "/dashboard/pengaturan": Settings,
 };
@@ -56,6 +58,7 @@ const NAV_SECTIONS = [
       "/dashboard/qc",
       "/dashboard/packing",
       "/dashboard/pengiriman",
+      "/dashboard/retur",
     ],
   },
   { title: "Lainnya", hrefs: ["/dashboard/laporan", "/dashboard/pengaturan"] },
