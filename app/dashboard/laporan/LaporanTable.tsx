@@ -106,13 +106,20 @@ export default function LaporanTable({ dataOrders }: { dataOrders: Order[] }) {
             <thead>
               <tr>
                 <TableIconCell icon={FileText} />
-                <SortableTh label="No. Pesanan" icon={ClipboardList} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} center />
+                {/* No. Pesanan rata kiri. Total/DP/Sisa diminta user balik
+                    ke rata TENGAH (bukan kanan). Alamat kolom TERAKHIR
+                    tabel ini (tidak ada Aksi) -- butuh prop `left` eksplisit
+                    + "td-left" di <td>-nya, sama seperti Catatan di riwayat
+                    QC (lihat komentar .th-left/.td-left di globals.css) --
+                    tanpa itu justru ke-paksa rata KANAN oleh CSS default
+                    kolom terakhir. Tanggal/Status tetap tengah. */}
+                <SortableTh label="No. Pesanan" icon={ClipboardList} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} />
                 <SortableTh label="Tanggal" icon={Calendar} active={sortField === "tanggal"} direction={sortDir} onClick={() => toggleSort("tanggal")} center />
                 <SortableTh label="Total" icon={Wallet} active={sortField === "total"} direction={sortDir} onClick={() => toggleSort("total")} center />
                 <SortableTh label="DP" icon={CreditCard} active={sortField === "dp"} direction={sortDir} onClick={() => toggleSort("dp")} center />
                 <SortableTh label="Sisa" icon={Receipt} active={sortField === "sisa"} direction={sortDir} onClick={() => toggleSort("sisa")} center />
                 <SortableTh label="Status" icon={CheckCircle2} active={sortField === "status"} direction={sortDir} onClick={() => toggleSort("status")} center />
-                <SortableTh label="Alamat" icon={MapPin} active={sortField === "alamat"} direction={sortDir} onClick={() => toggleSort("alamat")} center />
+                <SortableTh label="Alamat" icon={MapPin} active={sortField === "alamat"} direction={sortDir} onClick={() => toggleSort("alamat")} left />
               </tr>
             </thead>
             <tbody>
@@ -123,7 +130,7 @@ export default function LaporanTable({ dataOrders }: { dataOrders: Order[] }) {
                       {(currentPage - 1) * pageSize + idx + 1}
                     </span>
                   </td>
-                  <td className="text-black dark:text-white text-center">{order.no_pesanan || "-"}</td>
+                  <td className="text-black dark:text-white">{order.no_pesanan || "-"}</td>
                   <td className="text-sm text-gray-600 dark:text-gray-400 text-center">{formatTanggal(order.tanggal || order.created_at)}</td>
                   <td className="text-sm font-medium text-black dark:text-white whitespace-nowrap text-center">{formatRupiah(Number(order.total) || 0)}</td>
                   <td className="text-sm text-gray-700 dark:text-gray-300 text-center whitespace-nowrap">{formatRupiah(Number(order.dp) || 0)}</td>
@@ -140,7 +147,7 @@ export default function LaporanTable({ dataOrders }: { dataOrders: Order[] }) {
                       {order.status || "-"}
                     </span>
                   </td>
-                  <td className="max-w-[10rem] truncate text-sm text-gray-700 dark:text-gray-300 md:max-w-xs text-center">
+                  <td className="td-left max-w-[10rem] truncate text-sm text-gray-700 dark:text-gray-300 md:max-w-xs">
                     {order.alamat_pengiriman || "-"}
                   </td>
                 </tr>

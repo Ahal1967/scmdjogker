@@ -306,9 +306,14 @@ export default function ReturTable({ initialReturns, orders }: { initialReturns:
             <thead>
               <tr>
                 <TableIconCell icon={Undo2} />
-                <SortableTh label="No. Retur" icon={Hash} active={sortField === "no_retur"} direction={sortDir} onClick={() => toggleSort("no_retur")} center />
-                <SortableTh label="Pesanan" icon={FileText} active={sortField === "pesanan"} direction={sortDir} onClick={() => toggleSort("pesanan")} center />
-                <SortableTh label="Item" icon={Tag} sortable={false} center />
+                {/* No. Retur/Pesanan/Item rata kiri (teks/kode -- Pesanan
+                    isinya 2 baris bertumpuk, rata tengah bikin baris atas &
+                    bawah beda titik mulai, rata kiri jauh lebih enak
+                    dipindai). Jumlah diminta user rata TENGAH (bukan
+                    kanan). Alasan/Tanggal/Status/Aksi tetap tengah. */}
+                <SortableTh label="No. Retur" icon={Hash} active={sortField === "no_retur"} direction={sortDir} onClick={() => toggleSort("no_retur")} />
+                <SortableTh label="Pesanan" icon={FileText} active={sortField === "pesanan"} direction={sortDir} onClick={() => toggleSort("pesanan")} />
+                <SortableTh label="Item" icon={Tag} sortable={false} />
                 <SortableTh label="Alasan" icon={AlertTriangle} active={sortField === "alasan"} direction={sortDir} onClick={() => toggleSort("alasan")} center />
                 <SortableTh label="Jumlah" icon={Hash} sortable={false} center />
                 <SortableTh label="Tanggal" icon={Calendar} active={sortField === "tanggal"} direction={sortDir} onClick={() => toggleSort("tanggal")} center />
@@ -326,12 +331,12 @@ export default function ReturTable({ initialReturns, orders }: { initialReturns:
                         {(currentPage - 1) * pageSize + idx + 1}
                       </span>
                     </td>
-                    <td className="text-center font-medium text-black dark:text-white">{r.no_retur}</td>
-                    <td className="text-center">
+                    <td className="font-medium text-black dark:text-white">{r.no_retur}</td>
+                    <td>
                       <p className="text-sm text-black dark:text-white">{r.orders?.no_pesanan ?? "-"}</p>
                       <p className="text-[11px] text-gray-400">{r.orders?.customers?.nama ?? "-"}</p>
                     </td>
-                    <td className="text-center text-gray-700 dark:text-gray-300">
+                    <td className="text-gray-700 dark:text-gray-300">
                       {itemLabel(r.order_items) ?? <span className="text-gray-400">Semua item</span>}
                     </td>
                     <td className="text-center">

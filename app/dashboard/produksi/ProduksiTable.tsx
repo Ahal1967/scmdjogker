@@ -313,9 +313,12 @@ export default function ProduksiTable({
             <thead>
               <tr>
                 <TableIconCell icon={Factory} />
-                <SortableTh label="No. Produksi" icon={Factory} active={sortField === "no_produksi"} direction={sortDir} onClick={() => toggleSort("no_produksi")} center />
-                <SortableTh label="No. Pesanan" icon={ClipboardList} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} center />
-                <SortableTh label="Pelanggan" icon={User} active={sortField === "pelanggan"} direction={sortDir} onClick={() => toggleSort("pelanggan")} center />
+                {/* Kolom teks/kode rata kiri. Status/Progress/Aksi tetap
+                    tengah (Progress isinya widget progress bar, bukan
+                    angka polos). */}
+                <SortableTh label="No. Produksi" icon={Factory} active={sortField === "no_produksi"} direction={sortDir} onClick={() => toggleSort("no_produksi")} />
+                <SortableTh label="No. Pesanan" icon={ClipboardList} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} />
+                <SortableTh label="Pelanggan" icon={User} active={sortField === "pelanggan"} direction={sortDir} onClick={() => toggleSort("pelanggan")} />
                 <SortableTh label="Status" icon={Activity} active={sortField === "status"} direction={sortDir} onClick={() => toggleSort("status")} center />
                 <SortableTh label="Progress" icon={Gauge} active={sortField === "progress"} direction={sortDir} onClick={() => toggleSort("progress")} center />
                 <SortableTh label="Aksi" icon={MoreHorizontal} sortable={false} center />
@@ -329,9 +332,9 @@ export default function ProduksiTable({
                       {(currentPage - 1) * pageSize + idx + 1}
                     </span>
                   </td>
-                  <td className="text-black dark:text-white text-center">{p.no_produksi || "-"}</td>
-                  <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{p.orders?.no_pesanan ?? "-"}</td>
-                  <td className="text-sm text-gray-800 dark:text-gray-200 text-center">{p.orders?.customers?.nama ?? "-"}</td>
+                  <td className="text-black dark:text-white">{p.no_produksi || "-"}</td>
+                  <td className="text-sm text-gray-700 dark:text-gray-300">{p.orders?.no_pesanan ?? "-"}</td>
+                  <td className="text-sm text-gray-800 dark:text-gray-200">{p.orders?.customers?.nama ?? "-"}</td>
                   <td className="text-center">
                     <StatusDropdown
                       value={p.status || "Produksi"}

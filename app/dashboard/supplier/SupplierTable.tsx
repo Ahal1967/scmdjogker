@@ -180,10 +180,17 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
             <thead>
               <tr>
                 <TableIconCell icon={Truck} />
-                <SortableTh label="Nama Supplier" icon={Users2} active={sortField === "nama_supplier"} direction={sortDir} onClick={() => toggleSort("nama_supplier")} center />
-                <SortableTh label="Kontak" icon={Phone} active={sortField === "kontak"} direction={sortDir} onClick={() => toggleSort("kontak")} center />
-                <SortableTh label="No. Telepon" icon={Smartphone} active={sortField === "no_telepon"} direction={sortDir} onClick={() => toggleSort("no_telepon")} center />
-                <SortableTh label="Alamat" icon={MapPin} active={sortField === "alamat"} direction={sortDir} onClick={() => toggleSort("alamat")} center />
+                {/* Rata kiri buat kolom teks/nama (Nama Supplier, Kontak, No.
+                    Telepon, Alamat) -- sebelumnya semua rata tengah, tapi
+                    teks panjang/nama yang rata tengah bikin mata susah
+                    nyisir baris demi baris (titik awal tiap baris beda-beda
+                    tergantung panjang teksnya). Status/Aksi TETAP rata
+                    tengah -- itu badge/tombol pendek, bukan teks bebas,
+                    rata tengah justru paling gampang dipindai sekilas. */}
+                <SortableTh label="Nama Supplier" icon={Users2} active={sortField === "nama_supplier"} direction={sortDir} onClick={() => toggleSort("nama_supplier")} />
+                <SortableTh label="Kontak" icon={Phone} active={sortField === "kontak"} direction={sortDir} onClick={() => toggleSort("kontak")} />
+                <SortableTh label="No. Telepon" icon={Smartphone} active={sortField === "no_telepon"} direction={sortDir} onClick={() => toggleSort("no_telepon")} />
+                <SortableTh label="Alamat" icon={MapPin} active={sortField === "alamat"} direction={sortDir} onClick={() => toggleSort("alamat")} />
                 <SortableTh label="Status" icon={Tag} active={sortField === "status"} direction={sortDir} onClick={() => toggleSort("status")} center />
                 <SortableTh label="Aksi" icon={MoreHorizontal} sortable={false} center />
               </tr>
@@ -196,10 +203,10 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
                       {(currentPage - 1) * pageSize + idx + 1}
                     </span>
                   </td>
-                  <td className="text-black dark:text-white text-center">{s.nama_supplier}</td>
-                  <td className="text-gray-700 dark:text-gray-300 text-center">{s.kontak || "-"}</td>
-                  <td className="text-gray-700 dark:text-gray-300 text-center">{s.no_telepon || "-"}</td>
-                  <td className="text-gray-600 dark:text-gray-400 max-w-xs truncate text-center">{s.alamat || "-"}</td>
+                  <td className="text-black dark:text-white">{s.nama_supplier}</td>
+                  <td className="text-gray-700 dark:text-gray-300">{s.kontak || "-"}</td>
+                  <td className="text-gray-700 dark:text-gray-300">{s.no_telepon || "-"}</td>
+                  <td className="text-gray-600 dark:text-gray-400 max-w-xs truncate">{s.alamat || "-"}</td>
                   <td className="text-center">
                     <span
                       className={`badge ${

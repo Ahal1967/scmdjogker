@@ -272,12 +272,16 @@ export default function GudangTable({
             <thead>
               <tr>
                 <TableIconCell icon={Package} />
-                <SortableTh label="Nama Bahan" icon={Package} active={sortField === "nama_bahan"} direction={sortDir} onClick={() => toggleSort("nama_bahan")} center />
-                <SortableTh label="Kategori" icon={Tag} active={sortField === "kategori"} direction={sortDir} onClick={() => toggleSort("kategori")} center />
-                <SortableTh label="Satuan" icon={Ruler} active={sortField === "satuan"} direction={sortDir} onClick={() => toggleSort("satuan")} center />
+                {/* Rata kiri buat kolom teks (Nama Bahan/Kategori/Satuan/
+                    Supplier). Minimum -- diminta user rata TENGAH (bukan
+                    kanan), disatukan sama Stok yang juga tengah. Status/
+                    Aksi tetap tengah. */}
+                <SortableTh label="Nama Bahan" icon={Package} active={sortField === "nama_bahan"} direction={sortDir} onClick={() => toggleSort("nama_bahan")} />
+                <SortableTh label="Kategori" icon={Tag} active={sortField === "kategori"} direction={sortDir} onClick={() => toggleSort("kategori")} />
+                <SortableTh label="Satuan" icon={Ruler} active={sortField === "satuan"} direction={sortDir} onClick={() => toggleSort("satuan")} />
                 <SortableTh label="Stok" icon={Boxes} active={sortField === "stok"} direction={sortDir} onClick={() => toggleSort("stok")} center />
                 <SortableTh label="Minimum" icon={AlertTriangle} active={sortField === "stok_minimum"} direction={sortDir} onClick={() => toggleSort("stok_minimum")} center />
-                <SortableTh label="Supplier" icon={Truck} active={sortField === "supplier"} direction={sortDir} onClick={() => toggleSort("supplier")} center />
+                <SortableTh label="Supplier" icon={Truck} active={sortField === "supplier"} direction={sortDir} onClick={() => toggleSort("supplier")} />
                 <SortableTh label="Status" icon={CheckCircle2} active={sortField === "status"} direction={sortDir} onClick={() => toggleSort("status")} center />
                 <SortableTh label="Aksi" icon={MoreHorizontal} sortable={false} center />
               </tr>
@@ -290,9 +294,9 @@ export default function GudangTable({
                       {(currentPage - 1) * pageSize + idx + 1}
                     </span>
                   </td>
-                  <td className="text-black dark:text-white text-center">{m.nama_bahan}</td>
-                  <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{m.kategori}</td>
-                  <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{m.satuan}</td>
+                  <td className="text-black dark:text-white">{m.nama_bahan}</td>
+                  <td className="text-sm text-gray-700 dark:text-gray-300">{m.kategori}</td>
+                  <td className="text-sm text-gray-700 dark:text-gray-300">{m.satuan}</td>
                   <td>
                     <div className="flex items-center justify-center gap-2">
                       <button
@@ -311,7 +315,7 @@ export default function GudangTable({
                     </div>
                   </td>
                   <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{m.stok_minimum}</td>
-                  <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{m.suppliers?.nama_supplier ?? "-"}</td>
+                  <td className="text-sm text-gray-700 dark:text-gray-300">{m.suppliers?.nama_supplier ?? "-"}</td>
                   <td className="text-center">
                     <span
                       className={`badge ${

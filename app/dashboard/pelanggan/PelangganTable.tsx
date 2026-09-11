@@ -112,10 +112,13 @@ export default function PelangganTable({ dataPelanggan }: { dataPelanggan: Pelan
             <thead>
               <tr>
                 <TableIconCell icon={User} />
-                <SortableTh label="Nama Pelanggan" icon={User} active={sortField === "nama"} direction={sortDir} onClick={() => toggleSort("nama")} center />
-                <SortableTh label="No. Telepon" icon={Phone} active={sortField === "no_telepon"} direction={sortDir} onClick={() => toggleSort("no_telepon")} center />
-                <SortableTh label="Total Pesanan" icon={ShoppingBag} active={sortField === "totalPesanan"} direction={sortDir} onClick={() => toggleSort("totalPesanan")} center />
-                <SortableTh label="Total Belanja Diterima" icon={Wallet} active={sortField === "totalBelanja"} direction={sortDir} onClick={() => toggleSort("totalBelanja")} center />
+                {/* Semua kolom teks rata kiri -- Total Pesanan/Total
+                    Belanja diminta user balik ke kiri, bukan kanan. Aksi
+                    tetap tengah. */}
+                <SortableTh label="Nama Pelanggan" icon={User} active={sortField === "nama"} direction={sortDir} onClick={() => toggleSort("nama")} />
+                <SortableTh label="No. Telepon" icon={Phone} active={sortField === "no_telepon"} direction={sortDir} onClick={() => toggleSort("no_telepon")} />
+                <SortableTh label="Total Pesanan" icon={ShoppingBag} active={sortField === "totalPesanan"} direction={sortDir} onClick={() => toggleSort("totalPesanan")} />
+                <SortableTh label="Total Belanja Diterima" icon={Wallet} active={sortField === "totalBelanja"} direction={sortDir} onClick={() => toggleSort("totalBelanja")} />
                 <SortableTh label="Aksi" sortable={false} center />
               </tr>
             </thead>
@@ -127,10 +130,10 @@ export default function PelangganTable({ dataPelanggan }: { dataPelanggan: Pelan
                       {(currentPage - 1) * pageSize + idx + 1}
                     </span>
                   </td>
-                  <td className="text-black dark:text-white text-center">{c.nama}</td>
-                  <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{c.no_telepon || "-"}</td>
-                  <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{c.totalPesanan} pesanan</td>
-                  <td className="td-center text-sm font-medium text-black dark:text-white">
+                  <td className="text-black dark:text-white">{c.nama}</td>
+                  <td className="text-sm text-gray-700 dark:text-gray-300">{c.no_telepon || "-"}</td>
+                  <td className="text-sm text-gray-700 dark:text-gray-300">{c.totalPesanan} pesanan</td>
+                  <td className="text-sm font-medium text-black dark:text-white">
                     Rp {c.totalBelanja.toLocaleString("id-ID")}
                   </td>
                   <td className="td-center">

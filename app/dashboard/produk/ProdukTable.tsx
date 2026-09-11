@@ -364,9 +364,12 @@ export default function ProdukTable({
             <thead>
               <tr>
                 <TableIconCell icon={Shirt} />
-                <SortableTh label="Nama Produk" icon={Shirt} active={sortField === "nama_produk"} direction={sortDir} onClick={() => toggleSort("nama_produk")} center />
-                <SortableTh label="Kategori" icon={Tag} active={sortField === "kategori"} direction={sortDir} onClick={() => toggleSort("kategori")} center />
-                <SortableTh label="Harga Default" icon={Wallet} active={sortField === "harga_default"} direction={sortDir} onClick={() => toggleSort("harga_default")} center />
+                {/* Nama/Kategori/Harga Default rata kiri (diminta user
+                    -- Harga Default balik ke kiri, bukan kanan). Aksi
+                    tetap tengah. */}
+                <SortableTh label="Nama Produk" icon={Shirt} active={sortField === "nama_produk"} direction={sortDir} onClick={() => toggleSort("nama_produk")} />
+                <SortableTh label="Kategori" icon={Tag} active={sortField === "kategori"} direction={sortDir} onClick={() => toggleSort("kategori")} />
+                <SortableTh label="Harga Default" icon={Wallet} active={sortField === "harga_default"} direction={sortDir} onClick={() => toggleSort("harga_default")} />
                 <SortableTh label="Aksi" icon={MoreHorizontal} sortable={false} center />
               </tr>
             </thead>
@@ -378,9 +381,9 @@ export default function ProdukTable({
                       {(currentPage - 1) * pageSize + idx + 1}
                     </span>
                   </td>
-                  <td className="text-black dark:text-white text-center">{p.nama_produk}</td>
-                  <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{p.kategori ?? "-"}</td>
-                  <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{formatRupiah(p.harga_default)}</td>
+                  <td className="text-black dark:text-white">{p.nama_produk}</td>
+                  <td className="text-sm text-gray-700 dark:text-gray-300">{p.kategori ?? "-"}</td>
+                  <td className="text-sm text-gray-700 dark:text-gray-300">{formatRupiah(p.harga_default)}</td>
                   <td className="td-center">
                     <div className="flex justify-center gap-1.5">
                       <button

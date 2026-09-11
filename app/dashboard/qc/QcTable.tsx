@@ -295,9 +295,10 @@ export default function QcTable({
               <thead>
                 <tr>
                   <TableIconCell icon={ShieldCheck} />
-                  <SortableTh label="No. Produksi" icon={Factory} active={pendingSortField === "no_produksi"} direction={pendingSortDir} onClick={() => togglePendingSort("no_produksi")} center />
-                  <SortableTh label="No. Pesanan" icon={ClipboardList} active={pendingSortField === "no_pesanan"} direction={pendingSortDir} onClick={() => togglePendingSort("no_pesanan")} center />
-                  <SortableTh label="Pelanggan" icon={User} active={pendingSortField === "pelanggan"} direction={pendingSortDir} onClick={() => togglePendingSort("pelanggan")} center />
+                  {/* Kolom teks/kode rata kiri, Aksi tetap tengah. */}
+                  <SortableTh label="No. Produksi" icon={Factory} active={pendingSortField === "no_produksi"} direction={pendingSortDir} onClick={() => togglePendingSort("no_produksi")} />
+                  <SortableTh label="No. Pesanan" icon={ClipboardList} active={pendingSortField === "no_pesanan"} direction={pendingSortDir} onClick={() => togglePendingSort("no_pesanan")} />
+                  <SortableTh label="Pelanggan" icon={User} active={pendingSortField === "pelanggan"} direction={pendingSortDir} onClick={() => togglePendingSort("pelanggan")} />
                   <SortableTh label="Aksi" icon={MoreHorizontal} sortable={false} center />
                 </tr>
               </thead>
@@ -309,9 +310,9 @@ export default function QcTable({
                         {idx + 1}
                       </span>
                     </td>
-                    <td className="text-black dark:text-white text-center">{p.no_produksi}</td>
-                    <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{p.orders?.no_pesanan ?? "-"}</td>
-                    <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{p.orders?.customers?.nama ?? "-"}</td>
+                    <td className="text-black dark:text-white">{p.no_produksi}</td>
+                    <td className="text-sm text-gray-700 dark:text-gray-300">{p.orders?.no_pesanan ?? "-"}</td>
+                    <td className="text-sm text-gray-700 dark:text-gray-300">{p.orders?.customers?.nama ?? "-"}</td>
                     <td className="td-center">
                       <button
                         onClick={() => openCheck(p)}
@@ -350,11 +351,18 @@ export default function QcTable({
             <thead>
               <tr>
                 <TableIconCell icon={ClipboardCheck} />
-                <SortableTh label="No. QC" icon={ClipboardCheck} active={recordSortField === "no_qc"} direction={recordSortDir} onClick={() => toggleRecordSort("no_qc")} center />
-                <SortableTh label="No. Produksi" icon={Factory} active={recordSortField === "no_produksi"} direction={recordSortDir} onClick={() => toggleRecordSort("no_produksi")} center />
+                {/* No. QC/No. Produksi rata kiri (teks/kode). Catatan kolom
+                    TERAKHIR tabel ini (tidak ada Aksi) -- default CSS-nya
+                    otomatis rata kanan (lihat komentar .th-left/.td-left di
+                    globals.css), makanya butuh prop `left` eksplisit di
+                    sini plus className "td-left" di <td>-nya supaya teks
+                    bebas/catatan panjang tidak numpuk rata kanan. Tanggal/
+                    Hasil tetap tengah. */}
+                <SortableTh label="No. QC" icon={ClipboardCheck} active={recordSortField === "no_qc"} direction={recordSortDir} onClick={() => toggleRecordSort("no_qc")} />
+                <SortableTh label="No. Produksi" icon={Factory} active={recordSortField === "no_produksi"} direction={recordSortDir} onClick={() => toggleRecordSort("no_produksi")} />
                 <SortableTh label="Tanggal" icon={Calendar} active={recordSortField === "tanggal"} direction={recordSortDir} onClick={() => toggleRecordSort("tanggal")} center />
                 <SortableTh label="Hasil" icon={CheckCircle2} active={recordSortField === "hasil"} direction={recordSortDir} onClick={() => toggleRecordSort("hasil")} center />
-                <SortableTh label="Catatan" icon={FileText} active={recordSortField === "catatan"} direction={recordSortDir} onClick={() => toggleRecordSort("catatan")} center />
+                <SortableTh label="Catatan" icon={FileText} active={recordSortField === "catatan"} direction={recordSortDir} onClick={() => toggleRecordSort("catatan")} left />
               </tr>
             </thead>
             <tbody>
@@ -365,8 +373,8 @@ export default function QcTable({
                       {(currentPage - 1) * pageSize + idx + 1}
                     </span>
                   </td>
-                  <td className="text-black dark:text-white text-center">{r.no_qc}</td>
-                  <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{r.production?.no_produksi ?? "-"}</td>
+                  <td className="text-black dark:text-white">{r.no_qc}</td>
+                  <td className="text-sm text-gray-700 dark:text-gray-300">{r.production?.no_produksi ?? "-"}</td>
                   <td className="text-sm text-gray-600 dark:text-gray-400 text-center">
                     {new Date(r.tanggal).toLocaleDateString("id-ID", {
                       day: "2-digit",
@@ -380,7 +388,7 @@ export default function QcTable({
                       {r.hasil}
                     </span>
                   </td>
-                  <td className="td-center text-sm text-gray-600 dark:text-gray-400">{r.catatan || "-"}</td>
+                  <td className="td-left text-sm text-gray-600 dark:text-gray-400">{r.catatan || "-"}</td>
                 </tr>
               ))}
               {filteredRecords.length === 0 && (

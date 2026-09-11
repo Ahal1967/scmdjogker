@@ -30,7 +30,30 @@ import { ChevronsUpDown, ChevronUp, ChevronDown, type LucideIcon } from "lucide-
    <span className="chevron-spacer"> di bawah ini lebar-nya SENGAJA
    dibikin sama persis kayak chevron (lihat .chevron-spacer di
    globals.css) supaya label selalu tepat di tengah, simetris kiri-kanan,
-   match sama <td> di bawahnya. */
+   match sama <td> di bawahnya.
+
+   Bug lanjutan yang baru ketahuan setelah 12 tabel di app ini dipindah
+   dari "semua rata tengah" ke campuran kiri/kanan/tengah per kolom:
+   trik chevron-spacer di atas cuma benar buat kasus CENTER. Begitu
+   dipakai di kolom rata KIRI, spacer 12px+gap yang nempel SEBELUM label
+   itu ikut kebawa, jadi teks label kegeser ~19px ke kanan dari tepi kiri
+   <th> -- sementara <td> di bawahnya (teks polos, tanpa spacer apa pun)
+   nempel pas di tepi kiri. Hasilnya header dan isi kolom jadi TIDAK
+   sejajar (persis kebalikan dari bug yang tadinya mau diperbaiki lewat
+   spacer ini), kelihatan "berantakan" di seluruh tabel karena hampir
+   semua kolom sekarang rata kiri. Kolom rata KANAN kena masalah serupa
+   dari sisi lain: chevron yang nempel SETELAH label bikin tepi kanan
+   label kegeser ~19px ke KIRI dari tepi kanan <th>, tidak sejajar sama
+   angka di <td> yang rata kanan polos.
+
+   Fix: spacer di depan HANYA dipasang buat kolom center (satu-satunya
+   kasus yang butuh penyeimbang simetris kiri-kanan). Kolom kiri/default
+   TIDAK pakai spacer sama sekali -- label jadi elemen PERTAMA di
+   th-flex, jadi tepi kirinya otomatis nempel tepi kiri <th>, sejajar
+   sama <td>. Kolom kanan urutannya DIBALIK (chevron duluan, baru label)
+   -- dengan justify-content:flex-end dari .th-right, label jadi elemen
+   TERAKHIR, jadi tepi kanannya otomatis nempel tepi kanan <th>, sejajar
+   sama angka di <td>. */
 export default function SortableTh({
   label,
   icon: _icon,
@@ -73,16 +96,33 @@ export default function SortableTh({
       title={sortable ? `Urutkan berdasarkan ${label}` : undefined}
     >
       <span className="th-flex">
-        {sortable && <span className="chevron-spacer" aria-hidden="true" />}
-        <span className="col-label">{label}</span>
-        {sortable && (
-          <span className={`sort-chevron${active ? " active" : ""}`}>
-            {active ? (
-              direction === "asc" ? <ChevronUp size={12} /> : <ChevronDown size={12} />
-            ) : (
-              <ChevronsUpDown size={12} />
+        {right ? (
+          <>
+            {sortable && (
+              <span className={`sort-chevron${active ? " active" : ""}`}>
+                {active ? (
+                  direction === "asc" ? <ChevronUp size={12} /> : <ChevronDown size={12} />
+                ) : (
+                  <ChevronsUpDown size={12} />
+                )}
+              </span>
             )}
-          </span>
+            <span className="col-label">{label}</span>
+          </>
+        ) : (
+          <>
+            {center && sortable && <span className="chevron-spacer" aria-hidden="true" />}
+            <span className="col-label">{label}</span>
+            {sortable && (
+              <span className={`sort-chevron${active ? " active" : ""}`}>
+                {active ? (
+                  direction === "asc" ? <ChevronUp size={12} /> : <ChevronDown size={12} />
+                ) : (
+                  <ChevronsUpDown size={12} />
+                )}
+              </span>
+            )}
+          </>
         )}
       </span>
     </th>

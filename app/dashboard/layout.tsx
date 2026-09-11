@@ -4,7 +4,6 @@ import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { Menu } from "@headlessui/react";
 import {
   Settings,
   LogOut,
@@ -26,6 +25,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 import NotificationBell from "@/components/NotificationBell";
 import { createClient } from "@/lib/supabase/client";
 import { navItems } from "@/lib/nav";
+import { useConfirm } from "@/components/useConfirm";
 
 const NAV_ICONS: Record<string, any> = {
   "/dashboard": LayoutDashboard,
@@ -72,6 +72,7 @@ export default function DashboardLayout({
   const router = useRouter();
   const pathname = usePathname();
   const supabase = createClient();
+  const { confirm, ConfirmDialog } = useConfirm();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [headerScrolled, setHeaderScrolled] = useState(false);
   const mainRef = useRef<HTMLElement>(null);
@@ -105,6 +106,18 @@ export default function DashboardLayout({
   }
 
   async function handleLogout() {
+    // User minta ada konfirmasi dulu sebelum benar-benar logout (dulu klik
+    // langsung keluar tanpa tanya) -- pakai useConfirm() yang sama dengan
+    // dialog konfirmasi hapus data di tabel lain (Pelanggan, dst), supaya
+    // gayanya konsisten satu sistem, bukan bikin modal baru sendiri.
+    const ok = await confirm({
+      title: "Logout",
+      message: "Yakin ingin logout dari akun ini?",
+      confirmLabel: "Ya, Logout",
+      danger: true,
+    });
+    if (!ok) return;
+
     await supabase.auth.signOut();
     router.push("/login");
   }
@@ -168,41 +181,40 @@ export default function DashboardLayout({
             tidak butuh ruang dari parent-nya sama sekali, jadi wrapper ini
             aman walau 0px, tidak boleh "hidden" (kalau di-hidden, elemen
             fixed di dalamnya ikut hilang total). */}
-        <aside
-          /* flex + flex-col ditambahkan di sini -- sebelumnya <nav> di bawah
-             sudah punya "flex-1 overflow-y-auto" tapi TIDAK PERNAH jalan
-             karena parent-nya (<aside> ini) bukan flex container, jadi
-             "flex-1" itu tidak berarti apa-apa. Akibatnya di layar pendek
-             (HP), daftar menu yang kepanjangan cuma overflow diam-diam tanpa
-             bisa di-scroll, jadi menu paling bawah (Pengaturan) kepotong dan
-             tidak kelihatan/tidak bisa diklik.
-             Opsi A "Kartu Mengambang" -- awalnya cuma di desktop, TAPI user
-             minta konsisten di HP juga. Jadi sekarang base class (tanpa
-             prefix md:) sudah langsung "mengambang": posisi fixed dengan
-             top-3.5/left-3.5/bottom-3.5 (bukan top-0/left-0/h-full lagi) --
-             trik CSS lama, kalau top DAN bottom sama-sama di-set pada
-             elemen fixed, tingginya otomatis ngisi sisa ruang di antara
-             keduanya, jadi tidak perlu hitung height manual. Rounded+shadow
-             juga sudah base (bukan md: lagi). Overlay hitam (bg-black/40)
-             yang sudah ada dari dulu otomatis kelihatan di sekeliling kartu
-             ini sebagai "gutter"-nya versi mobile -- tidak perlu wrapper
-             separuh kayak di desktop.
-             Animasi buka/tutup: dulu pakai "-translate-x-full" (=-100% dari
-             lebar sendiri), sekarang diganti "-translate-x-[120vw]" --
-             soalnya kartunya sekarang punya offset left-3.5, kalau masih
-             pakai -100% sisi kanannya cuma geser sampai x=14px, MASIH
-             sedikit kelihatan nongol di layar. 120vw jamin bener-bener
-             hilang dari layar berapa pun lebar HP-nya.
-             Di desktop (md:): posisi balik ke "static" (bukan fixed lagi,
-             top/left/bottom jadi tidak berlaku otomatis), margin dari
-             my-3.5/ml-3.5, tinggi eksplisit calc(100vh-28px) (karena static
-             tidak bisa pakai trik top+bottom), lebar diperkecil ke 228px
-             (muat di gutter 256px punya <div> pembungkus). "border-r"
-             diganti "border" (4 sisi) dari awal supaya kartunya (mobile
-             maupun desktop) punya garis tepi utuh, bukan cuma kanan. */
-          className={`sidebar-glass fixed left-3.5 top-3.5 bottom-3.5 z-50 flex w-64 flex-col rounded-[20px] border shadow-lg transition-transform duration-300 ease-in-out md:static md:my-3.5 md:ml-3.5 md:h-[calc(100vh-28px)] md:w-[228px] md:translate-x-0 ${
+        <div
+          /* Wrapper baru buat POSISI SAJA (fixed/top/left/bottom + animasi
+             slide buka-tutup) -- sebelumnya properti ini nempel langsung
+             di <aside> yang isinya nav + widget Administrator jadi satu
+             kartu. User sekarang minta widget Administrator jadi kartu
+             mengambang TERPISAH (rounded/border/shadow sendiri, ada jarak
+             dari kartu nav), artinya butuh 2 kartu bersusun -- tapi posisi
+             fixed & animasi slide-nya harus tetap SATU titik kontrol biar
+             dua kartu itu geser bareng saat sidebar dibuka/ditutup di HP
+             (kalau taruh fixed+transform di masing-masing kartu, dua-duanya
+             harus disinkronkan manual, gampang geser salah satu).
+             Makanya: wrapper ini sendiri TIDAK bergaya (tidak ada
+             border/rounded/shadow/background) -- cuma "kerangka" flex-col
+             dengan gap-3 buat kasih jarak mengambang antar kartu. Class
+             posisi/animasinya PERSIS sama kayak <aside> versi sebelumnya
+             (fixed left-3.5/top-3.5/bottom-3.5 di mobile, static+margin
+             my-3.5/ml-3.5+h-[calc(100vh-28px)] di desktop, translate-x
+             buat slide) -- lihat riwayat komentar lama untuk detail alasan
+             tiap nilai kalau perlu. */
+          className={`fixed left-3.5 top-3.5 bottom-3.5 z-50 flex w-64 flex-col gap-3 transition-transform duration-300 ease-in-out md:static md:my-3.5 md:ml-3.5 md:h-[calc(100vh-28px)] md:w-[228px] md:translate-x-0 ${
             sidebarOpen ? "translate-x-0" : "-translate-x-[120vw]"
           }`}
+        >
+        <aside
+          /* Kartu nav sekarang HANYA berisi header logo + <nav> -- widget
+             Administrator sudah dipindah keluar jadi kartu terpisah di
+             bawah (setelah </aside>). "min-h-0 flex-1" (bukan lagi
+             h-[calc(100vh-28px)] eksplisit) supaya kartu ini otomatis
+             mengambil SISA tinggi wrapper di atas, setelah dikurangi
+             tinggi kartu Administrator + gap-3 di antaranya -- flex-1
+             pada <nav> di dalamnya (untuk overflow-y-auto saat menu
+             kepanjangan) tetap jalan karena parent terdekatnya (<aside>
+             ini) masih flex container. */
+          className="sidebar-glass flex min-h-0 flex-1 flex-col rounded-[20px] border shadow-lg"
           style={{
             borderColor: "var(--djoker-border)",
           }}
@@ -332,6 +344,58 @@ export default function DashboardLayout({
           ))}
         </nav>
         </aside>
+
+        {/* Widget "Administrator" DIPISAH jadi kartu mengambang sendiri
+            atas permintaan user (sebelumnya nyatu di dalam <aside> yang
+            sama dengan nav, cuma dipisah pakai border-t). Sekarang posisinya
+            di LUAR <aside>, sebagai kartu sidebar-glass sendiri dengan
+            rounded-[20px]/border/shadow-lg -- persis kayak kartu nav di
+            atasnya -- dipisahkan "gap-3" lewat wrapper posisi (lihat
+            komentar sebelum <aside>). Karena tingginya "shrink-0" (ngikutin
+            konten, bukan flex-1), kartu ini otomatis selalu nempel di
+            posisi PALING BAWAH kolom sidebar (bottom-3.5), sekaligus
+            menutup ruang kosong yang sebelumnya dikeluhkan user.
+            Link "Pengaturan" DIHAPUS dari kartu ini atas permintaan user --
+            menu Pengaturan sudah ada sebagai item nav biasa di section
+            "Lainnya" di atas, jadi tidak perlu diulang di sini (dulu ini
+            sempat saya tandai sebagai potensi redundan, sekarang user
+            konfirmasi hapus). Isi kartu jadi: avatar + nama + role +
+            Logout saja. */}
+        <div
+          className="sidebar-glass shrink-0 rounded-[20px] border p-3 shadow-lg"
+          style={{ borderColor: "var(--djoker-border)" }}
+        >
+          <div className="flex items-center gap-2.5 rounded-xl px-1 py-1">
+            <div
+              className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border bg-white"
+              style={{ borderColor: "var(--djoker-border)" }}
+            >
+              <Image
+                src="/images/logodjogker1.jpeg"
+                alt="Avatar DJOGKER"
+                width={36}
+                height={36}
+                className="object-contain p-1"
+              />
+            </div>
+            <div className="min-w-0 leading-tight">
+              <p className="truncate text-sm font-semibold text-black dark:text-white">Administrator</p>
+              <p className="text-[11px]" style={{ color: "var(--djoker-muted)" }}>Admin</p>
+            </div>
+          </div>
+
+          <div className="mt-1">
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm font-semibold text-red-500 transition hover:bg-red-50 dark:hover:bg-red-900/20"
+            >
+              <LogOut size={16} strokeWidth={2} />
+              Logout
+            </button>
+          </div>
+        </div>
+        </div>
       </div>
 
       <div className="flex min-w-0 flex-1 flex-col">
@@ -385,87 +449,6 @@ export default function DashboardLayout({
           <div className="flex items-center gap-3">
             <ThemeToggle />
             <NotificationBell />
-
-            <Menu as="div" className="relative">
-            <Menu.Button
-              className="flex items-center gap-3 rounded-full border bg-white/50 px-2 py-1.5 shadow-sm backdrop-blur-md transition hover:bg-white/70 dark:bg-[#161b22]/50 dark:hover:bg-[#21262d]/70"
-              style={{ borderColor: "var(--djoker-border)" }}
-            >
-              <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full border bg-white">
-                <Image
-                  src="/images/logodjogker1.jpeg"
-                  alt="Avatar DJOGKER"
-                  width={32}
-                  height={32}
-                  className="object-contain p-1"
-                />
-              </div>
-
-              <div className="hidden leading-tight text-left sm:block">
-                <p className="text-sm font-medium text-black dark:text-white">Administrator</p>
-                <p className="text-[11px]" style={{ color: "var(--djoker-muted)" }}>Admin</p>
-              </div>
-
-              <svg
-                viewBox="0 0 24 24"
-                className="h-4 w-4"
-                style={{ color: "var(--djoker-muted)" }}
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M6 9l6 6 6-6" />
-              </svg>
-            </Menu.Button>
-
-            <Menu.Items className="absolute right-0 z-50 mt-3 w-56 origin-top-right rounded-xl border bg-white/70 dark:bg-[#161b22]/70 backdrop-blur-md p-2 shadow-xl focus:outline-none"
-              style={{ borderColor: "var(--djoker-border)" }}>
-              {/* Sebelumnya 2 item terpisah ("Profile" -> /dashboard/profile,
-                  "Settings" -> /dashboard/settings) yang masing-masing
-                  py sendiri, isinya sebagian besar duplikat dari halaman
-                  Pengaturan (edit nama, lihat role, email, logout) tapi
-                  TIDAK ikut sistem desain yang sama (warna Tailwind acak,
-                  ada garis biru aneh ketauan user lewat screenshot) --
-                  digabung jadi 1 item ke /dashboard/pengaturan supaya
-                  cuma ada SATU tempat buat data profil/akun, tidak ada
-                  lagi 2 sumber kebenaran yang bisa beda sendiri-sendiri.
-                  Folder app/dashboard/profile/ dan app/dashboard/settings/
-                  dihapus manual oleh user (device bridge di sesi ini
-                  tidak bisa hapus file). */}
-              <Menu.Item>
-                {({ active }) => (
-                  <Link
-                    href="/dashboard/pengaturan"
-                    className={`flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-sm transition ${
-                      active ? "bg-blue-50 text-blue-600" : "text-gray-800 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-[#21262d]"
-                    }`}
-                  >
-                    <Settings size={16} strokeWidth={2} />
-                    Pengaturan
-                  </Link>
-                )}
-              </Menu.Item>
-
-              <div className="my-2 border-t" style={{ borderColor: "var(--djoker-border)" }} />
-
-              <Menu.Item>
-                {({ active }) => (
-                  <button
-                    type="button"
-                    onClick={handleLogout}
-                    className={`flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-sm transition ${
-                      active ? "bg-red-50 text-red-600" : "text-red-500 hover:bg-red-50"
-                    }`}
-                  >
-                    <LogOut size={16} strokeWidth={2} />
-                    Logout
-                  </button>
-                )}
-              </Menu.Item>
-            </Menu.Items>
-          </Menu>
           </div>
         </header>
 
@@ -481,6 +464,8 @@ export default function DashboardLayout({
             manual di device asli sebelum ship. */}
         <main ref={mainRef} className="flex-1 overflow-y-auto p-6">{children}</main>
       </div>
+
+      {ConfirmDialog}
     </div>
   );
 }

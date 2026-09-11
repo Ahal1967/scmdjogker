@@ -216,8 +216,10 @@ export default function PengaturanTable({
           <thead>
             <tr>
               <TableIconCell icon={User} />
-              <SortableTh label="ID" icon={Fingerprint} active={sortField === "id"} direction={sortDir} onClick={() => toggleSort("id")} center />
-              <SortableTh label="Nama Lengkap" icon={IdCard} active={sortField === "full_name"} direction={sortDir} onClick={() => toggleSort("full_name")} center />
+              {/* ID/Nama Lengkap rata kiri (teks/kode). Role/Dibuat/Aksi
+                  tetap tengah. */}
+              <SortableTh label="ID" icon={Fingerprint} active={sortField === "id"} direction={sortDir} onClick={() => toggleSort("id")} />
+              <SortableTh label="Nama Lengkap" icon={IdCard} active={sortField === "full_name"} direction={sortDir} onClick={() => toggleSort("full_name")} />
               <SortableTh label="Role" icon={ShieldCheck} active={sortField === "role"} direction={sortDir} onClick={() => toggleSort("role")} center />
               <SortableTh label="Dibuat" icon={Calendar} active={sortField === "created_at"} direction={sortDir} onClick={() => toggleSort("created_at")} center />
               <SortableTh label="Aksi" icon={MoreHorizontal} sortable={false} center />
@@ -231,10 +233,10 @@ export default function PengaturanTable({
                     {idx + 1}
                   </span>
                 </td>
-                <td className="font-mono text-xs text-gray-500 dark:text-gray-400 text-center">
+                <td className="font-mono text-xs text-gray-500 dark:text-gray-400">
                   {profile.id.split("-")[0]}...
                 </td>
-                <td className="font-medium text-black dark:text-white text-center">
+                <td className="font-medium text-black dark:text-white">
                   {profile.full_name || "-"}
                   {profile.id === currentUserId && (
                     <span className="ml-1.5 text-[10px] font-normal text-gray-500 dark:text-gray-400">(kamu)</span>

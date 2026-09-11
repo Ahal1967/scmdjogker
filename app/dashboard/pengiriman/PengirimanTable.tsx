@@ -249,11 +249,13 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
             <thead>
               <tr>
                 <TableIconCell icon={Truck} />
-                <SortableTh label="No. Pesanan" icon={ClipboardList} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} center />
-                <SortableTh label="Pelanggan" icon={User} active={sortField === "pelanggan"} direction={sortDir} onClick={() => toggleSort("pelanggan")} center />
-                <SortableTh label="Alamat" icon={MapPin} active={sortField === "alamat"} direction={sortDir} onClick={() => toggleSort("alamat")} center />
-                <SortableTh label="Kurir" icon={Truck} active={sortField === "kurir"} direction={sortDir} onClick={() => toggleSort("kurir")} center />
-                <SortableTh label="No. Resi" icon={Barcode} active={sortField === "no_resi"} direction={sortDir} onClick={() => toggleSort("no_resi")} center />
+                {/* Kolom teks/kode/alamat rata kiri. Status/Aksi tetap
+                    tengah. */}
+                <SortableTh label="No. Pesanan" icon={ClipboardList} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} />
+                <SortableTh label="Pelanggan" icon={User} active={sortField === "pelanggan"} direction={sortDir} onClick={() => toggleSort("pelanggan")} />
+                <SortableTh label="Alamat" icon={MapPin} active={sortField === "alamat"} direction={sortDir} onClick={() => toggleSort("alamat")} />
+                <SortableTh label="Kurir" icon={Truck} active={sortField === "kurir"} direction={sortDir} onClick={() => toggleSort("kurir")} />
+                <SortableTh label="No. Resi" icon={Barcode} active={sortField === "no_resi"} direction={sortDir} onClick={() => toggleSort("no_resi")} />
                 <SortableTh label="Status" icon={CheckCircle2} active={sortField === "status"} direction={sortDir} onClick={() => toggleSort("status")} center />
                 <SortableTh label="Aksi" icon={MoreHorizontal} sortable={false} center />
               </tr>
@@ -266,13 +268,13 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
                       {(currentPage - 1) * pageSize + idx + 1}
                     </span>
                   </td>
-                  <td className="text-black dark:text-white text-center">{s.orders?.no_pesanan ?? "-"}</td>
-                  <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{s.orders?.customers?.nama ?? "-"}</td>
-                  <td className="text-sm text-gray-600 dark:text-gray-400 max-w-xs truncate text-center">
+                  <td className="text-black dark:text-white">{s.orders?.no_pesanan ?? "-"}</td>
+                  <td className="text-sm text-gray-700 dark:text-gray-300">{s.orders?.customers?.nama ?? "-"}</td>
+                  <td className="text-sm text-gray-600 dark:text-gray-400 max-w-xs truncate">
                     {s.orders?.alamat_pengiriman ?? "-"}
                   </td>
-                  <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{s.kurir || "-"}</td>
-                  <td className="text-sm text-gray-700 dark:text-gray-300 text-center">{s.no_resi || "-"}</td>
+                  <td className="text-sm text-gray-700 dark:text-gray-300">{s.kurir || "-"}</td>
+                  <td className="text-sm text-gray-700 dark:text-gray-300">{s.no_resi || "-"}</td>
                   <td className="text-center">
                     <span className={`badge ${STATUS_COLORS[s.status] ?? ""}`}>
                       <span className="status-dot" />

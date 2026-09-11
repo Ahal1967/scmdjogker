@@ -995,8 +995,11 @@ export default function PesananTable() {
             <thead>
               <tr>
                 <TableIconCell icon={FileText} />
-                <SortableTh label="No. Pesanan" icon={ClipboardList} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} center />
-                <SortableTh label="Pelanggan" icon={User} active={sortField === "pelanggan"} direction={sortDir} onClick={() => toggleSort("pelanggan")} center />
+                {/* No. Pesanan/Pelanggan rata kiri (teks/kode) -- lebih
+                    gampang dipindai baris demi baris dibanding rata tengah.
+                    Tanggal/Status/Aksi tetap tengah. */}
+                <SortableTh label="No. Pesanan" icon={ClipboardList} active={sortField === "no_pesanan"} direction={sortDir} onClick={() => toggleSort("no_pesanan")} />
+                <SortableTh label="Pelanggan" icon={User} active={sortField === "pelanggan"} direction={sortDir} onClick={() => toggleSort("pelanggan")} />
                 <SortableTh label="Tanggal" icon={Calendar} active={sortField === "tanggal"} direction={sortDir} onClick={() => toggleSort("tanggal")} center />
                 <SortableTh label="Status" icon={Tag} active={sortField === "status"} direction={sortDir} onClick={() => toggleSort("status")} center />
                 <SortableTh label="Aksi" icon={MoreHorizontal} sortable={false} center />
@@ -1010,8 +1013,8 @@ export default function PesananTable() {
                       {(currentPage - 1) * pageSize + idx + 1}
                     </span>
                   </td>
-                  <td className="text-black dark:text-white text-center">{o.no_pesanan}</td>
-                  <td className="text-sm text-gray-800 dark:text-gray-200 text-center">{o.customers?.nama ?? "-"}</td>
+                  <td className="text-black dark:text-white">{o.no_pesanan}</td>
+                  <td className="text-sm text-gray-800 dark:text-gray-200">{o.customers?.nama ?? "-"}</td>
                   <td className="text-sm text-gray-600 dark:text-gray-400 text-center">
                     {o.tanggal
                       ? new Date(o.tanggal).toLocaleDateString("id-ID", {
