@@ -1095,6 +1095,43 @@ body::before {
     color: #93c5fd;
   }
 
+  /* ===== SelectDropdown.tsx -- trigger-nya numpang di atas ".input-field"
+     (box/border/radius/warna sama persis field lain di form), tinggal
+     ditambah layout flex biar label+ikon di kiri dan chevron di kanan bisa
+     sejajar (input-field polos tidak butuh ini, cuma dipakai <input> teks
+     biasa). Panel pilihannya reuse .status-dd-panel/-option/-icon/-label/
+     -check di atas, sengaja tidak dibikin ulang. */
+  .select-dd-trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .select-dd-trigger:disabled {
+    cursor: not-allowed;
+  }
+
+  .select-dd-trigger-label {
+    display: flex;
+    min-width: 0;
+    flex: 1;
+    align-items: center;
+    gap: 8px;
+    color: var(--djoker-text);
+  }
+
+  .select-dd-trigger-icon {
+    flex-shrink: 0;
+    color: var(--djoker-blue-dark);
+  }
+
+  .dark .select-dd-trigger-icon {
+    color: #93c5fd;
+  }
+
   /* Token warna SEMANTIK (success/warning/danger/info) -- dipusatkan di
      sini, satu-satunya sumber, supaya tiap tabel tidak lagi hardcode
      class Tailwind sendiri-sendiri buat status yang MAKNANYA sama.

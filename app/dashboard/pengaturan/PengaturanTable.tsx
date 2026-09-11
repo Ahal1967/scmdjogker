@@ -16,9 +16,18 @@ import {
 } from "lucide-react";
 import SortableTh from "@/components/SortableTh";
 import TableIconCell from "@/components/TableIconCell";
+import SelectDropdown from "@/components/SelectDropdown";
 import { compareValues } from "@/lib/sortUtils";
 import { useToast } from "@/components/useToast";
 import { useConfirm } from "@/components/useConfirm";
+
+// Opsi buat SelectDropdown role -- ikon dipakai persis sama makna dengan
+// icon Role di header tabel (ShieldCheck) supaya "Admin" konsisten dengan
+// ikon yang sama di tempat lain, User buat "Staff" (peran biasa).
+const ROLE_OPTIONS = [
+  { value: "staff", label: "Staff", icon: User },
+  { value: "admin", label: "Admin", icon: ShieldCheck },
+];
 
 type Profile = {
   id: string;
@@ -334,14 +343,12 @@ export default function PengaturanTable({
                 onChange={(e) => setAddForm((f) => ({ ...f, password: e.target.value }))}
                 className="input-field w-full"
               />
-              <select
+              <SelectDropdown
                 value={addForm.role}
-                onChange={(e) => setAddForm((f) => ({ ...f, role: e.target.value }))}
-                className="input-field w-full"
-              >
-                <option value="staff">Staff</option>
-                <option value="admin">Admin</option>
-              </select>
+                options={ROLE_OPTIONS}
+                onChange={(role) => setAddForm((f) => ({ ...f, role }))}
+                ariaLabel="Pilih role pengguna baru"
+              />
 
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={() => setShowAddModal(false)} className="btn-outline flex-1">
@@ -381,14 +388,12 @@ export default function PengaturanTable({
                 className="input-field w-full"
               />
               {isAdmin && editingProfile.id !== currentUserId ? (
-                <select
+                <SelectDropdown
                   value={editForm.role}
-                  onChange={(e) => setEditForm((f) => ({ ...f, role: e.target.value }))}
-                  className="input-field w-full"
-                >
-                  <option value="staff">Staff</option>
-                  <option value="admin">Admin</option>
-                </select>
+                  options={ROLE_OPTIONS}
+                  onChange={(role) => setEditForm((f) => ({ ...f, role }))}
+                  ariaLabel="Pilih role pengguna"
+                />
               ) : (
                 <p className="text-xs text-gray-500 dark:text-gray-400">
                   Role: <span className={formatRoleBadge(editingProfile.role)}>{editingProfile.role}</span> -- role

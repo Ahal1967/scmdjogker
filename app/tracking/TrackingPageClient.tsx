@@ -420,14 +420,6 @@ export default function TrackingPageClient() {
             </a>
           </div>
         )}
-
-        <div className="mt-5 flex items-start justify-center gap-1.5 border-t border-gray-100 dark:border-[#30363d] pt-3.5 text-center text-[10px] text-gray-500 dark:text-gray-400">
-          <MapPin size={11} className="mt-0.5 shrink-0" />
-          <div>
-            <p>Jl. Wates Km 4,5 Gg. Ablar No 5</p>
-            <p>Gamping Kidul RT 03/17 Ambarketawang Sleman, Yogyakarta 55294</p>
-          </div>
-        </div>
       </div>
     </div>
   );

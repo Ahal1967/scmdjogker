@@ -345,27 +345,27 @@ export default function DashboardLayout({
         </nav>
         </aside>
 
-        {/* Widget "Administrator" DIPISAH jadi kartu mengambang sendiri
-            atas permintaan user (sebelumnya nyatu di dalam <aside> yang
-            sama dengan nav, cuma dipisah pakai border-t). Sekarang posisinya
-            di LUAR <aside>, sebagai kartu sidebar-glass sendiri dengan
-            rounded-[20px]/border/shadow-lg -- persis kayak kartu nav di
-            atasnya -- dipisahkan "gap-3" lewat wrapper posisi (lihat
-            komentar sebelum <aside>). Karena tingginya "shrink-0" (ngikutin
-            konten, bukan flex-1), kartu ini otomatis selalu nempel di
-            posisi PALING BAWAH kolom sidebar (bottom-3.5), sekaligus
-            menutup ruang kosong yang sebelumnya dikeluhkan user.
-            Link "Pengaturan" DIHAPUS dari kartu ini atas permintaan user --
-            menu Pengaturan sudah ada sebagai item nav biasa di section
-            "Lainnya" di atas, jadi tidak perlu diulang di sini (dulu ini
-            sempat saya tandai sebagai potensi redundan, sekarang user
-            konfirmasi hapus). Isi kartu jadi: avatar + nama + role +
-            Logout saja. */}
+        {/* Widget "Administrator" -- kartu mengambang sendiri, terpisah dari
+            <aside> nav (lihat komentar di wrapper fixed/transform sebelum
+            <aside>). Sempat 2 baris (avatar+nama+role, lalu tombol Logout
+            full-width di baris terpisah) -- itu bikin kartu ini makan cukup
+            banyak tinggi, jadi kartu nav di atasnya kebagian sisa yang lebih
+            pendek dari sebelumnya (user komplain "sidebar jadi kecil"). Saya
+            bikin 3 mockup perbandingan, user pilih "Opsi A": TETAP kartu
+            terpisah/mengambang (bukan digabung balik ke <aside>), tapi
+            dipadatkan jadi SATU baris -- avatar+nama+role di kiri (flex-1),
+            tombol Logout jadi ikon-saja (bukan lagi teks "Logout" di baris
+            sendiri) di kanan. Karena kartu ini "shrink-0", memadatkan
+            kontennya otomatis mengembalikan tinggi ke kartu nav (flex-1)
+            tanpa perlu ubah apa pun di <aside>/<nav>.
+            Link "Pengaturan" tetap tidak ada di sini (sudah dihapus
+            sebelumnya, sudah ada sebagai item nav biasa di section
+            "Lainnya"). */}
         <div
           className="sidebar-glass shrink-0 rounded-[20px] border p-3 shadow-lg"
           style={{ borderColor: "var(--djoker-border)" }}
         >
-          <div className="flex items-center gap-2.5 rounded-xl px-1 py-1">
+          <div className="flex items-center gap-2.5">
             <div
               className="flex h-9 w-9 shrink-0 items-center justify-center overflow-hidden rounded-full border bg-white"
               style={{ borderColor: "var(--djoker-border)" }}
@@ -378,20 +378,18 @@ export default function DashboardLayout({
                 className="object-contain p-1"
               />
             </div>
-            <div className="min-w-0 leading-tight">
+            <div className="min-w-0 flex-1 leading-tight">
               <p className="truncate text-sm font-semibold text-black dark:text-white">Administrator</p>
               <p className="text-[11px]" style={{ color: "var(--djoker-muted)" }}>Admin</p>
             </div>
-          </div>
-
-          <div className="mt-1">
             <button
               type="button"
               onClick={handleLogout}
-              className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-left text-sm font-semibold text-red-500 transition hover:bg-red-50 dark:hover:bg-red-900/20"
+              title="Logout"
+              aria-label="Logout"
+              className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-red-500 transition hover:bg-red-50 dark:hover:bg-red-900/20"
             >
               <LogOut size={16} strokeWidth={2} />
-              Logout
             </button>
           </div>
         </div>

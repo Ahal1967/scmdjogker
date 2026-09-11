@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Mail, Lock, Eye, EyeOff, LogIn, FileSearch, UploadCloud, MapPin } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, LogIn, FileSearch, UploadCloud } from "lucide-react";
 
 export default function LoginPageClient() {
   const router = useRouter();
@@ -164,6 +164,12 @@ export default function LoginPageClient() {
           Belum punya akun? Hubungi Administrator
         </p>
 
+        {/* Tombol Lacak Pesanan & Upload Desain dikembalikan -- sempat
+            terhapus karena salah paham instruksi user (dikira user minta
+            hapus fiturnya, ternyata yang dimaksud cuma blok alamat DJOGKER
+            di bawahnya, lihat riwayat komentar). Blok alamat TETAP tidak
+            dikembalikan, itu memang yang seharusnya dihapus (sudah dihapus
+            juga dari halaman Tracking & Upload Desain). */}
         <div className="mt-4 flex items-center justify-center gap-2">
           <Link
             href="/tracking"
@@ -179,14 +185,6 @@ export default function LoginPageClient() {
             <UploadCloud size={13} />
             Upload Desain
           </Link>
-        </div>
-
-        <div className="mt-6 flex items-start justify-center gap-1.5 border-t border-gray-100 dark:border-[#30363d] pt-4 text-center text-[11px] text-gray-500 dark:text-gray-400">
-          <MapPin size={12} className="mt-0.5 shrink-0" />
-          <div>
-            <p>Jl. Wates Km 4,5 Gg. Ablar No 5</p>
-            <p>Gamping Kidul RT 03/17 Ambarketawang Sleman, Yogyakarta 55294</p>
-          </div>
         </div>
       </div>
     </div>

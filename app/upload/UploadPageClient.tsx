@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, Hash, UploadCloud, ImageIcon, X, CheckCircle2, Shirt, Info, MapPin } from "lucide-react";
+import { ArrowLeft, Hash, UploadCloud, ImageIcon, X, CheckCircle2, Shirt, Info } from "lucide-react";
 
 function formatSize(bytes: number) {
   if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(0) + " KB";
@@ -275,13 +275,6 @@ export default function UploadPageClient() {
           </div>
         )}
 
-        <div className="mt-5 flex items-start justify-center gap-1.5 border-t border-gray-100 dark:border-[#30363d] pt-3.5 text-center text-[10px] text-gray-500 dark:text-gray-400">
-          <MapPin size={11} className="mt-0.5 shrink-0" />
-          <div>
-            <p>Jl. Wates Km 4,5 Gg. Ablar No 5</p>
-            <p>Gamping Kidul RT 03/17 Ambarketawang Sleman, Yogyakarta 55294</p>
-          </div>
-        </div>
       </div>
     </div>
   );
