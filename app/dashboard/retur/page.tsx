@@ -63,7 +63,7 @@ export default async function ReturPage() {
   return (
     <div className="space-y-4 md:space-y-6">
       <PageHeaderCard
-        badge="Layanan Purnajual"
+        badge="Pengembalian Produk"
         icon={Undo2}
         title="Retur"
         subtitle="Catat dan pantau pengajuan retur produk dari pelanggan."
