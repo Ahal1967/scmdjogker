@@ -32,7 +32,13 @@ export default async function PengaturanPage() {
   };
 
   function formatRoleBadge(role: string) {
-    const base = "badge";
+    // "capitalize" ditambahkan atas permintaan user -- badge role di kartu
+    // profil atas ini (halaman "Manajemen Akun") sebelumnya nampilin
+    // "admin"/"staff" apa adanya (huruf kecil semua) karena nilainya di
+    // database memang lowercase. Cuma text-transform CSS, jadi nilai role
+    // yang dikirim ke isAdmin={myProfile?.role === "admin"} di bawah tetap
+    // lowercase, tidak ikut berubah.
+    const base = "badge capitalize";
     const color = ROLE_COLORS[role] ?? "bg-gray-100 text-gray-600 dark:bg-[#21262d] dark:text-gray-400";
     return `${base} ${color}`;
   }

@@ -36,7 +36,12 @@ const ROLE_COLORS: Record<string, string> = {
 
 function formatRoleBadge(role: string) {
   const color = ROLE_COLORS[role] ?? "bg-gray-100 text-gray-600 dark:bg-[#21262d] dark:text-gray-400";
-  return `badge ${color}`;
+  // "capitalize" ditambahkan atas permintaan user -- teks "staff"/"admin"
+  // yang disimpan lowercase di database sebelumnya tampil apa adanya
+  // (semua kecil). Ini cuma text-transform CSS, jadi nilai role asli di
+  // state/database TETAP lowercase -- perbandingan seperti role === "admin"
+  // di tempat lain tidak ikut berubah, cuma tampilan visualnya saja.
+  return `badge capitalize ${color}`;
 }
 
 /* Ditarik keluar jadi client component terpisah dari page.tsx (yang server
