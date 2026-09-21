@@ -83,17 +83,15 @@ export default function UploadPageClient() {
   }
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-white dark:bg-[#0d1117] px-4 py-8 md:py-12">
-      <div
-        className="pointer-events-none fixed inset-0 -z-10"
-        style={{
-          background:
-            "radial-gradient(circle at 100% 0%, rgba(147,197,253,0.5) 0%, transparent 45%), radial-gradient(circle at 0% 100%, rgba(165,180,252,0.35) 0%, transparent 45%)",
-        }}
-      />
-
+    // Background sendiri dilepas -- sama seperti perbaikan di halaman
+    // Lacak Pesanan & Login, biar 1 sumber (body::before di globals.css),
+    // bukan diduplikasi per halaman.
+    <div className="min-h-screen relative overflow-hidden px-4 py-8 md:py-12">
       <div className="mx-auto max-w-lg">
-        <div className="mb-4 flex items-center justify-between">
+        <div
+          className="mb-4 flex items-center justify-between rounded-3xl border border-blue-100 dark:border-[#30363d] bg-white dark:bg-[#161b22] p-3"
+          style={{ boxShadow: "0 1px 2px rgba(37,99,235,0.06), 0 24px 48px -12px rgba(37,99,235,0.25)" }}
+        >
           <Link
             href="/login"
             className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
@@ -102,7 +100,10 @@ export default function UploadPageClient() {
             Login
           </Link>
 
-          <div className="flex gap-0.5 rounded-full border border-gray-200 dark:border-[#30363d] bg-white/70 dark:bg-[#161b22]/70 p-1 shadow-sm">
+          {/* Track abu-abu netral saja (bukan kotak sendiri lagi) -- sama
+              seperti perbaikan di halaman Lacak Pesanan, "kotak" yang
+              diminta sekarang jadi bungkus terluar baris ini. */}
+          <div className="flex gap-0.5 rounded-full bg-gray-50 dark:bg-[#0d1117] p-1">
             <Link
               href="/tracking"
               className="rounded-full px-3 py-1 text-[11px] font-bold text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
@@ -115,7 +116,10 @@ export default function UploadPageClient() {
           </div>
         </div>
 
-        <div className="mb-5 text-center">
+        <div
+          className="mb-5 rounded-3xl border border-blue-100 dark:border-[#30363d] bg-white dark:bg-[#161b22] p-5 text-center"
+          style={{ boxShadow: "0 1px 2px rgba(37,99,235,0.06), 0 24px 48px -12px rgba(37,99,235,0.25)" }}
+        >
           {/* Ikon hero -- disamakan dengan halaman Lacak Pesanan (lingkaran
               putih + ikon outline biru), sesuai referensi desain yang
               dikasih user. */}
@@ -133,7 +137,10 @@ export default function UploadPageClient() {
           </p>
         </div>
 
-        <div className="bg-white dark:bg-[#161b22] rounded-[16px] border border-gray-200 dark:border-[#30363d] p-4 shadow-lg">
+        <div
+          className="bg-white dark:bg-[#161b22] rounded-3xl border border-blue-100 dark:border-[#30363d] p-4"
+          style={{ boxShadow: "0 1px 2px rgba(37,99,235,0.06), 0 24px 48px -12px rgba(37,99,235,0.25)" }}
+        >
           {success ? (
             <div className="py-2 text-center">
               {/* Sebelumnya pakai style={{...}} inline dengan warna hijau

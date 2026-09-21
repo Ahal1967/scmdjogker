@@ -51,37 +51,36 @@ export default async function PelangganPage() {
 
       <FetchErrorBanner message={fetchErrorMsg} />
 
-      <div className="card p-0 overflow-hidden" style={{ border: "none" }}>
-        <div className="grid grid-cols-1 divide-y divide-gray-100 dark:divide-gray-700 sm:grid-cols-3 sm:divide-y-0 sm:divide-x">
-          <div className="flex items-center gap-2.5 p-3">
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-100/60 dark:bg-blue-900/30">
-              <Users2 size={15} className="text-blue-600 dark:text-blue-400" />
-            </span>
-            <div>
-              <p className="font-display text-base font-bold text-black dark:text-white">{totalPelanggan}</p>
-              <p className="text-[11px] text-gray-500 dark:text-gray-400">Total Pelanggan</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2.5 p-3">
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-100/60 dark:bg-green-900/30">
-              <ShoppingBag size={15} className="text-green-600 dark:text-green-400" />
-            </span>
-            <div>
-              <p className="font-display text-base font-bold text-black dark:text-white">{pelangganAktif}</p>
-              <p className="text-[11px] text-gray-500 dark:text-gray-400">Pernah Belanja</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2.5 p-3">
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-orange-100/60 dark:bg-orange-900/30">
-              <Wallet size={15} className="text-orange-600 dark:text-orange-400" />
-            </span>
-            <div>
-              <p className="font-display text-sm font-bold text-black dark:text-white">
-                Rp {totalBelanjaSemua.toLocaleString("id-ID")}
-              </p>
-              <p className="text-[11px] text-gray-500 dark:text-gray-400">Total Belanja Diterima</p>
-            </div>
-          </div>
+      {/* Kartu statistik dipindah ke pola .dash-kpi-card (icon chip
+          bergradasi) -- sebelumnya halaman ini sudah py kartu statistik,
+          tapi masih gaya lama (1 card dibagi 3 kolom, icon chip flat tanpa
+          gradasi). Sekarang disamakan dengan Gudang/Produksi/Retur, class
+          dipakai ulang apa adanya (lihat komentar di
+          app/dashboard/gudang/page.tsx kenapa ini bukan pelanggaran
+          prinsip "class per halaman"). */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <div className="dash-kpi-card">
+          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#3b82f6,#2563eb)" }}>
+            <Users2 size={14} />
+          </span>
+          <p className="dash-kpi-label">TOTAL PELANGGAN</p>
+          <p className="dash-kpi-value font-display">{totalPelanggan}</p>
+        </div>
+        <div className="dash-kpi-card">
+          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#34d399,#059669)" }}>
+            <ShoppingBag size={14} />
+          </span>
+          <p className="dash-kpi-label">PERNAH BELANJA</p>
+          <p className="dash-kpi-value font-display">{pelangganAktif}</p>
+        </div>
+        <div className="dash-kpi-card">
+          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#fb923c,#ea580c)" }}>
+            <Wallet size={14} />
+          </span>
+          <p className="dash-kpi-label">TOTAL BELANJA DITERIMA</p>
+          <p className="dash-kpi-value font-display" style={{ fontSize: 15 }}>
+            Rp {totalBelanjaSemua.toLocaleString("id-ID")}
+          </p>
         </div>
       </div>
 

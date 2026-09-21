@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { Settings } from "lucide-react";
+import { Settings, Users2, ShieldCheck, User } from "lucide-react";
 import PengaturanTable from "./PengaturanTable";
 import PageHeaderCard from "@/components/PageHeaderCard";
 import FetchErrorBanner from "@/components/FetchErrorBanner";
@@ -24,6 +24,16 @@ export default async function PengaturanPage() {
   if (profilesError) console.error("Pengaturan profiles fetch error:", profilesError.message);
   if (myProfileError) console.error("Pengaturan myProfile fetch error:", myProfileError.message);
   const fetchErrorMsg = [profilesError?.message, myProfileError?.message].filter(Boolean).join("; ") || null;
+
+  // Ringkasan role -- modul ini sebelumnya satu-satunya halaman daftar/tabel
+  // yang tidak punya baris kartu statistik sama sekali (Gudang/Produksi/
+  // Retur/Pelanggan/Pesanan/QC/Supplier/Pengiriman/Produk semua sudah
+  // punya). Dihitung dari "profiles" yang sudah di-fetch di atas, tidak
+  // nambah query baru.
+  const allProfiles = profiles ?? [];
+  const totalPengguna = allProfiles.length;
+  const adminCount = allProfiles.filter((p) => p.role === "admin").length;
+  const staffCount = allProfiles.filter((p) => p.role === "staff").length;
 
   const ROLE_COLORS: Record<string, string> = {
     admin: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
@@ -53,6 +63,33 @@ export default async function PengaturanPage() {
       />
 
       <FetchErrorBanner message={fetchErrorMsg} />
+
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <div className="dash-kpi-card">
+          <div className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#94a3b8,#64748b)" }}>
+            <Users2 size={15} />
+          </div>
+          <p className="dash-kpi-label">Total Pengguna</p>
+          <p className="dash-kpi-value">{totalPengguna}</p>
+          <p className="dash-kpi-hint">akun terdaftar</p>
+        </div>
+        <div className="dash-kpi-card">
+          <div className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#3b82f6,#2563eb)" }}>
+            <ShieldCheck size={15} />
+          </div>
+          <p className="dash-kpi-label">Admin</p>
+          <p className="dash-kpi-value">{adminCount}</p>
+          <p className="dash-kpi-hint">akses penuh</p>
+        </div>
+        <div className="dash-kpi-card">
+          <div className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#22d3ee,#0891b2)" }}>
+            <User size={15} />
+          </div>
+          <p className="dash-kpi-label">Staff</p>
+          <p className="dash-kpi-value">{staffCount}</p>
+          <p className="dash-kpi-hint">akses terbatas</p>
+        </div>
+      </div>
 
       <div
         className="relative overflow-hidden rounded-2xl p-6 bg-white/55 dark:bg-[#161b22]/55 backdrop-blur-xl"

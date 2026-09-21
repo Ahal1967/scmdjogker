@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Search, Package, Clock, CheckCircle2, ChevronLeft, ChevronRight, Send, ClipboardList, User, Calendar, Boxes, MoreHorizontal } from "lucide-react";
+import { Search, Package, Clock, CheckCircle2, ChevronLeft, ChevronRight, Send, ClipboardList, User, Calendar, Boxes, MoreHorizontal, Loader2 } from "lucide-react";
 import { useToast } from "@/components/useToast";
 import SortableTh from "@/components/SortableTh";
 import TableIconCell from "@/components/TableIconCell";
@@ -45,6 +45,11 @@ export default function PackingTable({ initialPacking }: { initialPacking: Packi
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const { showToast, ToastBanner } = useToast();
+  // Sebelumnya tombol "Siap Kirim" tidak punya feedback apa pun selagi
+  // markReady() masih jalan (beberapa query berantai + redirect) --
+  // kelihatan seperti tidak merespons sampai toast muncul. pendingId
+  // menandai baris mana yang sedang diproses.
+  const [pendingId, setPendingId] = useState<string | null>(null);
 
   const filtered = packingList.filter(
     (p) =>
@@ -89,70 +94,76 @@ export default function PackingTable({ initialPacking }: { initialPacking: Packi
   const totalSiapKirim = packingList.filter((p) => p.status === "Siap Kirim").length;
 
   async function markReady(p: Packing) {
-    const { data, error } = await supabase
-      .from("packing")
-      .update({ status: "Siap Kirim" })
-      .eq("id", p.id)
-      .select("*, orders(no_pesanan, customers(nama))")
-      .single();
+    if (pendingId) return; // cegah klik dobel selagi baris lain diproses
+    setPendingId(p.id);
+    try {
+      const { data, error } = await supabase
+        .from("packing")
+        .update({ status: "Siap Kirim" })
+        .eq("id", p.id)
+        .select("*, orders(no_pesanan, customers(nama))")
+        .single();
 
-    if (error || !data) {
-      showToast("Gagal update packing: " + error?.message);
-      return;
-    }
-    setPackingList((prev) => prev.map((item) => (item.id === p.id ? data : item)));
-
-    // Langkah susulan ini sekarang dicek errornya masing-masing -- status
-    // packing utama di atas SUDAH tersimpan apapun hasilnya, tapi kalau ada
-    // yang gagal di sini, user diberi tahu lewat toast alih-alih dikira
-    // semuanya sinkron padahal ada yang tertinggal.
-    const warnings: string[] = [];
-
-    const { data: existing } = await supabase
-      .from("shipments")
-      .select("id")
-      .eq("order_id", p.order_id)
-      .maybeSingle();
-
-    if (!existing) {
-      const { error: shipmentError } = await supabase.from("shipments").insert({
-        order_id: p.order_id,
-        status: "Diproses",
-      });
-      if (shipmentError) {
-        console.error("Gagal membuat entri pengiriman:", shipmentError.message);
-        warnings.push("entri pengiriman gagal dibuat");
+      if (error || !data) {
+        showToast("Gagal update packing: " + error?.message);
+        return;
       }
-    }
+      setPackingList((prev) => prev.map((item) => (item.id === p.id ? data : item)));
 
-    const { error: orderError } = await supabase
-      .from("orders")
-      .update({ status: "Dikirim" })
-      .eq("id", p.order_id);
-    if (orderError) {
-      console.error("Gagal update status pesanan ke Dikirim:", orderError.message);
-      warnings.push("status pesanan induk gagal disinkronkan");
-    }
+      // Langkah susulan ini sekarang dicek errornya masing-masing -- status
+      // packing utama di atas SUDAH tersimpan apapun hasilnya, tapi kalau ada
+      // yang gagal di sini, user diberi tahu lewat toast alih-alih dikira
+      // semuanya sinkron padahal ada yang tertinggal.
+      const warnings: string[] = [];
 
-    const { error: trackingError } = await supabase.from("order_tracking").insert({
-      order_id: p.order_id,
-      tahap: "Siap Kirim",
-      selesai: true,
-    });
-    if (trackingError) {
-      console.error("Gagal mencatat riwayat 'Siap Kirim':", trackingError.message);
-      warnings.push("riwayat pesanan gagal dicatat");
-    }
+      const { data: existing } = await supabase
+        .from("shipments")
+        .select("id")
+        .eq("order_id", p.order_id)
+        .maybeSingle();
 
-    if (warnings.length > 0) {
-      showToast("Packing siap kirim, tapi ada langkah lanjutan yang gagal: " + warnings.join(", ") + ".");
-    } else {
-      showToast("Packing siap kirim, otomatis lanjut ke Pengiriman.", "success");
+      if (!existing) {
+        const { error: shipmentError } = await supabase.from("shipments").insert({
+          order_id: p.order_id,
+          status: "Diproses",
+        });
+        if (shipmentError) {
+          console.error("Gagal membuat entri pengiriman:", shipmentError.message);
+          warnings.push("entri pengiriman gagal dibuat");
+        }
+      }
+
+      const { error: orderError } = await supabase
+        .from("orders")
+        .update({ status: "Dikirim" })
+        .eq("id", p.order_id);
+      if (orderError) {
+        console.error("Gagal update status pesanan ke Dikirim:", orderError.message);
+        warnings.push("status pesanan induk gagal disinkronkan");
+      }
+
+      const { error: trackingError } = await supabase.from("order_tracking").insert({
+        order_id: p.order_id,
+        tahap: "Siap Kirim",
+        selesai: true,
+      });
+      if (trackingError) {
+        console.error("Gagal mencatat riwayat 'Siap Kirim':", trackingError.message);
+        warnings.push("riwayat pesanan gagal dicatat");
+      }
+
+      if (warnings.length > 0) {
+        showToast("Packing siap kirim, tapi ada langkah lanjutan yang gagal: " + warnings.join(", ") + ".");
+      } else {
+        showToast("Packing siap kirim, otomatis lanjut ke Pengiriman.", "success");
+      }
+      setTimeout(() => {
+        router.push("/dashboard/pengiriman");
+        router.refresh();
+      }, 900);
+    } finally {
+      setPendingId(null);
     }
-    setTimeout(() => {
-      router.push("/dashboard/pengiriman");
-      router.refresh();
-    }, 900);
   }
 
   if (packingList.length === 0) {
@@ -228,10 +239,21 @@ export default function PackingTable({ initialPacking }: { initialPacking: Packi
                     {p.status === "Diproses" && (
                       <button
                         onClick={() => markReady(p)}
-                        className="inline-flex items-center gap-1.5 rounded-full bg-blue-600 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 transition-colors"
+                        disabled={pendingId === p.id}
+                        aria-busy={pendingId === p.id}
+                        className="inline-flex items-center gap-1.5 rounded-full bg-blue-600 px-3.5 py-1.5 text-xs font-semibold text-white hover:bg-blue-700 transition-colors disabled:opacity-60 disabled:cursor-wait disabled:hover:bg-blue-600"
                       >
-                        <Send size={13} />
-                        Siap Kirim
+                        {pendingId === p.id ? (
+                          <>
+                            <Loader2 size={13} className="animate-spin" />
+                            Memproses...
+                          </>
+                        ) : (
+                          <>
+                            <Send size={13} />
+                            Siap Kirim
+                          </>
+                        )}
                       </button>
                     )}
                   </td>

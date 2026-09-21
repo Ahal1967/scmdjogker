@@ -4,7 +4,30 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Mail, Lock, Eye, EyeOff, LogIn, FileSearch, UploadCloud } from "lucide-react";
+import {
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  LogIn,
+  FileSearch,
+  UploadCloud,
+  Warehouse,
+  Factory,
+  Truck,
+  BarChart3,
+} from "lucide-react";
+
+// Kartu kedua ("Satu Sistem, Seluruh Rantai Pasok") -- gradasi tiap chip
+// ikon sengaja dari keluarga warna yang sama dengan .dash-kpi-icon di
+// dashboard (cyan/orange/biru/violet), supaya bahasa warnanya nyambung
+// walau halaman login ini di luar layout dashboard.
+const FEATURES = [
+  { label: "Kelola Stok Bahan Baku", desc: "Pantau stok gudang secara real-time.", icon: Warehouse, gradient: ["#22d3ee", "#0891b2"] },
+  { label: "Produksi & Quality Control", desc: "Lacak progres sablon sampai QC.", icon: Factory, gradient: ["#fb923c", "#ea580c"] },
+  { label: "Pesanan & Pengiriman", desc: "Kelola pesanan pelanggan sampai terkirim.", icon: Truck, gradient: ["#3b82f6", "#2563eb"] },
+  { label: "Laporan & Analisis", desc: "Pantau tren pendapatan dan performa tim.", icon: BarChart3, gradient: ["#a78bfa", "#7c3aed"] },
+] as const;
 
 export default function LoginPageClient() {
   const router = useRouter();
@@ -48,18 +71,22 @@ export default function LoginPageClient() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-blue-50 via-white to-blue-100 dark:from-gray-900 dark:via-gray-900 dark:to-gray-900 flex items-center justify-center px-4 py-10">
-      {/* Dekorasi wave/blob besar di pojok -- diganti dari blob bulat kecil
-          buram jadi bentuk wave lebih besar & lebih "berani" (atas
-          permintaan user, biar sesuai referensi desain yang dikasih),
-          masih pakai warna biru brand yang sama, cuma bentuk & skalanya
-          beda. pointer-events-none + z-0 supaya tetap di belakang card. */}
-      <div className="pointer-events-none absolute -bottom-40 -left-20 z-0 h-[36rem] w-[36rem] rounded-full bg-gradient-to-tr from-blue-300 to-blue-100 opacity-60 dark:from-blue-900/30 dark:to-blue-900/10 blur-[2px] md:blur-none" style={{ borderRadius: "45% 55% 60% 40% / 50% 45% 55% 50%" }} />
-      <div className="pointer-events-none absolute -right-32 -top-32 z-0 h-[26rem] w-[26rem] rounded-full bg-gradient-to-bl from-blue-200 to-blue-50 opacity-70 dark:from-blue-900/20 dark:to-transparent blur-[2px] md:blur-none" style={{ borderRadius: "60% 40% 45% 55% / 55% 60% 40% 45%" }} />
-      <div className="pointer-events-none absolute -bottom-24 -right-16 z-0 h-72 w-72 rounded-full bg-blue-100/70 dark:bg-blue-900/10 blur-2xl" />
-
+    // Background sengaja TIDAK dikasih gradasi/blob sendiri lagi di sini --
+    // sebelumnya halaman ini punya 3 blob wave biru besar sendiri (gaya
+    // "marketing"), beda sendiri dari body::before di globals.css yang
+    // dipakai di seluruh dashboard (glow tipis cuma di 2 pojok, tengah
+    // tetap putih bersih). Dengan wrapper transparan begini, halaman ini
+    // otomatis ikut background global yang sama -- jadi serasi dengan
+    // dashboard tanpa perlu bikin gradasi baru.
+    <div className="relative min-h-screen overflow-hidden flex items-center justify-center px-4 py-10">
+      {/* Grid 2 kolom di layar besar (kartu login + kartu info), tumpuk 1
+          kolom di mobile/tablet. Grid defaultnya "stretch" (bukan flex),
+          jadi 2 kartu otomatis sama tinggi di desktop -- dipakai supaya
+          panel "Anda pelanggan?" di kartu kedua bisa nempel ke bawah
+          (mt-auto) sejajar dengan bagian bawah kartu login. */}
+      <div className="relative z-10 mx-auto grid w-full max-w-4xl grid-cols-1 gap-6 lg:grid-cols-2">
       <div
-        className="relative z-10 w-full max-w-md rounded-3xl border border-blue-100 dark:border-[#30363d] bg-white dark:bg-[#161b22] p-6 md:p-8"
+        className="mx-auto w-full max-w-md lg:max-w-none rounded-3xl border border-blue-100 dark:border-[#30363d] bg-white dark:bg-[#161b22] p-6 md:p-8"
         style={{ boxShadow: "0 1px 2px rgba(37,99,235,0.06), 0 24px 48px -12px rgba(37,99,235,0.25)" }}
       >
         {/* Logo, nama, badge */}
@@ -163,29 +190,67 @@ export default function LoginPageClient() {
         <p className="mt-6 text-center text-xs text-gray-500 dark:text-gray-400">
           Belum punya akun? Hubungi Administrator
         </p>
+      </div>
 
-        {/* Tombol Lacak Pesanan & Upload Desain dikembalikan -- sempat
-            terhapus karena salah paham instruksi user (dikira user minta
-            hapus fiturnya, ternyata yang dimaksud cuma blok alamat DJOGKER
-            di bawahnya, lihat riwayat komentar). Blok alamat TETAP tidak
-            dikembalikan, itu memang yang seharusnya dihapus (sudah dihapus
-            juga dari halaman Tracking & Upload Desain). */}
-        <div className="mt-4 flex items-center justify-center gap-2">
-          <Link
-            href="/tracking"
-            className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 dark:border-blue-800 bg-white dark:bg-transparent px-3 py-1.5 text-xs font-medium text-blue-600 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/40 transition-colors"
-          >
-            <FileSearch size={13} />
-            Lacak Pesanan
-          </Link>
-          <Link
-            href="/upload"
-            className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 dark:border-blue-800 bg-white dark:bg-transparent px-3 py-1.5 text-xs font-medium text-blue-600 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/40 transition-colors"
-          >
-            <UploadCloud size={13} />
-            Upload Desain
-          </Link>
+      {/* Kartu kedua -- highlight fitur sistem + jalur khusus pelanggan
+          (Lacak Pesanan/Upload Desain, dipindah dari kartu login supaya
+          tidak terselip jadi 2 pill kecil yang gampang terlewat oleh
+          pelanggan yang sebenarnya tidak perlu akun sama sekali). */}
+      <div
+        className="mx-auto flex w-full max-w-md lg:max-w-none flex-col rounded-3xl border border-blue-100 dark:border-[#30363d] bg-white dark:bg-[#161b22] p-6 md:p-8"
+        style={{ boxShadow: "0 1px 2px rgba(37,99,235,0.06), 0 24px 48px -12px rgba(37,99,235,0.25)" }}
+      >
+        <div>
+          <h3 className="font-display text-lg font-bold text-black dark:text-white">
+            Satu Sistem, Seluruh Rantai Pasok
+          </h3>
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            DJOGKER SCM membantu tim memantau setiap tahap -- dari bahan baku sampai produk diterima pelanggan.
+          </p>
         </div>
+
+        <div className="mt-5 space-y-3">
+          {FEATURES.map((f) => (
+            <div key={f.label} className="flex items-start gap-3">
+              <div
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-white"
+                style={{ background: `linear-gradient(135deg, ${f.gradient[0]}, ${f.gradient[1]})` }}
+              >
+                <f.icon size={15} />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-black dark:text-white">{f.label}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">{f.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div className="my-6 border-t border-gray-100 dark:border-[#30363d]" />
+
+        <div className="mt-auto">
+          <h4 className="text-sm font-semibold text-black dark:text-white">Anda pelanggan?</h4>
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            Tidak perlu akun -- lacak status pesanan atau upload desain custom Anda langsung di sini.
+          </p>
+          <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+            <Link
+              href="/tracking"
+              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full border border-blue-200 dark:border-blue-800 bg-white dark:bg-transparent px-3 py-2 text-xs font-medium text-blue-600 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/40 transition-colors"
+            >
+              <FileSearch size={13} />
+              Lacak Pesanan
+            </Link>
+            <Link
+              href="/upload"
+              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full border border-blue-200 dark:border-blue-800 bg-white dark:bg-transparent px-3 py-2 text-xs font-medium text-blue-600 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/40 transition-colors"
+            >
+              <UploadCloud size={13} />
+              Upload Desain
+            </Link>
+          </div>
+        </div>
+      </div>
       </div>
     </div>
   );

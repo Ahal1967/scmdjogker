@@ -358,35 +358,30 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
         )}
       </div>
 
-      <div className="card p-0 overflow-hidden" style={{ border: "none" }}>
-        <div className="grid grid-cols-1 divide-y divide-gray-100 dark:divide-gray-700 sm:grid-cols-3 sm:divide-y-0 sm:divide-x">
-          <div className="flex items-center gap-3 p-5">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-900/40">
-              <Truck size={20} className="text-blue-600 dark:text-blue-400" />
-            </span>
-            <div>
-              <p className="font-display text-xl font-bold text-black dark:text-white">{totalPengiriman}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Total Pengiriman</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 p-5">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-yellow-50 dark:bg-yellow-900/40">
-              <Clock size={20} className="text-yellow-600 dark:text-yellow-400" />
-            </span>
-            <div>
-              <p className="font-display text-xl font-bold text-black dark:text-white">{totalDiproses}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Dalam Proses</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 p-5">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-green-50 dark:bg-green-900/40">
-              <PackageCheck size={20} className="text-green-600 dark:text-green-400" />
-            </span>
-            <div>
-              <p className="font-display text-xl font-bold text-black dark:text-white">{totalTerkirim}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Terkirim</p>
-            </div>
-          </div>
+      {/* Kartu statistik dipindah ke pola .dash-kpi-card (icon chip
+          bergradasi) -- dipakai ulang apa adanya dari Dashboard, lihat
+          komentar sejenis di app/dashboard/gudang/page.tsx. */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <div className="dash-kpi-card">
+          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#3b82f6,#2563eb)" }}>
+            <Truck size={14} />
+          </span>
+          <p className="dash-kpi-label">TOTAL PENGIRIMAN</p>
+          <p className="dash-kpi-value font-display">{totalPengiriman}</p>
+        </div>
+        <div className="dash-kpi-card">
+          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#fbbf24,#d97706)" }}>
+            <Clock size={14} />
+          </span>
+          <p className="dash-kpi-label">DALAM PROSES</p>
+          <p className="dash-kpi-value font-display">{totalDiproses}</p>
+        </div>
+        <div className="dash-kpi-card">
+          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#34d399,#059669)" }}>
+            <PackageCheck size={14} />
+          </span>
+          <p className="dash-kpi-label">TERKIRIM</p>
+          <p className="dash-kpi-value font-display">{totalTerkirim}</p>
         </div>
       </div>
 

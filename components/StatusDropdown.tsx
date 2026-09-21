@@ -12,6 +12,7 @@ import {
   Truck,
   CheckCircle2,
   Tag,
+  Loader2,
   type LucideIcon,
 } from "lucide-react";
 
@@ -30,7 +31,13 @@ import {
 
    Logika update status (updateStatus di tiap tabel) SAMA SEKALI TIDAK
    diubah -- komponen ini cuma ganti cara MENAMPILKAN & MEMILIH status,
-   pemanggil tetap yang menentukan apa yang terjadi lewat prop onChange. */
+   pemanggil tetap yang menentukan apa yang terjadi lewat prop onChange.
+
+   Prop `loading` (opsional, default false) ditambahkan supaya pemanggil
+   bisa kasih feedback visual selagi onChange masih diproses (baru dipakai
+   ProduksiTable.tsx) -- trigger jadi disabled + ikon berubah jadi spinner,
+   TIDAK mengubah perilaku PesananTable.tsx sama sekali karena prop-nya
+   opsional dan pemanggil itu tidak mengirimkannya. */
 
 const STATUS_ICONS: Record<string, LucideIcon> = {
   Pesanan: ClipboardList,
@@ -47,6 +54,7 @@ export default function StatusDropdown({
   colorClasses,
   onChange,
   ariaLabel,
+  loading = false,
 }: {
   value: string;
   options: readonly string[];
@@ -56,6 +64,7 @@ export default function StatusDropdown({
   colorClasses: Record<string, string>;
   onChange: (status: string) => void;
   ariaLabel?: string;
+  loading?: boolean;
 }) {
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState<{ top: number; left: number; openUp: boolean } | null>(null);
@@ -93,6 +102,7 @@ export default function StatusDropdown({
   }
 
   function toggleOpen() {
+    if (loading) return;
     if (open) {
       setOpen(false);
       return;
@@ -145,14 +155,20 @@ export default function StatusDropdown({
         ref={triggerRef}
         type="button"
         onClick={toggleOpen}
-        className={`badge relative ${colorClasses[value] ?? ""}`}
+        disabled={loading}
+        className={`badge relative ${colorClasses[value] ?? ""}${loading ? " opacity-60 cursor-wait" : ""}`}
         aria-label={ariaLabel ?? `Ubah status: ${value}`}
         aria-haspopup="listbox"
         aria-expanded={open}
+        aria-busy={loading}
       >
         <span className="status-dot" />
         {value}
-        <ChevronDown size={12} className={`status-chevron${open ? " status-chevron-open" : ""}`} />
+        {loading ? (
+          <Loader2 size={12} className="status-chevron animate-spin" />
+        ) : (
+          <ChevronDown size={12} className={`status-chevron${open ? " status-chevron-open" : ""}`} />
+        )}
       </button>
 
       {open && pos &&

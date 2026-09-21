@@ -13,7 +13,7 @@ import {
   type DragEndEvent,
   type DragStartEvent,
 } from "@dnd-kit/core";
-import { GripVertical, type LucideIcon } from "lucide-react";
+import { GripVertical, Loader2, type LucideIcon } from "lucide-react";
 import type { ProductionRow } from "@/app/dashboard/produksi/ProduksiTable";
 
 /* Papan drag-and-drop untuk halaman Produksi -- Halaman 07 dari daftar
@@ -42,6 +42,7 @@ function ProductionCard({
   colorClass,
   columns,
   onStatusChange,
+  isUpdating,
 }: {
   p: ProductionRow;
   colorClass: string;
@@ -49,9 +50,15 @@ function ProductionCard({
   // drag -- lihat komentar di select-nya sendiri kenapa ini perlu ada.
   columns: ColumnDef[];
   onStatusChange: (p: ProductionRow, status: string) => void;
+  // Kartu ini lagi diproses updateStatus() (habis digeser atau dipilih
+  // lewat select di bawah) -- sebelumnya tidak ada feedback apa pun di
+  // sini, kartu kelihatan diam sampai toast muncul. Select ikut disabled
+  // supaya tidak bisa dipicu dobel selagi masih menunggu.
+  isUpdating?: boolean;
 }) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: p.id,
+    disabled: isUpdating,
   });
 
   const style = transform
@@ -67,10 +74,15 @@ function ProductionCard({
       style={style}
       {...listeners}
       {...attributes}
-      className={`card cursor-grab active:cursor-grabbing select-none space-y-2 p-3 touch-none ${
-        isDragging ? "opacity-40" : ""
+      className={`card relative cursor-grab active:cursor-grabbing select-none space-y-2 p-3 touch-none ${
+        isDragging ? "opacity-40" : isUpdating ? "opacity-60" : ""
       }`}
     >
+      {isUpdating && (
+        <span className="absolute right-2 top-2 flex h-5 w-5 items-center justify-center rounded-full bg-white/80 dark:bg-black/40">
+          <Loader2 size={13} className="animate-spin text-blue-600 dark:text-blue-400" />
+        </span>
+      )}
       <div className="flex items-start justify-between gap-2">
         <p className="text-[13px] font-bold text-black dark:text-white">{p.no_produksi || "-"}</p>
         <GripVertical size={14} className="mt-0.5 shrink-0 text-gray-300 dark:text-gray-600" />
@@ -98,8 +110,9 @@ function ProductionCard({
         onChange={(e) => onStatusChange(p, e.target.value)}
         onPointerDown={(e) => e.stopPropagation()}
         onClick={(e) => e.stopPropagation()}
+        disabled={isUpdating}
         aria-label={`Ubah status ${p.no_produksi || "produksi ini"}`}
-        className="w-full cursor-pointer rounded-lg border border-gray-200 dark:border-[#30363d] bg-white dark:bg-[#161b22] px-2 py-1 text-[11px] text-gray-600 dark:text-gray-300"
+        className="w-full cursor-pointer rounded-lg border border-gray-200 dark:border-[#30363d] bg-white dark:bg-[#161b22] px-2 py-1 text-[11px] text-gray-600 dark:text-gray-300 disabled:cursor-wait disabled:opacity-60"
       >
         {columns.map((c) => (
           <option key={c.key} value={c.key}>
@@ -118,6 +131,7 @@ function Column({
   colorClasses,
   barClasses,
   onStatusChange,
+  updatingId,
 }: {
   col: ColumnDef;
   items: ProductionRow[];
@@ -125,6 +139,7 @@ function Column({
   colorClasses: Record<string, string>;
   barClasses: Record<string, string>;
   onStatusChange: (p: ProductionRow, status: string) => void;
+  updatingId?: string | null;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: col.key });
   const Icon = col.icon;
@@ -156,6 +171,7 @@ function Column({
             colorClass={barClasses[col.key] ?? "bg-blue-600"}
             columns={columns}
             onStatusChange={onStatusChange}
+            isUpdating={updatingId === p.id}
           />
         ))}
       </div>
@@ -169,6 +185,7 @@ export default function ProduksiKanban({
   colorClasses,
   barClasses,
   onStatusChange,
+  updatingId,
 }: {
   productions: ProductionRow[];
   columns: ColumnDef[];
@@ -181,6 +198,12 @@ export default function ProduksiKanban({
   // atas background abu-abu, sementara badge/header butuh versi pastel.
   barClasses: Record<string, string>;
   onStatusChange: (p: ProductionRow, status: string) => void;
+  // id produksi yang sedang diproses updateStatus() (dikirim dari
+  // ProduksiTable.tsx, sumber logikanya sama dengan yang dipakai
+  // StatusDropdown di tampilan Tabel) -- opsional supaya komponen ini
+  // tetap jalan tanpa perlu diubah kalau suatu saat dipanggil dari
+  // tempat lain yang belum punya state ini.
+  updatingId?: string | null;
 }) {
   const [activeId, setActiveId] = useState<string | null>(null);
 
@@ -237,6 +260,7 @@ export default function ProduksiKanban({
             colorClasses={colorClasses}
             barClasses={barClasses}
             onStatusChange={onStatusChange}
+            updatingId={updatingId}
           />
         ))}
       </div>

@@ -15,16 +15,27 @@ import {
 } from "lucide-react";
 import PageHeaderCard from "@/components/PageHeaderCard";
 
+// Halaman ini narik angka live dari 9 tabel berbeda (supplier, bahan baku x2,
+// pesanan x2, produksi, QC, packing, pengiriman). Kalau Next.js nge-cache hasil
+// query-nya, admin bisa lihat angka tahapan yang sudah basi padahal data asli
+// di database sudah berubah. force-dynamic matiin caching itu, sama seperti
+// yang dipakai di halaman Gudang.
+export const dynamic = "force-dynamic";
+
+// Gradient tiap kartu sengaja dibuat dari 2 shade warna yang sama dengan
+// "accent" (400 -> 600 di keluarga warna Tailwind yang sama) -- pola yang
+// sama persis dengan .dash-kpi-icon di semua modul lain (Dashboard, Gudang,
+// Produksi, dst), supaya chip ikon di sini tidak lagi terasa beda sendiri.
 const STAGES = [
-  { key: "supplier", label: "Supplier", desc: "Pemasok bahan baku", icon: Truck, accent: "#2563eb", iconBg: "bg-blue-600", href: "/dashboard/supplier" },
-  { key: "bahan", label: "Bahan Masuk", desc: "Bahan baku diterima", icon: PackagePlus, accent: "#0891b2", iconBg: "bg-cyan-600", href: "/dashboard/gudang" },
-  { key: "gudang", label: "Gudang", desc: "Penyimpanan bahan baku", icon: Warehouse, accent: "#16a34a", iconBg: "bg-green-600", href: "/dashboard/gudang" },
-  { key: "pesanan", label: "Pesanan", desc: "Pelanggan membuat pesanan", icon: ShoppingCart, accent: "#9333ea", iconBg: "bg-purple-600", href: "/dashboard/pesanan" },
-  { key: "produksi", label: "Produksi", desc: "Proses produksi sablon", icon: Factory, accent: "#ea580c", iconBg: "bg-orange-600", href: "/dashboard/produksi" },
-  { key: "qc", label: "QC (Quality Control)", desc: "Pemeriksaan kualitas produk", icon: CheckCircle2, accent: "#7c3aed", iconBg: "bg-violet-600", href: "/dashboard/qc" },
-  { key: "packing", label: "Packing", desc: "Pengemasan produk", icon: Package, accent: "#d97706", iconBg: "bg-amber-600", href: "/dashboard/packing" },
-  { key: "pengiriman", label: "Pengiriman", desc: "Produk dikirim ke konsumen", icon: Send, accent: "#0d9488", iconBg: "bg-teal-600", href: "/dashboard/pengiriman" },
-  { key: "konsumen", label: "Konsumen", desc: "Produk diterima pelanggan", icon: UserCheck, accent: "#059669", iconBg: "bg-emerald-600", href: "/dashboard/laporan" },
+  { key: "supplier", label: "Supplier", desc: "Pemasok bahan baku", icon: Truck, accent: "#2563eb", gradient: ["#3b82f6", "#2563eb"], href: "/dashboard/supplier" },
+  { key: "bahan", label: "Bahan Masuk", desc: "Bahan baku diterima", icon: PackagePlus, accent: "#0891b2", gradient: ["#22d3ee", "#0891b2"], href: "/dashboard/gudang" },
+  { key: "gudang", label: "Gudang", desc: "Penyimpanan bahan baku", icon: Warehouse, accent: "#16a34a", gradient: ["#4ade80", "#16a34a"], href: "/dashboard/gudang" },
+  { key: "pesanan", label: "Pesanan", desc: "Pelanggan membuat pesanan", icon: ShoppingCart, accent: "#9333ea", gradient: ["#c084fc", "#9333ea"], href: "/dashboard/pesanan" },
+  { key: "produksi", label: "Produksi", desc: "Proses produksi sablon", icon: Factory, accent: "#ea580c", gradient: ["#fb923c", "#ea580c"], href: "/dashboard/produksi" },
+  { key: "qc", label: "QC (Quality Control)", desc: "Pemeriksaan kualitas produk", icon: CheckCircle2, accent: "#7c3aed", gradient: ["#a78bfa", "#7c3aed"], href: "/dashboard/qc" },
+  { key: "packing", label: "Packing", desc: "Pengemasan produk", icon: Package, accent: "#d97706", gradient: ["#fbbf24", "#d97706"], href: "/dashboard/packing" },
+  { key: "pengiriman", label: "Pengiriman", desc: "Produk dikirim ke konsumen", icon: Send, accent: "#0d9488", gradient: ["#2dd4bf", "#0d9488"], href: "/dashboard/pengiriman" },
+  { key: "konsumen", label: "Konsumen", desc: "Produk diterima pelanggan", icon: UserCheck, accent: "#059669", gradient: ["#34d399", "#059669"], href: "/dashboard/laporan" },
 ] as const;
 
 export default async function AlurPage() {
@@ -75,15 +86,17 @@ export default async function AlurPage() {
     return (
       <Link
         href={stage.href}
-        className="card alur-stage-card relative block min-w-0 flex-1 cursor-pointer bg-blue-50/60 dark:bg-blue-900/10"
-        style={{ border: "none" }}
+        className="alur-stage-card relative block min-w-0 flex-1 cursor-pointer"
       >
         <span className="absolute top-3 right-3 text-[10px] font-display font-bold text-gray-300 dark:text-gray-600">
           {String(globalIdx + 1).padStart(2, "0")}
         </span>
 
-        <div className={`mb-2 flex h-8 w-8 items-center justify-center rounded-lg ${stage.iconBg} shadow-sm`}>
-          <Icon className="text-white" size={15} />
+        <div
+          className="dash-kpi-icon"
+          style={{ background: `linear-gradient(135deg, ${stage.gradient[0]}, ${stage.gradient[1]})` }}
+        >
+          <Icon size={15} />
         </div>
 
         <p className="text-sm font-semibold text-black dark:text-white">{stage.label}</p>

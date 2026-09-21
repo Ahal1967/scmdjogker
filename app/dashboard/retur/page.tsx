@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { Undo2 } from "lucide-react";
+import { Undo2, Clock, RefreshCw, ListChecks } from "lucide-react";
 import ReturTable from "./ReturTable";
 import PageHeaderCard from "@/components/PageHeaderCard";
 import FetchErrorBanner from "@/components/FetchErrorBanner";
@@ -71,22 +71,41 @@ export default async function ReturPage() {
 
       <FetchErrorBanner message={fetchErrorMsg} />
 
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <div className="card p-3">
-          <p className="text-[10px] font-semibold tracking-wide text-gray-500 dark:text-gray-400">Total Retur</p>
-          <p className="mt-1 font-display text-lg font-bold text-black dark:text-white">{totalRetur}</p>
+      {/* Kartu statistik dipindah ke pola .dash-kpi-card (icon chip
+          bergradasi) -- dipakai ulang apa adanya dari Dashboard, lihat
+          komentar sejenis di app/dashboard/gudang/page.tsx. Kartu terakhir
+          ("Selesai/Ditolak") sengaja dikasih warna netral (slate), bukan
+          hijau -- karena angkanya menggabungkan 2 hasil akhir yang
+          berlawanan (selesai = baik, ditolak = tidak), jadi hijau akan
+          menyesatkan seolah semuanya hasil positif. */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="dash-kpi-card">
+          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#3b82f6,#2563eb)" }}>
+            <Undo2 size={14} />
+          </span>
+          <p className="dash-kpi-label">TOTAL RETUR</p>
+          <p className="dash-kpi-value font-display">{totalRetur}</p>
         </div>
-        <div className="card p-3">
-          <p className="text-[10px] font-semibold tracking-wide text-gray-500 dark:text-gray-400">Diajukan</p>
-          <p className="mt-1 font-display text-lg font-bold text-black dark:text-white">{totalDiajukan}</p>
+        <div className="dash-kpi-card">
+          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#fbbf24,#d97706)" }}>
+            <Clock size={14} />
+          </span>
+          <p className="dash-kpi-label">DIAJUKAN</p>
+          <p className="dash-kpi-value font-display">{totalDiajukan}</p>
         </div>
-        <div className="card p-3">
-          <p className="text-[10px] font-semibold tracking-wide text-gray-500 dark:text-gray-400">Diproses</p>
-          <p className="mt-1 font-display text-lg font-bold text-black dark:text-white">{totalDiproses}</p>
+        <div className="dash-kpi-card">
+          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#fb923c,#ea580c)" }}>
+            <RefreshCw size={14} />
+          </span>
+          <p className="dash-kpi-label">DIPROSES</p>
+          <p className="dash-kpi-value font-display">{totalDiproses}</p>
         </div>
-        <div className="card p-3">
-          <p className="text-[10px] font-semibold tracking-wide text-gray-500 dark:text-gray-400">Selesai/Ditolak</p>
-          <p className="mt-1 font-display text-lg font-bold text-black dark:text-white">{totalSelesai}</p>
+        <div className="dash-kpi-card">
+          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#94a3b8,#64748b)" }}>
+            <ListChecks size={14} />
+          </span>
+          <p className="dash-kpi-label">SELESAI/DITOLAK</p>
+          <p className="dash-kpi-value font-display">{totalSelesai}</p>
         </div>
       </div>
 

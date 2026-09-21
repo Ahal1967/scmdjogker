@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { Factory } from "lucide-react";
+import { Factory, ClipboardList, Loader2, CheckCircle2 } from "lucide-react";
 import ProduksiTable, { type ProductionRow } from "./ProduksiTable";
 import PageHeaderCard from "@/components/PageHeaderCard";
 import FetchErrorBanner from "@/components/FetchErrorBanner";
@@ -48,20 +48,30 @@ export default async function ProduksiPage() {
 
       <FetchErrorBanner message={produksiError?.message} />
 
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-        <div className="card p-3">
-          <p className="text-[10px] font-semibold tracking-wide text-gray-500 dark:text-gray-400">Total Produksi</p>
-          <p className="mt-1 font-display text-lg font-bold text-black dark:text-white">{totalProduksi}</p>
+      {/* Kartu statistik dipindah ke pola .dash-kpi-card (icon chip
+          bergradasi) -- dipakai ulang apa adanya dari Dashboard, lihat
+          komentar sejenis di app/dashboard/gudang/page.tsx. */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <div className="dash-kpi-card">
+          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#3b82f6,#2563eb)" }}>
+            <ClipboardList size={14} />
+          </span>
+          <p className="dash-kpi-label">TOTAL PRODUKSI</p>
+          <p className="dash-kpi-value font-display">{totalProduksi}</p>
         </div>
-        <div className="card p-3">
-          <p className="text-[10px] font-semibold tracking-wide text-gray-500 dark:text-gray-400">
-            Sedang Diproses
-          </p>
-          <p className="mt-1 font-display text-lg font-bold text-black dark:text-white">{sedangDiproses}</p>
+        <div className="dash-kpi-card">
+          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#fb923c,#ea580c)" }}>
+            <Loader2 size={14} />
+          </span>
+          <p className="dash-kpi-label">SEDANG DIPROSES</p>
+          <p className="dash-kpi-value font-display">{sedangDiproses}</p>
         </div>
-        <div className="card p-3">
-          <p className="text-[10px] font-semibold tracking-wide text-gray-500 dark:text-gray-400">Selesai</p>
-          <p className="mt-1 font-display text-lg font-bold text-black dark:text-white">{selesai}</p>
+        <div className="dash-kpi-card">
+          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#34d399,#059669)" }}>
+            <CheckCircle2 size={14} />
+          </span>
+          <p className="dash-kpi-label">SELESAI</p>
+          <p className="dash-kpi-value font-display">{selesai}</p>
         </div>
       </div>
 

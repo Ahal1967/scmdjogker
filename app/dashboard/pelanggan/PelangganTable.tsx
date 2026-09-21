@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Search, User, ChevronLeft, ChevronRight, Phone, ShoppingBag, Wallet, Trash2 } from "lucide-react";
+import { Search, User, ChevronLeft, ChevronRight, Phone, ShoppingBag, Wallet, Trash2, Loader2 } from "lucide-react";
 import SortableTh from "@/components/SortableTh";
 import TableIconCell from "@/components/TableIconCell";
 import { compareValues } from "@/lib/sortUtils";
@@ -25,6 +25,11 @@ export default function PelangganTable({ dataPelanggan }: { dataPelanggan: Pelan
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
+  // Tambahan di luar permintaan awal (konsisten sama perbaikan
+  // Packing/Produksi sebelumnya) -- handleDelete sebelumnya tidak py
+  // indikator proses sama sekali, tombol kelihatan diam sampai dialog
+  // konfirmasi/toast muncul.
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   // Pelanggan di modul ini muncul otomatis begitu mereka bikin pesanan
   // pertama (tidak ada form tambah manual, lihat PelangganPage) -- jadi
@@ -45,25 +50,30 @@ export default function PelangganTable({ dataPelanggan }: { dataPelanggan: Pelan
     const ok = await confirm({ message: `Pelanggan "${c.nama}" akan dihapus permanen.`, danger: true });
     if (!ok) return;
 
-    const { error } = await supabase.from("customers").delete().eq("id", c.id);
+    setDeletingId(c.id);
+    try {
+      const { error } = await supabase.from("customers").delete().eq("id", c.id);
 
-    if (error) {
-      // Fallback kalau ternyata pesanan baru dibuat tepat setelah halaman
-      // ini dimuat (totalPesanan di layar jadi basi) -- constraint foreign
-      // key di database yang jadi jaring pengaman terakhir.
-      console.error("Gagal menghapus pelanggan:", error.message);
-      if (error.code === "23503" || /foreign key|violat/i.test(error.message)) {
-        showToast(
-          `Gagal menghapus: pelanggan "${c.nama}" ternyata masih punya riwayat pesanan. Muat ulang halaman dan coba lagi.`
-        );
-      } else {
-        showToast("Gagal menghapus pelanggan: " + error.message);
+      if (error) {
+        // Fallback kalau ternyata pesanan baru dibuat tepat setelah halaman
+        // ini dimuat (totalPesanan di layar jadi basi) -- constraint foreign
+        // key di database yang jadi jaring pengaman terakhir.
+        console.error("Gagal menghapus pelanggan:", error.message);
+        if (error.code === "23503" || /foreign key|violat/i.test(error.message)) {
+          showToast(
+            `Gagal menghapus: pelanggan "${c.nama}" ternyata masih punya riwayat pesanan. Muat ulang halaman dan coba lagi.`
+          );
+        } else {
+          showToast("Gagal menghapus pelanggan: " + error.message);
+        }
+        return;
       }
-      return;
-    }
 
-    setPelangganList((prev) => prev.filter((p) => p.id !== c.id));
-    showToast("Pelanggan berhasil dihapus.", "success");
+      setPelangganList((prev) => prev.filter((p) => p.id !== c.id));
+      showToast("Pelanggan berhasil dihapus.", "success");
+    } finally {
+      setDeletingId(null);
+    }
   }
 
   const filtered = pelangganList.filter(
@@ -140,11 +150,17 @@ export default function PelangganTable({ dataPelanggan }: { dataPelanggan: Pelan
                     <div className="flex justify-center gap-1.5">
                       <button
                         onClick={() => handleDelete(c)}
+                        disabled={deletingId === c.id}
                         title="Hapus"
                         aria-label="Hapus"
-                        className="flex h-8 w-8 items-center justify-center rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/40 transition-colors"
+                        aria-busy={deletingId === c.id}
+                        className="flex h-8 w-8 items-center justify-center rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/40 transition-colors disabled:opacity-50 disabled:cursor-wait"
                       >
-                        <Trash2 size={15} />
+                        {deletingId === c.id ? (
+                          <Loader2 size={15} className="animate-spin" />
+                        ) : (
+                          <Trash2 size={15} />
+                        )}
                       </button>
                     </div>
                   </td>

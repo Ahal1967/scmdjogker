@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { Boxes } from "lucide-react";
+import { Boxes, Layers, Package, AlertTriangle } from "lucide-react";
 import GudangTable from "./GudangTable";
 import PageHeaderCard from "@/components/PageHeaderCard";
 import FetchErrorBanner from "@/components/FetchErrorBanner";
@@ -47,18 +47,33 @@ export default async function GudangPage() {
 
       <FetchErrorBanner message={fetchErrorMsg} />
 
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
-        <div className="card p-3">
-          <p className="text-[10px] font-semibold tracking-wide text-gray-500 dark:text-gray-400">Total Jenis Bahan</p>
-          <p className="mt-1 font-display text-lg font-bold text-black dark:text-white">{totalJenisBahan}</p>
+      {/* Kartu statistik dipindah ke pola .dash-kpi-card (icon chip
+          bergradasi) yang sebelumnya cuma dipakai di Dashboard -- dipakai
+          ulang apa adanya di sini (bukan class baru "gudang-kpi-card")
+          karena ini murni pola visual tanpa logika khusus halaman, jadi
+          tidak melanggar prinsip "class per halaman" yang dipakai buat
+          class BER-LOGIKA (lihat komentar di app/globals.css). */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <div className="dash-kpi-card">
+          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#3b82f6,#2563eb)" }}>
+            <Layers size={14} />
+          </span>
+          <p className="dash-kpi-label">TOTAL JENIS BAHAN</p>
+          <p className="dash-kpi-value font-display">{totalJenisBahan}</p>
         </div>
-        <div className="card p-3">
-          <p className="text-[10px] font-semibold tracking-wide text-gray-500 dark:text-gray-400">Total Stok</p>
-          <p className="mt-1 font-display text-lg font-bold text-black dark:text-white">{totalStok}</p>
+        <div className="dash-kpi-card">
+          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#22d3ee,#0891b2)" }}>
+            <Package size={14} />
+          </span>
+          <p className="dash-kpi-label">TOTAL STOK</p>
+          <p className="dash-kpi-value font-display">{totalStok}</p>
         </div>
-        <div className="card p-3">
-          <p className="text-[10px] font-semibold tracking-wide text-gray-500 dark:text-gray-400">Stok Terendah</p>
-          <p className="mt-1 font-display text-lg font-bold text-black dark:text-white">{stokTerendah}</p>
+        <div className="dash-kpi-card">
+          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#f87171,#dc2626)" }}>
+            <AlertTriangle size={14} />
+          </span>
+          <p className="dash-kpi-label">STOK TERENDAH</p>
+          <p className="dash-kpi-value font-display">{stokTerendah}</p>
         </div>
       </div>
 

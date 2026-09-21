@@ -488,15 +488,18 @@ export default function ProdukTable({
         )}
       </div>
 
-      <div className="card p-0 overflow-hidden" style={{ border: "none" }}>
-        <div className="flex items-center gap-3 p-5">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-900/40">
-            <Shirt size={20} className="text-blue-600 dark:text-blue-400" />
+      {/* Kartu statistik dipindah ke pola .dash-kpi-card (icon chip
+          bergradasi) -- dipakai ulang apa adanya dari Dashboard, lihat
+          komentar sejenis di app/dashboard/gudang/page.tsx. Cuma 1 kartu
+          (tidak ada grid 3 kolom di sini sebelumnya), dibungkus grid yang
+          sama supaya lebar kartunya konsisten dengan halaman lain. */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <div className="dash-kpi-card">
+          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#3b82f6,#2563eb)" }}>
+            <Shirt size={14} />
           </span>
-          <div>
-            <p className="font-display text-xl font-bold text-black dark:text-white">{totalProduk}</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400">Total Produk di Katalog</p>
-          </div>
+          <p className="dash-kpi-label">TOTAL PRODUK DI KATALOG</p>
+          <p className="dash-kpi-value font-display">{totalProduk}</p>
         </div>
       </div>
 

@@ -260,91 +260,6 @@ body::before {
     box-shadow: 0 12px 36px rgba(59, 130, 246, 0.18);
   }
 
-  /* Card Tren Pendapatan -- sekarang berdiri sendiri (bukan lagi numpang di
-     atas .card) senada sama .status-progress-tile & .premium-stat-card:
-     gradient penuh + watermark ikon transparan. Diganti dari versi lama
-     (numpang .card putih polos) karena (1) kelihatan terlalu plain
-     dibanding card lain di Dashboard, dan (2) .card versi dark punya inset
-     highlight tipis di tepi atas yang kelihatan sebagai "garis putih" yang
-     kontras aneh sama gradient card ini -- dengan berdiri sendiri, masalah
-     itu otomatis hilang tanpa perlu override apa pun. */
-  /* Sebelumnya gradient hijau penuh -- diganti jadi putih/netral senada
-     .card lain, aksen hijau cuma tersisa di teks judul & garis tren
-     (.dash-chart-head, .dash-chart-trend), bukan lagi background utuh. */
-  .dash-chart-card {
-    position: relative;
-    overflow: hidden;
-    border-radius: 12px;
-    padding: 14px;
-    border: 1px solid #e5e7eb;
-    box-shadow: 0 4px 16px -8px rgba(30, 58, 138, 0.1);
-    background: #ffffff;
-  }
-
-  .dark .dash-chart-card {
-    border-color: var(--djoker-border);
-    background: var(--djoker-surface);
-    box-shadow: none;
-  }
-
-  .dash-chart-top {
-    position: relative;
-    z-index: 2;
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    margin-bottom: 10px;
-    gap: 8px;
-  }
-
-  .dash-chart-head {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 11px;
-    font-weight: 700;
-    color: #047857;
-  }
-
-  .dark .dash-chart-head {
-    color: #6ee7b7;
-  }
-
-  .dash-chart-summary {
-    text-align: right;
-  }
-
-  .dash-chart-summary-value {
-    font-size: 16px;
-    font-weight: 800;
-    color: #064e3b;
-  }
-
-  .dark .dash-chart-summary-value {
-    color: #fff;
-  }
-
-  .dash-chart-trend {
-    font-size: 10px;
-    font-weight: 700;
-  }
-
-  .dash-chart-trend.up {
-    color: #059669;
-  }
-
-  .dash-chart-trend.down {
-    color: #dc2626;
-  }
-
-  .dark .dash-chart-trend.up {
-    color: #4ade80;
-  }
-
-  .dark .dash-chart-trend.down {
-    color: #f87171;
-  }
-
   /* 2 card "premium" di Dashboard (Supplier, Pesanan Bulan Ini) -- sengaja
      TIDAK numpang di atas .card (beda dari card lain di halaman ini),
      karena ini cuma tinggal 2 card jadi dikasih treatment sendiri: gradient
@@ -548,11 +463,442 @@ body::before {
     border-radius: 50%;
   }
 
+  /* ============================================================
+     Dashboard "Command Center" (redesain halaman utama Dashboard,
+     Opsi B) -- header ramping, KPI dengan delta asli, alur pesanan
+     jadi satu pipeline (gabungan Status Pesanan + Progress Produksi
+     lama), dan panel "Perlu Tindakan" yang menyatukan sinyal yang
+     sebelumnya cuma ada di lonceng notifikasi. Class-class di bawah
+     ini KHUSUS dipakai di app/dashboard/page.tsx. */
+
+  .dash-slim-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    border-radius: 16px;
+    padding: 14px 18px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 4px 16px -8px rgba(30, 58, 138, 0.12);
+  }
+
+  .dark .dash-slim-bar {
+    background: var(--djoker-surface);
+    border-color: var(--djoker-border);
+    box-shadow: none;
+  }
+
+  .dash-slim-greet {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .dash-slim-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3b82f6, #2563eb);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: 800;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+
+  .dash-slim-greet-text h2 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 800;
+    color: #0a0a1a;
+  }
+
+  .dark .dash-slim-greet-text h2 {
+    color: var(--djoker-text);
+  }
+
+  .dash-slim-greet-text p {
+    margin: 1px 0 0;
+    font-size: 11px;
+    color: #6b7280;
+  }
+
+  .dark .dash-slim-greet-text p {
+    color: var(--djoker-muted);
+  }
+
+  /* KPI 4 kartu -- turunan dari .premium-stat-card lama, ditambah slot
+     delta (naik/turun asli) & sparkline opsional. Kartu tanpa data historis
+     asli (Supplier, Order Aktif) sengaja TIDAK dikasih delta/sparkline --
+     lihat komentar di app/dashboard/page.tsx. */
+  .dash-kpi-card {
+    position: relative;
+    overflow: hidden;
+    min-height: 64px;
+    border-radius: 10px;
+    padding: 7px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 2px 10px -6px rgba(30, 58, 138, 0.12);
+    background: #ffffff;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .dash-kpi-card.is-link { cursor: pointer; }
+  .dash-kpi-card.is-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px -8px rgba(30, 58, 138, 0.18);
+  }
+
+  .dark .dash-kpi-card {
+    border-color: var(--djoker-border);
+    background: var(--djoker-surface);
+  }
+
+  .dash-kpi-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 19px;
+    height: 19px;
+    border-radius: 5px;
+    color: #fff;
+    margin-bottom: 4px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  }
+
+  .dash-kpi-label {
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    color: #6b7280;
+  }
+
+  .dark .dash-kpi-label {
+    color: var(--djoker-muted);
+  }
+
+  .dash-kpi-value {
+    margin-top: 2px;
+    font-size: 14px;
+    font-weight: 800;
+    color: #0a0a1a;
+  }
+
+  .dark .dash-kpi-value {
+    color: #fff;
+  }
+
+  .dash-kpi-hint {
+    margin-top: 2px;
+    font-size: 8px;
+    color: #94a3b8;
+  }
+
+  .dark .dash-kpi-hint {
+    color: var(--djoker-muted);
+  }
+
+  .dash-kpi-hint.is-warn { color: #b45309; font-weight: 600; }
+  .dark .dash-kpi-hint.is-warn { color: #fbbf24; }
+
+  /* Panel "Perlu Tindakan" -- menyatukan sinyal yang sebelumnya cuma ada
+     di lonceng notifikasi (NotificationBell) supaya kelihatan tanpa buka
+     dropdown dulu. Sumber datanya SAMA PERSIS dengan NotificationBell,
+     sengaja tidak dibuat sumber baru biar tidak ada dua definisi "butuh
+     perhatian" yang bisa beda hasil. */
+  .dash-action-card {
+    border-radius: 12px;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    box-shadow: 0 2px 10px -6px rgba(30, 58, 138, 0.12);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .dark .dash-action-card {
+    border-color: var(--djoker-border);
+    background: var(--djoker-surface);
+  }
+
+  .dash-action-head {
+    padding: 12px 14px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .dark .dash-action-head { border-color: var(--djoker-border); }
+
+  .dash-action-head-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #0a0a1a;
+  }
+  .dark .dash-action-head-title { color: var(--djoker-text); }
+
+  .dash-action-count {
+    font-size: 10.5px;
+    font-weight: 700;
+    background: #fee2e2;
+    color: #dc2626;
+    padding: 2px 8px;
+    border-radius: 999px;
+  }
+  .dark .dash-action-count {
+    background: rgba(220, 38, 38, 0.18);
+    color: #f87171;
+  }
+
+  .dash-action-empty {
+    padding: 20px 14px;
+    text-align: center;
+    font-size: 12px;
+    color: #6b7280;
+  }
+  .dark .dash-action-empty { color: var(--djoker-muted); }
+
+  .dash-action-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    text-decoration: none;
+    color: inherit;
+    border-bottom: 1px solid #e5e7eb;
+    transition: background 0.15s ease;
+    cursor: pointer;
+  }
+  .dash-action-row:last-child { border-bottom: none; }
+  .dash-action-row:hover { background: #f9fafb; }
+  .dark .dash-action-row {
+    border-color: var(--djoker-border);
+  }
+  .dark .dash-action-row:hover { background: var(--djoker-surface-2); }
+
+  .dash-action-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    flex-shrink: 0;
+  }
+
+  .dash-action-body { flex: 1; min-width: 0; }
+
+  .dash-action-label {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #0a0a1a;
+  }
+  .dark .dash-action-label { color: var(--djoker-text); }
+
+  .dash-action-sub {
+    font-size: 11px;
+    color: #6b7280;
+    margin-top: 1px;
+  }
+  .dark .dash-action-sub { color: var(--djoker-muted); }
+
+  .dash-action-chev { color: #9ca3af; flex-shrink: 0; }
+  .dark .dash-action-chev { color: var(--djoker-muted); }
+
+  /* Panel "Analisis Periode" -- grafik Tren Pendapatan & breakdown Status
+     Pesanan, dipindah BALIK ke sini dari Laporan atas permintaan user
+     (bukan ditambah di dua tempat -- Laporan sudah dilucuti balik, lihat
+     komentar di app/dashboard/laporan/page.tsx). Toggle periode di sini
+     instance-nya sendiri, terpisah dari .laporan-period-toggle milik
+     Laporan (yang sekarang cuma buat filter tabel), supaya kedua
+     halaman tetap tidak saling coupling class meski tampilannya mirip. */
+  .dash-analysis-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .dash-analysis-title {
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #0a0a1a;
+  }
+  .dark .dash-analysis-title { color: var(--djoker-text); }
+
+  .dash-period-toggle {
+    display: inline-flex;
+    gap: 2px;
+    padding: 3px;
+    border-radius: 8px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+  }
+  .dark .dash-period-toggle {
+    background: var(--djoker-surface-2);
+    border-color: var(--djoker-border);
+  }
+
+  .dash-period-toggle button {
+    appearance: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: #6b7280;
+    padding: 5px 10px;
+    border-radius: 6px;
+    background: transparent;
+  }
+  .dark .dash-period-toggle button { color: var(--djoker-muted); }
+
+  .dash-period-toggle button.is-active {
+    background: var(--djoker-blue);
+    color: #fff;
+  }
+
+  .dash-analysis-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+  @media (min-width: 860px) {
+    .dash-analysis-grid { grid-template-columns: 1.3fr 1fr; }
+  }
+
+  .dash-panel-card {
+    border-radius: 12px;
+    padding: 14px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 2px 10px -6px rgba(30, 58, 138, 0.12);
+    background: #ffffff;
+  }
+  .dark .dash-panel-card {
+    border-color: var(--djoker-border);
+    background: var(--djoker-surface);
+  }
+
+  .dash-panel-head {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11.5px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: #374151;
+  }
+  .dark .dash-panel-head { color: var(--djoker-text-2); }
+
+  .dash-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .dash-bar-row:last-child { margin-bottom: 0; }
+
+  .dash-bar-label {
+    width: 74px;
+    flex-shrink: 0;
+    font-size: 11px;
+    font-weight: 600;
+    color: #374151;
+  }
+  .dark .dash-bar-label { color: var(--djoker-text-2); }
+
+  .dash-bar-track {
+    display: block;
+    flex: 1;
+    height: 8px;
+    border-radius: 4px;
+    background: #f3f4f6;
+    overflow: hidden;
+  }
+  .dark .dash-bar-track { background: var(--djoker-surface-2); }
+
+  .dash-bar-fill {
+    display: block;
+    height: 100%;
+    border-radius: 4px;
+  }
+
+  .dash-bar-num {
+    width: 26px;
+    text-align: right;
+    flex-shrink: 0;
+    font-size: 11px;
+    font-weight: 700;
+    color: #0a0a1a;
+  }
+  .dark .dash-bar-num { color: #fff; }
+
+  /* ============================================================
+     Halaman Laporan -- sekarang cuma toolbar filter periode buat
+     tabel + export (analisisnya sudah pindah ke Dashboard, lihat
+     komentar .dash-analysis-toolbar di atas). Tetap dikasih class
+     sendiri (bukan numpang .dash-period-toggle) walau tampilannya
+     sengaja disamakan, konsisten sama prinsip "class per halaman"
+     yang sudah dipakai di file ini. */
+  .laporan-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .laporan-period-toggle {
+    display: inline-flex;
+    gap: 2px;
+    padding: 3px;
+    border-radius: 9px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+  }
+  .dark .laporan-period-toggle {
+    background: var(--djoker-surface-2);
+    border-color: var(--djoker-border);
+  }
+
+  .laporan-period-toggle button {
+    appearance: none;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    color: #6b7280;
+    padding: 6px 12px;
+    border-radius: 7px;
+    background: transparent;
+  }
+  .dark .laporan-period-toggle button { color: var(--djoker-muted); }
+
+  .laporan-period-toggle button.is-active {
+    background: var(--djoker-blue);
+    color: #fff;
+  }
+
   /* 9 stage card di halaman Alur Supply Chain -- class terpisah dari .card
      (sama seperti .dash-stat-card) supaya tidak menular ke card di halaman lain. */
   .alur-stage-card {
     padding: 14px 16px;
     border-radius: 12px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 2px 10px -6px rgba(30, 58, 138, 0.12);
+  }
+
+  .dark .alur-stage-card {
+    background: var(--djoker-surface);
+    border-color: var(--djoker-border);
   }
 
   /* Tombol utama (biru) */
@@ -1190,7 +1536,7 @@ body::before {
      lewat komponen bersama <PageHeaderCard /> supaya desainnya konsisten
      dan cukup diubah di 1 tempat kalau nanti mau di-tweak lagi.
      Background diganti dari gradasi biru diagonal jadi flat putih/surface
-     (sama persis pola .dash-chart-card/.premium-stat-card/.welcome-hero
+     (sama persis pola .premium-stat-card/.welcome-hero
      yang sudah di-flat-in duluan) -- ini kartu terakhir yang masih gradasi
      penuh, jadi sebelum ini dia beda sendiri dibanding card lain. Biru
      cuma tersisa di badge kecil (.page-hero-badge), bukan lagi mewarnai
@@ -1198,8 +1544,8 @@ body::before {
   .page-hero {
     position: relative;
     overflow: hidden;
-    border-radius: 16px;
-    padding: 16px 20px;
+    border-radius: 14px;
+    padding: 12px 16px;
     max-width: 440px;
     background: #ffffff;
     border: 1px solid var(--djoker-border);
@@ -1208,7 +1554,7 @@ body::before {
 
   @media (min-width: 768px) {
     .page-hero {
-      padding: 20px 28px;
+      padding: 16px 22px;
     }
   }
 
@@ -1226,11 +1572,11 @@ body::before {
   .page-hero-badge {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
     border-radius: 9999px;
     background: rgba(219, 234, 254, 0.9);
-    padding: 4px 11px 4px 4px;
-    font-size: 0.68rem;
+    padding: 3px 9px 3px 3px;
+    font-size: 0.62rem;
     font-weight: 700;
     letter-spacing: 0.06em;
     color: #1d4ed8;
@@ -1246,8 +1592,8 @@ body::before {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 18px;
-    height: 18px;
+    width: 15px;
+    height: 15px;
     border-radius: 50%;
     background: #dbeafe;
     color: #2563eb;
@@ -1260,7 +1606,7 @@ body::before {
   }
 
   .page-hero-title {
-    font-size: 1.35rem;
+    font-size: 1.1rem;
     font-weight: 800;
     color: #000;
     line-height: 1.2;
@@ -1271,8 +1617,8 @@ body::before {
   }
 
   .page-hero-subtitle {
-    margin-top: 3px;
-    font-size: 0.8125rem;
+    margin-top: 2px;
+    font-size: 0.75rem;
     color: #4b5563;
   }
 

@@ -1,9 +1,29 @@
-import { createClient } from "@/lib/supabase/server";
-import ExportButtons from "./ExportButtons";
-import LaporanTable from "./LaporanTable";
-import { ShoppingBag, Wallet, HandCoins, AlertCircle, FileText } from "lucide-react";
+"use client";
+
+import { useEffect, useState } from "react";
+import { createClient } from "@/lib/supabase/client";
+import { FileText } from "lucide-react";
 import PageHeaderCard from "@/components/PageHeaderCard";
 import FetchErrorBanner from "@/components/FetchErrorBanner";
+import ExportButtons from "./ExportButtons";
+import LaporanTable from "./LaporanTable";
+
+/* ============================================================
+   Laporan Pesanan -- SEKARANG cuma tabel + export per periode.
+
+   Analisis (grafik Tren Pendapatan, 4 KPI finansial, breakdown
+   Status Pesanan) yang sebelumnya ada di halaman ini sudah
+   dipindah SELURUHNYA ke Dashboard atas permintaan user --
+   BUKAN ditambah di dua tempat, tapi dipindah eksklusif (lihat
+   komentar besar di app/dashboard/page.tsx). Laporan sekarang
+   murni "cari, filter periode, & export data pesanan mentah",
+   Dashboard yang jadi halaman analisis.
+
+   Toggle periode di sini TETAP ADA, instance-nya sendiri
+   (`.laporan-period-toggle`, terpisah dari `.dash-period-toggle`
+   milik Dashboard) -- masih perlu buat membatasi query tabel &
+   penamaan file export, bukan lagi buat KPI/grafik apa pun.
+   ============================================================ */
 
 type Order = {
   id: string;
@@ -17,85 +37,78 @@ type Order = {
   created_at: string | null;
 };
 
-function formatRupiah(n: number) {
-  return "Rp " + n.toLocaleString("id-ID");
+const PERIODS = ["Bulan Ini", "3 Bulan", "Tahun Ini", "Semua"] as const;
+type PeriodLabel = (typeof PERIODS)[number];
+
+function periodStart(period: PeriodLabel): string | null {
+  const now = new Date();
+  if (period === "Bulan Ini") return new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+  if (period === "3 Bulan") return new Date(now.getFullYear(), now.getMonth() - 2, 1).toISOString();
+  if (period === "Tahun Ini") return new Date(now.getFullYear(), 0, 1).toISOString();
+  return null; // "Semua" -- tidak ada batas bawah
 }
 
-export default async function LaporanPage() {
+export default function LaporanPage() {
   const supabase = createClient();
+  const [period, setPeriod] = useState<PeriodLabel>("Bulan Ini");
+  const [loading, setLoading] = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  const [dataOrders, setDataOrders] = useState<Order[]>([]);
 
-  const { data: orders, error: ordersError } = await supabase
-    .from("orders")
-    .select("*")
-    .order("created_at", { ascending: false });
+  useEffect(() => {
+    fetchLaporan(period);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [period]);
 
-  if (ordersError) console.error("Laporan orders fetch error:", ordersError.message);
+  async function fetchLaporan(currentPeriod: PeriodLabel) {
+    setLoading(true);
+    const start = periodStart(currentPeriod);
 
-  const dataOrders = (orders || []) as Order[];
+    let ordersQuery = supabase.from("orders").select("*").order("created_at", { ascending: false });
+    if (start) ordersQuery = ordersQuery.gte("created_at", start);
 
-  const totalOrders = dataOrders.length;
-  const totalRevenue = dataOrders.reduce((sum, o) => sum + ((Number(o.total) || 0) - (Number(o.sisa_pembayaran) || 0)), 0);
-  const totalDP = dataOrders.reduce((sum, o) => sum + (Number(o.dp) || 0), 0);
-  const totalSisa = dataOrders.reduce((sum, o) => sum + (Number(o.sisa_pembayaran) || 0), 0);
+    const { data: orders, error: ordersError } = await ordersQuery;
+
+    if (ordersError) {
+      console.error("Laporan orders fetch error:", ordersError.message);
+      setFetchError("sebagian data mungkin tidak akurat (data pesanan gagal dimuat)");
+    } else {
+      setFetchError(null);
+    }
+
+    setDataOrders((orders || []) as Order[]);
+    setLoading(false);
+  }
 
   return (
     <div className="space-y-4 md:space-y-6">
       <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
         <PageHeaderCard
-          badge="Analisis"
+          badge="Data Pesanan"
           icon={FileText}
           title="Laporan Pesanan"
-          subtitle="Ringkasan dan daftar semua pesanan pelanggan."
+          subtitle="Cari, filter periode, dan export daftar pesanan."
         />
-        <div className="flex items-center gap-2">
-          <ExportButtons orders={dataOrders} />
+        <ExportButtons orders={dataOrders} periodLabel={period} />
+      </div>
+
+      <FetchErrorBanner message={fetchError} />
+
+      <div className="laporan-toolbar">
+        <div className="laporan-period-toggle">
+          {PERIODS.map((p) => (
+            <button key={p} className={period === p ? "is-active" : ""} onClick={() => setPeriod(p)}>
+              {p}
+            </button>
+          ))}
         </div>
       </div>
 
-      <div className="card p-0 overflow-hidden" style={{ border: "none" }}>
-        <div className="grid grid-cols-1 divide-y divide-gray-100 dark:divide-gray-700 sm:grid-cols-2 sm:divide-y-0 sm:divide-x lg:grid-cols-4">
-          <div className="flex items-center gap-2.5 p-3">
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-50 dark:bg-blue-900/40">
-              <ShoppingBag size={15} className="text-blue-600 dark:text-blue-400" />
-            </span>
-            <div>
-              <p className="font-display text-base font-bold text-black dark:text-white">{totalOrders}</p>
-              <p className="text-[11px] text-gray-500 dark:text-gray-400">Total Pesanan</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2.5 p-3">
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-green-50 dark:bg-green-900/40">
-              <Wallet size={15} className="text-green-600 dark:text-green-400" />
-            </span>
-            <div>
-              <p className="font-display text-sm font-bold text-black dark:text-white">{formatRupiah(totalRevenue)}</p>
-              <p className="text-[11px] text-gray-500 dark:text-gray-400">Pendapatan Diterima</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2.5 p-3">
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-cyan-50 dark:bg-cyan-900/40">
-              <HandCoins size={15} className="text-cyan-600 dark:text-cyan-400" />
-            </span>
-            <div>
-              <p className="font-display text-sm font-bold text-black dark:text-white">{formatRupiah(totalDP)}</p>
-              <p className="text-[11px] text-gray-500 dark:text-gray-400">Total DP Diterima</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2.5 p-3">
-            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-orange-50 dark:bg-orange-900/40">
-              <AlertCircle size={15} className="text-orange-600 dark:text-orange-400" />
-            </span>
-            <div>
-              <p className="font-display text-sm font-bold text-black dark:text-white">{formatRupiah(totalSisa)}</p>
-              <p className="text-[11px] text-gray-500 dark:text-gray-400">Sisa Belum Dibayar</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <FetchErrorBanner message={ordersError?.message} />
-
-      <LaporanTable dataOrders={dataOrders} />
+      {loading ? (
+        <div className="card h-40" style={{ border: "none" }} />
+      ) : (
+        <LaporanTable dataOrders={dataOrders} />
+      )}
     </div>
   );
 }

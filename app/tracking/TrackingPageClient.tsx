@@ -133,17 +133,19 @@ export default function TrackingPageClient() {
   );
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-white dark:bg-[#0d1117] px-4 py-8 md:py-12">
-      <div
-        className="pointer-events-none fixed inset-0 -z-10"
-        style={{
-          background:
-            "radial-gradient(circle at 100% 0%, rgba(147,197,253,0.5) 0%, transparent 45%), radial-gradient(circle at 0% 100%, rgba(165,180,252,0.35) 0%, transparent 45%)",
-        }}
-      />
-
+    // Background sendiri (bg-white/dark:#0d1117 + radial-gradient duplikat)
+    // dilepas -- nilainya kebetulan identik dengan body::before global di
+    // globals.css (dipakai di halaman login & seluruh dashboard), jadi
+    // wrapper transparan ini otomatis dapat background yang sama persis
+    // tanpa duplikasi, sekalian menyamakan opacity glow-nya (sebelumnya
+    // 0.5/0.35 di sini vs 0.45/0.35 di body::before -- beda tipis, sekarang
+    // 1 sumber).
+    <div className="min-h-screen relative overflow-hidden px-4 py-8 md:py-12">
       <div className="mx-auto max-w-xl">
-        <div className="mb-4 flex items-center justify-between">
+        <div
+          className="mb-4 flex items-center justify-between rounded-3xl border border-blue-100 dark:border-[#30363d] bg-white dark:bg-[#161b22] p-3"
+          style={{ boxShadow: "0 1px 2px rgba(37,99,235,0.06), 0 24px 48px -12px rgba(37,99,235,0.25)" }}
+        >
           <Link
             href="/login"
             className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
@@ -152,7 +154,11 @@ export default function TrackingPageClient() {
             Login
           </Link>
 
-          <div className="flex gap-0.5 rounded-full border border-gray-200 dark:border-[#30363d] bg-white/70 dark:bg-[#161b22]/70 p-1 shadow-sm">
+          {/* Track abu-abu netral saja (bukan kotak sendiri lagi) -- "kotak"
+              yang diminta sekarang jadi bungkus terluar baris ini, sama
+              seperti kartu-kartu lain di halaman (rounded-3xl + shadow biru),
+              supaya tidak jadi kotak di dalam kotak. */}
+          <div className="flex gap-0.5 rounded-full bg-gray-50 dark:bg-[#0d1117] p-1">
             <span className="rounded-full bg-blue-600 px-3 py-1 text-[11px] font-bold text-white shadow-sm">
               Lacak Pesanan
             </span>
@@ -165,7 +171,10 @@ export default function TrackingPageClient() {
           </div>
         </div>
 
-        <div className="mb-6 text-center">
+        <div
+          className="mb-6 rounded-3xl border border-blue-100 dark:border-[#30363d] bg-white dark:bg-[#161b22] p-5 text-center"
+          style={{ boxShadow: "0 1px 2px rgba(37,99,235,0.06), 0 24px 48px -12px rgba(37,99,235,0.25)" }}
+        >
           {/* Ikon hero -- diganti dari kotak gradien biru+ikon putih jadi
               lingkaran putih+ikon outline biru, sesuai referensi desain
               yang dikasih user. Sama persis dipakai di halaman Upload
@@ -186,7 +195,10 @@ export default function TrackingPageClient() {
           </p>
         </div>
 
-        <div className="bg-white dark:bg-[#161b22] mb-4 rounded-[16px] border border-gray-200 dark:border-[#30363d] p-4 shadow-lg">
+        <div
+          className="bg-white dark:bg-[#161b22] mb-4 rounded-3xl border border-blue-100 dark:border-[#30363d] p-4"
+          style={{ boxShadow: "0 1px 2px rgba(37,99,235,0.06), 0 24px 48px -12px rgba(37,99,235,0.25)" }}
+        >
           <form onSubmit={handleSubmit} className="flex gap-2">
             <div className="relative flex-1">
               <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -220,7 +232,10 @@ export default function TrackingPageClient() {
             dobel sama card hasil pesanan/timeline di bawahnya. */}
         {!order && (
           <>
-            <div className="mb-4 grid grid-cols-3 gap-2.5 rounded-[16px] border border-gray-200 dark:border-[#30363d] bg-white dark:bg-[#161b22] p-4 shadow-lg">
+            <div
+              className="mb-4 grid grid-cols-3 gap-2.5 rounded-3xl border border-blue-100 dark:border-[#30363d] bg-white dark:bg-[#161b22] p-4"
+              style={{ boxShadow: "0 1px 2px rgba(37,99,235,0.06), 0 24px 48px -12px rgba(37,99,235,0.25)" }}
+            >
               <div className="text-center">
                 <span className="mx-auto mb-1.5 flex h-8 w-8 items-center justify-center rounded-full bg-blue-50 dark:bg-blue-900/40">
                   <Clock size={14} className="text-blue-600 dark:text-blue-400" />
@@ -250,7 +265,10 @@ export default function TrackingPageClient() {
               </div>
             </div>
 
-            <div className="mb-4 flex items-center justify-between gap-3 rounded-[16px] border border-gray-200 dark:border-[#30363d] bg-white dark:bg-[#161b22] p-3.5 shadow-lg">
+            <div
+              className="mb-4 flex items-center justify-between gap-3 rounded-3xl border border-blue-100 dark:border-[#30363d] bg-white dark:bg-[#161b22] p-3.5"
+              style={{ boxShadow: "0 1px 2px rgba(37,99,235,0.06), 0 24px 48px -12px rgba(37,99,235,0.25)" }}
+            >
               <div className="flex items-center gap-2.5">
                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-600">
                   <Headset size={16} className="text-white" />
@@ -277,7 +295,10 @@ export default function TrackingPageClient() {
 
         {order && (
           <div className="space-y-3.5">
-            <div className="bg-white dark:bg-[#161b22] rounded-[16px] border border-gray-200 dark:border-[#30363d] p-4 shadow-lg">
+            <div
+              className="bg-white dark:bg-[#161b22] rounded-3xl border border-blue-100 dark:border-[#30363d] p-4"
+              style={{ boxShadow: "0 1px 2px rgba(37,99,235,0.06), 0 24px 48px -12px rgba(37,99,235,0.25)" }}
+            >
               <div className="flex items-start justify-between">
                 <div>
                   <h2 className="font-display text-base font-extrabold tracking-tight text-black dark:text-white">
@@ -334,17 +355,30 @@ export default function TrackingPageClient() {
               )}
             </div>
 
-            <div className="bg-white dark:bg-[#161b22] rounded-[16px] border border-gray-200 dark:border-[#30363d] p-4 shadow-lg">
+            <div
+              className="bg-white dark:bg-[#161b22] rounded-3xl border border-blue-100 dark:border-[#30363d] p-4"
+              style={{ boxShadow: "0 1px 2px rgba(37,99,235,0.06), 0 24px 48px -12px rgba(37,99,235,0.25)" }}
+            >
               <h3 className="mb-3.5 text-[13px] font-extrabold text-black dark:text-white">Riwayat Status</h3>
               <div className="space-y-0">
                 {tracking.map((t, i) => {
                   const Icon = iconForTahap(t.tahap);
                   const isCurrent = i === lastIncompleteIdx;
+                  // Baris tahap yang sedang berlangsung dikasih latar biru
+                  // tipis (rounded-2xl, -mx-2 supaya nempel ke tepi kartu) --
+                  // sebelumnya cuma warna teks/ikon yang beda, jadi di daftar
+                  // tahap yang panjang, posisi "lagi di mana sekarang" gampang
+                  // kelewat kebaca sekilas.
                   return (
-                    <div key={i} className="flex gap-2.5">
+                    <div
+                      key={i}
+                      className={`flex gap-3 rounded-2xl p-2 -mx-2 ${
+                        isCurrent ? "bg-blue-50/70 dark:bg-blue-900/15" : ""
+                      }`}
+                    >
                       <div className="flex flex-col items-center">
                         <div
-                          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${
+                          className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${
                             t.selesai
                               ? "bg-gradient-to-br from-blue-500 to-blue-600 shadow-md shadow-blue-600/30"
                               : isCurrent
@@ -353,7 +387,7 @@ export default function TrackingPageClient() {
                           }`}
                         >
                           <Icon
-                            size={13}
+                            size={14}
                             className={
                               t.selesai
                                 ? "text-white"
@@ -365,13 +399,13 @@ export default function TrackingPageClient() {
                         </div>
                         {i < tracking.length - 1 && (
                           <div
-                            className={`min-h-[22px] w-[2.5px] flex-1 rounded ${
+                            className={`min-h-[18px] w-[2.5px] flex-1 rounded ${
                               t.selesai ? "bg-blue-500" : "bg-gray-200 dark:bg-[#21262d]"
                             }`}
                           />
                         )}
                       </div>
-                      <div className="flex flex-1 items-start justify-between gap-3 pb-4">
+                      <div className="flex flex-1 items-start justify-between gap-3 pb-1">
                         <div>
                           <p
                             className={`text-[12.5px] font-bold ${

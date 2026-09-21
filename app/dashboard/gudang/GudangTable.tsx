@@ -422,35 +422,36 @@ export default function GudangTable({
         )}
       </div>
 
-      <div className="card p-0 overflow-hidden" style={{ border: "none" }}>
-        <div className="grid grid-cols-1 divide-y divide-gray-100 dark:divide-gray-700 sm:grid-cols-3 sm:divide-y-0 sm:divide-x">
-          <div className="flex items-center gap-3 p-5">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-900/40">
-              <Boxes size={20} className="text-blue-600 dark:text-blue-400" />
-            </span>
-            <div>
-              <p className="font-display text-xl font-bold text-black dark:text-white">{totalJenis}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Total Jenis Bahan</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 p-5">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-green-50 dark:bg-green-900/40">
-              <CheckCircle2 size={20} className="text-green-600 dark:text-green-400" />
-            </span>
-            <div>
-              <p className="font-display text-xl font-bold text-black dark:text-white">{totalAman}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Stok Aman</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 p-5">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-red-50 dark:bg-red-900/40">
-              <AlertTriangle size={20} className="text-red-600 dark:text-red-400" />
-            </span>
-            <div>
-              <p className="font-display text-xl font-bold text-black dark:text-white">{totalKritis}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Stok Kritis</p>
-            </div>
-          </div>
+      {/* Kartu statistik dipindah ke pola .dash-kpi-card (icon chip
+          bergradasi) -- dipakai ulang apa adanya dari Dashboard, lihat
+          komentar sejenis di app/dashboard/gudang/page.tsx.
+          CATATAN (bukan diperbaiki di sini, cuma dicatat): "Total Jenis
+          Bahan" di kartu pertama itu NILAI/LABELNYA SAMA PERSIS dengan
+          kartu "TOTAL JENIS BAHAN" di atas tabel (app/dashboard/gudang/
+          page.tsx) -- dua kartu berbeda menampilkan info yang sama,
+          sudah begitu dari sebelum sesi ini, di luar cakupan "perluas
+          gaya visual" yang sedang dikerjakan sekarang. */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <div className="dash-kpi-card">
+          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#3b82f6,#2563eb)" }}>
+            <Boxes size={14} />
+          </span>
+          <p className="dash-kpi-label">TOTAL JENIS BAHAN</p>
+          <p className="dash-kpi-value font-display">{totalJenis}</p>
+        </div>
+        <div className="dash-kpi-card">
+          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#34d399,#059669)" }}>
+            <CheckCircle2 size={14} />
+          </span>
+          <p className="dash-kpi-label">STOK AMAN</p>
+          <p className="dash-kpi-value font-display">{totalAman}</p>
+        </div>
+        <div className="dash-kpi-card">
+          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#f87171,#dc2626)" }}>
+            <AlertTriangle size={14} />
+          </span>
+          <p className="dash-kpi-label">STOK KRITIS</p>
+          <p className="dash-kpi-value font-display">{totalKritis}</p>
         </div>
       </div>
 

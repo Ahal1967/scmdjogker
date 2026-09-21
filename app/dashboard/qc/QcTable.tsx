@@ -446,35 +446,30 @@ export default function QcTable({
         )}
       </div>
 
-      <div className="card p-0 overflow-hidden" style={{ border: "none" }}>
-        <div className="grid grid-cols-1 divide-y divide-gray-100 dark:divide-gray-700 sm:grid-cols-3 sm:divide-y-0 sm:divide-x">
-          <div className="flex items-center gap-3 p-5">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-green-50 dark:bg-green-900/40">
-              <CheckCircle2 size={20} className="text-green-600 dark:text-green-400" />
-            </span>
-            <div>
-              <p className="font-display text-xl font-bold text-black dark:text-white">{totalLolos}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Lolos</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 p-5">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-yellow-50 dark:bg-yellow-900/40">
-              <ShieldCheck size={20} className="text-yellow-600 dark:text-yellow-400" />
-            </span>
-            <div>
-              <p className="font-display text-xl font-bold text-black dark:text-white">{totalPerbaikan}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Perbaikan</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 p-5">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-red-50 dark:bg-red-900/40">
-              <XCircle size={20} className="text-red-600 dark:text-red-400" />
-            </span>
-            <div>
-              <p className="font-display text-xl font-bold text-black dark:text-white">{totalGagal}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Gagal</p>
-            </div>
-          </div>
+      {/* Kartu statistik dipindah ke pola .dash-kpi-card (icon chip
+          bergradasi) -- dipakai ulang apa adanya dari Dashboard, lihat
+          komentar sejenis di app/dashboard/gudang/page.tsx. */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <div className="dash-kpi-card">
+          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#34d399,#059669)" }}>
+            <CheckCircle2 size={14} />
+          </span>
+          <p className="dash-kpi-label">LOLOS</p>
+          <p className="dash-kpi-value font-display">{totalLolos}</p>
+        </div>
+        <div className="dash-kpi-card">
+          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#fbbf24,#d97706)" }}>
+            <ShieldCheck size={14} />
+          </span>
+          <p className="dash-kpi-label">PERBAIKAN</p>
+          <p className="dash-kpi-value font-display">{totalPerbaikan}</p>
+        </div>
+        <div className="dash-kpi-card">
+          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#f87171,#dc2626)" }}>
+            <XCircle size={14} />
+          </span>
+          <p className="dash-kpi-label">GAGAL</p>
+          <p className="dash-kpi-value font-display">{totalGagal}</p>
         </div>
       </div>
 

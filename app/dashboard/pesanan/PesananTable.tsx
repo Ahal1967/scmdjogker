@@ -1145,41 +1145,40 @@ export default function PesananTable() {
         )}
       </div>
 
-      {/* Ringkasan bawah, digabung jadi 1 card seperti referensi */}
-      <div className="card p-0 overflow-hidden" style={{ border: "none" }}>
-        <div className="grid grid-cols-1 divide-y divide-gray-100 dark:divide-gray-700 sm:grid-cols-3 sm:divide-y-0 sm:divide-x">
-          <div className="flex items-center gap-3 p-5">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-900/40">
-              <ShoppingBag size={20} className="text-blue-600 dark:text-blue-400" />
-            </span>
-            <div>
-              <p className="font-display text-xl font-bold text-black dark:text-white">{summaryTotalPesanan}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Total Pesanan</p>
-              <p className="text-[11px] text-gray-400">Semua waktu</p>
-            </div>
-          </div>
+      {/* Ringkasan dipindah ke pola .dash-kpi-card (icon chip bergradasi) --
+          dipakai ulang apa adanya dari Dashboard/Gudang/Produksi/Retur/
+          Pelanggan, lihat komentar sejenis di app/dashboard/gudang/page.tsx
+          kenapa ini bukan pelanggaran prinsip "class per halaman". Cuma
+          bagian INI (kartu ringkasan) yang disentuh di Fase 1 -- toolbar
+          cari/export & tabel di atas SENGAJA tidak diubah, sudah sesuai
+          standar (table-djoker + StatusDropdown), dan tidak ada logika
+          uang/stok yang tersentuh di sini sama sekali. */}
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div className="dash-kpi-card">
+          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#3b82f6,#2563eb)" }}>
+            <ShoppingBag size={14} />
+          </span>
+          <p className="dash-kpi-label">TOTAL PESANAN</p>
+          <p className="dash-kpi-value font-display">{summaryTotalPesanan}</p>
+          <p className="dash-kpi-hint">semua waktu</p>
+        </div>
 
-          <div className="flex items-center gap-3 p-5">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-green-50 dark:bg-green-900/40">
-              <CheckCircle2 size={20} className="text-green-600 dark:text-green-400" />
-            </span>
-            <div>
-              <p className="font-display text-xl font-bold text-black dark:text-white">{summarySelesai}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Pesanan Selesai</p>
-              <p className="text-[11px] text-gray-400">{summaryPersenSelesai}% dari total</p>
-            </div>
-          </div>
+        <div className="dash-kpi-card">
+          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#34d399,#059669)" }}>
+            <CheckCircle2 size={14} />
+          </span>
+          <p className="dash-kpi-label">PESANAN SELESAI</p>
+          <p className="dash-kpi-value font-display">{summarySelesai}</p>
+          <p className="dash-kpi-hint">{summaryPersenSelesai}% dari total</p>
+        </div>
 
-          <div className="flex items-center gap-3 p-5">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-orange-50 dark:bg-orange-900/40">
-              <TrendingUp size={20} className="text-orange-600 dark:text-orange-400" />
-            </span>
-            <div>
-              <p className="font-display text-xl font-bold text-black dark:text-white">{formatRupiah(summaryPendapatan)}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Total Pendapatan</p>
-              <p className="text-[11px] text-gray-400">Semua waktu</p>
-            </div>
-          </div>
+        <div className="dash-kpi-card">
+          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#fb923c,#ea580c)" }}>
+            <TrendingUp size={14} />
+          </span>
+          <p className="dash-kpi-label">TOTAL PENDAPATAN</p>
+          <p className="dash-kpi-value font-display" style={{ fontSize: 15 }}>{formatRupiah(summaryPendapatan)}</p>
+          <p className="dash-kpi-hint">semua waktu</p>
         </div>
       </div>
 
@@ -1785,8 +1784,20 @@ export default function PesananTable() {
                 >
                   Batal
                 </button>
-                <button type="submit" disabled={savingQuickAdd} className="btn-primary flex-1">
-                  {savingQuickAdd ? "Menyimpan..." : "Simpan & Pakai"}
+                <button
+                  type="submit"
+                  disabled={savingQuickAdd}
+                  aria-busy={savingQuickAdd}
+                  className="btn-primary flex-1 inline-flex items-center justify-center gap-1.5"
+                >
+                  {savingQuickAdd ? (
+                    <>
+                      <Loader2 size={14} className="animate-spin" />
+                      Menyimpan...
+                    </>
+                  ) : (
+                    "Simpan & Pakai"
+                  )}
                 </button>
               </div>
             </form>
@@ -1853,7 +1864,7 @@ export default function PesananTable() {
                 </div>
                 <div className="flex justify-between border-t border-gray-100 dark:border-[#30363d] pt-2">
                   <span className="text-gray-500 dark:text-gray-400">Sisa Pembayaran</span>
-                  <span className="font-semibold text-orange-600">
+                  <span className="font-semibold text-orange-600 dark:text-orange-400">
                     {formatRupiah(Number(detailOrder.sisa_pembayaran) || 0)}
                   </span>
                 </div>
@@ -1877,9 +1888,10 @@ export default function PesananTable() {
                       type="button"
                       onClick={() => handleCatatPembayaran(detailOrder)}
                       disabled={payingOff}
-                      className="btn-primary whitespace-nowrap px-4"
+                      aria-busy={payingOff}
+                      className="btn-primary whitespace-nowrap px-4 inline-flex items-center justify-center gap-1.5"
                     >
-                      {payingOff ? "..." : "Simpan"}
+                      {payingOff ? <Loader2 size={14} className="animate-spin" /> : "Simpan"}
                     </button>
                   </div>
                   <button

@@ -20,7 +20,13 @@ function formatTanggalExport(value: string | null) {
   return date.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" });
 }
 
-export default function ExportButtons({ orders }: { orders: Order[] }) {
+// periodLabel dipakai buat nama file & judul cetak (mis. "Bulan Ini",
+// "Semua") -- supaya kalau orang buka file exportnya belakangan, jelas itu
+// laporan periode yang mana, bukan cuma "laporan-pesanan-2026-09-21.xlsx"
+// tanpa keterangan lingkup datanya.
+export default function ExportButtons({ orders, periodLabel }: { orders: Order[]; periodLabel?: string }) {
+  const periodSlug = (periodLabel || "semua").toLowerCase().replace(/\s+/g, "-");
+
   async function handleExportExcel() {
     const XLSX = await import("xlsx");
 
@@ -43,7 +49,7 @@ export default function ExportButtons({ orders }: { orders: Order[] }) {
     XLSX.utils.book_append_sheet(workbook, worksheet, "Laporan Pesanan");
 
     const tanggalFile = new Date().toISOString().slice(0, 10);
-    XLSX.writeFile(workbook, `laporan-pesanan-${tanggalFile}.xlsx`);
+    XLSX.writeFile(workbook, `laporan-pesanan-${periodSlug}-${tanggalFile}.xlsx`);
   }
 
   async function handleExportPdf() {
@@ -55,7 +61,7 @@ export default function ExportButtons({ orders }: { orders: Order[] }) {
     doc.setFontSize(14);
     doc.text("Laporan Pesanan — DJOGKER Sablon Kaos", 14, 15);
     doc.setFontSize(9);
-    doc.text(`Dicetak: ${new Date().toLocaleDateString("id-ID")}`, 14, 21);
+    doc.text(`Periode: ${periodLabel || "Semua"}  |  Dicetak: ${new Date().toLocaleDateString("id-ID")}`, 14, 21);
 
     autoTable(doc, {
       startY: 26,
@@ -74,7 +80,7 @@ export default function ExportButtons({ orders }: { orders: Order[] }) {
     });
 
     const tanggalFile = new Date().toISOString().slice(0, 10);
-    doc.save(`laporan-pesanan-${tanggalFile}.pdf`);
+    doc.save(`laporan-pesanan-${periodSlug}-${tanggalFile}.pdf`);
   }
 
   return (

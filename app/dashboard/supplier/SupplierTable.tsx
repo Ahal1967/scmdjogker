@@ -313,35 +313,30 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
         )}
       </div>
 
-      <div className="card p-0 overflow-hidden" style={{ border: "none" }}>
-        <div className="grid grid-cols-1 divide-y divide-gray-100 dark:divide-gray-700 sm:grid-cols-3 sm:divide-y-0 sm:divide-x">
-          <div className="flex items-center gap-3 p-5">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-900/40">
-              <Users2 size={20} className="text-blue-600 dark:text-blue-400" />
-            </span>
-            <div>
-              <p className="font-display text-xl font-bold text-black dark:text-white">{totalSupplier}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Total Supplier</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 p-5">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-green-50 dark:bg-green-900/40">
-              <CheckCircle2 size={20} className="text-green-600 dark:text-green-400" />
-            </span>
-            <div>
-              <p className="font-display text-xl font-bold text-black dark:text-white">{totalAktif}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Supplier Aktif</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 p-5">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-gray-100 dark:bg-[#21262d]">
-              <Ban size={20} className="text-gray-500 dark:text-gray-400" />
-            </span>
-            <div>
-              <p className="font-display text-xl font-bold text-black dark:text-white">{totalNonaktif}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Nonaktif</p>
-            </div>
-          </div>
+      {/* Kartu statistik dipindah ke pola .dash-kpi-card (icon chip
+          bergradasi) -- dipakai ulang apa adanya dari Dashboard, lihat
+          komentar sejenis di app/dashboard/gudang/page.tsx. */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+        <div className="dash-kpi-card">
+          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#3b82f6,#2563eb)" }}>
+            <Users2 size={14} />
+          </span>
+          <p className="dash-kpi-label">TOTAL SUPPLIER</p>
+          <p className="dash-kpi-value font-display">{totalSupplier}</p>
+        </div>
+        <div className="dash-kpi-card">
+          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#34d399,#059669)" }}>
+            <CheckCircle2 size={14} />
+          </span>
+          <p className="dash-kpi-label">SUPPLIER AKTIF</p>
+          <p className="dash-kpi-value font-display">{totalAktif}</p>
+        </div>
+        <div className="dash-kpi-card">
+          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#94a3b8,#64748b)" }}>
+            <Ban size={14} />
+          </span>
+          <p className="dash-kpi-label">NONAKTIF</p>
+          <p className="dash-kpi-value font-display">{totalNonaktif}</p>
         </div>
       </div>
 

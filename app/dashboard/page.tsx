@@ -5,14 +5,19 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import {
   ShoppingCart,
-  Users,
   Truck,
-  TrendingUp,
   CalendarDays,
-  BadgeCheck,
-  ListChecks,
-  Gauge,
   AlertTriangle,
+  AlertCircle,
+  Wallet,
+  XCircle,
+  ClipboardList,
+  Package,
+  Plus,
+  ChevronRight,
+  ShoppingBag,
+  TrendingUp,
+  ListChecks,
 } from "lucide-react";
 import PageHeaderCard from "@/components/PageHeaderCard";
 import FetchErrorBanner from "@/components/FetchErrorBanner";
@@ -26,28 +31,91 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const STATUS_COLORS: Record<string, string> = {
-  Pesanan: "#3b82f6",
-  Produksi: "#eab308",
-  QC: "#a855f7",
-  Packing: "#f97316",
-  Dikirim: "#06b6d4",
-  Selesai: "#22c55e",
+/* ============================================================
+   Dashboard "Hari Ini + Analisis" -- versi ke-3.
+
+   Riwayat perubahan role Dashboard vs Laporan di sesi ini:
+   1) Awalnya Dashboard punya grafik & KPI periode sendiri --
+      dobel dengan Laporan yang juga py grafik+KPI serupa.
+   2) Sempat di-strip total jadi snapshot-only + panel "Perlu
+      Tindakan", SEMUA analisis periode (grafik, KPI finansial,
+      breakdown status) dipindah ke Laporan supaya tidak dobel.
+   3) User membalikkan keputusan #2: grafik & fitur analisis itu
+      diminta pindah BALIK ke sini -- TAPI eksklusif, bukan
+      ditambah di dua tempat. Laporan sudah dilucuti balik jadi
+      cuma toolbar filter periode (instance sendiri, buat tabel)
+      + tabel pesanan + export (lihat komentar di
+      app/dashboard/laporan/page.tsx).
+
+   Jadi sekarang Dashboard py 2 bagian:
+   - HARI INI: snapshot 4 KPI (Supplier/Order Aktif/Menunggu
+     Diproses/Stok Kritis, tanpa periode) + panel "Perlu Tindakan".
+   - ANALISIS PERIODE: toggle periode sendiri (Bulan Ini/3 Bulan/
+     Tahun Ini/Semua) + 4 KPI finansial + grafik Tren Pendapatan +
+     breakdown Status Pesanan -- logika & definisi angkanya
+     dipindah apa adanya dari Laporan versi sebelumnya (termasuk
+     definisi "Pendapatan Dibuat" vs "Pendapatan Diterima" yang
+     sudah dikonfirmasi lewat schema `payments`).
+
+   Catatan jujur: "Total Pesanan" (KPI periode) dan "Order Aktif"/
+   "Menunggu Diproses" (KPI snapshot) sama-sama angka jumlah
+   pesanan tapi definisinya BEDA (satu dibatasi periode+status apa
+   pun, satunya snapshot status tertentu saat ini) -- bukan
+   duplikat literal, tapi kelihatannya mirip di mata pengguna.
+   Efek sampingnya halaman ini jadi cukup panjang/padat karena
+   sekarang menanggung 2 peran sekaligus.
+   ============================================================ */
+
+const WIP_STAGES = ["Produksi", "QC", "Packing", "Dikirim"];
+const STAGE_HREF: Record<string, string> = {
+  Produksi: "/dashboard/produksi",
+  QC: "/dashboard/qc",
+  Packing: "/dashboard/packing",
+  Dikirim: "/dashboard/pengiriman",
 };
+
+type PeriodOrder = {
+  id: string;
+  no_pesanan: string | null;
+  tanggal: string | null;
+  total: number | null;
+  dp: number | null;
+  sisa_pembayaran: number | null;
+  status: string | null;
+  created_at: string | null;
+};
+
+const PERIODS = ["Bulan Ini", "3 Bulan", "Tahun Ini", "Semua"] as const;
+type PeriodLabel = (typeof PERIODS)[number];
+
+const STATUS_META: { key: string; color: string }[] = [
+  { key: "Pesanan", color: "#3b82f6" },
+  { key: "Produksi", color: "#eab308" },
+  { key: "QC", color: "#a855f7" },
+  { key: "Packing", color: "#f97316" },
+  { key: "Dikirim", color: "#06b6d4" },
+  { key: "Selesai", color: "#22c55e" },
+];
+
+function formatRupiah(n: number) {
+  return "Rp " + n.toLocaleString("id-ID");
+}
+
+function periodStart(period: PeriodLabel): string | null {
+  const now = new Date();
+  if (period === "Bulan Ini") return new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+  if (period === "3 Bulan") return new Date(now.getFullYear(), now.getMonth() - 2, 1).toISOString();
+  if (period === "Tahun Ini") return new Date(now.getFullYear(), 0, 1).toISOString();
+  return null; // "Semua" -- tidak ada batas bawah
+}
 
 export default function DashboardPage() {
   const supabase = createClient();
   const [adminName, setAdminName] = useState("Administrator");
-  const [stats, setStats] = useState({
-    totalPesanan: 0,
-    totalProduksi: 0,
-    totalPelanggan: 0,
-    totalSupplier: 0,
-    totalPendapatan: 0,
-    pesananBulanIni: 0,
-    produksiSelesai: 0,
-  });
-  const [statusOrders, setStatusOrders] = useState([
+
+  // --- state snapshot (fetch sekali saat mount) ---
+  const [stats, setStats] = useState({ totalSupplier: 0 });
+  const [statusOrders, setStatusOrders] = useState<{ status: string; count: number }[]>([
     { status: "Pesanan", count: 0 },
     { status: "Produksi", count: 0 },
     { status: "QC", count: 0 },
@@ -55,99 +123,65 @@ export default function DashboardPage() {
     { status: "Dikirim", count: 0 },
     { status: "Selesai", count: 0 },
   ]);
-  // Sebelumnya admin cuma tahu ada bahan baku yang stoknya kritis kalau
-  // kebetulan buka halaman Gudang dan lihat sendiri badge "Kritis"-nya --
-  // ditampilkan aktif di sini (halaman pertama setelah login) supaya
-  // ketahuan dari awal, bukan pas produksi sudah kepentok kehabisan bahan.
   const [criticalMaterials, setCriticalMaterials] = useState<
     { id: string; nama_bahan: string; stok: number; stok_minimum: number; satuan: string | null }[]
   >([]);
-  const [monthlyRevenue, setMonthlyRevenue] = useState<{ bulan: string; pendapatan: number }[]>([]);
-  const [revenueTrend, setRevenueTrend] = useState<{ total: number; changePct: number | null }>({
-    total: 0,
-    changePct: null,
-  });
+  const [belumLunas, setBelumLunas] = useState<{ id: string; sisa_pembayaran: number }[]>([]);
+  const [qcBermasalah, setQcBermasalah] = useState<{ id: string; hasil: string }[]>([]);
+  const [totalSisaSemua, setTotalSisaSemua] = useState(0);
   const [loading, setLoading] = useState(true);
-  // Sebelumnya tidak ada satu pun dari 12 query paralel di bawah yang dicek
-  // errornya -- kalau salah satu gagal, dashboard cuma nampilin 0/kosong
-  // tanpa indikasi bahwa itu KEGAGALAN, bukan memang datanya kosong.
   const [fetchError, setFetchError] = useState<string | null>(null);
 
-  /* Cuma 2 angka yang tidak ditampilkan di tempat lain manapun di Dashboard
-     (Total Pesanan/Produksi/Pelanggan/Pendapatan semuanya sudah kelihatan di
-     welcome-hero & panel Progress Produksi) -- makanya cuma dua ini yang
-     dipertahankan sebagai card sendiri, sisanya sengaja dihapus atas
-     permintaan user biar tidak dobel & lebih ringkas. */
-  const premiumStats = [
-    { key: "supplier", title: "Supplier", value: stats.totalSupplier, hint: "supplier aktif", icon: Truck, accent: "blue", href: "/dashboard/supplier" },
-    { key: "pesananBulanIni", title: "Pesanan Bulan Ini", value: stats.pesananBulanIni, hint: "pesanan masuk bulan ini", icon: CalendarDays, accent: "cyan", href: "/dashboard/laporan" },
-  ];
+  // --- state analisis periode (fetch ulang tiap period berubah) ---
+  const [period, setPeriod] = useState<PeriodLabel>("Bulan Ini");
+  const [periodLoading, setPeriodLoading] = useState(true);
+  const [periodOrders, setPeriodOrders] = useState<PeriodOrder[]>([]);
+  const [pendapatanDiterima, setPendapatanDiterima] = useState(0);
 
   useEffect(() => {
     fetchStats();
   }, []);
 
-  async function fetchStats() {
-    const now = new Date();
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-    const sixMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 5, 1).toISOString();
-    // Jendela 6 bulan SEBELUM sixMonthsAgo -- dipakai buat hitung persentase
-    // tren "naik/turun vs periode lalu" di card Tren Pendapatan (bukan cuma
-    // bulan-ke-bulan, tapi bener-bener bandingin 2 periode 6 bulanan).
-    const twelveMonthsAgo = new Date(now.getFullYear(), now.getMonth() - 11, 1).toISOString();
+  useEffect(() => {
+    fetchPeriodAnalysis(period);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [period]);
 
-    /* Semua query di bawah ini independen satu sama lain (tidak ada yang
-       butuh hasil query lain), jadi ditembak bareng lewat Promise.all --
-       sebelumnya 10 query jalan berurutan (nunggu satu-satu) yang bikin
-       Dashboard (halaman pertama setelah login) kerasa lama banget pas
-       dibuka. Cuma query profile yang butuh user.id, jadi itu tetap
-       nunggu giliran belakangan. */
+  async function fetchStats() {
     const [
       {
         data: { user },
       },
-      { count: ordersCount, error: ordersCountError },
-      { count: productionCount, error: productionCountError },
-      { count: customersCount, error: customersCountError },
       { count: suppliersCount, error: suppliersCountError },
-      { data: ordersData, error: ordersDataError },
-      { count: pesananBulanIni, error: pesananBulanIniError },
-      { count: produksiSelesai, error: produksiSelesaiError },
       { data: allOrders, error: allOrdersError },
-      { data: recentOrders, error: recentOrdersError },
-      { data: prevPeriodOrders, error: prevPeriodOrdersError },
       { data: criticalMaterialsData, error: criticalMaterialsError },
+      { data: belumLunasData, error: belumLunasError },
+      { data: qcBermasalahData, error: qcBermasalahError },
+      { data: sisaAll, error: sisaError },
     ] = await Promise.all([
       supabase.auth.getUser(),
-      supabase.from("orders").select("*", { count: "exact", head: true }),
-      supabase.from("production").select("*", { count: "exact", head: true }),
-      supabase.from("customers").select("*", { count: "exact", head: true }),
       supabase.from("suppliers").select("*", { count: "exact", head: true }),
-      supabase.from("orders").select("total, sisa_pembayaran"),
-      supabase.from("orders").select("*", { count: "exact", head: true }).gte("created_at", startOfMonth),
-      supabase.from("production").select("*", { count: "exact", head: true }).eq("status", "Selesai"),
       supabase.from("orders").select("status"),
-      supabase.from("orders").select("total, tanggal, created_at").gte("created_at", sixMonthsAgo),
-      supabase.from("orders").select("total").gte("created_at", twelveMonthsAgo).lt("created_at", sixMonthsAgo),
       supabase
         .from("raw_materials")
         .select("id, nama_bahan, stok, stok_minimum, satuan")
         .eq("status", "Kritis")
         .order("stok", { ascending: true }),
+      supabase.from("orders").select("id, sisa_pembayaran").in("status", ["Dikirim", "Selesai"]).gt("sisa_pembayaran", 0),
+      supabase.from("quality_control").select("id, hasil").in("hasil", ["Perbaikan", "Gagal"]),
+      // Saldo piutang SELALU dihitung dari SEMUA pesanan (tidak ikut
+      // filter periode) -- query ringan, cuma 1 kolom, tanpa batas
+      // tanggal, dipakai buat KPI "Sisa Belum Dibayar" di panel analisis.
+      supabase.from("orders").select("sisa_pembayaran"),
     ]);
 
     const queryErrors = [
-      ordersCountError,
-      productionCountError,
-      customersCountError,
       suppliersCountError,
-      ordersDataError,
-      pesananBulanIniError,
-      produksiSelesaiError,
       allOrdersError,
-      recentOrdersError,
-      prevPeriodOrdersError,
       criticalMaterialsError,
+      belumLunasError,
+      qcBermasalahError,
+      sisaError,
     ].filter(Boolean);
     if (queryErrors.length > 0) {
       queryErrors.forEach((e) => console.error("Dashboard fetch error:", e?.message));
@@ -159,6 +193,11 @@ export default function DashboardPage() {
     }
 
     setCriticalMaterials(criticalMaterialsData ?? []);
+    setBelumLunas(belumLunasData ?? []);
+    setQcBermasalah(qcBermasalahData ?? []);
+    setTotalSisaSemua(
+      (sisaAll || []).reduce((sum: number, o: any) => sum + (Number(o.sisa_pembayaran) || 0), 0)
+    );
 
     if (user) {
       const { data: profile } = await supabase
@@ -170,9 +209,6 @@ export default function DashboardPage() {
       if (profile?.full_name) setAdminName(profile.full_name);
     }
 
-    const totalPendapatan =
-      ordersData?.reduce((sum, o) => sum + ((o.total || 0) - (o.sisa_pembayaran || 0)), 0) || 0;
-
     const statusCount = [
       { status: "Pesanan", count: 0 },
       { status: "Produksi", count: 0 },
@@ -181,56 +217,61 @@ export default function DashboardPage() {
       { status: "Dikirim", count: 0 },
       { status: "Selesai", count: 0 },
     ];
-
     allOrders?.forEach((o: any) => {
-      const idx = statusCount.findIndex(s => s.status === o.status);
+      const idx = statusCount.findIndex((s) => s.status === o.status);
       if (idx >= 0) statusCount[idx].count++;
     });
-
     setStatusOrders(statusCount);
 
-    const monthLabels: { key: string; label: string; pendapatan: number }[] = [];
-    for (let i = 5; i >= 0; i--) {
-      const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      monthLabels.push({
-        key: `${d.getFullYear()}-${d.getMonth()}`,
-        label: d.toLocaleDateString("id-ID", { month: "short", year: "2-digit" }),
-        pendapatan: 0,
-      });
+    setStats({ totalSupplier: suppliersCount || 0 });
+    setLoading(false);
+  }
+
+  async function fetchPeriodAnalysis(currentPeriod: PeriodLabel) {
+    setPeriodLoading(true);
+    const start = periodStart(currentPeriod);
+
+    let ordersQuery = supabase.from("orders").select("*").order("created_at", { ascending: false });
+    if (start) ordersQuery = ordersQuery.gte("created_at", start);
+
+    let paymentsQuery = supabase.from("payments").select("jumlah, created_at");
+    if (start) paymentsQuery = paymentsQuery.gte("created_at", start);
+
+    // Dibungkus try/catch sendiri -- tabel "payments" opsional (baru ada
+    // setelah migrasi tertentu dijalankan), jadi kalau query-nya gagal
+    // total, tidak boleh ikut menjatuhkan Promise.all di bawah.
+    async function safePaymentsQuery(): Promise<{ data: { jumlah: number }[] | null; error: any }> {
+      try {
+        const r = await paymentsQuery;
+        return { data: r.data, error: r.error };
+      } catch (e) {
+        return { data: null, error: e };
+      }
     }
 
-    recentOrders?.forEach((o: any) => {
-      const d = new Date(o.tanggal || o.created_at);
-      const key = `${d.getFullYear()}-${d.getMonth()}`;
-      const bucket = monthLabels.find((m) => m.key === key);
-      if (bucket) bucket.pendapatan += Number(o.total) || 0;
-    });
+    const [{ data: orders, error: ordersError }, { data: paymentsRows, error: paymentsError }] =
+      await Promise.all([ordersQuery, safePaymentsQuery()]);
 
-    setMonthlyRevenue(monthLabels.map((m) => ({ bulan: m.label, pendapatan: m.pendapatan })));
+    if (ordersError) {
+      console.error("Dashboard periode fetch error:", ordersError.message);
+    }
+    // payments.error sengaja tidak memicu FetchErrorBanner -- tabel ini
+    // opsional, jadi diam-diam dianggap 0 kalau gagal/belum ada.
+    if (paymentsError) {
+      console.error("Dashboard payments fetch error (diabaikan, tabel opsional):", paymentsError.message);
+    }
 
-    const currentPeriodTotal = monthLabels.reduce((sum, m) => sum + m.pendapatan, 0);
-    const prevPeriodTotal =
-      prevPeriodOrders?.reduce((sum, o: any) => sum + (Number(o.total) || 0), 0) || 0;
-    setRevenueTrend({
-      total: currentPeriodTotal,
-      // null kalau periode sebelumnya belum ada data sama sekali (misal
-      // bisnisnya baru jalan < 6 bulan) -- daripada nampilin "naik tak
-      // terhingga" yang menyesatkan, badge tren-nya cukup disembunyikan.
-      changePct:
-        prevPeriodTotal > 0 ? ((currentPeriodTotal - prevPeriodTotal) / prevPeriodTotal) * 100 : null,
-    });
+    const rows = (orders || []) as PeriodOrder[];
+    setPeriodOrders(rows);
 
-    setStats({
-      totalPesanan: ordersCount || 0,
-      totalProduksi: productionCount || 0,
-      totalPelanggan: customersCount || 0,
-      totalSupplier: suppliersCount || 0,
-      totalPendapatan,
-      pesananBulanIni: pesananBulanIni || 0,
-      produksiSelesai: produksiSelesai || 0,
-    });
+    // DP diasumsikan dibayar saat pesanan dibuat -- diatribusikan ke
+    // tanggal pesanan, jadi cukup dijumlah dari `rows` (sudah dibatasi
+    // periode lewat query orders di atas).
+    const totalDpPeriod = rows.reduce((sum, o) => sum + (Number(o.dp) || 0), 0);
+    const totalPelunasanPeriod = (paymentsRows || []).reduce((sum, p) => sum + (Number(p.jumlah) || 0), 0);
+    setPendapatanDiterima(totalDpPeriod + totalPelunasanPeriod);
 
-    setLoading(false);
+    setPeriodLoading(false);
   }
 
   if (loading) {
@@ -240,243 +281,365 @@ export default function DashboardPage() {
           <div className="h-6 w-40 rounded-full bg-gray-200 dark:bg-[#21262d] mb-3" />
           <div className="h-8 w-56 rounded-lg bg-gray-200 dark:bg-[#21262d]" />
         </div>
-
-        <div className="rounded-2xl p-6 md:p-8 backdrop-blur-xl bg-white/55 dark:bg-[#161b22]/55">
-          <div className="h-4 w-24 rounded-full bg-gray-200 dark:bg-[#21262d] mb-3" />
-          <div className="h-6 w-64 rounded bg-gray-200 dark:bg-[#21262d] mb-2" />
-          <div className="h-4 w-48 rounded bg-gray-200 dark:bg-[#21262d] mb-4" />
-          <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-3">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="h-16 rounded-xl bg-gray-100 dark:bg-[#161b22]" />
-            ))}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3">
-          {Array.from({ length: 2 }).map((_, i) => (
-            <div key={i} className="card h-28" style={{ border: "none" }} />
+        <div className="h-16 rounded-2xl bg-gray-100 dark:bg-[#161b22]" />
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="card h-24" style={{ border: "none" }} />
           ))}
         </div>
-
-        <div className="card h-64" style={{ border: "none" }} />
-        <div className="card h-64" style={{ border: "none" }} />
+        <div className="card h-40" style={{ border: "none" }} />
       </div>
     );
   }
 
+  const totalOrders = statusOrders.reduce((sum, s) => sum + s.count, 0);
+  const selesaiCount = statusOrders.find((s) => s.status === "Selesai")?.count ?? 0;
+  const orderAktif = totalOrders - selesaiCount;
+  const pesananBaruCount = statusOrders.find((s) => s.status === "Pesanan")?.count ?? 0;
+
+  const wipStatuses = statusOrders.filter((s) => WIP_STAGES.includes(s.status));
+  const wipTotal = wipStatuses.reduce((sum, s) => sum + s.count, 0);
+  const bottleneck = wipStatuses.length > 0 ? wipStatuses.reduce((a, b) => (b.count > a.count ? b : a)) : null;
+
+  const actionItems: {
+    key: string;
+    icon: typeof AlertTriangle;
+    color: string;
+    bg: string;
+    label: string;
+    sub: string;
+    href: string;
+  }[] = [];
+
+  if (criticalMaterials.length > 0) {
+    actionItems.push({
+      key: "materials",
+      icon: AlertTriangle,
+      color: "#dc2626",
+      bg: "#fee2e2",
+      label: `${criticalMaterials.length} bahan baku stok kritis`,
+      sub: criticalMaterials
+        .slice(0, 3)
+        .map((m) => `${m.nama_bahan} (${m.stok}${m.satuan ? " " + m.satuan : ""})`)
+        .join(", ") + (criticalMaterials.length > 3 ? `, +${criticalMaterials.length - 3} lagi` : ""),
+      href: "/dashboard/gudang",
+    });
+  }
+  if (belumLunas.length > 0) {
+    const totalSisaAktif = belumLunas.reduce((sum, o) => sum + (o.sisa_pembayaran || 0), 0);
+    actionItems.push({
+      key: "belum-lunas",
+      icon: Wallet,
+      color: "#b45309",
+      bg: "#ffedd5",
+      label: `${belumLunas.length} pesanan terkirim, belum lunas`,
+      sub: `Total sisa tagihan Rp ${totalSisaAktif.toLocaleString("id-ID")}`,
+      href: "/dashboard/laporan",
+    });
+  }
+  if (qcBermasalah.length > 0) {
+    actionItems.push({
+      key: "qc",
+      icon: XCircle,
+      color: "#7e22ce",
+      bg: "#f3e8ff",
+      label: `${qcBermasalah.length} hasil QC butuh tindak lanjut`,
+      sub: "Perlu perbaikan atau gagal QC",
+      href: "/dashboard/qc",
+    });
+  }
+  // Sinyal "tahap mana yang menumpuk" -- cuma dimunculkan kalau SATU
+  // tahap sendirian menampung lebih banyak pesanan daripada gabungan
+  // semua tahap WIP lainnya (bottleneck beneran, bukan sekadar tahap
+  // yang kebetulan terbanyak hari itu).
+  if (bottleneck && wipTotal > 0 && bottleneck.count > wipTotal - bottleneck.count) {
+    actionItems.push({
+      key: "bottleneck",
+      icon: Package,
+      color: "#1d4ed8",
+      bg: "#dbeafe",
+      label: `${bottleneck.count} pesanan menumpuk di tahap ${bottleneck.status}`,
+      sub: "Lebih banyak dari gabungan tahap lain yang sedang berjalan",
+      href: STAGE_HREF[bottleneck.status] || "/dashboard/produksi",
+    });
+  }
+  if (pesananBaruCount > 0) {
+    actionItems.push({
+      key: "pesanan-baru",
+      icon: ClipboardList,
+      color: "#1d4ed8",
+      bg: "#dbeafe",
+      label: `${pesananBaruCount} pesanan baru menunggu diproses`,
+      sub: "Status masih “Pesanan”",
+      href: "/dashboard/pesanan",
+    });
+  }
+
+  // --- turunan buat panel Analisis Periode ---
+  const totalPesananPeriode = periodOrders.length;
+  const totalDibuatPeriode = periodOrders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
+
+  const statusCountPeriode = STATUS_META.map((s) => ({ ...s, count: 0 }));
+  periodOrders.forEach((o) => {
+    const idx = statusCountPeriode.findIndex((s) => s.key === o.status);
+    if (idx >= 0) statusCountPeriode[idx].count++;
+  });
+  const maxStatusPeriode = Math.max(...statusCountPeriode.map((s) => s.count), 1);
+
+  // Grafik: "Bulan Ini" di-bucket per minggu (kalau per bulan cuma jadi
+  // 1 titik, tidak informatif) -- periode lain di-bucket per bulan.
+  const chartData: { label: string; total: number }[] = [];
+  if (period === "Bulan Ini") {
+    const buckets = [
+      { label: "Mgg 1", from: 1, to: 7, total: 0 },
+      { label: "Mgg 2", from: 8, to: 14, total: 0 },
+      { label: "Mgg 3", from: 15, to: 21, total: 0 },
+      { label: "Mgg 4", from: 22, to: 31, total: 0 },
+    ];
+    periodOrders.forEach((o) => {
+      const d = new Date(o.tanggal || o.created_at || "");
+      if (Number.isNaN(d.getTime())) return;
+      const day = d.getDate();
+      const bucket = buckets.find((b) => day >= b.from && day <= b.to);
+      if (bucket) bucket.total += Number(o.total) || 0;
+    });
+    chartData.push(...buckets.map((b) => ({ label: b.label, total: b.total })));
+  } else {
+    const monthMap = new Map<string, { label: string; total: number }>();
+    periodOrders.forEach((o) => {
+      const d = new Date(o.tanggal || o.created_at || "");
+      if (Number.isNaN(d.getTime())) return;
+      const key = `${d.getFullYear()}-${d.getMonth()}`;
+      const label = d.toLocaleDateString("id-ID", { month: "short", year: "2-digit" });
+      if (!monthMap.has(key)) monthMap.set(key, { label, total: 0 });
+      monthMap.get(key)!.total += Number(o.total) || 0;
+    });
+    chartData.push(
+      ...Array.from(monthMap.entries())
+        .sort((a, b) => (a[0] > b[0] ? 1 : -1))
+        .map(([, v]) => v)
+    );
+  }
 
   return (
     <div className="space-y-4 md:space-y-6">
       <PageHeaderCard
-        badge="Ringkasan Hari Ini"
+        badge="Ringkasan & Analisis"
         icon={CalendarDays}
         title="Dashboard"
-        subtitle="Ringkasan aktivitas SCM Djogker."
+        subtitle="Ringkasan aktivitas dan tren pesanan SCM Djogker."
       />
 
       <FetchErrorBanner message={fetchError} />
 
-      {criticalMaterials.length > 0 && (
-        <Link
-          href="/dashboard/gudang"
-          className="flex items-start gap-3 rounded-2xl border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-900/20 p-4 transition-colors hover:bg-red-100 dark:hover:bg-red-900/30"
-        >
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-red-100 dark:bg-red-900/50">
-            <AlertTriangle size={16} className="text-red-600 dark:text-red-400" />
-          </span>
-          <div className="min-w-0">
-            <p className="text-sm font-semibold text-red-700 dark:text-red-300">
-              {criticalMaterials.length} bahan baku stoknya kritis
-            </p>
-            <p className="mt-0.5 truncate text-xs text-red-600/90 dark:text-red-400/90">
-              {criticalMaterials
-                .slice(0, 4)
-                .map((m) => `${m.nama_bahan} (${m.stok}${m.satuan ? " " + m.satuan : ""})`)
-                .join(", ")}
-              {criticalMaterials.length > 4 ? `, +${criticalMaterials.length - 4} lagi` : ""} -- klik buat cek Gudang.
+      <div className="dash-slim-bar">
+        <div className="dash-slim-greet">
+          <span className="dash-slim-avatar">{adminName.charAt(0).toUpperCase()}</span>
+          <div className="dash-slim-greet-text">
+            <h2 className="font-display">Selamat Datang, {adminName}</h2>
+            <p>
+              {orderAktif} order aktif &middot; {actionItems.length} perlu tindakan
             </p>
           </div>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Link
+            href="/dashboard/pesanan"
+            className="btn-primary"
+            style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 14px", fontSize: 12, textDecoration: "none" }}
+          >
+            <Plus size={14} /> Pesanan Baru
+          </Link>
+          <Link
+            href="/dashboard/gudang"
+            className="btn-outline"
+            style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 14px", fontSize: 12, textDecoration: "none" }}
+          >
+            <Plus size={14} /> Bahan Baku
+          </Link>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <Link href="/dashboard/supplier" className="dash-kpi-card is-link">
+          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#3b82f6,#2563eb)" }}>
+            <Truck size={14} />
+          </span>
+          <p className="dash-kpi-label">SUPPLIER</p>
+          <p className="dash-kpi-value font-display">{stats.totalSupplier}</p>
+          <p className="dash-kpi-hint">supplier aktif</p>
         </Link>
-      )}
 
-      <div className="welcome-hero">
-        <div className="welcome-hero-content">
-          <span className="welcome-hero-badge">
-            <BadgeCheck size={11} />
-            SCM DJOGKER
+        <div className="dash-kpi-card">
+          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#fb923c,#ea580c)" }}>
+            <ShoppingCart size={14} />
           </span>
-          <p className="welcome-hero-eyebrow">Dashboard Supply Chain</p>
-          <h2 className="welcome-hero-title font-display">Selamat Datang, {adminName}</h2>
-          <p className="welcome-hero-desc">
-            Pantau seluruh alur supply chain DJOGKER dari satu tempat — mulai dari pesanan masuk
-            sampai produk diterima pelanggan.
-          </p>
-
-          <div className="welcome-hero-stats">
-            <div className="welcome-hero-stat">
-              <div className="welcome-hero-stat-icon green">
-                <TrendingUp size={12} />
-              </div>
-              <p className="welcome-hero-stat-num">{`Rp ${stats.totalPendapatan.toLocaleString("id-ID")}`}</p>
-              <p className="welcome-hero-stat-label">Pendapatan Diterima</p>
-            </div>
-            <div className="welcome-hero-stat">
-              <div className="welcome-hero-stat-icon blue">
-                <Users size={12} />
-              </div>
-              <p className="welcome-hero-stat-num">{stats.totalPelanggan}</p>
-              <p className="welcome-hero-stat-label">Pelanggan Aktif</p>
-            </div>
-            <div className="welcome-hero-stat">
-              <div className="welcome-hero-stat-icon orange">
-                <ShoppingCart size={12} />
-              </div>
-              <p className="welcome-hero-stat-num">{stats.totalPesanan - stats.produksiSelesai}</p>
-              <p className="welcome-hero-stat-label">Pesanan Berjalan</p>
-            </div>
-          </div>
+          <p className="dash-kpi-label">ORDER AKTIF</p>
+          <p className="dash-kpi-value font-display">{orderAktif}</p>
+          <p className="dash-kpi-hint">belum sampai status Selesai</p>
         </div>
+
+        <Link href="/dashboard/pesanan" className="dash-kpi-card is-link">
+          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#22d3ee,#0891b2)" }}>
+            <ClipboardList size={14} />
+          </span>
+          <p className="dash-kpi-label">MENUNGGU DIPROSES</p>
+          <p className="dash-kpi-value font-display">{pesananBaruCount}</p>
+          <p className="dash-kpi-hint">status masih “Pesanan”</p>
+        </Link>
+
+        <Link href="/dashboard/gudang" className="dash-kpi-card is-link">
+          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#f87171,#dc2626)" }}>
+            <AlertTriangle size={14} />
+          </span>
+          <p className="dash-kpi-label">STOK KRITIS</p>
+          <p className="dash-kpi-value font-display">{criticalMaterials.length}</p>
+          <p className="dash-kpi-hint">bahan baku perlu diisi ulang</p>
+        </Link>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        {premiumStats.map((s) => {
-          const Icon = s.icon;
-          return (
-            <Link key={s.key} href={s.href} className={`premium-stat-card ${s.accent} block cursor-pointer`}>
-              <div className="premium-stat-content">
-                <div className="premium-stat-icon">
-                  <Icon size={14} />
-                </div>
-                <p className="premium-stat-label">{s.title}</p>
-                <p className="premium-stat-value font-display">{s.value}</p>
-                <p className="premium-stat-hint">{s.hint}</p>
-              </div>
-            </Link>
-          );
-        })}
-      </div>
-
-      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-        <div className="status-progress-tile blue">
-          <h2 className="status-progress-head">
-            <ListChecks size={12} />
-            Status Pesanan
-          </h2>
-          <div className="status-progress-bars">
-            {statusOrders.map((s) => {
-              const max = Math.max(...statusOrders.map((x) => x.count), 1);
-              const heightPct = Math.max((s.count / max) * 100, 6);
-              return (
-                <div
-                  key={s.status}
-                  className="status-progress-bar"
-                  style={{ height: `${heightPct}%`, backgroundColor: STATUS_COLORS[s.status] ?? "#94a3b8" }}
-                  title={`${s.status}: ${s.count}`}
-                />
-              );
-            })}
-          </div>
-          <div className="status-progress-legend">
-            {statusOrders.map((s) => (
-              <span key={s.status} className="status-progress-legend-item">
-                <span className="status-progress-dot" style={{ backgroundColor: STATUS_COLORS[s.status] ?? "#94a3b8" }} />
-                {s.status} {s.count}
-              </span>
-            ))}
-          </div>
+      <div className="dash-action-card">
+        <div className="dash-action-head">
+          <span className="dash-action-head-title">Perlu Tindakan</span>
+          {actionItems.length > 0 && <span className="dash-action-count">{actionItems.length} item</span>}
         </div>
-
-        <div className="status-progress-tile green">
-          <h2 className="status-progress-head">
-            <Gauge size={12} />
-            Progress Produksi
-          </h2>
-          <div className="flex items-center gap-3">
-            <div className="relative h-[52px] w-[52px] shrink-0">
-              <svg className="h-full w-full -rotate-90" viewBox="0 0 100 100">
-                <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(5, 150, 105, 0.18)" strokeWidth="12" />
-                <circle
-                  cx="50" cy="50" r="42" fill="none" stroke="#059669" strokeWidth="12"
-                  strokeDasharray={`${2 * Math.PI * 42}`}
-                  strokeDashoffset={`${2 * Math.PI * 42 * (1 - (stats.totalProduksi > 0 ? stats.produksiSelesai / stats.totalProduksi : 0))}`}
-                  strokeLinecap="round"
-                />
-              </svg>
-              <div className="absolute inset-0 flex items-center justify-center text-xs font-bold text-green-700 dark:text-green-300">
-                {stats.totalProduksi > 0 ? Math.round((stats.produksiSelesai / stats.totalProduksi) * 100) : 0}%
-              </div>
-            </div>
-            <div>
-              <p className="text-lg font-bold text-black dark:text-white">
-                {stats.produksiSelesai}/{stats.totalProduksi}
-              </p>
-              <p className="text-[11px] font-medium text-green-700 dark:text-green-300">Produksi Selesai</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="dash-chart-card">
-        <div className="dash-chart-top">
-          <h2 className="dash-chart-head">
-            <TrendingUp size={12} />
-            Tren Pendapatan (6 Bulan)
-          </h2>
-          <div className="dash-chart-summary">
-            <p className="dash-chart-summary-value font-display">
-              Rp {revenueTrend.total.toLocaleString("id-ID")}
-            </p>
-            {revenueTrend.changePct !== null && (
-              <p className={`dash-chart-trend ${revenueTrend.changePct >= 0 ? "up" : "down"}`}>
-                {revenueTrend.changePct >= 0 ? "↑" : "↓"} {Math.abs(revenueTrend.changePct).toFixed(0)}% vs periode lalu
-              </p>
-            )}
-          </div>
-        </div>
-        {monthlyRevenue.every((m) => m.pendapatan === 0) ? (
-          <p className="relative z-[2] text-sm text-gray-500 dark:text-gray-400">Belum ada data pendapatan 6 bulan terakhir.</p>
+        {actionItems.length === 0 ? (
+          <p className="dash-action-empty">Tidak ada yang butuh tindakan saat ini.</p>
         ) : (
-          <div className="relative z-[2]">
-            <ResponsiveContainer width="100%" height={140}>
-              <AreaChart data={monthlyRevenue}>
-                <defs>
-                  <linearGradient id="colorPendapatan" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#059669" stopOpacity={0.35} />
-                    <stop offset="95%" stopColor="#059669" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--djoker-border)" vertical={false} />
-                <XAxis dataKey="bulan" stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
-                <YAxis
-                  stroke="#6b7280"
-                  fontSize={11}
-                  tickLine={false}
-                  axisLine={false}
-                  tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
-                />
-                <Tooltip
-                  formatter={(value: number) => [`Rp ${value.toLocaleString("id-ID")}`, "Pendapatan"]}
-                  contentStyle={{
-                    background: "var(--djoker-surface)",
-                    border: "none",
-                    borderRadius: 8,
-                    fontSize: 12,
-                  }}
-                  itemStyle={{ color: "var(--djoker-text)" }}
-                  labelStyle={{ color: "var(--djoker-text)" }}
-                />
-                <Area
-                  type="monotone"
-                  dataKey="pendapatan"
-                  stroke="#059669"
-                  strokeWidth={2}
-                  fill="url(#colorPendapatan)"
-                />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
+          actionItems.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link key={item.key} href={item.href} className="dash-action-row">
+                <span className="dash-action-icon" style={{ background: item.bg }}>
+                  <Icon size={15} style={{ color: item.color }} />
+                </span>
+                <div className="dash-action-body">
+                  <p className="dash-action-label">{item.label}</p>
+                  <p className="dash-action-sub">{item.sub}</p>
+                </div>
+                <ChevronRight size={14} className="dash-action-chev" />
+              </Link>
+            );
+          })
         )}
       </div>
+
+      <div className="dash-analysis-toolbar">
+        <span className="dash-analysis-title">Analisis Periode</span>
+        <div className="dash-period-toggle">
+          {PERIODS.map((p) => (
+            <button key={p} className={period === p ? "is-active" : ""} onClick={() => setPeriod(p)}>
+              {p}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {periodLoading ? (
+        <div className="space-y-3 animate-pulse">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="card h-24" style={{ border: "none" }} />
+            ))}
+          </div>
+          <div className="card h-40" style={{ border: "none" }} />
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="dash-kpi-card">
+              <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#3b82f6,#2563eb)" }}>
+                <ShoppingBag size={14} />
+              </span>
+              <p className="dash-kpi-label">TOTAL PESANAN</p>
+              <p className="dash-kpi-value font-display">{totalPesananPeriode}</p>
+              <p className="dash-kpi-hint">periode {period.toLowerCase()}</p>
+            </div>
+            <div className="dash-kpi-card">
+              <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#34d399,#059669)" }}>
+                <TrendingUp size={14} />
+              </span>
+              <p className="dash-kpi-label">PENDAPATAN DIBUAT</p>
+              <p className="dash-kpi-value font-display">{formatRupiah(totalDibuatPeriode)}</p>
+              <p className="dash-kpi-hint">nilai pesanan dibuat periode ini</p>
+            </div>
+            <div className="dash-kpi-card">
+              <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#22d3ee,#0891b2)" }}>
+                <Wallet size={14} />
+              </span>
+              <p className="dash-kpi-label">PENDAPATAN DITERIMA</p>
+              <p className="dash-kpi-value font-display">{formatRupiah(pendapatanDiterima)}</p>
+              <p className="dash-kpi-hint">DP + pelunasan masuk periode ini</p>
+            </div>
+            <div className="dash-kpi-card">
+              <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#fb923c,#ea580c)" }}>
+                <AlertCircle size={14} />
+              </span>
+              <p className="dash-kpi-label">SISA BELUM DIBAYAR</p>
+              <p className="dash-kpi-value font-display">{formatRupiah(totalSisaSemua)}</p>
+              <p className="dash-kpi-hint is-warn">akumulasi semua pesanan, bukan per periode</p>
+            </div>
+          </div>
+
+          <div className="dash-analysis-grid">
+            <div className="dash-panel-card">
+              <div className="dash-panel-head">
+                <TrendingUp size={13} />
+                Tren Pendapatan Dibuat
+              </div>
+              {chartData.every((c) => c.total === 0) ? (
+                <p className="text-sm text-gray-500 dark:text-gray-400">Belum ada data pendapatan di periode ini.</p>
+              ) : (
+                <ResponsiveContainer width="100%" height={150}>
+                  <AreaChart data={chartData}>
+                    <defs>
+                      <linearGradient id="colorDash" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#059669" stopOpacity={0.35} />
+                        <stop offset="95%" stopColor="#059669" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--djoker-border)" vertical={false} />
+                    <XAxis dataKey="label" stroke="#6b7280" fontSize={11} tickLine={false} axisLine={false} />
+                    <YAxis
+                      stroke="#6b7280"
+                      fontSize={11}
+                      tickLine={false}
+                      axisLine={false}
+                      tickFormatter={(v) => `${(v / 1000).toFixed(0)}k`}
+                    />
+                    <Tooltip
+                      formatter={(value: number) => [`Rp ${value.toLocaleString("id-ID")}`, "Pendapatan"]}
+                      contentStyle={{ background: "var(--djoker-surface)", border: "none", borderRadius: 8, fontSize: 12 }}
+                      itemStyle={{ color: "var(--djoker-text)" }}
+                      labelStyle={{ color: "var(--djoker-text)" }}
+                    />
+                    <Area type="monotone" dataKey="total" stroke="#059669" strokeWidth={2} fill="url(#colorDash)" />
+                  </AreaChart>
+                </ResponsiveContainer>
+              )}
+            </div>
+
+            <div className="dash-panel-card">
+              <div className="dash-panel-head">
+                <ListChecks size={13} />
+                Status Pesanan (periode ini)
+              </div>
+              {statusCountPeriode.map((s) => (
+                <div key={s.key} className="dash-bar-row">
+                  <span className="dash-bar-label">{s.key}</span>
+                  <span className="dash-bar-track">
+                    <span
+                      className="dash-bar-fill"
+                      style={{ width: `${Math.max((s.count / maxStatusPeriode) * 100, s.count > 0 ? 4 : 0)}%`, background: s.color }}
+                    />
+                  </span>
+                  <span className="dash-bar-num">{s.count}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

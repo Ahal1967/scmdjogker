@@ -83,6 +83,13 @@ export default function ProduksiTable({
   const { confirm, ConfirmDialog } = useConfirm();
   const { showToast, ToastBanner } = useToast();
   const [pageSize, setPageSize] = useState(10);
+  // Sebelumnya klik ubah status (dropdown Tabel maupun drag/select di
+  // Papan) tidak punya feedback visual sama sekali selagi updateStatus()
+  // masih jalan -- dari sisi pengguna kelihatan seperti tidak merespons
+  // sampai toast muncul. `updatingId` dipakai buat menandai baris mana
+  // yang sedang diproses, dibaca StatusDropdown (spinner ganti chevron)
+  // & ProduksiKanban (kartu diberi opacity + select ikut disabled).
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     const q = search.toLowerCase();
@@ -135,74 +142,82 @@ export default function ProduksiTable({
   const selesai = productions.filter((p) => p.status === "Selesai").length;
 
   async function updateStatus(p: ProductionRow, status: string) {
-    const progressMap: Record<string, number> = {
-      Produksi: 20,
-      QC: 75,
-      Packing: 90,
-      Selesai: 100,
-    };
+    // Cegah klik dobel/tumpang-tindih -- baik dari dropdown Tabel maupun
+    // drag+select di Papan -- selagi baris ini masih diproses.
+    if (updatingId) return;
+    setUpdatingId(p.id);
+    try {
+      const progressMap: Record<string, number> = {
+        Produksi: 20,
+        QC: 75,
+        Packing: 90,
+        Selesai: 100,
+      };
 
-    const newProgress = progressMap[status] ?? Number(p.progress || 0);
+      const newProgress = progressMap[status] ?? Number(p.progress || 0);
 
-    const { data, error } = await supabase
-      .from("production")
-      .update({ status, progress: newProgress })
-      .eq("id", p.id)
-      .select("*, orders(no_pesanan, customers(nama))")
-      .single();
+      const { data, error } = await supabase
+        .from("production")
+        .update({ status, progress: newProgress })
+        .eq("id", p.id)
+        .select("*, orders(no_pesanan, customers(nama))")
+        .single();
 
-    if (!error && data) {
-      setProductions((prev) =>
-        prev.map((prod) => (prod.id === p.id ? (data as ProductionRow) : prod))
-      );
+      if (!error && data) {
+        setProductions((prev) =>
+          prev.map((prod) => (prod.id === p.id ? (data as ProductionRow) : prod))
+        );
 
-      // Kedua langkah susulan ini sekarang dicek errornya -- status produksi
-      // utama di atas SUDAH tersimpan apapun hasilnya, tapi kalau ada yang
-      // gagal di sini, user diberi tahu lewat toast alih-alih dikira
-      // semuanya sinkron. Dikumpulkan dulu ke `warnings` (bukan langsung
-      // showToast di sini) supaya tidak ketimpa toast sukses "lanjut ke QC"
-      // di bawah -- showToast cuma bisa nampilkan satu toast dalam satu
-      // waktu, jadi keputusan toast-nya digabung jadi satu di akhir.
-      const warnings: string[] = [];
+        // Kedua langkah susulan ini sekarang dicek errornya -- status produksi
+        // utama di atas SUDAH tersimpan apapun hasilnya, tapi kalau ada yang
+        // gagal di sini, user diberi tahu lewat toast alih-alih dikira
+        // semuanya sinkron. Dikumpulkan dulu ke `warnings` (bukan langsung
+        // showToast di sini) supaya tidak ketimpa toast sukses "lanjut ke QC"
+        // di bawah -- showToast cuma bisa nampilkan satu toast dalam satu
+        // waktu, jadi keputusan toast-nya digabung jadi satu di akhir.
+        const warnings: string[] = [];
 
-      if (p.order_id) {
-        const orderStatus = status;
+        if (p.order_id) {
+          const orderStatus = status;
 
-        const { error: orderError } = await supabase
-          .from("orders")
-          .update({ status: orderStatus })
-          .eq("id", p.order_id);
-        if (orderError) {
-          console.error("Gagal update status pesanan induk:", orderError.message);
-          warnings.push("status pesanan induk gagal disinkronkan");
+          const { error: orderError } = await supabase
+            .from("orders")
+            .update({ status: orderStatus })
+            .eq("id", p.order_id);
+          if (orderError) {
+            console.error("Gagal update status pesanan induk:", orderError.message);
+            warnings.push("status pesanan induk gagal disinkronkan");
+          }
+
+          const { error: trackingError } = await supabase.from("order_tracking").insert({
+            order_id: p.order_id,
+            tahap: status === "Selesai" ? "Produksi Selesai" : status,
+            selesai: true,
+          });
+          if (trackingError) {
+            console.error("Gagal mencatat riwayat produksi:", trackingError.message);
+            warnings.push("riwayat gagal dicatat");
+          }
         }
 
-        const { error: trackingError } = await supabase.from("order_tracking").insert({
-          order_id: p.order_id,
-          tahap: status === "Selesai" ? "Produksi Selesai" : status,
-          selesai: true,
-        });
-        if (trackingError) {
-          console.error("Gagal mencatat riwayat produksi:", trackingError.message);
-          warnings.push("riwayat gagal dicatat");
+        if (status === "QC") {
+          if (warnings.length > 0) {
+            showToast("Status diubah ke QC, tapi ada langkah lanjutan yang gagal: " + warnings.join(", ") + ".");
+          } else {
+            showToast("Status diubah ke QC, otomatis lanjut ke halaman QC.", "success");
+          }
+          setTimeout(() => {
+            router.push("/dashboard/qc");
+            router.refresh();
+          }, 900);
+        } else if (warnings.length > 0) {
+          showToast("Status produksi tersimpan, tapi ada langkah lanjutan yang gagal: " + warnings.join(", ") + ".");
         }
+      } else if (error) {
+        showToast("Gagal mengubah status: " + error.message);
       }
-
-      if (status === "QC") {
-        if (warnings.length > 0) {
-          showToast("Status diubah ke QC, tapi ada langkah lanjutan yang gagal: " + warnings.join(", ") + ".");
-        } else {
-          showToast("Status diubah ke QC, otomatis lanjut ke halaman QC.", "success");
-        }
-        setTimeout(() => {
-          router.push("/dashboard/qc");
-          router.refresh();
-        }, 900);
-      } else if (warnings.length > 0) {
-        showToast("Status produksi tersimpan, tapi ada langkah lanjutan yang gagal: " + warnings.join(", ") + ".");
-      }
-    } else if (error) {
-      showToast("Gagal mengubah status: " + error.message);
+    } finally {
+      setUpdatingId(null);
     }
   }
 
@@ -303,6 +318,7 @@ export default function ProduksiTable({
           colorClasses={STATUS_COLORS}
           barClasses={KANBAN_BAR_COLORS}
           onStatusChange={updateStatus}
+          updatingId={updatingId}
         />
       )}
 
@@ -342,6 +358,7 @@ export default function ProduksiTable({
                       colorClasses={STATUS_COLORS}
                       onChange={(status) => updateStatus(p, status)}
                       ariaLabel="Ubah status produksi"
+                      loading={updatingId === p.id}
                     />
                   </td>
                   <td className="text-sm text-gray-700 dark:text-gray-300">
