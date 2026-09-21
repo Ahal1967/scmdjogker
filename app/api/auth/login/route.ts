@@ -24,13 +24,6 @@ const LOCKOUT_MINUTES = 15;
 
 export async function POST(request: Request) {
   const ip = getClientIp(request);
-  const ipAllowed = await checkRateLimit(ip, "login", 15, 15);
-  if (!ipAllowed) {
-    return NextResponse.json(
-      { error: "Terlalu banyak percobaan login dari alamat ini. Coba lagi dalam beberapa menit." },
-      { status: 429 }
-    );
-  }
 
   const body = await request.json().catch(() => null);
   const email = typeof body?.email === "string" ? body.email.trim().toLowerCase() : "";
@@ -42,11 +35,26 @@ export async function POST(request: Request) {
 
   const admin = createAdminClient();
 
-  const { data: attempt } = await admin
-    .from("login_attempts")
-    .select("failed_count, locked_until")
-    .eq("email", email)
-    .maybeSingle();
+  // Cek rate-limit per-IP (checkRateLimit) dan status kunci per-email
+  // (login_attempts) DIJALANKAN BARENG lewat Promise.all -- sebelumnya dua
+  // query ini nunggu satu-satu padahal independen (tidak butuh hasil satu
+  // sama lain), nambah 1 round-trip bolak-balik ke Supabase yang sebenarnya
+  // tidak perlu, sebelum sempat mulai cek password sama sekali. Ini bagian
+  // dari kenapa tombol Login user rasakan lama -- body parsing juga
+  // dipindah ke ATAS rate-limit check (validasi murah dulu, baru query DB,
+  // supaya request yang jelas tidak valid tidak ikut membebani rate limit
+  // counter percuma).
+  const [ipAllowed, { data: attempt }] = await Promise.all([
+    checkRateLimit(ip, "login", 15, 15),
+    admin.from("login_attempts").select("failed_count, locked_until").eq("email", email).maybeSingle(),
+  ]);
+
+  if (!ipAllowed) {
+    return NextResponse.json(
+      { error: "Terlalu banyak percobaan login dari alamat ini. Coba lagi dalam beberapa menit." },
+      { status: 429 }
+    );
+  }
 
   // Masih dalam masa kunci -- tolak SEBELUM sempat cek password sama
   // sekali, supaya tidak nambah beban ke Supabase Auth percuma.
