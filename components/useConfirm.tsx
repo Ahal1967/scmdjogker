@@ -46,16 +46,16 @@ export function useConfirm() {
     createPortal(
       <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4">
         <div
-          className="modal-fade-in card card-modal w-full max-w-sm p-0 overflow-hidden shadow-2xl"
+          className="modal-fade-in card card-modal w-full max-w-xs p-0 overflow-hidden shadow-2xl"
           style={{ border: "none" }}
         >
-          <div className="p-6 text-center">
+          <div className="p-5 text-center">
             {/* Sebelumnya lingkaran flat (bg-red-100/bg-blue-100) -- diganti
                 gradient + glow shadow biar senada sama gaya avatar/ikon
                 lain di app ini (mis. avatar bulat di kartu profil
                 Pengaturan), bukan warna solid datar. */}
             <div
-              className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full text-white"
+              className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full text-white"
               style={{
                 background: options.danger
                   ? "linear-gradient(135deg, #f87171, #dc2626)"
@@ -65,12 +65,12 @@ export function useConfirm() {
                   : "0 4px 14px rgba(37,99,235,0.35)",
               }}
             >
-              <AlertTriangle size={26} />
+              <AlertTriangle size={20} />
             </div>
-            <h3 className="font-display text-base font-semibold text-black dark:text-white mb-1">
+            <h3 className="font-display text-sm font-semibold text-black dark:text-white mb-1">
               {options.title || "Konfirmasi"}
             </h3>
-            <p className="text-sm text-gray-600 dark:text-gray-400">{options.message}</p>
+            <p className="text-[12.5px] text-gray-600 dark:text-gray-400">{options.message}</p>
           </div>
           {/* Sebelumnya 2 tombol rata penuh nempel tanpa jarak (gaya action
               sheet iOS, satu-satunya modal di app ini yang begini) --
@@ -78,7 +78,7 @@ export function useConfirm() {
               SEMUA modal lain (btn-outline/btn-primary/btn-danger),
               supaya dialog ini akhirnya konsisten, bukan kelihatan beda
               sendiri. */}
-          <div className="flex gap-3 border-t border-gray-100 dark:border-[#30363d] p-4">
+          <div className="flex gap-2.5 border-t border-gray-100 dark:border-[#30363d] p-3.5">
             <button type="button" onClick={() => handleClose(false)} className="btn-outline flex-1">
               Batal
             </button>

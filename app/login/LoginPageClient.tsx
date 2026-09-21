@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import {
   Mail,
@@ -15,18 +15,22 @@ import {
   Warehouse,
   Factory,
   Truck,
-  BarChart3,
+  Headset,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
-// Kartu kedua ("Satu Sistem, Seluruh Rantai Pasok") -- gradasi tiap chip
-// ikon sengaja dari keluarga warna yang sama dengan .dash-kpi-icon di
-// dashboard (cyan/orange/biru/violet), supaya bahasa warnanya nyambung
-// walau halaman login ini di luar layout dashboard.
+// Kartu kedua ini isinya buat PELANGGAN (bukan tim internal) -- makanya
+// tiap poin ditulis dari sudut pandang "apa yang pelanggan dapat", bukan
+// "apa yang bisa dikelola tim". Gradasi tiap chip ikon sengaja dari
+// keluarga warna yang sama dengan .dash-kpi-icon di dashboard (cyan/
+// oranye/biru/violet), supaya bahasa warnanya nyambung walau halaman
+// login ini di luar layout dashboard.
 const FEATURES = [
-  { label: "Kelola Stok Bahan Baku", desc: "Pantau stok gudang secara real-time.", icon: Warehouse, gradient: ["#22d3ee", "#0891b2"] },
-  { label: "Produksi & Quality Control", desc: "Lacak progres sablon sampai QC.", icon: Factory, gradient: ["#fb923c", "#ea580c"] },
-  { label: "Pesanan & Pengiriman", desc: "Kelola pesanan pelanggan sampai terkirim.", icon: Truck, gradient: ["#3b82f6", "#2563eb"] },
-  { label: "Laporan & Analisis", desc: "Pantau tren pendapatan dan performa tim.", icon: BarChart3, gradient: ["#a78bfa", "#7c3aed"] },
+  { label: "Bahan Baku Berkualitas", desc: "Kami pastikan bahan baku yang dipakai selalu terjaga kualitasnya.", icon: Warehouse, gradient: ["#22d3ee", "#0891b2"] },
+  { label: "Produksi & Quality Control", desc: "Setiap pesanan melewati proses sablon dan pemeriksaan kualitas sebelum dikirim.", icon: Factory, gradient: ["#fb923c", "#ea580c"] },
+  { label: "Lacak Status Pesanan", desc: "Pantau progres pesanan Anda secara real-time, dari diproses sampai dikirim.", icon: Truck, gradient: ["#3b82f6", "#2563eb"] },
+  { label: "Bantuan Kapan Saja", desc: "Ada kendala? Tim admin kami siap membantu lewat WhatsApp.", icon: Headset, gradient: ["#a78bfa", "#7c3aed"] },
 ] as const;
 
 export default function LoginPageClient() {
@@ -37,6 +41,27 @@ export default function LoginPageClient() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Carousel geser (cuma aktif di mobile/tablet -- di lg ke atas ini balik
+  // ke grid 2 kolom biasa, lihat className carouselRef di bawah). activeCard
+  // dipakai buat nge-highlight dot yang lagi aktif, dihitung dari posisi
+  // scroll horizontal, BUKAN dari state terpisah yang bisa nggak sinkron
+  // kalau user geser manual dengan jari alih-alih klik dot.
+  const [activeCard, setActiveCard] = useState(0);
+  const carouselRef = useRef<HTMLDivElement>(null);
+
+  function handleCarouselScroll() {
+    const el = carouselRef.current;
+    if (!el) return;
+    const idx = Math.round(el.scrollLeft / (el.clientWidth || 1));
+    setActiveCard(idx);
+  }
+
+  function scrollToCard(idx: number) {
+    const el = carouselRef.current;
+    if (!el) return;
+    el.scrollTo({ left: idx * el.clientWidth, behavior: "smooth" });
+  }
 
   // Login diproses lewat Route Handler (/api/auth/login), BUKAN
   // manggil supabase.auth.signInWithPassword() langsung dari sini,
@@ -78,15 +103,21 @@ export default function LoginPageClient() {
     // tetap putih bersih). Dengan wrapper transparan begini, halaman ini
     // otomatis ikut background global yang sama -- jadi serasi dengan
     // dashboard tanpa perlu bikin gradasi baru.
-    <div className="relative min-h-screen overflow-hidden flex items-center justify-center px-4 py-10">
-      {/* Grid 2 kolom di layar besar (kartu login + kartu info), tumpuk 1
-          kolom di mobile/tablet. Grid defaultnya "stretch" (bukan flex),
-          jadi 2 kartu otomatis sama tinggi di desktop -- dipakai supaya
-          panel "Anda pelanggan?" di kartu kedua bisa nempel ke bawah
-          (mt-auto) sejajar dengan bagian bawah kartu login. */}
-      <div className="relative z-10 mx-auto grid w-full max-w-4xl grid-cols-1 gap-6 lg:grid-cols-2">
+    <div className="relative min-h-screen overflow-hidden flex flex-col items-center justify-center px-4 py-10">
+      {/* Carousel geser 1 kartu per layar, berlaku di semua ukuran layar.
+          Dibungkus wrapper "relative" terpisah supaya tombol panah kiri/
+          kanan bisa absolute-positioned MENGAMBANG di atas carousel, bukan
+          ikut ke-scroll bareng kartu -- di mobile/tablet bisa digeser
+          dengan jari ATAU diklik tombolnya, di desktop (tidak ada gesture
+          sentuh) praktis cuma lewat tombol ini. */}
+      <div className="relative z-10 mx-auto w-full max-w-md">
       <div
-        className="mx-auto w-full max-w-md lg:max-w-none rounded-3xl border border-blue-100 dark:border-[#30363d] bg-white dark:bg-[#161b22] p-6 md:p-8"
+        ref={carouselRef}
+        onScroll={handleCarouselScroll}
+        className="flex w-full gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+      <div
+        className="w-full shrink-0 snap-center rounded-3xl border border-blue-100 dark:border-[#30363d] bg-white dark:bg-[#161b22] p-6 md:p-8"
         style={{ boxShadow: "0 1px 2px rgba(37,99,235,0.06), 0 24px 48px -12px rgba(37,99,235,0.25)" }}
       >
         {/* Logo, nama, badge */}
@@ -197,15 +228,15 @@ export default function LoginPageClient() {
           tidak terselip jadi 2 pill kecil yang gampang terlewat oleh
           pelanggan yang sebenarnya tidak perlu akun sama sekali). */}
       <div
-        className="mx-auto flex w-full max-w-md lg:max-w-none flex-col rounded-3xl border border-blue-100 dark:border-[#30363d] bg-white dark:bg-[#161b22] p-6 md:p-8"
+        className="flex w-full shrink-0 snap-center flex-col rounded-3xl border border-blue-100 dark:border-[#30363d] bg-white dark:bg-[#161b22] p-6 md:p-8"
         style={{ boxShadow: "0 1px 2px rgba(37,99,235,0.06), 0 24px 48px -12px rgba(37,99,235,0.25)" }}
       >
         <div>
           <h3 className="font-display text-lg font-bold text-black dark:text-white">
-            Satu Sistem, Seluruh Rantai Pasok
+            Menu Informasi untuk Pesanan Anda
           </h3>
           <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            DJOGKER SCM membantu tim memantau setiap tahap -- dari bahan baku sampai produk diterima pelanggan.
+            DJOGKER mencatat setiap tahap produksi pesanan Anda - Mulai dari pesanan masuk sampai diterima di tangan pelanggan, semua bisa dilacak.
           </p>
         </div>
 
@@ -251,6 +282,51 @@ export default function LoginPageClient() {
           </div>
         </div>
       </div>
+      </div>
+
+      {activeCard > 0 && (
+        <button
+          type="button"
+          onClick={() => scrollToCard(activeCard - 1)}
+          aria-label="Kartu sebelumnya"
+          className="absolute left-0 top-1/2 z-20 flex h-9 w-9 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-blue-100 dark:border-[#30363d] bg-white dark:bg-[#161b22] text-blue-600 dark:text-blue-400 shadow-md hover:bg-blue-50 dark:hover:bg-blue-900/40 transition-colors"
+        >
+          <ChevronLeft size={17} />
+        </button>
+      )}
+      {activeCard < 1 && (
+        <button
+          type="button"
+          onClick={() => scrollToCard(activeCard + 1)}
+          aria-label="Kartu selanjutnya"
+          className="absolute right-0 top-1/2 z-20 flex h-9 w-9 translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full border border-blue-100 dark:border-[#30363d] bg-white dark:bg-[#161b22] text-blue-600 dark:text-blue-400 shadow-md hover:bg-blue-50 dark:hover:bg-blue-900/40 transition-colors"
+        >
+          <ChevronRight size={17} />
+        </button>
+      )}
+      </div>
+
+      {/* Dot indikator + hint geser -- tampil di semua ukuran layar sekarang,
+          menyertai carousel yang juga berlaku di semua ukuran. Dot bisa
+          diklik buat lompat langsung ke kartu itu, bukan cuma penanda pasif. */}
+      <div className="relative z-10 mt-4 flex flex-col items-center gap-2">
+        <div className="flex items-center gap-1.5">
+          {[0, 1].map((i) => (
+            <button
+              key={i}
+              type="button"
+              onClick={() => scrollToCard(i)}
+              aria-label={`Ke halaman ${i + 1}`}
+              className={`h-1.5 rounded-full transition-all ${
+                activeCard === i ? "w-5 bg-blue-600" : "w-1.5 bg-blue-200 dark:bg-blue-900/50"
+              }`}
+            />
+          ))}
+        </div>
+        <p className="inline-flex items-center gap-1 text-[11px] text-blue-500 dark:text-blue-400">
+          <ChevronLeft size={12} />
+          Geser untuk melihat halaman lainnya
+        </p>
       </div>
     </div>
   );
