@@ -131,7 +131,7 @@ export default function UploadPageClient() {
               DJOGKER SABLON KAOS
             </span>
             <h1 className="font-display text-lg font-extrabold tracking-tight text-black dark:text-white">
-              Upload <span style={{ color: "var(--djoker-blue)" }}>Desain</span> Kaos
+              Upload Desain Kaos
             </h1>
             <p className="mx-auto mt-1 max-w-sm text-[12px] text-gray-500 dark:text-gray-400">
               Kirim file desain untuk pesanan kamu. Format PNG, JPG, WEBP, atau PDF (maks 10MB).

@@ -187,7 +187,7 @@ export default function TrackingPageClient() {
               DJOGKER SABLON KAOS
             </span>
             <h1 className="font-display text-lg font-extrabold tracking-tight text-black dark:text-white">
-              Lacak <span style={{ color: "var(--djoker-blue)" }}>Pesanan</span> Kamu
+              Lacak Pesanan Kamu
             </h1>
             <p className="mx-auto mt-1 max-w-sm text-[12px] text-gray-500 dark:text-gray-400">
               Masukkan nomor pesanan untuk melihat status produksi &amp; pengiriman secara real-time.
