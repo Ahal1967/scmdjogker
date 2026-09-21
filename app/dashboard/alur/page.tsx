@@ -88,7 +88,7 @@ export default async function AlurPage() {
         href={stage.href}
         className="alur-stage-card relative block min-w-0 flex-1 cursor-pointer"
       >
-        <span className="absolute top-3 right-3 text-[10px] font-display font-bold text-gray-300 dark:text-gray-600">
+        <span className="absolute top-2 right-2 text-[9px] font-display font-bold text-gray-300 dark:text-gray-600">
           {String(globalIdx + 1).padStart(2, "0")}
         </span>
 
@@ -96,17 +96,17 @@ export default async function AlurPage() {
           className="dash-kpi-icon"
           style={{ background: `linear-gradient(135deg, ${stage.gradient[0]}, ${stage.gradient[1]})` }}
         >
-          <Icon size={15} />
+          <Icon size={14} />
         </div>
 
-        <p className="text-sm font-semibold text-black dark:text-white">{stage.label}</p>
-        <p className="text-[11px] text-gray-500 dark:text-gray-400 mb-2">{stage.desc}</p>
+        <p className="text-xs font-semibold text-black dark:text-white">{stage.label}</p>
+        <p className="text-[10px] text-gray-500 dark:text-gray-400 mb-1.5">{stage.desc}</p>
 
-        <div className="pt-2 border-t border-gray-100 dark:border-[#30363d] flex items-end justify-between">
-          <p className="font-display text-lg font-bold" style={{ color: stage.accent }}>
+        <div className="pt-1.5 border-t border-gray-100 dark:border-[#30363d] flex items-end justify-between">
+          <p className="font-display text-base font-bold" style={{ color: stage.accent }}>
             {VALUES[stage.key].value}
           </p>
-          <p className="text-[10px] text-gray-500 dark:text-gray-400 text-right">
+          <p className="text-[9px] text-gray-500 dark:text-gray-400 text-right">
             {VALUES[stage.key].hint}
           </p>
         </div>
