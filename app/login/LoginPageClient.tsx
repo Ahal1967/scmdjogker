@@ -267,14 +267,14 @@ export default function LoginPageClient() {
           <div className="mt-3 flex flex-col gap-2 sm:flex-row">
             <Link
               href="/tracking"
-              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full border border-blue-200 dark:border-blue-800 bg-white dark:bg-transparent px-3 py-2 text-xs font-medium text-blue-600 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/40 transition-colors"
+              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full border border-blue-200 dark:border-blue-800 bg-white dark:bg-transparent px-3 py-2 text-xs font-medium text-blue-600 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/40 active:scale-95 active:brightness-95 transition-all duration-150"
             >
               <FileSearch size={13} />
               Lacak Pesanan
             </Link>
             <Link
               href="/upload"
-              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full border border-blue-200 dark:border-blue-800 bg-white dark:bg-transparent px-3 py-2 text-xs font-medium text-blue-600 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/40 transition-colors"
+              className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-full border border-blue-200 dark:border-blue-800 bg-white dark:bg-transparent px-3 py-2 text-xs font-medium text-blue-600 dark:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/40 active:scale-95 active:brightness-95 transition-all duration-150"
             >
               <UploadCloud size={13} />
               Upload Desain
