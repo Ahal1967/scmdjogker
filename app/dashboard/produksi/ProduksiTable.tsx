@@ -266,7 +266,7 @@ export default function ProduksiTable({
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative flex-1">
-          <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+          <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             placeholder="Cari no. produksi / no. pesanan..."
             value={search}
@@ -274,7 +274,8 @@ export default function ProduksiTable({
               setSearch(e.target.value);
               setCurrentPage(1);
             }}
-            className="input-field rounded-full pl-10 max-w-md"
+            className="input-field rounded-full max-w-md"
+            style={{ padding: "7px 14px 7px 34px", fontSize: "0.8125rem" }}
           />
         </div>
         {/* Toggle Tabel/Papan -- tampilan tambahan, bukan pengganti tabel
@@ -350,7 +351,7 @@ export default function ProduksiTable({
                   </td>
                   <td className="text-black dark:text-white">{p.no_produksi || "-"}</td>
                   <td className="text-sm text-gray-700 dark:text-gray-300">{p.orders?.no_pesanan ?? "-"}</td>
-                  <td className="text-sm text-gray-800 dark:text-gray-200">{p.orders?.customers?.nama ?? "-"}</td>
+                  <td className="text-sm text-gray-800 dark:text-gray-200 capitalize">{p.orders?.customers?.nama ?? "-"}</td>
                   <td className="text-center">
                     <StatusDropdown
                       value={p.status || "Produksi"}

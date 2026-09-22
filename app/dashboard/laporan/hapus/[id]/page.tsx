@@ -74,7 +74,7 @@ export default function HapusPesananPage() {
           <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
             <p className="font-medium text-lg text-black dark:text-white">{order.no_pesanan}</p>
             <p className="text-sm text-gray-600 dark:text-gray-400">{formatRupiah(Number(order.total) || 0)}</p>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Status: {order.status}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">Status: <span className="capitalize">{order.status}</span></p>
           </div>
           <p className="text-xs text-red-600 dark:text-red-400 mt-3 text-center">
             Item pesanan dan riwayat tracking terkait akan ikut terhapus. Tidak dapat dikembalikan.

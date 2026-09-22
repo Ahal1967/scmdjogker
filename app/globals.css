@@ -26,6 +26,7 @@
   --djoker-text-2: #374151;
   --djoker-muted: #6b7280;
   --djoker-hover-bg: #eff6ff; /* blue-50, dipakai buat hover/thead */
+  --djoker-zebra: rgba(17, 24, 39, 0.025); /* tint zebra baris genap di tabel -- sengaja BEDA dari --djoker-bg-2 (dipakai hover) supaya hover tetap kelihatan jelas di baris ganjil maupun genap */
 }
 
 /* Versi gelap: cuma ganti isi variable-nya, semua class yang sudah pakai
@@ -54,6 +55,7 @@
   --djoker-text-2: #c9d1d9;
   --djoker-muted: #8b949e;
   --djoker-hover-bg: rgba(56, 139, 253, 0.15);
+  --djoker-zebra: rgba(230, 237, 243, 0.03);
 }
 
 
@@ -839,6 +841,102 @@ body::before {
   }
   .dark .dash-bar-num { color: #fff; }
 
+  /* Kartu ringkasan "Analisis Periode" -- diklik buat buka/tutup panel
+     di bawahnya (showAnalysis di DashboardPage.tsx). Ditambahkan atas
+     permintaan user supaya tampilan awal Dashboard tidak langsung penuh
+     8 kartu KPI + 2 panel sekaligus -- datanya TIDAK dihapus/dipindah,
+     cuma disembunyikan di balik 1 klik, defaultnya tertutup. */
+  .dash-collapse-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    border-radius: 14px;
+    padding: 13px 15px;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    box-shadow: 0 2px 10px -6px rgba(30, 58, 138, 0.12);
+    cursor: pointer;
+  }
+  .dark .dash-collapse-card {
+    border-color: var(--djoker-border);
+    background: var(--djoker-surface);
+  }
+
+  .dash-collapse-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  .dash-collapse-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    background: rgba(37, 99, 235, 0.12);
+    color: var(--djoker-blue-dark);
+    flex-shrink: 0;
+  }
+
+  .dash-collapse-title {
+    margin: 0;
+    font-size: 12.5px;
+    font-weight: 700;
+    color: #0a0a1a;
+  }
+  .dark .dash-collapse-title { color: var(--djoker-text); }
+
+  .dash-collapse-sub {
+    margin: 1px 0 0;
+    font-size: 11px;
+    color: #6b7280;
+  }
+  .dark .dash-collapse-sub { color: var(--djoker-muted); }
+
+  .dash-collapse-chev {
+    color: #9ca3af;
+    flex-shrink: 0;
+    transition: transform 0.2s ease;
+  }
+  .dark .dash-collapse-chev { color: var(--djoker-muted); }
+  .dash-collapse-card.is-open .dash-collapse-chev {
+    transform: rotate(180deg);
+  }
+
+  /* Animasi buka/tutup -- permintaan user (contoh sudah disetujui). Dulu
+     konten kartu collapse (Snapshot Hari Ini & Analisis Periode) di-mount
+     instan lewat conditional render, jadi muncul/hilang "patah" tanpa
+     transisi. Sekarang selalu di-mount, tinggi 0fr<->1fr dianimasikan
+     lewat CSS grid-template-rows (tidak perlu hitung tinggi manual di JS,
+     otomatis menyesuaikan walau isinya berubah) -- .dash-collapse-body-
+     inner butuh overflow:hidden supaya konten kepotong rapi selagi
+     animasi masih di tengah jalan (grid row belum 1fr penuh). */
+  .dash-collapse-body-wrap {
+    display: grid;
+    grid-template-rows: 0fr;
+    margin-top: 0;
+    transition: grid-template-rows 0.28s ease, margin-top 0.28s ease;
+  }
+  .dash-collapse-body-wrap.is-open {
+    grid-template-rows: 1fr;
+    margin-top: 12px;
+  }
+  .dash-collapse-body-inner {
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  .dash-collapse-body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
   /* ============================================================
      Halaman Laporan -- sekarang cuma toolbar filter periode buat
      tabel + export (analisisnya sudah pindah ke Dashboard, lihat
@@ -910,7 +1008,7 @@ body::before {
     border-radius: 10px;
     border: 1px solid transparent;
     cursor: pointer;
-    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    transition: background-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease, filter 0.1s ease;
     box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
   }
 
@@ -918,6 +1016,16 @@ body::before {
     background: var(--djoker-blue-dark);
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35);
+  }
+
+  /* Efek "ditekan" -- permintaan user supaya tombol kerasa dapat feedback
+     pas benar-benar diklik, bukan cuma hover. Berlaku otomatis ke SEMUA
+     pemakaian .btn-primary/-outline/-danger di seluruh app (Simpan/Batal/
+     Hapus dkk), tidak perlu disentuh satu-satu per file. */
+  .btn-primary:active {
+    transform: scale(0.96);
+    filter: brightness(0.95);
+    box-shadow: none;
   }
 
   .btn-primary:disabled {
@@ -935,7 +1043,7 @@ body::before {
     font-weight: 600;
     border: 1px solid var(--djoker-border);
     cursor: pointer;
-    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.1s ease, filter 0.1s ease;
   }
 
   .btn-danger {
@@ -946,7 +1054,7 @@ body::before {
   border-radius: 10px;
   border: 1px solid transparent;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  transition: background-color 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease, filter 0.1s ease;
   box-shadow: 0 2px 8px rgba(220, 38, 38, 0.25);
 }
 
@@ -954,6 +1062,12 @@ body::before {
   background: #b91c1c;
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(220, 38, 38, 0.35);
+}
+
+.btn-danger:active {
+  transform: scale(0.96);
+  filter: brightness(0.95);
+  box-shadow: none;
 }
 
 .btn-danger:disabled {
@@ -967,6 +1081,11 @@ body::before {
     color: var(--djoker-blue);
     background: var(--djoker-hover-bg);
     transform: translateY(-1px);
+  }
+
+  .btn-outline:active {
+    transform: scale(0.96);
+    filter: brightness(0.95);
   }
 
   /* Input */
@@ -1255,14 +1374,24 @@ body::before {
     padding-top: 18px;
   }
 
-  /* Borderless Modern: tidak ada lagi garis pembatas antar baris (border-bottom
-     dihapus) atau zebra stripe -- baris dipisahkan murni lewat whitespace
-     (padding), garis cuma tersisa 1x di bawah header (lihat ".table-djoker
+  /* Borderless Modern: masih tidak ada garis pembatas antar baris (border-bottom
+     tetap dihapus), garis cuma tersisa 1x di bawah header (lihat ".table-djoker
      thead th" di atas). Hover pakai abu netral (--djoker-bg-2), bukan lagi
-     biru muda, biar biru tetap eksklusif jadi aksen badge/status. */
+     biru muda, biar biru tetap eksklusif jadi aksen badge/status.
+
+     UPDATE: zebra stripe yang dulu sengaja dihapus, sekarang dikembalikan
+     lagi (khusus permintaan user) -- alasannya tabel padat seperti Gudang/
+     Pesanan (6-8 kolom + badge status) susah dipindai baris-per-baris
+     kalau cuma mengandalkan whitespace tanpa hover. --djoker-zebra dibuat
+     SANGAT tipis dan sengaja BEDA dari --djoker-bg-2 (warna hover), supaya
+     hover tetap kelihatan jelas baik di baris ganjil maupun genap. */
   .table-djoker tbody tr {
     transition: background 0.15s ease;
     border-bottom: none;
+  }
+
+  .table-djoker tbody tr:nth-child(even) {
+    background: var(--djoker-zebra);
   }
 
   .table-djoker tbody tr:hover {
@@ -1372,6 +1501,27 @@ body::before {
     border-radius: 14px;
     padding: 6px;
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.16), 0 2px 8px rgba(0, 0, 0, 0.08);
+    transform-origin: top center;
+    animation: statusPanelIn 0.15s ease;
+  }
+
+  /* Panel yang mepet bawah layar dibuka ke ATAS (lihat computePosition di
+     StatusDropdown.tsx, pos.openUp) -- animasinya dibalik arahnya (dari
+     bawah, bukan dari atas) supaya tetap terasa "muncul dari triggernya",
+     bukan dari arah yang salah. */
+  .status-dd-panel-openup {
+    transform-origin: bottom center;
+    animation-name: statusPanelInUp;
+  }
+
+  @keyframes statusPanelIn {
+    from { opacity: 0; transform: scale(0.96) translateY(-6px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  @keyframes statusPanelInUp {
+    from { opacity: 0; transform: scale(0.96) translateY(6px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
   }
 
   .dark .status-dd-panel {
@@ -1862,6 +2012,39 @@ body::before {
    sedikit naik + fade in pas muncul, kesannya lebih halus/premium. */
 .modal-fade-in {
   animation: fadeIn 0.2s ease;
+}
+
+/* Toast (useToast.tsx) -- dulu muncul & hilang instan, gampang keskip mata
+   karena tidak ada gerakan. toast-enter dipasang pas toast baru tampil,
+   toast-exit dipasang oleh startClose() sesaat sebelum toast-nya benar-
+   benar di-unmount (lihat komentar durasi 200ms di useToast.tsx -- HARUS
+   sama dengan durasi toastOut di bawah). */
+@keyframes toastIn {
+  from { opacity: 0; transform: translateY(-14px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes toastOut {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to { opacity: 0; transform: translateY(-14px) scale(0.98); }
+}
+.toast-enter {
+  animation: toastIn 0.22s ease;
+}
+.toast-exit {
+  animation: toastOut 0.2s ease forwards;
+}
+
+/* Ikon tombol ganti tema (ThemeToggle.tsx) -- dulu ikon matahari/bulan
+   gantinya instan. Komponennya sengaja dikasih key={theme} supaya <span>
+   ini remount tiap kali tema berganti, jadi animasi di bawah re-trigger
+   otomatis tanpa perlu state animasi manual. */
+@keyframes themeIconIn {
+  from { opacity: 0; transform: rotate(-90deg) scale(0.5); }
+  to { opacity: 1; transform: rotate(0deg) scale(1); }
+}
+.theme-toggle-icon {
+  display: inline-flex;
+  animation: themeIconIn 0.25s ease;
 }
 
 input[type="number"]::-webkit-outer-spin-button,

@@ -173,7 +173,7 @@ export default function PackingTable({ initialPacking }: { initialPacking: Packi
   return (
     <div className="space-y-4">
       <div className="relative">
-        <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+        <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
         <input
           placeholder="Cari no. packing / no. pesanan..."
           value={search}
@@ -181,7 +181,8 @@ export default function PackingTable({ initialPacking }: { initialPacking: Packi
             setSearch(e.target.value);
             setCurrentPage(1);
           }}
-          className="input-field rounded-full pl-10 max-w-md"
+          className="input-field rounded-full max-w-md"
+          style={{ padding: "7px 14px 7px 34px", fontSize: "0.8125rem" }}
         />
       </div>
 
@@ -212,7 +213,7 @@ export default function PackingTable({ initialPacking }: { initialPacking: Packi
                   </td>
                   <td className="text-black dark:text-white">{p.no_packing}</td>
                   <td className="text-sm text-gray-700 dark:text-gray-300">{p.orders?.no_pesanan ?? "-"}</td>
-                  <td className="text-sm text-gray-700 dark:text-gray-300">{p.orders?.customers?.nama ?? "-"}</td>
+                  <td className="text-sm text-gray-700 dark:text-gray-300 capitalize">{p.orders?.customers?.nama ?? "-"}</td>
                   <td className="text-sm text-gray-600 dark:text-gray-400 text-center">
                     {new Date(p.tanggal).toLocaleDateString("id-ID", {
                       day: "2-digit",
@@ -227,7 +228,7 @@ export default function PackingTable({ initialPacking }: { initialPacking: Packi
                         hardcode di sini -- sekarang amber lewat token yang sama
                         dipakai QcTable & PengirimanTable buat makna yang sama. */}
                     <span
-                      className={`badge ${
+                      className={`badge capitalize ${
                         p.status === "Siap Kirim" ? "badge-success" : "badge-warning"
                       }`}
                     >

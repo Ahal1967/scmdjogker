@@ -280,7 +280,7 @@ export default function ReturTable({ initialReturns, orders }: { initialReturns:
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative flex-1">
-          <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+          <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             placeholder="Cari no. retur, no. pesanan, atau nama pelanggan..."
             value={search}
@@ -288,14 +288,15 @@ export default function ReturTable({ initialReturns, orders }: { initialReturns:
               setSearch(e.target.value);
               setCurrentPage(1);
             }}
-            className="input-field rounded-full pl-10"
+            className="input-field rounded-full"
+            style={{ padding: "7px 14px 7px 34px", fontSize: "0.8125rem" }}
           />
         </div>
         <button
           onClick={openAdd}
-          className="inline-flex items-center justify-center gap-1.5 rounded-full bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm shadow-blue-600/30 hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 whitespace-nowrap"
+          className="inline-flex items-center justify-center gap-1.5 rounded-full bg-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-sm shadow-blue-600/30 hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 whitespace-nowrap"
         >
-          <Plus size={16} />
+          <Plus size={14} />
           Catat Retur
         </button>
       </div>
@@ -334,7 +335,7 @@ export default function ReturTable({ initialReturns, orders }: { initialReturns:
                     <td className="font-medium text-black dark:text-white">{r.no_retur}</td>
                     <td>
                       <p className="text-sm text-black dark:text-white">{r.orders?.no_pesanan ?? "-"}</p>
-                      <p className="text-[11px] text-gray-400">{r.orders?.customers?.nama ?? "-"}</p>
+                      <p className="text-[11px] text-gray-400 capitalize">{r.orders?.customers?.nama ?? "-"}</p>
                     </td>
                     <td className="text-gray-700 dark:text-gray-300">
                       {itemLabel(r.order_items) ?? <span className="text-gray-400">Semua item</span>}
@@ -496,9 +497,13 @@ export default function ReturTable({ initialReturns, orders }: { initialReturns:
                     <FileText size={14} />
                   </span>
                   <span className={`flex-1 truncate text-sm ${selectedOrder ? "text-black dark:text-white" : "text-gray-400"}`}>
-                    {selectedOrder
-                      ? `${selectedOrder.no_pesanan} -- ${selectedOrder.customers?.nama ?? "Tanpa nama"}`
-                      : "- Pilih Pesanan -"}
+                    {selectedOrder ? (
+                      <>
+                        {selectedOrder.no_pesanan} -- <span className="capitalize">{selectedOrder.customers?.nama ?? "Tanpa nama"}</span>
+                      </>
+                    ) : (
+                      "- Pilih Pesanan -"
+                    )}
                   </span>
                   <ChevronDown size={14} className="shrink-0 text-gray-400" />
                 </button>
@@ -585,11 +590,21 @@ export default function ReturTable({ initialReturns, orders }: { initialReturns:
               </div>
 
               <div className="flex gap-3 pt-2">
-                <button type="button" onClick={() => setShowModal(false)} className="btn-outline flex-1">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="btn-outline flex-1"
+                  style={{ padding: "9px 16px", fontSize: "0.8125rem" }}
+                >
                   Batal
                 </button>
-                <button type="submit" disabled={saving} className="btn-primary flex-1 flex items-center justify-center gap-2">
-                  {saving && <Loader2 size={15} className="animate-spin" />}
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="btn-primary flex-1 flex items-center justify-center gap-2"
+                  style={{ padding: "9px 16px", fontSize: "0.8125rem" }}
+                >
+                  {saving && <Loader2 size={13} className="animate-spin" />}
                   {saving ? "Menyimpan..." : "Simpan"}
                 </button>
               </div>
@@ -636,7 +651,8 @@ export default function ReturTable({ initialReturns, orders }: { initialReturns:
                   value={pesananSearch}
                   onChange={(e) => setPesananSearch(e.target.value)}
                   placeholder="Cari pesanan..."
-                  className="input-field w-full pl-9"
+                  className="input-field w-full"
+                  style={{ padding: "7px 14px 7px 36px", fontSize: "0.8125rem" }}
                 />
               </div>
 
@@ -667,7 +683,9 @@ export default function ReturTable({ initialReturns, orders }: { initialReturns:
                         </span>
                         <span className="flex-1">
                           <span className="block text-sm font-medium text-gray-800 dark:text-gray-200">{o.no_pesanan}</span>
-                          <span className="block text-[11px] text-gray-400">{o.customers?.nama ?? "Tanpa nama"} -- {o.order_items.length} item</span>
+                          <span className="block text-[11px] text-gray-400">
+                            <span className="capitalize">{o.customers?.nama ?? "Tanpa nama"}</span> -- {o.order_items.length} item
+                          </span>
                         </span>
                       </button>
                     );
@@ -786,8 +804,8 @@ export default function ReturTable({ initialReturns, orders }: { initialReturns:
 
               <div className="rounded-xl border border-gray-100 p-3 dark:border-[#30363d]">
                 <p className="text-[11px] font-medium text-gray-400">Pesanan</p>
-                <p className="mt-0.5 text-sm font-medium text-black dark:text-white">{detailRetur.orders?.no_pesanan ?? "-"}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">{detailRetur.orders?.customers?.nama ?? "-"}</p>
+                <p className="mt-0.5 text-sm text-black dark:text-white">{detailRetur.orders?.no_pesanan ?? "-"}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{detailRetur.orders?.customers?.nama ?? "-"}</p>
               </div>
 
               <div className="rounded-xl border border-gray-100 p-3 dark:border-[#30363d]">
@@ -818,12 +836,18 @@ export default function ReturTable({ initialReturns, orders }: { initialReturns:
                 <button
                   type="button"
                   onClick={() => handleDelete(detailRetur.id)}
-                  className="flex-1 flex items-center justify-center gap-1.5 rounded-lg border border-red-200 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-900/20"
+                  className="flex-1 flex items-center justify-center gap-1.5 rounded-lg border border-red-200 font-semibold text-red-600 hover:bg-red-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-900/20"
+                  style={{ padding: "9px 16px", fontSize: "0.8125rem" }}
                 >
-                  <Trash2 size={14} />
+                  <Trash2 size={13} />
                   Hapus
                 </button>
-                <button type="button" onClick={() => setDetailRetur(null)} className="btn-primary flex-1">
+                <button
+                  type="button"
+                  onClick={() => setDetailRetur(null)}
+                  className="btn-primary flex-1"
+                  style={{ padding: "9px 16px", fontSize: "0.8125rem" }}
+                >
                   Tutup
                 </button>
               </div>

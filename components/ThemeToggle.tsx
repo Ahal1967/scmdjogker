@@ -13,7 +13,12 @@ export default function ThemeToggle() {
       aria-label="Ganti tema terang/gelap"
       className="flex h-9 w-9 items-center justify-center rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
     >
-      {theme === "light" ? <Moon size={16} /> : <Sun size={16} />}
+      {/* key={theme} -- sengaja bikin span ini remount tiap tema ganti,
+          supaya animasi CSS-nya (theme-toggle-icon, keyframe themeIconIn)
+          re-trigger otomatis tanpa perlu state animasi manual. */}
+      <span key={theme} className="theme-toggle-icon">
+        {theme === "light" ? <Moon size={16} /> : <Sun size={16} />}
+      </span>
     </button>
   );
 }

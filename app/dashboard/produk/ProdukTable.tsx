@@ -338,7 +338,7 @@ export default function ProdukTable({
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative flex-1">
-          <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+          <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             placeholder="Cari produk..."
             value={search}
@@ -346,14 +346,15 @@ export default function ProdukTable({
               setSearch(e.target.value);
               setCurrentPage(1);
             }}
-            className="input-field rounded-full pl-10"
+            className="input-field rounded-full"
+            style={{ padding: "7px 14px 7px 34px", fontSize: "0.8125rem" }}
           />
         </div>
         <button
           onClick={openAdd}
-          className="inline-flex items-center justify-center gap-1.5 rounded-full bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm shadow-blue-600/30 hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 whitespace-nowrap"
+          className="inline-flex items-center justify-center gap-1.5 rounded-full bg-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-sm shadow-blue-600/30 hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 whitespace-nowrap"
         >
-          <Plus size={16} />
+          <Plus size={14} />
           Produk Baru
         </button>
       </div>
@@ -572,11 +573,21 @@ export default function ProdukTable({
               </div>
 
               <div className="flex gap-3 pt-2">
-                <button type="button" onClick={() => setShowModal(false)} className="btn-outline flex-1">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="btn-outline flex-1"
+                  style={{ padding: "9px 16px", fontSize: "0.8125rem" }}
+                >
                   Batal
                 </button>
-                <button type="submit" disabled={saving} className="btn-primary flex-1 flex items-center justify-center gap-2">
-                  {saving && <Loader2 size={15} className="animate-spin" />}
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="btn-primary flex-1 flex items-center justify-center gap-2"
+                  style={{ padding: "9px 16px", fontSize: "0.8125rem" }}
+                >
+                  {saving && <Loader2 size={13} className="animate-spin" />}
                   {saving ? "Menyimpan..." : "Simpan"}
                 </button>
               </div>
@@ -725,7 +736,12 @@ export default function ProdukTable({
               )}
 
               <div className="flex gap-3 pt-3">
-                <button type="button" onClick={() => setShowRecipeModal(false)} className="btn-outline flex-1">
+                <button
+                  type="button"
+                  onClick={() => setShowRecipeModal(false)}
+                  className="btn-outline flex-1"
+                  style={{ padding: "9px 16px", fontSize: "0.8125rem" }}
+                >
                   Batal
                 </button>
                 <button
@@ -733,8 +749,9 @@ export default function ProdukTable({
                   onClick={saveRecipe}
                   disabled={savingRecipe || loadingRecipe}
                   className="btn-primary flex-1 flex items-center justify-center gap-2"
+                  style={{ padding: "9px 16px", fontSize: "0.8125rem" }}
                 >
-                  {savingRecipe ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
+                  {savingRecipe ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
                   {savingRecipe ? "Menyimpan..." : "Simpan Resep"}
                 </button>
               </div>
@@ -783,7 +800,8 @@ export default function ProdukTable({
                   value={bahanSearch}
                   onChange={(e) => setBahanSearch(e.target.value)}
                   placeholder="Cari bahan..."
-                  className="input-field w-full pl-9"
+                  className="input-field w-full"
+                  style={{ padding: "7px 14px 7px 36px", fontSize: "0.8125rem" }}
                 />
               </div>
 

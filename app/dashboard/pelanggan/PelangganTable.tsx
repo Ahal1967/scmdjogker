@@ -104,7 +104,7 @@ export default function PelangganTable({ dataPelanggan }: { dataPelanggan: Pelan
   return (
     <div className="space-y-4">
       <div className="relative max-w-md">
-        <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+        <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
         <input
           placeholder="Cari nama / no. telepon..."
           value={search}
@@ -112,7 +112,8 @@ export default function PelangganTable({ dataPelanggan }: { dataPelanggan: Pelan
             setSearch(e.target.value);
             setCurrentPage(1);
           }}
-          className="input-field rounded-full pl-10"
+          className="input-field rounded-full"
+          style={{ padding: "7px 14px 7px 34px", fontSize: "0.8125rem" }}
         />
       </div>
 
@@ -140,7 +141,7 @@ export default function PelangganTable({ dataPelanggan }: { dataPelanggan: Pelan
                       {(currentPage - 1) * pageSize + idx + 1}
                     </span>
                   </td>
-                  <td className="text-black dark:text-white">{c.nama}</td>
+                  <td className="text-black dark:text-white capitalize">{c.nama}</td>
                   <td className="text-sm text-gray-700 dark:text-gray-300">{c.no_telepon || "-"}</td>
                   <td className="text-sm text-gray-700 dark:text-gray-300">{c.totalPesanan} pesanan</td>
                   <td className="text-sm font-medium text-black dark:text-white">

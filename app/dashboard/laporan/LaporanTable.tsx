@@ -88,7 +88,7 @@ export default function LaporanTable({ dataOrders }: { dataOrders: Order[] }) {
   return (
     <div className="space-y-4">
       <div className="relative max-w-md">
-        <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+        <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
         <input
           placeholder="Cari no. pesanan..."
           value={search}
@@ -96,7 +96,8 @@ export default function LaporanTable({ dataOrders }: { dataOrders: Order[] }) {
             setSearch(e.target.value);
             setCurrentPage(1);
           }}
-          className="input-field rounded-full pl-10"
+          className="input-field rounded-full"
+          style={{ padding: "7px 14px 7px 34px", fontSize: "0.8125rem" }}
         />
       </div>
 

@@ -231,7 +231,7 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
   return (
     <div className="space-y-4">
       <div className="relative">
-        <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+        <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
         <input
           placeholder="Cari no. pesanan / pelanggan..."
           value={search}
@@ -239,7 +239,8 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
             setSearch(e.target.value);
             setCurrentPage(1);
           }}
-          className="input-field rounded-full pl-10 max-w-md"
+          className="input-field rounded-full max-w-md"
+          style={{ padding: "7px 14px 7px 34px", fontSize: "0.8125rem" }}
         />
       </div>
 
@@ -269,14 +270,14 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
                     </span>
                   </td>
                   <td className="text-black dark:text-white">{s.orders?.no_pesanan ?? "-"}</td>
-                  <td className="text-sm text-gray-700 dark:text-gray-300">{s.orders?.customers?.nama ?? "-"}</td>
+                  <td className="text-sm text-gray-700 dark:text-gray-300 capitalize">{s.orders?.customers?.nama ?? "-"}</td>
                   <td className="text-sm text-gray-600 dark:text-gray-400 max-w-xs truncate">
                     {s.orders?.alamat_pengiriman ?? "-"}
                   </td>
                   <td className="text-sm text-gray-700 dark:text-gray-300">{s.kurir || "-"}</td>
                   <td className="text-sm text-gray-700 dark:text-gray-300">{s.no_resi || "-"}</td>
                   <td className="text-center">
-                    <span className={`badge ${STATUS_COLORS[s.status] ?? ""}`}>
+                    <span className={`badge capitalize ${STATUS_COLORS[s.status] ?? ""}`}>
                       <span className="status-dot" />
                       {s.status}
                     </span>
@@ -396,7 +397,7 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
                 <h2 className="font-display font-bold text-base text-black dark:text-white">
                   Update Pengiriman {activeShipment.orders?.no_pesanan}
                 </h2>
-                <p className="text-xs text-gray-500 dark:text-gray-400">{activeShipment.orders?.customers?.nama}</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{activeShipment.orders?.customers?.nama}</p>
               </div>
             </div>
             <form onSubmit={handleSubmit} className="space-y-3 px-6 py-5">
@@ -428,11 +429,21 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
                 Status akan berubah menjadi &quot;Dikirim&quot; setelah data disimpan.
               </p>
               <div className="flex gap-3 pt-2">
-                <button type="button" onClick={() => setShowModal(false)} className="btn-outline flex-1">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="btn-outline flex-1"
+                  style={{ padding: "9px 16px", fontSize: "0.8125rem" }}
+                >
                   Batal
                 </button>
-                <button type="submit" disabled={saving} className="btn-primary flex-1 flex items-center justify-center gap-2">
-                  {saving && <Loader2 size={15} className="animate-spin" />}
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="btn-primary flex-1 flex items-center justify-center gap-2"
+                  style={{ padding: "9px 16px", fontSize: "0.8125rem" }}
+                >
+                  {saving && <Loader2 size={13} className="animate-spin" />}
                   {saving ? "Menyimpan..." : "Simpan"}
                 </button>
               </div>

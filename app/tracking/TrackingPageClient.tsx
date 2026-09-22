@@ -197,12 +197,13 @@ export default function TrackingPageClient() {
           <div className="border-t border-gray-100 dark:border-[#30363d] pt-6">
             <form onSubmit={handleSubmit} className="flex gap-2">
               <div className="relative flex-1">
-                <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
                 <input
                   value={noPesanan}
                   onChange={(e) => setNoPesanan(e.target.value)}
                   placeholder="Contoh: DJ00125"
-                  className="input-field pl-9 py-2 text-[13px]"
+                  className="input-field"
+                  style={{ padding: "7px 14px 7px 34px", fontSize: "0.8125rem" }}
                   required
                 />
               </div>
@@ -293,10 +294,10 @@ export default function TrackingPageClient() {
                     <h2 className="font-display text-base font-extrabold tracking-tight text-black dark:text-white">
                       {order.no_pesanan}
                     </h2>
-                    <p className="mt-0.5 text-[11.5px] text-gray-500 dark:text-gray-400">{order.pelanggan ?? "-"}</p>
+                    <p className="mt-0.5 text-[11.5px] text-gray-500 dark:text-gray-400 capitalize">{order.pelanggan ?? "-"}</p>
                   </div>
                   <span
-                    className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-extrabold ${statusColorClass}`}
+                    className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10px] font-extrabold capitalize ${statusColorClass}`}
                   >
                     <span className="h-1.5 w-1.5 rounded-full bg-current" />
                     {order.status}

@@ -15,9 +15,11 @@ import {
   Package,
   Plus,
   ChevronRight,
+  ChevronDown,
   ShoppingBag,
   TrendingUp,
   ListChecks,
+  LayoutDashboard,
 } from "lucide-react";
 import PageHeaderCard from "@/components/PageHeaderCard";
 import FetchErrorBanner from "@/components/FetchErrorBanner";
@@ -137,6 +139,21 @@ export default function DashboardPage() {
   const [periodLoading, setPeriodLoading] = useState(true);
   const [periodOrders, setPeriodOrders] = useState<PeriodOrder[]>([]);
   const [pendapatanDiterima, setPendapatanDiterima] = useState(0);
+  // Permintaan user: panel "Analisis Periode" (toggle periode + 4 KPI
+  // finansial + grafik + breakdown status) defaultnya DITUTUP, tinggal 1
+  // kartu ringkasan yang bisa diklik -- supaya tampilan awal Dashboard
+  // tidak langsung penuh 8 kartu + 2 panel sekaligus. Fetch datanya (di
+  // fetchPeriodAnalysis) TIDAK berubah -- tetap jalan di background
+  // walau panelnya sedang tertutup, biar ringkasan di kartu selalu akurat
+  // begitu dibuka.
+  const [showAnalysis, setShowAnalysis] = useState(false);
+  // Permintaan user: snapshot 4 KPI "Hari Ini" (Supplier/Order Aktif/
+  // Menunggu Diproses/Stok Kritis) juga bisa disembunyikan, pola SAMA
+  // PERSIS seperti kartu ringkasan Analisis Periode di atas (pakai class
+  // CSS dash-collapse-* yang sama, tidak ada CSS baru). Datanya (stats,
+  // orderAktif, dst) tidak berubah -- tetap fetch seperti biasa terlepas
+  // dari showSnapshot, cuma cara TAMPILnya yang di-collapse.
+  const [showSnapshot, setShowSnapshot] = useState(false);
 
   useEffect(() => {
     fetchStats();
@@ -446,56 +463,87 @@ export default function DashboardPage() {
           <Link
             href="/dashboard/pesanan"
             className="btn-primary"
-            style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 14px", fontSize: 12, textDecoration: "none" }}
+            style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "6px 11px", fontSize: 11, borderRadius: 8, textDecoration: "none" }}
           >
-            <Plus size={14} /> Pesanan Baru
+            <Plus size={12} /> Pesanan Baru
           </Link>
           <Link
             href="/dashboard/gudang"
             className="btn-outline"
-            style={{ display: "inline-flex", alignItems: "center", gap: 6, padding: "9px 14px", fontSize: 12, textDecoration: "none" }}
+            style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "6px 11px", fontSize: 11, borderRadius: 8, textDecoration: "none" }}
           >
-            <Plus size={14} /> Bahan Baku
+            <Plus size={12} /> Bahan Baku
           </Link>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <Link href="/dashboard/supplier" className="dash-kpi-card is-link">
-          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#3b82f6,#2563eb)" }}>
-            <Truck size={14} />
+      {/* Kartu ringkasan "Snapshot Hari Ini" -- diklik buat buka/tutup 4
+          kartu KPI di bawahnya (showSnapshot), pola sama persis seperti
+          kartu Analisis Periode di bawah. */}
+      <div
+        className={"dash-collapse-card" + (showSnapshot ? " is-open" : "")}
+        onClick={() => setShowSnapshot((v) => !v)}
+      >
+        <div className="dash-collapse-left">
+          <span className="dash-collapse-icon">
+            <LayoutDashboard size={15} />
           </span>
-          <p className="dash-kpi-label">SUPPLIER</p>
-          <p className="dash-kpi-value font-display">{stats.totalSupplier}</p>
-          <p className="dash-kpi-hint">supplier aktif</p>
-        </Link>
-
-        <div className="dash-kpi-card">
-          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#fb923c,#ea580c)" }}>
-            <ShoppingCart size={14} />
-          </span>
-          <p className="dash-kpi-label">ORDER AKTIF</p>
-          <p className="dash-kpi-value font-display">{orderAktif}</p>
-          <p className="dash-kpi-hint">belum sampai status Selesai</p>
+          <div>
+            <p className="dash-collapse-title">Snapshot Hari Ini</p>
+            <p className="dash-collapse-sub">
+              {stats.totalSupplier} supplier · {orderAktif} order aktif · {pesananBaruCount} menunggu diproses ·{" "}
+              {criticalMaterials.length} stok kritis
+            </p>
+          </div>
         </div>
+        <ChevronDown size={16} className="dash-collapse-chev" />
+      </div>
 
-        <Link href="/dashboard/pesanan" className="dash-kpi-card is-link">
-          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#22d3ee,#0891b2)" }}>
-            <ClipboardList size={14} />
-          </span>
-          <p className="dash-kpi-label">MENUNGGU DIPROSES</p>
-          <p className="dash-kpi-value font-display">{pesananBaruCount}</p>
-          <p className="dash-kpi-hint">status masih “Pesanan”</p>
-        </Link>
+      {/* Dulu blok ini conditional-render (showSnapshot && <div>...) yang
+          bikin 4 kartu KPI muncul/hilang instan tanpa transisi. Sekarang
+          selalu di-mount, tinggi 0<->1fr yang dianimasikan lewat CSS
+          grid-template-rows (.dash-collapse-body-wrap), jadi buka/tutupnya
+          nge-slide halus senada sama chevron-nya. */}
+      <div className={"dash-collapse-body-wrap" + (showSnapshot ? " is-open" : "")}>
+        <div className="dash-collapse-body-inner">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <Link href="/dashboard/supplier" className="dash-kpi-card is-link">
+              <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#3b82f6,#2563eb)" }}>
+                <Truck size={14} />
+              </span>
+              <p className="dash-kpi-label">SUPPLIER</p>
+              <p className="dash-kpi-value font-display">{stats.totalSupplier}</p>
+              <p className="dash-kpi-hint">Supplier aktif</p>
+            </Link>
 
-        <Link href="/dashboard/gudang" className="dash-kpi-card is-link">
-          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#f87171,#dc2626)" }}>
-            <AlertTriangle size={14} />
-          </span>
-          <p className="dash-kpi-label">STOK KRITIS</p>
-          <p className="dash-kpi-value font-display">{criticalMaterials.length}</p>
-          <p className="dash-kpi-hint">bahan baku perlu diisi ulang</p>
-        </Link>
+            <div className="dash-kpi-card">
+              <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#fb923c,#ea580c)" }}>
+                <ShoppingCart size={14} />
+              </span>
+              <p className="dash-kpi-label">ORDER AKTIF</p>
+              <p className="dash-kpi-value font-display">{orderAktif}</p>
+              <p className="dash-kpi-hint">Belum sampai status Selesai</p>
+            </div>
+
+            <Link href="/dashboard/pesanan" className="dash-kpi-card is-link">
+              <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#22d3ee,#0891b2)" }}>
+                <ClipboardList size={14} />
+              </span>
+              <p className="dash-kpi-label">MENUNGGU DIPROSES</p>
+              <p className="dash-kpi-value font-display">{pesananBaruCount}</p>
+              <p className="dash-kpi-hint">Status masih “Pesanan”</p>
+            </Link>
+
+            <Link href="/dashboard/gudang" className="dash-kpi-card is-link">
+              <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#f87171,#dc2626)" }}>
+                <AlertTriangle size={14} />
+              </span>
+              <p className="dash-kpi-label">STOK KRITIS</p>
+              <p className="dash-kpi-value font-display">{criticalMaterials.length}</p>
+              <p className="dash-kpi-hint">Bahan baku perlu diisi ulang</p>
+            </Link>
+          </div>
+        </div>
       </div>
 
       <div className="dash-action-card">
@@ -524,64 +572,101 @@ export default function DashboardPage() {
         )}
       </div>
 
-      <div className="dash-analysis-toolbar">
-        <span className="dash-analysis-title">Analisis Periode</span>
-        <div className="dash-period-toggle">
-          {PERIODS.map((p) => (
-            <button key={p} className={period === p ? "is-active" : ""} onClick={() => setPeriod(p)}>
-              {p}
-            </button>
-          ))}
+      {/* Kartu ringkasan "Analisis Periode" -- diklik buat buka/tutup
+          panel di bawahnya (showAnalysis). Ringkasan angkanya (jumlah
+          pesanan, pendapatan dibuat/diterima) tetap update walau panel
+          sedang tertutup, karena fetchPeriodAnalysis tetap jalan seperti
+          biasa terlepas dari showAnalysis. */}
+      <div
+        className={"dash-collapse-card" + (showAnalysis ? " is-open" : "")}
+        onClick={() => setShowAnalysis((v) => !v)}
+      >
+        <div className="dash-collapse-left">
+          <span className="dash-collapse-icon">
+            <TrendingUp size={15} />
+          </span>
+          <div>
+            <p className="dash-collapse-title">Analisis Periode -- {period}</p>
+            <p className="dash-collapse-sub">
+              {periodLoading
+                ? "Memuat..."
+                : `${totalPesananPeriode} pesanan · ${formatRupiah(totalDibuatPeriode)} dibuat · ${formatRupiah(pendapatanDiterima)} diterima`}
+            </p>
+          </div>
         </div>
+        <ChevronDown size={16} className="dash-collapse-chev" />
       </div>
 
-      {periodLoading ? (
-        <div className="space-y-3 animate-pulse">
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="card h-24" style={{ border: "none" }} />
-            ))}
-          </div>
-          <div className="card h-40" style={{ border: "none" }} />
-        </div>
-      ) : (
-        <>
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <div className="dash-kpi-card">
-              <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#3b82f6,#2563eb)" }}>
-                <ShoppingBag size={14} />
-              </span>
-              <p className="dash-kpi-label">TOTAL PESANAN</p>
-              <p className="dash-kpi-value font-display">{totalPesananPeriode}</p>
-              <p className="dash-kpi-hint">periode {period.toLowerCase()}</p>
-            </div>
-            <div className="dash-kpi-card">
-              <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#34d399,#059669)" }}>
-                <TrendingUp size={14} />
-              </span>
-              <p className="dash-kpi-label">PENDAPATAN DIBUAT</p>
-              <p className="dash-kpi-value font-display">{formatRupiah(totalDibuatPeriode)}</p>
-              <p className="dash-kpi-hint">nilai pesanan dibuat periode ini</p>
-            </div>
-            <div className="dash-kpi-card">
-              <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#22d3ee,#0891b2)" }}>
-                <Wallet size={14} />
-              </span>
-              <p className="dash-kpi-label">PENDAPATAN DITERIMA</p>
-              <p className="dash-kpi-value font-display">{formatRupiah(pendapatanDiterima)}</p>
-              <p className="dash-kpi-hint">DP + pelunasan masuk periode ini</p>
-            </div>
-            <div className="dash-kpi-card">
-              <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#fb923c,#ea580c)" }}>
-                <AlertCircle size={14} />
-              </span>
-              <p className="dash-kpi-label">SISA BELUM DIBAYAR</p>
-              <p className="dash-kpi-value font-display">{formatRupiah(totalSisaSemua)}</p>
-              <p className="dash-kpi-hint is-warn">akumulasi semua pesanan, bukan per periode</p>
+      {/* Sama seperti Snapshot Hari Ini di atas -- dulu conditional-render,
+          sekarang selalu di-mount, buka/tutupnya dianimasikan CSS lewat
+          .dash-collapse-body-wrap supaya tidak "patah" lagi. */}
+      <div className={"dash-collapse-body-wrap" + (showAnalysis ? " is-open" : "")}>
+        <div className="dash-collapse-body-inner">
+        <div className="dash-collapse-body">
+          <div className="dash-analysis-toolbar" style={{ justifyContent: "flex-end" }}>
+            <div className="dash-period-toggle">
+              {PERIODS.map((p) => (
+                <button key={p} className={period === p ? "is-active" : ""} onClick={() => setPeriod(p)}>
+                  {p}
+                </button>
+              ))}
             </div>
           </div>
 
-          <div className="dash-analysis-grid">
+          {periodLoading ? (
+            <div className="space-y-3 animate-pulse">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="card h-24" style={{ border: "none" }} />
+                ))}
+              </div>
+              <div className="card h-40" style={{ border: "none" }} />
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                <div className="dash-kpi-card">
+                  <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#3b82f6,#2563eb)" }}>
+                    <ShoppingBag size={14} />
+                  </span>
+                  {/* Label diubah dari "TOTAL PESANAN" -- kata "Total" bikin
+                      kartu ini kelihatan seperti angka global yang sama
+                      dengan "Order Aktif"/"Menunggu Diproses" di panel Hari
+                      Ini, padahal definisinya beda (dibatasi periode yang
+                      dipilih, bukan snapshot status saat ini). Label baru
+                      menegaskan cakupan periode-nya langsung di judul, tidak
+                      cuma di hint kecil di bawahnya. */}
+                  <p className="dash-kpi-label">PESANAN PERIODE INI</p>
+                  <p className="dash-kpi-value font-display">{totalPesananPeriode}</p>
+                  <p className="dash-kpi-hint">Periode {period.toLowerCase()}</p>
+                </div>
+                <div className="dash-kpi-card">
+                  <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#34d399,#059669)" }}>
+                    <TrendingUp size={14} />
+                  </span>
+                  <p className="dash-kpi-label">PENDAPATAN DIBUAT</p>
+                  <p className="dash-kpi-value font-display">{formatRupiah(totalDibuatPeriode)}</p>
+                  <p className="dash-kpi-hint">Nilai pesanan dibuat periode ini</p>
+                </div>
+                <div className="dash-kpi-card">
+                  <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#22d3ee,#0891b2)" }}>
+                    <Wallet size={14} />
+                  </span>
+                  <p className="dash-kpi-label">PENDAPATAN DITERIMA</p>
+                  <p className="dash-kpi-value font-display">{formatRupiah(pendapatanDiterima)}</p>
+                  <p className="dash-kpi-hint">DP + pelunasan masuk periode ini</p>
+                </div>
+                <div className="dash-kpi-card">
+                  <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#fb923c,#ea580c)" }}>
+                    <AlertCircle size={14} />
+                  </span>
+                  <p className="dash-kpi-label">SISA BELUM DIBAYAR</p>
+                  <p className="dash-kpi-value font-display">{formatRupiah(totalSisaSemua)}</p>
+                  <p className="dash-kpi-hint is-warn">Akumulasi semua pesanan, bukan per periode</p>
+                </div>
+              </div>
+
+              <div className="dash-analysis-grid">
             <div className="dash-panel-card">
               <div className="dash-panel-head">
                 <TrendingUp size={13} />
@@ -638,8 +723,11 @@ export default function DashboardPage() {
               ))}
             </div>
           </div>
-        </>
-      )}
+            </>
+          )}
+        </div>
+        </div>
+      </div>
     </div>
   );
 }

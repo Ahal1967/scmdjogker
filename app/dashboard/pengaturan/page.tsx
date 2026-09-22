@@ -71,7 +71,7 @@ export default async function PengaturanPage() {
           </div>
           <p className="dash-kpi-label">Total Pengguna</p>
           <p className="dash-kpi-value">{totalPengguna}</p>
-          <p className="dash-kpi-hint">akun terdaftar</p>
+          <p className="dash-kpi-hint">Akun terdaftar</p>
         </div>
         <div className="dash-kpi-card">
           <div className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#3b82f6,#2563eb)" }}>
@@ -79,7 +79,7 @@ export default async function PengaturanPage() {
           </div>
           <p className="dash-kpi-label">Admin</p>
           <p className="dash-kpi-value">{adminCount}</p>
-          <p className="dash-kpi-hint">akses penuh</p>
+          <p className="dash-kpi-hint">Akses penuh</p>
         </div>
         <div className="dash-kpi-card">
           <div className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#22d3ee,#0891b2)" }}>
@@ -87,31 +87,33 @@ export default async function PengaturanPage() {
           </div>
           <p className="dash-kpi-label">Staff</p>
           <p className="dash-kpi-value">{staffCount}</p>
-          <p className="dash-kpi-hint">akses terbatas</p>
+          <p className="dash-kpi-hint">Akses terbatas</p>
         </div>
       </div>
 
+      {/* Sebelumnya kartu "kaca" custom (backdrop-blur-xl + blob dekoratif
+          blur-3xl di pojok) -- efek itu ditulis manual terpisah dari class
+          ".card" yang sudah dipakai di seluruh app, dan blob-nya murni
+          hiasan tanpa fungsi. Diganti flat atas permintaan user, senada
+          sama 3 kartu KPI di atas (border tipis + shadow ringan, bukan
+          blur). Ukuran juga dipadatkan (p-6->p-4, avatar 56px->44px) atas
+          permintaan user supaya kartunya tidak kelihatan besar. Semua
+          konten (nama, email, badge role, hint ganti nama, tanggal
+          bergabung) TIDAK berubah sama sekali. */}
       <div
-        className="relative overflow-hidden rounded-2xl p-6 bg-white/55 dark:bg-[#161b22]/55 backdrop-blur-xl"
-        style={{ boxShadow: "0 4px 16px rgba(30,58,138,0.1)" }}
+        className="rounded-2xl border border-gray-200 dark:border-[#30363d] bg-white dark:bg-[#161b22] p-4"
+        style={{ boxShadow: "0 2px 10px -6px rgba(30,58,138,0.12)" }}
       >
-        <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl">
-          <div className="absolute -right-10 -top-16 h-48 w-48 rounded-full bg-blue-200/30 dark:bg-blue-900/20 blur-3xl" />
-        </div>
-
-        <div className="relative z-10 flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-4">
+        <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3">
             <div
-              className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-lg font-bold text-white"
-              style={{
-                background: "linear-gradient(135deg, #3b82f6, #2563eb)",
-                boxShadow: "0 4px 12px rgba(37,99,235,0.35)",
-              }}
+              className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white"
+              style={{ background: "linear-gradient(135deg, #3b82f6, #2563eb)" }}
             >
               {myProfile?.full_name?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase() || "A"}
             </div>
             <div>
-              <p className="font-display text-lg font-bold text-black dark:text-white">
+              <p className="font-display text-sm font-bold text-black dark:text-white">
                 {myProfile?.full_name || "Administrator"}
               </p>
               <p className="text-xs text-gray-600 dark:text-gray-400">{user?.email}</p>
@@ -125,12 +127,12 @@ export default async function PengaturanPage() {
           </div>
         </div>
 
-        <p className="relative z-10 mt-3 text-xs text-gray-500 dark:text-gray-400">
+        <p className="mt-2.5 text-xs text-gray-500 dark:text-gray-400">
           Mau ganti nama sendiri? Klik ikon pensil di baris nama kamu pada daftar di bawah.
         </p>
 
         {myProfile?.created_at && (
-          <p className="relative z-10 mt-4 text-xs text-gray-500 dark:text-gray-400 border-t border-blue-100 dark:border-blue-900 pt-3">
+          <p className="mt-3 text-xs text-gray-500 dark:text-gray-400 border-t border-gray-100 dark:border-[#30363d] pt-2.5">
             Bergabung sejak{" "}
             {new Date(myProfile.created_at).toLocaleDateString("id-ID", {
               day: "2-digit",

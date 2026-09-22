@@ -11,15 +11,16 @@ import {
   Package,
   Send,
   UserCheck,
+  Undo2,
   Route,
 } from "lucide-react";
 import PageHeaderCard from "@/components/PageHeaderCard";
 
-// Halaman ini narik angka live dari 9 tabel berbeda (supplier, bahan baku x2,
-// pesanan x2, produksi, QC, packing, pengiriman). Kalau Next.js nge-cache hasil
-// query-nya, admin bisa lihat angka tahapan yang sudah basi padahal data asli
-// di database sudah berubah. force-dynamic matiin caching itu, sama seperti
-// yang dipakai di halaman Gudang.
+// Halaman ini narik angka live dari 10 tabel berbeda (supplier, bahan baku x2,
+// pesanan x2, produksi, QC, packing, pengiriman, retur). Kalau Next.js nge-cache
+// hasil query-nya, admin bisa lihat angka tahapan yang sudah basi padahal data
+// asli di database sudah berubah. force-dynamic matiin caching itu, sama
+// seperti yang dipakai di halaman Gudang.
 export const dynamic = "force-dynamic";
 
 // Gradient tiap kartu sengaja dibuat dari 2 shade warna yang sama dengan
@@ -36,6 +37,12 @@ const STAGES = [
   { key: "packing", label: "Packing", desc: "Pengemasan produk", icon: Package, accent: "#d97706", gradient: ["#fbbf24", "#d97706"], href: "/dashboard/packing" },
   { key: "pengiriman", label: "Pengiriman", desc: "Produk dikirim ke konsumen", icon: Send, accent: "#0d9488", gradient: ["#2dd4bf", "#0d9488"], href: "/dashboard/pengiriman" },
   { key: "konsumen", label: "Konsumen", desc: "Produk diterima pelanggan", icon: UserCheck, accent: "#059669", gradient: ["#34d399", "#059669"], href: "/dashboard/laporan" },
+  // Tahap ke-10 -- warna merah sengaja dibedakan dari 9 tahap lain (yang
+  // semuanya nuansa biru/hijau/oranye netral), karena retur secara makna
+  // beda dari tahap lain: bukan langkah maju dalam alur, tapi jalur
+  // pengecualian yang muncul setelah produk sudah di tangan pelanggan --
+  // sama seperti warna badge-danger/tombol btn-danger di tempat lain.
+  { key: "retur", label: "Retur", desc: "Pengembalian produk dari pelanggan", icon: Undo2, accent: "#dc2626", gradient: ["#f87171", "#dc2626"], href: "/dashboard/retur" },
 ] as const;
 
 export default async function AlurPage() {
@@ -51,6 +58,7 @@ export default async function AlurPage() {
     { count: packingCount },
     { count: pengirimanCount },
     { count: konsumenCount },
+    { count: returCount },
   ] = await Promise.all([
     supabase.from("suppliers").select("*", { count: "exact", head: true }),
     supabase.from("raw_materials").select("*", { count: "exact", head: true }),
@@ -61,6 +69,7 @@ export default async function AlurPage() {
     supabase.from("packing").select("*", { count: "exact", head: true }),
     supabase.from("shipments").select("*", { count: "exact", head: true }),
     supabase.from("orders").select("*", { count: "exact", head: true }).eq("status", "Selesai"),
+    supabase.from("returns").select("*", { count: "exact", head: true }),
   ]);
 
   const totalStok = bahanStok?.reduce((sum, b) => sum + (Number(b.stok) || 0), 0) ?? 0;
@@ -75,11 +84,12 @@ export default async function AlurPage() {
     packing: { value: packingCount ?? 0, hint: "entri packing" },
     pengiriman: { value: pengirimanCount ?? 0, hint: "pengiriman tercatat" },
     konsumen: { value: konsumenCount ?? 0, hint: "pesanan selesai" },
+    retur: { value: returCount ?? 0, hint: "total retur" },
   };
 
   // Kartu satu tahap -- dipakai ulang baik di layout "berkelok" (desktop,
   // lg ke atas) maupun layout tumpuk vertikal (mobile/tablet, di bawah lg).
-  // Index yang ditampilkan (01-09) selalu urutan global, bukan urutan
+  // Index yang ditampilkan (01-10) selalu urutan global, bukan urutan
   // posisi baris, supaya penomoran tetap konsisten di kedua layout.
   function renderStageCard(stage: (typeof STAGES)[number], globalIdx: number) {
     const Icon = stage.icon;
@@ -114,7 +124,11 @@ export default async function AlurPage() {
     );
   }
 
-  const rows = [STAGES.slice(0, 3), STAGES.slice(3, 6), STAGES.slice(6, 9)];
+  // Sebelumnya 3 baris x 3 kartu (pas buat 9 tahap). Sekarang 10 tahap --
+  // kalau tetap dipaksa 3 kolom, baris terakhir cuma kebagian 1 kartu yang
+  // melebar sendirian, jadi janggal. Disusun ulang jadi 2 baris x 5 kartu,
+  // pola berkelok yang sama cuma sekali belokan alih-alih dua.
+  const rows = [STAGES.slice(0, 5), STAGES.slice(5, 10)];
 
   return (
     <div className="space-y-4 md:space-y-6">
@@ -122,12 +136,13 @@ export default async function AlurPage() {
         badge="Rantai Pasok"
         icon={Route}
         title="Alur Supply Chain"
-        subtitle="Ringkasan tiap tahap dari bahan baku sampai produk diterima pelanggan."
+        subtitle="Ringkasan tiap tahap dari bahan baku sampai produk diterima pelanggan, termasuk retur."
       />
 
-      {/* Desktop (lg ke atas): grid 3 kolom berkelok (snake) dengan panah
-          antar kartu. Baris tengah dibalik arahnya (flex-row-reverse) supaya
-          panah antar-baris bisa lurus ke bawah, tanpa perlu garis diagonal. */}
+      {/* Desktop (lg ke atas): grid 5 kolom berkelok (snake) dengan panah
+          antar kartu, 2 baris (10 tahap). Baris kedua dibalik arahnya
+          (flex-row-reverse) supaya panah antar-baris bisa lurus ke bawah,
+          tanpa perlu garis diagonal. */}
       <div className="hidden lg:flex lg:flex-col">
         {rows.map((row, rIdx) => {
           const reversed = rIdx === 1;
@@ -135,7 +150,7 @@ export default async function AlurPage() {
             <div key={rIdx}>
               <div className={`flex items-center gap-3 ${reversed ? "flex-row-reverse" : ""}`}>
                 {row.map((stage, i) => {
-                  const globalIdx = rIdx * 3 + i;
+                  const globalIdx = rIdx * 5 + i;
                   return (
                     <Fragment key={stage.key}>
                       {renderStageCard(stage, globalIdx)}

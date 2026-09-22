@@ -187,12 +187,12 @@ function ProductCombobox({
             onChange={(e) => onChangeText(e.target.value)}
             onFocus={() => setOpen(true)}
             onBlur={() => setTimeout(() => setOpen(false), 150)}
-            className="w-full border-0 bg-transparent py-2.5 pl-8 pr-9 text-sm text-black outline-none dark:text-white"
+            className="w-full border-0 bg-transparent py-2 pl-8 pr-9 text-[13px] text-black outline-none dark:text-white"
           />
           {open ? (
-            <ChevronUp size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <ChevronUp size={13} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
           ) : (
-            <ChevronDown size={14} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <ChevronDown size={13} className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
           )}
         </div>
 
@@ -960,7 +960,7 @@ export default function PesananTable() {
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative flex-1">
-          <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+          <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             placeholder="Cari no. pesanan / pelanggan..."
             value={search}
@@ -968,23 +968,24 @@ export default function PesananTable() {
               setSearch(e.target.value);
               setCurrentPage(1);
             }}
-            className="input-field rounded-full pl-10"
+            className="input-field rounded-full"
+            style={{ padding: "7px 14px 7px 34px", fontSize: "0.8125rem" }}
           />
         </div>
         <button
           type="button"
           onClick={handleExport}
           disabled={sorted.length === 0}
-          className="inline-flex items-center justify-center gap-1.5 rounded-full border border-gray-200 dark:border-[#30363d] bg-white dark:bg-[#161b22] px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-[#21262d] disabled:cursor-not-allowed disabled:opacity-50 transition-colors whitespace-nowrap"
+          className="inline-flex items-center justify-center gap-1.5 rounded-full border border-gray-200 dark:border-[#30363d] bg-white dark:bg-[#161b22] px-4 py-2 text-xs font-semibold text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-[#21262d] disabled:cursor-not-allowed disabled:opacity-50 transition-colors whitespace-nowrap"
         >
-          <Download size={15} />
+          <Download size={13} />
           Export
         </button>
         <button
           onClick={openAdd}
-          className="inline-flex items-center justify-center gap-1.5 rounded-full bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm shadow-blue-600/30 hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 whitespace-nowrap"
+          className="inline-flex items-center justify-center gap-1.5 rounded-full bg-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-sm shadow-blue-600/30 hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 whitespace-nowrap"
         >
-          <Plus size={16} />
+          <Plus size={14} />
           Pesanan Baru
         </button>
       </div>
@@ -1014,7 +1015,7 @@ export default function PesananTable() {
                     </span>
                   </td>
                   <td className="text-black dark:text-white">{o.no_pesanan}</td>
-                  <td className="text-sm text-gray-800 dark:text-gray-200">{o.customers?.nama ?? "-"}</td>
+                  <td className="text-sm text-gray-800 dark:text-gray-200 capitalize">{o.customers?.nama ?? "-"}</td>
                   <td className="text-sm text-gray-600 dark:text-gray-400 text-center">
                     {o.tanggal
                       ? new Date(o.tanggal).toLocaleDateString("id-ID", {
@@ -1160,7 +1161,7 @@ export default function PesananTable() {
           </span>
           <p className="dash-kpi-label">TOTAL PESANAN</p>
           <p className="dash-kpi-value font-display">{summaryTotalPesanan}</p>
-          <p className="dash-kpi-hint">semua waktu</p>
+          <p className="dash-kpi-hint">Semua waktu</p>
         </div>
 
         <div className="dash-kpi-card">
@@ -1178,7 +1179,7 @@ export default function PesananTable() {
           </span>
           <p className="dash-kpi-label">TOTAL PENDAPATAN</p>
           <p className="dash-kpi-value font-display" style={{ fontSize: 15 }}>{formatRupiah(summaryPendapatan)}</p>
-          <p className="dash-kpi-hint">semua waktu</p>
+          <p className="dash-kpi-hint">Semua waktu</p>
         </div>
       </div>
 
@@ -1469,12 +1470,18 @@ export default function PesananTable() {
                   type="button"
                   onClick={() => setShowModal(false)}
                   className="btn-outline flex-1 flex items-center justify-center gap-2"
+                  style={{ padding: "9px 16px", fontSize: "0.8125rem" }}
                 >
-                  <SquareX size={15} />
+                  <SquareX size={13} />
                   Batal
                 </button>
-                <button type="submit" disabled={saving} className="btn-primary flex-1 flex items-center justify-center gap-2">
-                  {saving ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />}
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="btn-primary flex-1 flex items-center justify-center gap-2"
+                  style={{ padding: "9px 16px", fontSize: "0.8125rem" }}
+                >
+                  {saving ? <Loader2 size={13} className="animate-spin" /> : <Save size={13} />}
                   {saving ? "Menyimpan..." : "Simpan Pesanan"}
                 </button>
               </div>
@@ -1528,7 +1535,7 @@ export default function PesananTable() {
                         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-50 text-blue-600 dark:bg-blue-900/30 dark:text-blue-300">
                           <User size={16} />
                         </span>
-                        <span className="flex-1 text-sm font-medium text-gray-800 dark:text-gray-200">{c.nama}</span>
+                        <span className="flex-1 text-sm font-medium text-gray-800 dark:text-gray-200 capitalize">{c.nama}</span>
                         {active ? (
                           <CheckCircle2 size={20} className="shrink-0 text-blue-600" />
                         ) : (
@@ -1781,6 +1788,7 @@ export default function PesananTable() {
                     setQuickAddIdx(null);
                   }}
                   className="btn-outline flex-1"
+                  style={{ padding: "9px 16px", fontSize: "0.8125rem" }}
                 >
                   Batal
                 </button>
@@ -1789,10 +1797,11 @@ export default function PesananTable() {
                   disabled={savingQuickAdd}
                   aria-busy={savingQuickAdd}
                   className="btn-primary flex-1 inline-flex items-center justify-center gap-1.5"
+                  style={{ padding: "9px 16px", fontSize: "0.8125rem" }}
                 >
                   {savingQuickAdd ? (
                     <>
-                      <Loader2 size={14} className="animate-spin" />
+                      <Loader2 size={13} className="animate-spin" />
                       Menyimpan...
                     </>
                   ) : (
@@ -1822,7 +1831,7 @@ export default function PesananTable() {
                     <p className="text-xs text-gray-500 dark:text-gray-400">Detail Pesanan</p>
                   </div>
                 </div>
-                <span className={`badge ${STATUS_COLORS[detailOrder.status ?? ""] ?? ""}`}>
+                <span className={`badge capitalize ${STATUS_COLORS[detailOrder.status ?? ""] ?? ""}`}>
                   <span className="status-dot" />
                   {detailOrder.status}
                 </span>
@@ -1833,7 +1842,7 @@ export default function PesananTable() {
               <div className="flex items-center gap-2 text-sm">
                 <User size={14} className="text-gray-400" />
                 <span className="text-gray-500 dark:text-gray-400">Pelanggan:</span>
-                <span className="font-medium text-gray-800 dark:text-gray-200">{detailOrder.customers?.nama ?? "-"}</span>
+                <span className="font-medium text-gray-800 dark:text-gray-200 capitalize">{detailOrder.customers?.nama ?? "-"}</span>
               </div>
 
               <p className="mt-5 mb-2 text-xs font-semibold uppercase tracking-wide text-gray-400">Item Pesanan</p>

@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import ThemeToggle from "@/components/ThemeToggle";
 import NotificationBell from "@/components/NotificationBell";
+import PageTransition from "@/components/PageTransition";
 import { createClient } from "@/lib/supabase/client";
 import { navItems } from "@/lib/nav";
 import { useConfirm } from "@/components/useConfirm";
@@ -460,7 +461,9 @@ export default function DashboardLayout({
             jadi properti ini dilepas lagi. Kalau mau coba lagi nanti,
             pertimbangkan -webkit-overflow-scrolling:touch dulu atau test
             manual di device asli sebelum ship. */}
-        <main ref={mainRef} className="flex-1 overflow-y-auto p-6">{children}</main>
+        <main ref={mainRef} className="flex-1 overflow-y-auto p-6">
+          <PageTransition>{children}</PageTransition>
+        </main>
       </div>
 
       {ConfirmDialog}

@@ -88,7 +88,7 @@ function ProductionCard({
         <GripVertical size={14} className="mt-0.5 shrink-0 text-gray-300 dark:text-gray-600" />
       </div>
       <p className="text-xs text-gray-500 dark:text-gray-400">
-        {p.orders?.no_pesanan ?? "-"} &middot; {p.orders?.customers?.nama ?? "-"}
+        {p.orders?.no_pesanan ?? "-"} &middot; <span className="capitalize">{p.orders?.customers?.nama ?? "-"}</span>
       </p>
       <div className="flex items-center gap-2">
         <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-gray-200 dark:bg-[#21262d]">
@@ -269,7 +269,7 @@ export default function ProduksiKanban({
           <div className="card w-[240px] space-y-2 rotate-2 p-3 shadow-xl">
             <p className="text-[13px] font-bold text-black dark:text-white">{activeProduction.no_produksi || "-"}</p>
             <p className="text-xs text-gray-500 dark:text-gray-400">
-              {activeProduction.orders?.no_pesanan ?? "-"} &middot; {activeProduction.orders?.customers?.nama ?? "-"}
+              {activeProduction.orders?.no_pesanan ?? "-"} &middot; <span className="capitalize">{activeProduction.orders?.customers?.nama ?? "-"}</span>
             </p>
           </div>
         ) : null}

@@ -27,10 +27,10 @@ import {
 // oranye/biru/violet), supaya bahasa warnanya nyambung walau halaman
 // login ini di luar layout dashboard.
 const FEATURES = [
-  { label: "Bahan Baku Berkualitas", desc: "Kami pastikan bahan baku yang dipakai selalu terjaga kualitasnya.", icon: Warehouse, gradient: ["#22d3ee", "#0891b2"] },
-  { label: "Produksi & Quality Control", desc: "Setiap pesanan melewati proses sablon dan pemeriksaan kualitas sebelum dikirim.", icon: Factory, gradient: ["#fb923c", "#ea580c"] },
-  { label: "Lacak Status Pesanan", desc: "Pantau progres pesanan Anda secara real-time, dari diproses sampai dikirim.", icon: Truck, gradient: ["#3b82f6", "#2563eb"] },
-  { label: "Bantuan Kapan Saja", desc: "Ada kendala? Tim admin kami siap membantu lewat WhatsApp.", icon: Headset, gradient: ["#a78bfa", "#7c3aed"] },
+  { label: "Bahan Baku Berkualitas", desc: "Kualitas bahan selalu terjaga.", icon: Warehouse, gradient: ["#22d3ee", "#0891b2"] },
+  { label: "Produksi & Quality Control", desc: "Diperiksa ketat sebelum dikirim.", icon: Factory, gradient: ["#fb923c", "#ea580c"] },
+  { label: "Lacak Status Pesanan", desc: "Pantau progres secara real-time.", icon: Truck, gradient: ["#3b82f6", "#2563eb"] },
+  { label: "Bantuan Kapan Saja", desc: "Tim admin siap bantu lewat WhatsApp.", icon: Headset, gradient: ["#a78bfa", "#7c3aed"] },
 ] as const;
 
 export default function LoginPageClient() {

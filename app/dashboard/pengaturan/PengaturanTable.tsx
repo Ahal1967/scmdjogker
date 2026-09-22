@@ -351,15 +351,21 @@ export default function PengaturanTable({
               />
 
               <div className="flex gap-3 pt-2">
-                <button type="button" onClick={() => setShowAddModal(false)} className="btn-outline flex-1">
+                <button
+                  type="button"
+                  onClick={() => setShowAddModal(false)}
+                  className="btn-outline flex-1"
+                  style={{ padding: "9px 16px", fontSize: "0.8125rem" }}
+                >
                   Batal
                 </button>
                 <button
                   type="submit"
                   disabled={savingAdd}
                   className="btn-primary flex-1 flex items-center justify-center gap-2"
+                  style={{ padding: "9px 16px", fontSize: "0.8125rem" }}
                 >
-                  {savingAdd && <Loader2 size={15} className="animate-spin" />}
+                  {savingAdd && <Loader2 size={13} className="animate-spin" />}
                   {savingAdd ? "Menyimpan..." : "Simpan"}
                 </button>
               </div>
@@ -402,15 +408,21 @@ export default function PengaturanTable({
               )}
 
               <div className="flex gap-3 pt-2">
-                <button type="button" onClick={() => setEditingProfile(null)} className="btn-outline flex-1">
+                <button
+                  type="button"
+                  onClick={() => setEditingProfile(null)}
+                  className="btn-outline flex-1"
+                  style={{ padding: "9px 16px", fontSize: "0.8125rem" }}
+                >
                   Batal
                 </button>
                 <button
                   type="submit"
                   disabled={savingEdit}
                   className="btn-primary flex-1 flex items-center justify-center gap-2"
+                  style={{ padding: "9px 16px", fontSize: "0.8125rem" }}
                 >
-                  {savingEdit && <Loader2 size={15} className="animate-spin" />}
+                  {savingEdit && <Loader2 size={13} className="animate-spin" />}
                   {savingEdit ? "Menyimpan..." : "Simpan"}
                 </button>
               </div>

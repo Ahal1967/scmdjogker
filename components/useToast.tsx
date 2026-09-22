@@ -5,21 +5,33 @@ import { createPortal } from "react-dom";
 import { AlertCircle, CheckCircle2, X } from "lucide-react";
 
 type ToastType = "error" | "success";
-type ToastState = { message: string; type: ToastType } | null;
+type ToastState = { message: string; type: ToastType; closing?: boolean } | null;
 
 export function useToast() {
   const [toast, setToast] = useState<ToastState>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Durasi startClose() (200ms) HARUS sama dengan durasi animasi
+  // toastOut di globals.css -- kalau beda, toast akan "lompat" (hilang
+  // sebelum animasi keluar selesai) atau nge-lag (nunggu lebih lama dari
+  // animasinya sendiri).
+  function startClose() {
+    setToast((t) => (t ? { ...t, closing: true } : t));
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
+    closeTimerRef.current = setTimeout(() => setToast(null), 200);
+  }
 
   const showToast = useCallback((message: string, type: ToastType = "error") => {
     if (timerRef.current) clearTimeout(timerRef.current);
+    if (closeTimerRef.current) clearTimeout(closeTimerRef.current);
     setToast({ message, type });
-    timerRef.current = setTimeout(() => setToast(null), 6000);
+    timerRef.current = setTimeout(() => startClose(), 6000);
   }, []);
 
   function close() {
     if (timerRef.current) clearTimeout(timerRef.current);
-    setToast(null);
+    startClose();
   }
 
   /* createPortal ke document.body -- alasan sama seperti ConfirmDialog di
@@ -33,6 +45,8 @@ export function useToast() {
       <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[200] w-full max-w-md px-4">
         <div
           className={`flex items-start gap-3 rounded-xl border p-4 shadow-lg backdrop-blur ${
+            toast.closing ? "toast-exit" : "toast-enter"
+          } ${
             toast.type === "error"
               ? "bg-red-50/95 dark:bg-red-900/90 border-red-200 dark:border-red-800"
               : "bg-green-50/95 dark:bg-green-900/90 border-green-200 dark:border-green-800"

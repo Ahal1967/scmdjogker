@@ -312,7 +312,7 @@ export default function QcTable({
                     </td>
                     <td className="text-black dark:text-white">{p.no_produksi}</td>
                     <td className="text-sm text-gray-700 dark:text-gray-300">{p.orders?.no_pesanan ?? "-"}</td>
-                    <td className="text-sm text-gray-700 dark:text-gray-300">{p.orders?.customers?.nama ?? "-"}</td>
+                    <td className="text-sm text-gray-700 dark:text-gray-300 capitalize">{p.orders?.customers?.nama ?? "-"}</td>
                     <td className="td-center">
                       <button
                         onClick={() => openCheck(p)}
@@ -332,7 +332,7 @@ export default function QcTable({
 
       {/* Riwayat QC */}
       <div className="relative">
-        <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+        <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
         <input
           placeholder="Cari no. QC / no. produksi..."
           value={search}
@@ -340,7 +340,8 @@ export default function QcTable({
             setSearch(e.target.value);
             setCurrentPage(1);
           }}
-          className="input-field rounded-full pl-10 max-w-md"
+          className="input-field rounded-full max-w-md"
+          style={{ padding: "7px 14px 7px 34px", fontSize: "0.8125rem" }}
         />
       </div>
 
@@ -383,7 +384,7 @@ export default function QcTable({
                     })}
                   </td>
                   <td className="text-center">
-                    <span className={`badge ${HASIL_COLORS[r.hasil]}`}>
+                    <span className={`badge capitalize ${HASIL_COLORS[r.hasil]}`}>
                       <span className="status-dot" />
                       {r.hasil}
                     </span>
@@ -485,7 +486,7 @@ export default function QcTable({
                   Periksa {activeProduction.no_produksi}
                 </h2>
                 <p className="text-xs text-gray-500 dark:text-gray-400">
-                  {activeProduction.orders?.no_pesanan} — {activeProduction.orders?.customers?.nama}
+                  {activeProduction.orders?.no_pesanan} — <span className="capitalize">{activeProduction.orders?.customers?.nama}</span>
                 </p>
               </div>
             </div>
@@ -550,11 +551,21 @@ export default function QcTable({
                   : "Produksi akan dikembalikan ke tahap Produksi untuk perbaikan."}
               </p>
               <div className="flex gap-3 pt-2">
-                <button type="button" onClick={() => setShowModal(false)} className="btn-outline flex-1">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="btn-outline flex-1"
+                  style={{ padding: "9px 16px", fontSize: "0.8125rem" }}
+                >
                   Batal
                 </button>
-                <button type="submit" disabled={saving} className="btn-primary flex-1 flex items-center justify-center gap-2">
-                  {saving && <Loader2 size={15} className="animate-spin" />}
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="btn-primary flex-1 flex items-center justify-center gap-2"
+                  style={{ padding: "9px 16px", fontSize: "0.8125rem" }}
+                >
+                  {saving && <Loader2 size={13} className="animate-spin" />}
                   {saving ? "Menyimpan..." : "Simpan Hasil"}
                 </button>
               </div>

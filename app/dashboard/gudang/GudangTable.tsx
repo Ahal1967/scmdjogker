@@ -237,7 +237,7 @@ export default function GudangTable({
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative flex-1">
-          <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+          <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             placeholder="Cari bahan..."
             value={search}
@@ -245,23 +245,24 @@ export default function GudangTable({
               setSearch(e.target.value);
               setCurrentPage(1);
             }}
-            className="input-field rounded-full pl-10"
+            className="input-field rounded-full"
+            style={{ padding: "7px 14px 7px 34px", fontSize: "0.8125rem" }}
           />
         </div>
         <button
           type="button"
           onClick={handleExport}
           disabled={sorted.length === 0}
-          className="inline-flex items-center justify-center gap-1.5 rounded-full border border-gray-200 dark:border-[#30363d] bg-white dark:bg-[#161b22] px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-[#21262d] disabled:cursor-not-allowed disabled:opacity-50 transition-colors whitespace-nowrap"
+          className="inline-flex items-center justify-center gap-1.5 rounded-full border border-gray-200 dark:border-[#30363d] bg-white dark:bg-[#161b22] px-4 py-2 text-xs font-semibold text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-[#21262d] disabled:cursor-not-allowed disabled:opacity-50 transition-colors whitespace-nowrap"
         >
-          <Download size={15} />
+          <Download size={13} />
           Export
         </button>
         <button
           onClick={openAdd}
-          className="inline-flex items-center justify-center gap-1.5 rounded-full bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm shadow-blue-600/30 hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 whitespace-nowrap"
+          className="inline-flex items-center justify-center gap-1.5 rounded-full bg-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-sm shadow-blue-600/30 hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 whitespace-nowrap"
         >
-          <Plus size={16} />
+          <Plus size={14} />
           Bahan Masuk
         </button>
       </div>
@@ -318,7 +319,7 @@ export default function GudangTable({
                   <td className="text-sm text-gray-700 dark:text-gray-300">{m.suppliers?.nama_supplier ?? "-"}</td>
                   <td className="text-center">
                     <span
-                      className={`badge ${
+                      className={`badge capitalize ${
                         m.status === "Aman"
                           ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300"
                           : "bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300"
@@ -593,11 +594,21 @@ export default function GudangTable({
               </div>
 
               <div className="flex gap-3 pt-2">
-                <button type="button" onClick={() => setShowModal(false)} className="btn-outline flex-1">
+                <button
+                  type="button"
+                  onClick={() => setShowModal(false)}
+                  className="btn-outline flex-1"
+                  style={{ padding: "9px 16px", fontSize: "0.8125rem" }}
+                >
                   Batal
                 </button>
-                <button type="submit" disabled={saving} className="btn-primary flex-1 flex items-center justify-center gap-2">
-                  {saving && <Loader2 size={15} className="animate-spin" />}
+                <button
+                  type="submit"
+                  disabled={saving}
+                  className="btn-primary flex-1 flex items-center justify-center gap-2"
+                  style={{ padding: "9px 16px", fontSize: "0.8125rem" }}
+                >
+                  {saving && <Loader2 size={13} className="animate-spin" />}
                   {saving ? "Menyimpan..." : "Simpan"}
                 </button>
               </div>

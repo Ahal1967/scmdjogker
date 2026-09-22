@@ -156,7 +156,7 @@ export default function StatusDropdown({
         type="button"
         onClick={toggleOpen}
         disabled={loading}
-        className={`badge relative ${colorClasses[value] ?? ""}${loading ? " opacity-60 cursor-wait" : ""}`}
+        className={`badge relative capitalize ${colorClasses[value] ?? ""}${loading ? " opacity-60 cursor-wait" : ""}`}
         aria-label={ariaLabel ?? `Ubah status: ${value}`}
         aria-haspopup="listbox"
         aria-expanded={open}
@@ -177,7 +177,7 @@ export default function StatusDropdown({
             ref={panelRef}
             role="listbox"
             aria-label={ariaLabel ?? "Pilih status"}
-            className="status-dd-panel"
+            className={"status-dd-panel" + (pos.openUp ? " status-dd-panel-openup" : "")}
             style={{
               position: "fixed",
               top: pos.openUp ? undefined : pos.top,
@@ -200,7 +200,7 @@ export default function StatusDropdown({
                   <span className="status-dd-icon">
                     <Icon size={14} />
                   </span>
-                  <span className="status-dd-label">{s}</span>
+                  <span className="status-dd-label capitalize">{s}</span>
                   {active && <Check size={15} className="status-dd-check" />}
                 </button>
               );

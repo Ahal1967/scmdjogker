@@ -77,7 +77,7 @@ export default function ResetPasswordPage() {
             Memverifikasi tautan reset password... Kalau halaman ini tidak berubah
             dalam beberapa detik, kemungkinan tautan sudah kedaluwarsa —{" "}
             <Link href="/auth/forgot-password" className="text-blue-600 hover:underline">
-              minta tautan baru
+              Minta tautan baru
             </Link>
             .
           </p>

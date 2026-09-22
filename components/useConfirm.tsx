@@ -79,13 +79,19 @@ export function useConfirm() {
               supaya dialog ini akhirnya konsisten, bukan kelihatan beda
               sendiri. */}
           <div className="flex gap-2.5 border-t border-gray-100 dark:border-[#30363d] p-3.5">
-            <button type="button" onClick={() => handleClose(false)} className="btn-outline flex-1">
+            <button
+              type="button"
+              onClick={() => handleClose(false)}
+              className="btn-outline flex-1"
+              style={{ padding: "9px 16px", fontSize: "0.8125rem" }}
+            >
               Batal
             </button>
             <button
               type="button"
               onClick={() => handleClose(true)}
               className={options.danger ? "btn-danger flex-1" : "btn-primary flex-1"}
+              style={{ padding: "9px 16px", fontSize: "0.8125rem" }}
             >
               {options.confirmLabel || "Ya, Lanjutkan"}
             </button>
