@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 
 export default function ForgotPasswordPage() {
@@ -10,6 +10,18 @@ export default function ForgotPasswordPage() {
   const [loading, setLoading] = useState(false);
   const [sent, setSent] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Kalau dilempar balik ke sini dari /auth/confirm (verifyOtp gagal --
+  // token_hash tidak ada/tidak valid/sudah kedaluwarsa), tampilkan
+  // pesannya di sini supaya pengguna tidak bingung kenapa tiba-tiba balik
+  // ke halaman "Lupa Password?" lagi. Sengaja cek window.location.search
+  // langsung (bukan useSearchParams dari next/navigation) supaya halaman
+  // ini tidak wajib dibungkus <Suspense>.
+  useEffect(() => {
+    if (window.location.search.includes("error=link_invalid")) {
+      setErrorMsg("Tautan reset password sudah kedaluwarsa atau tidak valid. Silakan minta tautan baru.");
+    }
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();

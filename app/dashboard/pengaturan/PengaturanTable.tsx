@@ -13,6 +13,7 @@ import {
   MoreHorizontal,
   Plus,
   Loader2,
+  KeyRound,
 } from "lucide-react";
 import SortableTh from "@/components/SortableTh";
 import TableIconCell from "@/components/TableIconCell";
@@ -189,6 +190,52 @@ export default function PengaturanTable({
     setSavingEdit(false);
   }
 
+  // ---------- Reset Password (pengganti "Lupa Password?" lewat email) ----------
+  // Fitur reset mandiri lewat email dicabut dari halaman login (butuh
+  // custom SMTP yang belum di-setup). Sebagai gantinya, admin bisa set
+  // password baru langsung dari sini -- tanpa email sama sekali, lebih
+  // cocok buat app internal begini.
+  const [resettingProfile, setResettingProfile] = useState<Profile | null>(null);
+  const [resetForm, setResetForm] = useState({ password: "", confirmPassword: "" });
+  const [savingReset, setSavingReset] = useState(false);
+
+  function openReset(profile: Profile) {
+    setResetForm({ password: "", confirmPassword: "" });
+    setResettingProfile(profile);
+  }
+
+  async function handleReset(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (!resettingProfile) return;
+
+    if (resetForm.password.length < 6) {
+      showToast("Password minimal 6 karakter.");
+      return;
+    }
+    if (resetForm.password !== resetForm.confirmPassword) {
+      showToast("Konfirmasi password tidak cocok.");
+      return;
+    }
+
+    setSavingReset(true);
+    const res = await fetch(`/api/admin/users/${resettingProfile.id}/reset-password`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password: resetForm.password }),
+    });
+    const result = await res.json().catch(() => ({}));
+
+    if (!res.ok) {
+      showToast("Gagal reset password: " + (result?.error ?? "tidak diketahui"));
+      setSavingReset(false);
+      return;
+    }
+
+    showToast(`Password "${resettingProfile.full_name ?? resettingProfile.id}" berhasil direset.`);
+    setResettingProfile(null);
+    setSavingReset(false);
+  }
+
   // ---------- Hapus Pengguna ----------
   async function handleDelete(profile: Profile) {
     const ok = await confirm({
@@ -273,6 +320,17 @@ export default function PengaturanTable({
                     >
                       <Pencil size={15} />
                     </button>
+                    {isAdmin && profile.id !== currentUserId && (
+                      <button
+                        type="button"
+                        onClick={() => openReset(profile)}
+                        title="Reset Password"
+                        aria-label="Reset Password"
+                        className="flex h-8 w-8 items-center justify-center rounded-lg text-orange-600 dark:text-orange-400 hover:bg-orange-50 dark:hover:bg-orange-900/40 transition-colors"
+                      >
+                        <KeyRound size={15} />
+                      </button>
+                    )}
                     {isAdmin && profile.id !== currentUserId && (
                       <button
                         type="button"
@@ -424,6 +482,65 @@ export default function PengaturanTable({
                 >
                   {savingEdit && <Loader2 size={13} className="animate-spin" />}
                   {savingEdit ? "Menyimpan..." : "Simpan"}
+                </button>
+              </div>
+            </form>
+          </div>
+          </div>,
+          document.body
+        )}
+
+      {/* Sama seperti 2 modal di atas -- di-portal ke <body> supaya tidak
+          kejebak backdrop-filter ".card" di page.tsx. */}
+      {resettingProfile &&
+        createPortal(
+          <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/60 p-4 overflow-y-auto">
+          <div className="modal-fade-in card card-modal w-full max-w-md my-8 max-h-[90vh] overflow-y-auto shadow-2xl" style={{ border: "none" }}>
+            <h2 className="font-display text-base font-semibold text-black dark:text-white">
+              Reset Password: {resettingProfile.full_name || resettingProfile.id}
+            </h2>
+            <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+              Password langsung berubah begitu disimpan (tidak ada email dikirim). Kasih tahu password baru ini ke
+              orangnya langsung.
+            </p>
+            <form onSubmit={handleReset} className="mt-4 space-y-3">
+              <input
+                required
+                autoFocus
+                type="password"
+                minLength={6}
+                placeholder="Password baru (minimal 6 karakter)"
+                value={resetForm.password}
+                onChange={(e) => setResetForm((f) => ({ ...f, password: e.target.value }))}
+                className="input-field w-full"
+              />
+              <input
+                required
+                type="password"
+                minLength={6}
+                placeholder="Ulangi password baru"
+                value={resetForm.confirmPassword}
+                onChange={(e) => setResetForm((f) => ({ ...f, confirmPassword: e.target.value }))}
+                className="input-field w-full"
+              />
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setResettingProfile(null)}
+                  className="btn-outline flex-1"
+                  style={{ padding: "9px 16px", fontSize: "0.8125rem" }}
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingReset}
+                  className="btn-primary flex-1 flex items-center justify-center gap-2"
+                  style={{ padding: "9px 16px", fontSize: "0.8125rem" }}
+                >
+                  {savingReset && <Loader2 size={13} className="animate-spin" />}
+                  {savingReset ? "Menyimpan..." : "Reset Password"}
                 </button>
               </div>
             </form>

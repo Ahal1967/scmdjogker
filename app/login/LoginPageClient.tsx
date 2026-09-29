@@ -228,15 +228,18 @@ export default function LoginPageClient() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between text-xs">
+          <div className="flex items-center text-xs">
+            {/* Tautan "Lupa password?" dicabut -- fitur reset lewat email
+                butuh custom SMTP yang belum di-setup (Supabase mengunci
+                template email selama masih pakai layanan email bawaan).
+                Diganti tombol "Reset Password" khusus admin di tabel
+                pengguna (Pengaturan > PengaturanTable.tsx), yang set
+                password baru langsung tanpa email sama sekali -- lebih
+                cocok buat app internal begini. */}
             <label className="flex items-center gap-2 text-gray-600 dark:text-gray-400">
               <input type="checkbox" className="h-4 w-4 accent-blue-600" />
               Ingat saya
             </label>
-
-            <Link href="/auth/forgot-password" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 hover:underline">
-              Lupa password?
-            </Link>
           </div>
 
           <button
