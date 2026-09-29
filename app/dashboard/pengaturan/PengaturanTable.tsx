@@ -14,6 +14,7 @@ import {
   Plus,
   Loader2,
   KeyRound,
+  Mail,
 } from "lucide-react";
 import SortableTh from "@/components/SortableTh";
 import TableIconCell from "@/components/TableIconCell";
@@ -36,6 +37,10 @@ type Profile = {
   role: string;
   avatar_url: string | null;
   created_at: string;
+  // null buat viewer non-admin (page.tsx sengaja tidak kirim email ke
+  // yang bukan admin, lihat komentar di sana) ATAU memang belum
+  // ke-mapping (user baru ditambahkan lewat handleAdd sebelum refresh).
+  email?: string | null;
 };
 
 const ROLE_COLORS: Record<string, string> = {
@@ -136,6 +141,11 @@ export default function PengaturanTable({
         role: result?.warning ? "staff" : addForm.role,
         avatar_url: null,
         created_at: new Date().toISOString(),
+        // Server juga kirim balik email-nya (lihat api/admin/users/route.ts
+        // -- result.user.email), dipakai di sini biar user yang baru
+        // ditambah langsung kelihatan email-nya di kolom Email tanpa perlu
+        // refresh halaman.
+        email: result.user.email ?? addForm.email,
       },
       ...prev,
     ]);
@@ -281,6 +291,11 @@ export default function PengaturanTable({
                   tetap tengah. */}
               <SortableTh label="ID" icon={Fingerprint} active={sortField === "id"} direction={sortDir} onClick={() => toggleSort("id")} />
               <SortableTh label="Nama Lengkap" icon={IdCard} active={sortField === "full_name"} direction={sortDir} onClick={() => toggleSort("full_name")} />
+              {/* Kolom Email cuma dikirim server buat viewer admin (lihat
+                  page.tsx) -- staf non-admin tidak pernah dapat data
+                  email pengguna lain sama sekali, bukan cuma disembunyikan
+                  di UI. */}
+              {isAdmin && <SortableTh label="Email" icon={Mail} sortable={false} />}
               <SortableTh label="Role" icon={ShieldCheck} active={sortField === "role"} direction={sortDir} onClick={() => toggleSort("role")} center />
               <SortableTh label="Dibuat" icon={Calendar} active={sortField === "created_at"} direction={sortDir} onClick={() => toggleSort("created_at")} center />
               <SortableTh label="Aksi" icon={MoreHorizontal} sortable={false} center />
@@ -303,6 +318,9 @@ export default function PengaturanTable({
                     <span className="ml-1.5 text-[10px] font-normal text-gray-500 dark:text-gray-400">(kamu)</span>
                   )}
                 </td>
+                {isAdmin && (
+                  <td className="text-xs text-gray-600 dark:text-gray-400">{profile.email || "-"}</td>
+                )}
                 <td className="text-center">
                   <span className={formatRoleBadge(profile.role)}>{profile.role}</span>
                 </td>
@@ -348,7 +366,7 @@ export default function PengaturanTable({
             ))}
             {profiles.length === 0 && (
               <tr>
-                <td colSpan={6} className="text-center text-gray-500 dark:text-gray-400 py-6 md:py-8">
+                <td colSpan={isAdmin ? 7 : 6} className="text-center text-gray-500 dark:text-gray-400 py-6 md:py-8">
                   Belum ada data pengguna.
                 </td>
               </tr>

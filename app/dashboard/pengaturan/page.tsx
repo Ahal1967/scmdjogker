@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { Settings, Users2, ShieldCheck, User } from "lucide-react";
 import PengaturanTable from "./PengaturanTable";
 import PageHeaderCard from "@/components/PageHeaderCard";
@@ -34,6 +35,47 @@ export default async function PengaturanPage() {
   const totalPengguna = allProfiles.length;
   const adminCount = allProfiles.filter((p) => p.role === "admin").length;
   const staffCount = allProfiles.filter((p) => p.role === "staff").length;
+
+  // Email pengguna lain -- ATAS PERMINTAAN USER, admin bisa lihat email
+  // staf buat antisipasi staf lupa emailnya sendiri. Tabel "profiles" TIDAK
+  // simpan email (email cuma ada di auth.users bawaan Supabase, tidak lewat
+  // tabel publik/RLS biasa), jadi harus ditarik lewat Admin API (service
+  // role) di sini, lalu digabung ke data profiles berdasarkan id.
+  //
+  // PASSWORD SENGAJA TIDAK IKUT ditarik/ditampilkan sama sekali -- itu
+  // bukan keterbatasan yang bisa "diperbaiki". Supabase (seperti semua
+  // sistem auth yang benar) simpan password dalam bentuk hash satu-arah,
+  // bukan teks asli, jadi TIDAK ADA cara apapun (termasuk lewat service
+  // role/Admin API) buat "melihat" password staf dari mana pun -- yang
+  // ada di database cuma hash-nya, bukan passwordnya. Kalau staf lupa
+  // password, admin pakai tombol "Reset Password" di tabel (SET password
+  // baru, bukan lihat yang lama).
+  //
+  // isAdminViewer dicek di sini (server), bukan cuma disembunyikan di UI
+  // client -- kalau cuma disembunyikan di client, email tetap kebawa di
+  // payload halaman dan bisa dilihat staf lewat DevTools/view-source.
+  // Jangan pernah panggil Admin API di sini kalau viewer bukan admin.
+  const isAdminViewer = myProfile?.role === "admin";
+  let emailById: Record<string, string> = {};
+  if (isAdminViewer) {
+    try {
+      const admin = createAdminClient();
+      const { data: usersList, error: usersError } = await admin.auth.admin.listUsers({ perPage: 200 });
+      if (usersError) {
+        console.error("Gagal ambil daftar email user:", usersError.message);
+      } else {
+        for (const u of usersList.users) {
+          if (u.email) emailById[u.id] = u.email;
+        }
+      }
+    } catch (err) {
+      console.error("Gagal ambil daftar email user:", err);
+    }
+  }
+  const profilesForTable = allProfiles.map((p) => ({
+    ...p,
+    email: isAdminViewer ? emailById[p.id] ?? null : null,
+  }));
 
   const ROLE_COLORS: Record<string, string> = {
     admin: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
@@ -161,9 +203,9 @@ export default async function PengaturanPage() {
 
       <div className="card overflow-hidden p-0" style={{ border: "none" }}>
         <PengaturanTable
-          initialProfiles={profiles ?? []}
+          initialProfiles={profilesForTable}
           currentUserId={user?.id ?? ""}
-          isAdmin={myProfile?.role === "admin"}
+          isAdmin={isAdminViewer}
         />
       </div>
     </div>
