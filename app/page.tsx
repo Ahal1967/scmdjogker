@@ -12,7 +12,11 @@ export default function Home({
   // di daftar Redirect URLs dashboard, jangan buang parameter recovery-nya
   // (code/type=recovery) dengan langsung redirect polos ke /login -- lempar
   // dulu ke halaman reset password yang benar sambil membawa parameternya.
-  if (searchParams.type === "recovery") {
+  // Catatan: "type=recovery" TIDAK selalu ikut terkirim -- link recovery
+  // gaya PKCE (default di @supabase/ssr) cuma bawa "?code=..." polos.
+  // App ini tidak punya flow lain yang menghasilkan param "code" di root,
+  // jadi kemunculan "code" saja sudah cukup jadi sinyal.
+  if (searchParams.type === "recovery" || typeof searchParams.code === "string") {
     const params = new URLSearchParams();
     for (const [key, value] of Object.entries(searchParams)) {
       if (typeof value === "string") params.set(key, value);

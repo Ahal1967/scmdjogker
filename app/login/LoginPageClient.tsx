@@ -64,7 +64,18 @@ export default function LoginPageClient() {
   useEffect(() => {
     const search = window.location.search;
     const hash = window.location.hash;
-    const isRecoveryLink = search.includes("type=recovery") || hash.includes("type=recovery");
+    // "type=recovery" ternyata TIDAK selalu ada -- link recovery gaya PKCE
+    // (default di @supabase/ssr) cuma bawa "?code=..." polos tanpa param
+    // "type" sama sekali. Makanya deteksi "code=" juga dihitung sebagai
+    // sinyal recovery, bukan cuma "type=recovery". App ini tidak punya
+    // flow lain yang bisa menghasilkan param "code" di /login (tidak ada
+    // signup mandiri / OAuth), jadi aman dianggap ini pasti dari tautan
+    // reset password.
+    const isRecoveryLink =
+      search.includes("type=recovery") ||
+      hash.includes("type=recovery") ||
+      search.includes("code=") ||
+      hash.includes("access_token=");
     if (isRecoveryLink) {
       router.replace(`/auth/reset-password${search}${hash}`);
     }
