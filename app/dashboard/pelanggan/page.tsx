@@ -60,24 +60,36 @@ export default async function PelangganPage() {
           prinsip "class per halaman"). */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <div className="dash-kpi-card">
-          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#3b82f6,#2563eb)" }}>
-            <Users2 size={14} />
-          </span>
-          <p className="dash-kpi-label">TOTAL PELANGGAN</p>
+          <div className="dash-kpi-top">
+            <span className="dash-kpi-top-left">
+              <span className="dash-kpi-icon" style={{ background: "#dbeafe", color: "#2563eb" }}>
+                <Users2 size={13} />
+              </span>
+              <span className="dash-kpi-label">Total Pelanggan</span>
+            </span>
+          </div>
           <p className="dash-kpi-value font-display">{totalPelanggan}</p>
         </div>
         <div className="dash-kpi-card">
-          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#34d399,#059669)" }}>
-            <ShoppingBag size={14} />
-          </span>
-          <p className="dash-kpi-label">PERNAH BELANJA</p>
+          <div className="dash-kpi-top">
+            <span className="dash-kpi-top-left">
+              <span className="dash-kpi-icon" style={{ background: "#d1fae5", color: "#059669" }}>
+                <ShoppingBag size={13} />
+              </span>
+              <span className="dash-kpi-label">Pernah Belanja</span>
+            </span>
+          </div>
           <p className="dash-kpi-value font-display">{pelangganAktif}</p>
         </div>
         <div className="dash-kpi-card">
-          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#fb923c,#ea580c)" }}>
-            <Wallet size={14} />
-          </span>
-          <p className="dash-kpi-label">TOTAL BELANJA DITERIMA</p>
+          <div className="dash-kpi-top">
+            <span className="dash-kpi-top-left">
+              <span className="dash-kpi-icon" style={{ background: "#ffedd5", color: "#ea580c" }}>
+                <Wallet size={13} />
+              </span>
+              <span className="dash-kpi-label">Total Belanja Diterima</span>
+            </span>
+          </div>
           <p className="dash-kpi-value font-display" style={{ fontSize: 15 }}>
             Rp {totalBelanjaSemua.toLocaleString("id-ID")}
           </p>

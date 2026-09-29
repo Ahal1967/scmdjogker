@@ -534,16 +534,16 @@ body::before {
     color: var(--djoker-muted);
   }
 
-  /* KPI 4 kartu -- turunan dari .premium-stat-card lama, ditambah slot
-     delta (naik/turun asli) & sparkline opsional. Kartu tanpa data historis
-     asli (Supplier, Order Aktif) sengaja TIDAK dikasih delta/sparkline --
-     lihat komentar di app/dashboard/page.tsx. */
+  /* KPI 4 kartu (panel "Analisis Periode") -- versi ke-2, dirombak supaya
+     senada dengan referensi visual dari user: ikon jadi badge kotak warna
+     muda (bukan gradien solid), judul sejajar ikon di baris atas + chevron
+     di ujung kanan (dekoratif, kartunya sendiri tidak diklik), angka besar
+     jadi elemen terpisah di bawahnya, baru hint kecil paling bawah. */
   .dash-kpi-card {
     position: relative;
     overflow: hidden;
-    min-height: 64px;
     border-radius: 10px;
-    padding: 7px;
+    padding: 9px 10px;
     border: 1px solid #e5e7eb;
     box-shadow: 0 2px 10px -6px rgba(30, 58, 138, 0.12);
     background: #ffffff;
@@ -561,32 +561,46 @@ body::before {
     background: var(--djoker-surface);
   }
 
+  .dash-kpi-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+  }
+
+  .dash-kpi-top-left {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+  }
+
   .dash-kpi-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 19px;
-    height: 19px;
-    border-radius: 5px;
-    color: #fff;
-    margin-bottom: 4px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    width: 22px;
+    height: 22px;
+    border-radius: 7px;
+    flex-shrink: 0;
   }
 
+  .dash-kpi-chev { color: #9ca3af; flex-shrink: 0; }
+  .dark .dash-kpi-chev { color: var(--djoker-muted); }
+
   .dash-kpi-label {
-    font-size: 8px;
-    font-weight: 700;
-    letter-spacing: 0.02em;
-    color: #6b7280;
+    font-size: 9.5px;
+    font-weight: 600;
+    color: #374151;
   }
 
   .dark .dash-kpi-label {
-    color: var(--djoker-muted);
+    color: var(--djoker-text-2);
   }
 
   .dash-kpi-value {
-    margin-top: 2px;
-    font-size: 14px;
+    margin-top: 5px;
+    font-size: 15px;
     font-weight: 800;
     color: #0a0a1a;
   }
@@ -597,7 +611,7 @@ body::before {
 
   .dash-kpi-hint {
     margin-top: 2px;
-    font-size: 8px;
+    font-size: 9px;
     color: #94a3b8;
   }
 
@@ -607,6 +621,50 @@ body::before {
 
   .dash-kpi-hint.is-warn { color: #b45309; font-weight: 600; }
   .dark .dash-kpi-hint.is-warn { color: #fbbf24; }
+
+  /* Kartu Snapshot Hari Ini -- sengaja dikasih class TERPISAH dari
+     .dash-kpi-card (bukan numpang), karena referensi visual user
+     membedakan gaya keduanya: kartu Analisis Periode di atas pakai badge
+     ikon warna + chevron, kartu Snapshot ini polos -- ikon warna tanpa
+     latar, judul di bawah ikon, angka besar di bawah judul, tanpa chevron. */
+  .dash-snapshot-card {
+    border-radius: 10px;
+    padding: 9px 10px;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .dash-snapshot-card.is-link { cursor: pointer; }
+  .dash-snapshot-card.is-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px -8px rgba(30, 58, 138, 0.18);
+  }
+
+  .dark .dash-snapshot-card {
+    border-color: var(--djoker-border);
+    background: var(--djoker-surface);
+  }
+
+  .dash-snapshot-icon {
+    display: block;
+    margin-bottom: 5px;
+  }
+
+  .dash-snapshot-label {
+    font-size: 9.5px;
+    font-weight: 600;
+    color: #6b7280;
+  }
+  .dark .dash-snapshot-label { color: var(--djoker-muted); }
+
+  .dash-snapshot-value {
+    margin-top: 2px;
+    font-size: 15px;
+    font-weight: 800;
+    color: #0a0a1a;
+  }
+  .dark .dash-snapshot-value { color: #fff; }
 
   /* Panel "Perlu Tindakan" -- menyatukan sinyal yang sebelumnya cuma ada
      di lonceng notifikasi (NotificationBell) supaya kelihatan tanpa buka
@@ -725,7 +783,9 @@ body::before {
     justify-content: space-between;
     gap: 10px;
     flex-wrap: wrap;
+    border-bottom: 1px solid #e5e7eb;
   }
+  .dark .dash-analysis-toolbar { border-color: var(--djoker-border); }
 
   .dash-analysis-title {
     font-size: 12.5px;
@@ -734,17 +794,12 @@ body::before {
   }
   .dark .dash-analysis-title { color: var(--djoker-text); }
 
+  /* Diubah dari gaya segmented-pill jadi tab underline, sesuai referensi
+     visual user -- garis pemisah penuh selebar toolbar, tab aktif ditandai
+     underline biru + teks biru, bukan lagi latar pil solid. */
   .dash-period-toggle {
     display: inline-flex;
-    gap: 2px;
-    padding: 3px;
-    border-radius: 8px;
-    background: #f9fafb;
-    border: 1px solid #e5e7eb;
-  }
-  .dark .dash-period-toggle {
-    background: var(--djoker-surface-2);
-    border-color: var(--djoker-border);
+    gap: 20px;
   }
 
   .dash-period-toggle button {
@@ -752,18 +807,38 @@ body::before {
     border: none;
     cursor: pointer;
     font-family: inherit;
-    font-size: 10.5px;
-    font-weight: 700;
+    font-size: 13px;
+    font-weight: 600;
     color: #6b7280;
-    padding: 5px 10px;
-    border-radius: 6px;
+    padding: 8px 1px 10px;
+    margin-bottom: -1px;
     background: transparent;
+    border-bottom: 2px solid transparent;
   }
   .dark .dash-period-toggle button { color: var(--djoker-muted); }
 
   .dash-period-toggle button.is-active {
-    background: var(--djoker-blue);
-    color: #fff;
+    color: var(--djoker-blue);
+    border-bottom-color: var(--djoker-blue);
+  }
+
+  .dash-chart-range-select {
+    appearance: none;
+    -webkit-appearance: none;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #ffffff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10'%3E%3Cpath d='M1 3l4 4 4-4' stroke='%236b7280' stroke-width='1.5' fill='none'/%3E%3C/svg%3E") no-repeat right 8px center;
+    padding: 5px 22px 5px 10px;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 600;
+    color: #374151;
+    cursor: pointer;
+  }
+  .dark .dash-chart-range-select {
+    background-color: var(--djoker-surface-2);
+    border-color: var(--djoker-border);
+    color: var(--djoker-text-2);
   }
 
   .dash-analysis-grid {
@@ -790,11 +865,17 @@ body::before {
   .dash-panel-head {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     gap: 6px;
     font-size: 11.5px;
     font-weight: 700;
     margin-bottom: 12px;
     color: #374151;
+  }
+  .dash-panel-head-title {
+    display: flex;
+    align-items: center;
+    gap: 6px;
   }
   .dark .dash-panel-head { color: var(--djoker-text-2); }
 
@@ -1183,7 +1264,7 @@ body::before {
      SortableTh.tsx -- itu bagian dari Opsi 1 yang dipertahankan, cuma
      bobot fontnya yang dikembalikan. */
   .table-djoker thead th {
-    background: transparent;
+    background: var(--djoker-surface-2);
     color: var(--djoker-muted);
     font-family: var(--font-display), sans-serif;
     font-weight: 700;

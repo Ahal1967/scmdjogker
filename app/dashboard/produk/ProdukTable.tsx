@@ -496,10 +496,14 @@ export default function ProdukTable({
           sama supaya lebar kartunya konsisten dengan halaman lain. */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <div className="dash-kpi-card">
-          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#3b82f6,#2563eb)" }}>
-            <Shirt size={14} />
-          </span>
-          <p className="dash-kpi-label">TOTAL PRODUK DI KATALOG</p>
+          <div className="dash-kpi-top">
+            <span className="dash-kpi-top-left">
+              <span className="dash-kpi-icon" style={{ background: "#dbeafe", color: "#2563eb" }}>
+                <Shirt size={13} />
+              </span>
+              <span className="dash-kpi-label">Total Produk di Katalog</span>
+            </span>
+          </div>
           <p className="dash-kpi-value font-display">{totalProduk}</p>
         </div>
       </div>

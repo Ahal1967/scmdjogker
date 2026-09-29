@@ -434,24 +434,36 @@ export default function GudangTable({
           gaya visual" yang sedang dikerjakan sekarang. */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <div className="dash-kpi-card">
-          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#3b82f6,#2563eb)" }}>
-            <Boxes size={14} />
-          </span>
-          <p className="dash-kpi-label">TOTAL JENIS BAHAN</p>
+          <div className="dash-kpi-top">
+            <span className="dash-kpi-top-left">
+              <span className="dash-kpi-icon" style={{ background: "#dbeafe", color: "#2563eb" }}>
+                <Boxes size={13} />
+              </span>
+              <span className="dash-kpi-label">Total Jenis Bahan</span>
+            </span>
+          </div>
           <p className="dash-kpi-value font-display">{totalJenis}</p>
         </div>
         <div className="dash-kpi-card">
-          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#34d399,#059669)" }}>
-            <CheckCircle2 size={14} />
-          </span>
-          <p className="dash-kpi-label">STOK AMAN</p>
+          <div className="dash-kpi-top">
+            <span className="dash-kpi-top-left">
+              <span className="dash-kpi-icon" style={{ background: "#d1fae5", color: "#059669" }}>
+                <CheckCircle2 size={13} />
+              </span>
+              <span className="dash-kpi-label">Stok Aman</span>
+            </span>
+          </div>
           <p className="dash-kpi-value font-display">{totalAman}</p>
         </div>
         <div className="dash-kpi-card">
-          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#f87171,#dc2626)" }}>
-            <AlertTriangle size={14} />
-          </span>
-          <p className="dash-kpi-label">STOK KRITIS</p>
+          <div className="dash-kpi-top">
+            <span className="dash-kpi-top-left">
+              <span className="dash-kpi-icon" style={{ background: "#fee2e2", color: "#dc2626" }}>
+                <AlertTriangle size={13} />
+              </span>
+              <span className="dash-kpi-label">Stok Kritis</span>
+            </span>
+          </div>
           <p className="dash-kpi-value font-display">{totalKritis}</p>
         </div>
       </div>

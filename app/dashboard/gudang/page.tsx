@@ -47,32 +47,43 @@ export default async function GudangPage() {
 
       <FetchErrorBanner message={fetchErrorMsg} />
 
-      {/* Kartu statistik dipindah ke pola .dash-kpi-card (icon chip
-          bergradasi) yang sebelumnya cuma dipakai di Dashboard -- dipakai
-          ulang apa adanya di sini (bukan class baru "gudang-kpi-card")
-          karena ini murni pola visual tanpa logika khusus halaman, jadi
-          tidak melanggar prinsip "class per halaman" yang dipakai buat
-          class BER-LOGIKA (lihat komentar di app/globals.css). */}
+      {/* Kartu statistik pakai pola .dash-kpi-card (badge ikon warna muda +
+          label sebaris) yang dipakai ulang apa adanya dari Dashboard --
+          diselaraskan atas permintaan user supaya semua halaman senada,
+          bukan class baru "gudang-kpi-card" karena ini murni pola visual
+          tanpa logika khusus halaman (lihat komentar di app/globals.css). */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <div className="dash-kpi-card">
-          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#3b82f6,#2563eb)" }}>
-            <Layers size={14} />
-          </span>
-          <p className="dash-kpi-label">TOTAL JENIS BAHAN</p>
+          <div className="dash-kpi-top">
+            <span className="dash-kpi-top-left">
+              <span className="dash-kpi-icon" style={{ background: "#dbeafe", color: "#2563eb" }}>
+                <Layers size={13} />
+              </span>
+              <span className="dash-kpi-label">Total Jenis Bahan</span>
+            </span>
+          </div>
           <p className="dash-kpi-value font-display">{totalJenisBahan}</p>
         </div>
         <div className="dash-kpi-card">
-          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#22d3ee,#0891b2)" }}>
-            <Package size={14} />
-          </span>
-          <p className="dash-kpi-label">TOTAL STOK</p>
+          <div className="dash-kpi-top">
+            <span className="dash-kpi-top-left">
+              <span className="dash-kpi-icon" style={{ background: "#cffafe", color: "#0891b2" }}>
+                <Package size={13} />
+              </span>
+              <span className="dash-kpi-label">Total Stok</span>
+            </span>
+          </div>
           <p className="dash-kpi-value font-display">{totalStok}</p>
         </div>
         <div className="dash-kpi-card">
-          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#f87171,#dc2626)" }}>
-            <AlertTriangle size={14} />
-          </span>
-          <p className="dash-kpi-label">STOK TERENDAH</p>
+          <div className="dash-kpi-top">
+            <span className="dash-kpi-top-left">
+              <span className="dash-kpi-icon" style={{ background: "#fee2e2", color: "#dc2626" }}>
+                <AlertTriangle size={13} />
+              </span>
+              <span className="dash-kpi-label">Stok Terendah</span>
+            </span>
+          </div>
           <p className="dash-kpi-value font-display">{stokTerendah}</p>
         </div>
       </div>

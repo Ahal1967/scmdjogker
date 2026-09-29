@@ -1156,28 +1156,40 @@ export default function PesananTable() {
           uang/stok yang tersentuh di sini sama sekali. */}
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         <div className="dash-kpi-card">
-          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#3b82f6,#2563eb)" }}>
-            <ShoppingBag size={14} />
-          </span>
-          <p className="dash-kpi-label">TOTAL PESANAN</p>
+          <div className="dash-kpi-top">
+            <span className="dash-kpi-top-left">
+              <span className="dash-kpi-icon" style={{ background: "#dbeafe", color: "#2563eb" }}>
+                <ShoppingBag size={13} />
+              </span>
+              <span className="dash-kpi-label">Total Pesanan</span>
+            </span>
+          </div>
           <p className="dash-kpi-value font-display">{summaryTotalPesanan}</p>
           <p className="dash-kpi-hint">Semua waktu</p>
         </div>
 
         <div className="dash-kpi-card">
-          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#34d399,#059669)" }}>
-            <CheckCircle2 size={14} />
-          </span>
-          <p className="dash-kpi-label">PESANAN SELESAI</p>
+          <div className="dash-kpi-top">
+            <span className="dash-kpi-top-left">
+              <span className="dash-kpi-icon" style={{ background: "#d1fae5", color: "#059669" }}>
+                <CheckCircle2 size={13} />
+              </span>
+              <span className="dash-kpi-label">Pesanan Selesai</span>
+            </span>
+          </div>
           <p className="dash-kpi-value font-display">{summarySelesai}</p>
           <p className="dash-kpi-hint">{summaryPersenSelesai}% dari total</p>
         </div>
 
         <div className="dash-kpi-card">
-          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#fb923c,#ea580c)" }}>
-            <TrendingUp size={14} />
-          </span>
-          <p className="dash-kpi-label">TOTAL PENDAPATAN</p>
+          <div className="dash-kpi-top">
+            <span className="dash-kpi-top-left">
+              <span className="dash-kpi-icon" style={{ background: "#ffedd5", color: "#ea580c" }}>
+                <TrendingUp size={13} />
+              </span>
+              <span className="dash-kpi-label">Total Pendapatan</span>
+            </span>
+          </div>
           <p className="dash-kpi-value font-display" style={{ fontSize: 15 }}>{formatRupiah(summaryPendapatan)}</p>
           <p className="dash-kpi-hint">Semua waktu</p>
         </div>

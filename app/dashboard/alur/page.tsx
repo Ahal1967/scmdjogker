@@ -102,11 +102,17 @@ export default async function AlurPage() {
           {String(globalIdx + 1).padStart(2, "0")}
         </span>
 
+        {/* Latar badge dipakai dari `accent` (warna solid per tahap, sudah
+            ada di STAGES) + suffix alpha hex "2a" (~16%) supaya jadi tint
+            muda otomatis senada warnanya -- bukan lagi gradient dua-tone,
+            selaras dengan gaya ikon flat yang sekarang dipakai di semua
+            halaman lain. `gradient` di STAGES sengaja tidak dihapus, cuma
+            tidak dipakai lagi di sini. */}
         <div
           className="dash-kpi-icon"
-          style={{ background: `linear-gradient(135deg, ${stage.gradient[0]}, ${stage.gradient[1]})` }}
+          style={{ background: `${stage.accent}2a`, color: stage.accent }}
         >
-          <Icon size={14} />
+          <Icon size={13} />
         </div>
 
         <p className="text-xs font-semibold text-black dark:text-white">{stage.label}</p>

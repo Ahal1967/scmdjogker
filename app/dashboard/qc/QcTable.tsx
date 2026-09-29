@@ -452,24 +452,36 @@ export default function QcTable({
           komentar sejenis di app/dashboard/gudang/page.tsx. */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <div className="dash-kpi-card">
-          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#34d399,#059669)" }}>
-            <CheckCircle2 size={14} />
-          </span>
-          <p className="dash-kpi-label">LOLOS</p>
+          <div className="dash-kpi-top">
+            <span className="dash-kpi-top-left">
+              <span className="dash-kpi-icon" style={{ background: "#d1fae5", color: "#059669" }}>
+                <CheckCircle2 size={13} />
+              </span>
+              <span className="dash-kpi-label">Lolos</span>
+            </span>
+          </div>
           <p className="dash-kpi-value font-display">{totalLolos}</p>
         </div>
         <div className="dash-kpi-card">
-          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#fbbf24,#d97706)" }}>
-            <ShieldCheck size={14} />
-          </span>
-          <p className="dash-kpi-label">PERBAIKAN</p>
+          <div className="dash-kpi-top">
+            <span className="dash-kpi-top-left">
+              <span className="dash-kpi-icon" style={{ background: "#fef3c7", color: "#d97706" }}>
+                <ShieldCheck size={13} />
+              </span>
+              <span className="dash-kpi-label">Perbaikan</span>
+            </span>
+          </div>
           <p className="dash-kpi-value font-display">{totalPerbaikan}</p>
         </div>
         <div className="dash-kpi-card">
-          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#f87171,#dc2626)" }}>
-            <XCircle size={14} />
-          </span>
-          <p className="dash-kpi-label">GAGAL</p>
+          <div className="dash-kpi-top">
+            <span className="dash-kpi-top-left">
+              <span className="dash-kpi-icon" style={{ background: "#fee2e2", color: "#dc2626" }}>
+                <XCircle size={13} />
+              </span>
+              <span className="dash-kpi-label">Gagal</span>
+            </span>
+          </div>
           <p className="dash-kpi-value font-display">{totalGagal}</p>
         </div>
       </div>

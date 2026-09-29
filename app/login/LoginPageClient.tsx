@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   Mail,
@@ -49,6 +49,26 @@ export default function LoginPageClient() {
   // kalau user geser manual dengan jari alih-alih klik dot.
   const [activeCard, setActiveCard] = useState(0);
   const carouselRef = useRef<HTMLDivElement>(null);
+
+  // Jaring pengaman untuk fitur lupa password: idealnya Supabase selalu
+  // mengarahkan tautan reset langsung ke /auth/reset-password, tapi kalau
+  // redirectTo yang dikirim tidak dikenali Supabase (misal daftar Redirect
+  // URLs di dashboard belum pas persis), dia jatuh balik ke Site URL --
+  // yang di app ini berarti mendarat di "/" lalu di-redirect otomatis ke
+  // "/login" (lihat app/page.tsx), lengkap dengan parameter recovery-nya
+  // masih menempel di URL. Tanpa ini, pengguna cuma melihat form login
+  // biasa dan tautannya terkesan tidak berfungsi. Di sini kita deteksi
+  // parameter recovery-nya (baik di query string maupun hash, karena
+  // Supabase bisa pakai salah satu tergantung flow) dan lempar ke halaman
+  // reset password yang benar sambil membawa parameter aslinya.
+  useEffect(() => {
+    const search = window.location.search;
+    const hash = window.location.hash;
+    const isRecoveryLink = search.includes("type=recovery") || hash.includes("type=recovery");
+    if (isRecoveryLink) {
+      router.replace(`/auth/reset-password${search}${hash}`);
+    }
+  }, [router]);
 
   function handleCarouselScroll() {
     const el = carouselRef.current;

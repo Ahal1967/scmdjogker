@@ -39,7 +39,7 @@ type Profile = {
 
 const ROLE_COLORS: Record<string, string> = {
   admin: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
-  staff: "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/40 dark:text-cyan-300",
+  staff: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300",
   user: "bg-gray-100 text-gray-600 dark:bg-[#21262d] dark:text-gray-400",
 };
 

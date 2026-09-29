@@ -319,24 +319,36 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
           komentar sejenis di app/dashboard/gudang/page.tsx. */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <div className="dash-kpi-card">
-          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#3b82f6,#2563eb)" }}>
-            <Users2 size={14} />
-          </span>
-          <p className="dash-kpi-label">TOTAL SUPPLIER</p>
+          <div className="dash-kpi-top">
+            <span className="dash-kpi-top-left">
+              <span className="dash-kpi-icon" style={{ background: "#dbeafe", color: "#2563eb" }}>
+                <Users2 size={13} />
+              </span>
+              <span className="dash-kpi-label">Total Supplier</span>
+            </span>
+          </div>
           <p className="dash-kpi-value font-display">{totalSupplier}</p>
         </div>
         <div className="dash-kpi-card">
-          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#34d399,#059669)" }}>
-            <CheckCircle2 size={14} />
-          </span>
-          <p className="dash-kpi-label">SUPPLIER AKTIF</p>
+          <div className="dash-kpi-top">
+            <span className="dash-kpi-top-left">
+              <span className="dash-kpi-icon" style={{ background: "#d1fae5", color: "#059669" }}>
+                <CheckCircle2 size={13} />
+              </span>
+              <span className="dash-kpi-label">Supplier Aktif</span>
+            </span>
+          </div>
           <p className="dash-kpi-value font-display">{totalAktif}</p>
         </div>
         <div className="dash-kpi-card">
-          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#94a3b8,#64748b)" }}>
-            <Ban size={14} />
-          </span>
-          <p className="dash-kpi-label">NONAKTIF</p>
+          <div className="dash-kpi-top">
+            <span className="dash-kpi-top-left">
+              <span className="dash-kpi-icon" style={{ background: "#e5e7eb", color: "#64748b" }}>
+                <Ban size={13} />
+              </span>
+              <span className="dash-kpi-label">Nonaktif</span>
+            </span>
+          </div>
           <p className="dash-kpi-value font-display">{totalNonaktif}</p>
         </div>
       </div>

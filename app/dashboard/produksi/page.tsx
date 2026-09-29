@@ -53,24 +53,36 @@ export default async function ProduksiPage() {
           komentar sejenis di app/dashboard/gudang/page.tsx. */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <div className="dash-kpi-card">
-          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#3b82f6,#2563eb)" }}>
-            <ClipboardList size={14} />
-          </span>
-          <p className="dash-kpi-label">TOTAL PRODUKSI</p>
+          <div className="dash-kpi-top">
+            <span className="dash-kpi-top-left">
+              <span className="dash-kpi-icon" style={{ background: "#dbeafe", color: "#2563eb" }}>
+                <ClipboardList size={13} />
+              </span>
+              <span className="dash-kpi-label">Total Produksi</span>
+            </span>
+          </div>
           <p className="dash-kpi-value font-display">{totalProduksi}</p>
         </div>
         <div className="dash-kpi-card">
-          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#fb923c,#ea580c)" }}>
-            <Loader2 size={14} />
-          </span>
-          <p className="dash-kpi-label">SEDANG DIPROSES</p>
+          <div className="dash-kpi-top">
+            <span className="dash-kpi-top-left">
+              <span className="dash-kpi-icon" style={{ background: "#ffedd5", color: "#ea580c" }}>
+                <Loader2 size={13} />
+              </span>
+              <span className="dash-kpi-label">Sedang Diproses</span>
+            </span>
+          </div>
           <p className="dash-kpi-value font-display">{sedangDiproses}</p>
         </div>
         <div className="dash-kpi-card">
-          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#34d399,#059669)" }}>
-            <CheckCircle2 size={14} />
-          </span>
-          <p className="dash-kpi-label">SELESAI</p>
+          <div className="dash-kpi-top">
+            <span className="dash-kpi-top-left">
+              <span className="dash-kpi-icon" style={{ background: "#d1fae5", color: "#059669" }}>
+                <CheckCircle2 size={13} />
+              </span>
+              <span className="dash-kpi-label">Selesai</span>
+            </span>
+          </div>
           <p className="dash-kpi-value font-display">{selesai}</p>
         </div>
       </div>

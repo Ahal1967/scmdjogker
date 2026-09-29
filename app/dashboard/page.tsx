@@ -4,11 +4,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import {
-  ShoppingCart,
-  Truck,
   CalendarDays,
   AlertTriangle,
-  AlertCircle,
   Wallet,
   XCircle,
   ClipboardList,
@@ -16,10 +13,12 @@ import {
   Plus,
   ChevronRight,
   ChevronDown,
-  ShoppingBag,
   TrendingUp,
   ListChecks,
   LayoutDashboard,
+  Users,
+  FileText,
+  Clock,
 } from "lucide-react";
 import PageHeaderCard from "@/components/PageHeaderCard";
 import FetchErrorBanner from "@/components/FetchErrorBanner";
@@ -90,13 +89,30 @@ type PeriodOrder = {
 const PERIODS = ["Bulan Ini", "3 Bulan", "Tahun Ini", "Semua"] as const;
 type PeriodLabel = (typeof PERIODS)[number];
 
+// Filter grafik "Tren Pendapatan Dibuat" -- SENGAJA independen dari toggle
+// PERIODS di atas (bukan numpang `period`). Toggle PERIODS itu membatasi
+// dataset untuk 4 KPI finansial + breakdown Status Pesanan; grafik ini
+// tujuannya lain (lihat tren harian jangka pendek), jadi py rentang &
+// fetch sendiri supaya tetap bisa nunjukin 7/30 hari terakhir walau KPI
+// di atasnya sedang difilter "Tahun Ini" atau "Semua".
+const CHART_RANGES = ["7 Hari Terakhir", "30 Hari Terakhir", "3 Bulan Terakhir"] as const;
+type ChartRange = (typeof CHART_RANGES)[number];
+const CHART_RANGE_DAYS: Record<ChartRange, number> = {
+  "7 Hari Terakhir": 7,
+  "30 Hari Terakhir": 30,
+  "3 Bulan Terakhir": 90,
+};
+
+// Warna bar disamakan jadi satu warna (biru) untuk semua status, sesuai
+// referensi visual user -- dulu tiap status py warna sendiri (rainbow),
+// sekarang seragam supaya senada dengan aksen biru badge ikon KPI di atas.
 const STATUS_META: { key: string; color: string }[] = [
-  { key: "Pesanan", color: "#3b82f6" },
-  { key: "Produksi", color: "#eab308" },
-  { key: "QC", color: "#a855f7" },
-  { key: "Packing", color: "#f97316" },
-  { key: "Dikirim", color: "#06b6d4" },
-  { key: "Selesai", color: "#22c55e" },
+  { key: "Pesanan", color: "#2563eb" },
+  { key: "Produksi", color: "#2563eb" },
+  { key: "QC", color: "#2563eb" },
+  { key: "Packing", color: "#2563eb" },
+  { key: "Dikirim", color: "#2563eb" },
+  { key: "Selesai", color: "#2563eb" },
 ];
 
 function formatRupiah(n: number) {
@@ -155,6 +171,14 @@ export default function DashboardPage() {
   // dari showSnapshot, cuma cara TAMPILnya yang di-collapse.
   const [showSnapshot, setShowSnapshot] = useState(false);
 
+  // --- state grafik tren (fetch ulang tiap chartRange berubah, independen
+  // dari `period` -- lihat komentar CHART_RANGES di atas) ---
+  const [chartRange, setChartRange] = useState<ChartRange>("7 Hari Terakhir");
+  const [chartLoading, setChartLoading] = useState(true);
+  const [chartRows, setChartRows] = useState<
+    { total: number | null; tanggal: string | null; created_at: string | null }[]
+  >([]);
+
   useEffect(() => {
     fetchStats();
   }, []);
@@ -163,6 +187,11 @@ export default function DashboardPage() {
     fetchPeriodAnalysis(period);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [period]);
+
+  useEffect(() => {
+    fetchChartTrend(chartRange);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chartRange]);
 
   async function fetchStats() {
     const [
@@ -291,6 +320,28 @@ export default function DashboardPage() {
     setPeriodLoading(false);
   }
 
+  async function fetchChartTrend(range: ChartRange) {
+    setChartLoading(true);
+    const days = CHART_RANGE_DAYS[range];
+    const since = new Date();
+    since.setDate(since.getDate() - (days - 1));
+    since.setHours(0, 0, 0, 0);
+
+    const { data, error } = await supabase
+      .from("orders")
+      .select("total, tanggal, created_at")
+      .gte("created_at", since.toISOString())
+      .order("created_at", { ascending: true });
+
+    if (error) {
+      console.error("Dashboard chart trend fetch error:", error.message);
+      setChartRows([]);
+    } else {
+      setChartRows(data || []);
+    }
+    setChartLoading(false);
+  }
+
   if (loading) {
     return (
       <div className="space-y-4 md:space-y-6 animate-pulse">
@@ -403,40 +454,26 @@ export default function DashboardPage() {
   });
   const maxStatusPeriode = Math.max(...statusCountPeriode.map((s) => s.count), 1);
 
-  // Grafik: "Bulan Ini" di-bucket per minggu (kalau per bulan cuma jadi
-  // 1 titik, tidak informatif) -- periode lain di-bucket per bulan.
-  const chartData: { label: string; total: number }[] = [];
-  if (period === "Bulan Ini") {
-    const buckets = [
-      { label: "Mgg 1", from: 1, to: 7, total: 0 },
-      { label: "Mgg 2", from: 8, to: 14, total: 0 },
-      { label: "Mgg 3", from: 15, to: 21, total: 0 },
-      { label: "Mgg 4", from: 22, to: 31, total: 0 },
-    ];
-    periodOrders.forEach((o) => {
-      const d = new Date(o.tanggal || o.created_at || "");
-      if (Number.isNaN(d.getTime())) return;
-      const day = d.getDate();
-      const bucket = buckets.find((b) => day >= b.from && day <= b.to);
-      if (bucket) bucket.total += Number(o.total) || 0;
-    });
-    chartData.push(...buckets.map((b) => ({ label: b.label, total: b.total })));
-  } else {
-    const monthMap = new Map<string, { label: string; total: number }>();
-    periodOrders.forEach((o) => {
-      const d = new Date(o.tanggal || o.created_at || "");
-      if (Number.isNaN(d.getTime())) return;
-      const key = `${d.getFullYear()}-${d.getMonth()}`;
-      const label = d.toLocaleDateString("id-ID", { month: "short", year: "2-digit" });
-      if (!monthMap.has(key)) monthMap.set(key, { label, total: 0 });
-      monthMap.get(key)!.total += Number(o.total) || 0;
-    });
-    chartData.push(
-      ...Array.from(monthMap.entries())
-        .sort((a, b) => (a[0] > b[0] ? 1 : -1))
-        .map(([, v]) => v)
-    );
+  // Grafik: di-bucket per hari sepanjang chartRange (7/30/90 hari terakhir),
+  // independen dari periodOrders -- lihat komentar CHART_RANGES di atas.
+  const chartDays = CHART_RANGE_DAYS[chartRange];
+  const chartBuckets: { date: Date; label: string }[] = [];
+  for (let i = chartDays - 1; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    d.setHours(0, 0, 0, 0);
+    chartBuckets.push({ date: d, label: d.toLocaleDateString("id-ID", { day: "numeric", month: "short" }) });
   }
+  const chartData: { label: string; total: number }[] = chartBuckets.map((b) => {
+    const next = new Date(b.date);
+    next.setDate(next.getDate() + 1);
+    const total = chartRows.reduce((sum, o) => {
+      const d = new Date(o.tanggal || o.created_at || "");
+      if (Number.isNaN(d.getTime())) return sum;
+      return d >= b.date && d < next ? sum + (Number(o.total) || 0) : sum;
+    }, 0);
+    return { label: b.label, total };
+  });
 
   return (
     <div className="space-y-4 md:space-y-6">
@@ -460,17 +497,45 @@ export default function DashboardPage() {
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
+          {/* Latar biru muda (--djoker-hover-bg) & border/teks biru sengaja
+              dipaksa permanen lewat inline style di 2 tombol ini saja
+              (bukan lewat rule :hover di .btn-outline), supaya tombol
+              outline lain yang pakai class sama di 18 file lain (Batal,
+              Hapus, Export, dst) tidak ikut berubah -- warna biru muda di
+              situ tetap cuma muncul saat hover/klik seperti semula. */}
           <Link
             href="/dashboard/pesanan"
-            className="btn-primary"
-            style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "6px 11px", fontSize: 11, borderRadius: 8, textDecoration: "none" }}
+            className="btn-outline"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 5,
+              padding: "6px 11px",
+              fontSize: 11,
+              borderRadius: 8,
+              textDecoration: "none",
+              background: "var(--djoker-hover-bg)",
+              borderColor: "var(--djoker-blue)",
+              color: "var(--djoker-blue)",
+            }}
           >
             <Plus size={12} /> Pesanan Baru
           </Link>
           <Link
             href="/dashboard/gudang"
             className="btn-outline"
-            style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "6px 11px", fontSize: 11, borderRadius: 8, textDecoration: "none" }}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 5,
+              padding: "6px 11px",
+              fontSize: 11,
+              borderRadius: 8,
+              textDecoration: "none",
+              background: "var(--djoker-hover-bg)",
+              borderColor: "var(--djoker-blue)",
+              color: "var(--djoker-blue)",
+            }}
           >
             <Plus size={12} /> Bahan Baku
           </Link>
@@ -507,40 +572,28 @@ export default function DashboardPage() {
       <div className={"dash-collapse-body-wrap" + (showSnapshot ? " is-open" : "")}>
         <div className="dash-collapse-body-inner">
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <Link href="/dashboard/supplier" className="dash-kpi-card is-link">
-              <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#3b82f6,#2563eb)" }}>
-                <Truck size={14} />
-              </span>
-              <p className="dash-kpi-label">SUPPLIER</p>
-              <p className="dash-kpi-value font-display">{stats.totalSupplier}</p>
-              <p className="dash-kpi-hint">Supplier aktif</p>
+            <Link href="/dashboard/supplier" className="dash-snapshot-card is-link">
+              <Users size={16} className="dash-snapshot-icon" style={{ color: "#2563eb" }} />
+              <p className="dash-snapshot-label">Supplier</p>
+              <p className="dash-snapshot-value font-display">{stats.totalSupplier}</p>
             </Link>
 
-            <div className="dash-kpi-card">
-              <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#fb923c,#ea580c)" }}>
-                <ShoppingCart size={14} />
-              </span>
-              <p className="dash-kpi-label">ORDER AKTIF</p>
-              <p className="dash-kpi-value font-display">{orderAktif}</p>
-              <p className="dash-kpi-hint">Belum sampai status Selesai</p>
+            <div className="dash-snapshot-card">
+              <FileText size={16} className="dash-snapshot-icon" style={{ color: "#2563eb" }} />
+              <p className="dash-snapshot-label">Order Aktif</p>
+              <p className="dash-snapshot-value font-display">{orderAktif}</p>
             </div>
 
-            <Link href="/dashboard/pesanan" className="dash-kpi-card is-link">
-              <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#22d3ee,#0891b2)" }}>
-                <ClipboardList size={14} />
-              </span>
-              <p className="dash-kpi-label">MENUNGGU DIPROSES</p>
-              <p className="dash-kpi-value font-display">{pesananBaruCount}</p>
-              <p className="dash-kpi-hint">Status masih “Pesanan”</p>
+            <Link href="/dashboard/pesanan" className="dash-snapshot-card is-link">
+              <Clock size={16} className="dash-snapshot-icon" style={{ color: "#64748b" }} />
+              <p className="dash-snapshot-label">Menunggu Diproses</p>
+              <p className="dash-snapshot-value font-display">{pesananBaruCount}</p>
             </Link>
 
-            <Link href="/dashboard/gudang" className="dash-kpi-card is-link">
-              <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#f87171,#dc2626)" }}>
-                <AlertTriangle size={14} />
-              </span>
-              <p className="dash-kpi-label">STOK KRITIS</p>
-              <p className="dash-kpi-value font-display">{criticalMaterials.length}</p>
-              <p className="dash-kpi-hint">Bahan baku perlu diisi ulang</p>
+            <Link href="/dashboard/gudang" className="dash-snapshot-card is-link">
+              <AlertTriangle size={16} className="dash-snapshot-icon" style={{ color: "#dc2626" }} />
+              <p className="dash-snapshot-label">Stok Kritis</p>
+              <p className="dash-snapshot-value font-display">{criticalMaterials.length}</p>
             </Link>
           </div>
         </div>
@@ -625,42 +678,62 @@ export default function DashboardPage() {
           ) : (
             <>
               <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                {/* Label diubah dari "TOTAL PESANAN" -- kata "Total" bikin
+                    kartu ini kelihatan seperti angka global yang sama
+                    dengan "Order Aktif"/"Menunggu Diproses" di panel Hari
+                    Ini, padahal definisinya beda (dibatasi periode yang
+                    dipilih, bukan snapshot status saat ini). Label baru
+                    menegaskan cakupan periode-nya langsung di judul, tidak
+                    cuma di hint kecil di bawahnya. */}
                 <div className="dash-kpi-card">
-                  <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#3b82f6,#2563eb)" }}>
-                    <ShoppingBag size={14} />
-                  </span>
-                  {/* Label diubah dari "TOTAL PESANAN" -- kata "Total" bikin
-                      kartu ini kelihatan seperti angka global yang sama
-                      dengan "Order Aktif"/"Menunggu Diproses" di panel Hari
-                      Ini, padahal definisinya beda (dibatasi periode yang
-                      dipilih, bukan snapshot status saat ini). Label baru
-                      menegaskan cakupan periode-nya langsung di judul, tidak
-                      cuma di hint kecil di bawahnya. */}
-                  <p className="dash-kpi-label">PESANAN PERIODE INI</p>
+                  <div className="dash-kpi-top">
+                    <span className="dash-kpi-top-left">
+                      <span className="dash-kpi-icon" style={{ background: "#dbeafe", color: "#2563eb" }}>
+                        <CalendarDays size={13} />
+                      </span>
+                      <span className="dash-kpi-label">Pesanan Periode Ini</span>
+                    </span>
+                    <ChevronRight size={12} className="dash-kpi-chev" />
+                  </div>
                   <p className="dash-kpi-value font-display">{totalPesananPeriode}</p>
                   <p className="dash-kpi-hint">Periode {period.toLowerCase()}</p>
                 </div>
                 <div className="dash-kpi-card">
-                  <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#34d399,#059669)" }}>
-                    <TrendingUp size={14} />
-                  </span>
-                  <p className="dash-kpi-label">PENDAPATAN DIBUAT</p>
+                  <div className="dash-kpi-top">
+                    <span className="dash-kpi-top-left">
+                      <span className="dash-kpi-icon" style={{ background: "#d1fae5", color: "#059669" }}>
+                        <TrendingUp size={13} />
+                      </span>
+                      <span className="dash-kpi-label">Pendapatan Dibuat</span>
+                    </span>
+                    <ChevronRight size={12} className="dash-kpi-chev" />
+                  </div>
                   <p className="dash-kpi-value font-display">{formatRupiah(totalDibuatPeriode)}</p>
                   <p className="dash-kpi-hint">Nilai pesanan dibuat periode ini</p>
                 </div>
                 <div className="dash-kpi-card">
-                  <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#22d3ee,#0891b2)" }}>
-                    <Wallet size={14} />
-                  </span>
-                  <p className="dash-kpi-label">PENDAPATAN DITERIMA</p>
+                  <div className="dash-kpi-top">
+                    <span className="dash-kpi-top-left">
+                      <span className="dash-kpi-icon" style={{ background: "#e0e7ff", color: "#4f46e5" }}>
+                        <FileText size={13} />
+                      </span>
+                      <span className="dash-kpi-label">Pendapatan Diterima</span>
+                    </span>
+                    <ChevronRight size={12} className="dash-kpi-chev" />
+                  </div>
                   <p className="dash-kpi-value font-display">{formatRupiah(pendapatanDiterima)}</p>
                   <p className="dash-kpi-hint">DP + pelunasan masuk periode ini</p>
                 </div>
                 <div className="dash-kpi-card">
-                  <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#fb923c,#ea580c)" }}>
-                    <AlertCircle size={14} />
-                  </span>
-                  <p className="dash-kpi-label">SISA BELUM DIBAYAR</p>
+                  <div className="dash-kpi-top">
+                    <span className="dash-kpi-top-left">
+                      <span className="dash-kpi-icon" style={{ background: "#ffedd5", color: "#ea580c" }}>
+                        <Clock size={13} />
+                      </span>
+                      <span className="dash-kpi-label">Sisa Belum Dibayar</span>
+                    </span>
+                    <ChevronRight size={12} className="dash-kpi-chev" />
+                  </div>
                   <p className="dash-kpi-value font-display">{formatRupiah(totalSisaSemua)}</p>
                   <p className="dash-kpi-hint is-warn">Akumulasi semua pesanan, bukan per periode</p>
                 </div>
@@ -669,18 +742,35 @@ export default function DashboardPage() {
               <div className="dash-analysis-grid">
             <div className="dash-panel-card">
               <div className="dash-panel-head">
-                <TrendingUp size={13} />
-                Tren Pendapatan Dibuat
+                <span className="dash-panel-head-title">
+                  <TrendingUp size={13} />
+                  Tren Pendapatan Dibuat
+                </span>
+                <select
+                  className="dash-chart-range-select"
+                  value={chartRange}
+                  onChange={(e) => setChartRange(e.target.value as ChartRange)}
+                >
+                  {CHART_RANGES.map((r) => (
+                    <option key={r} value={r}>
+                      {r}
+                    </option>
+                  ))}
+                </select>
               </div>
-              {chartData.every((c) => c.total === 0) ? (
-                <p className="text-sm text-gray-500 dark:text-gray-400">Belum ada data pendapatan di periode ini.</p>
+              {chartLoading ? (
+                <div className="h-[150px] animate-pulse rounded-lg bg-gray-100 dark:bg-[#21262d]" />
+              ) : chartData.every((c) => c.total === 0) ? (
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  Belum ada data pendapatan pada rentang {chartRange.toLowerCase()}.
+                </p>
               ) : (
                 <ResponsiveContainer width="100%" height={150}>
                   <AreaChart data={chartData}>
                     <defs>
                       <linearGradient id="colorDash" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#059669" stopOpacity={0.35} />
-                        <stop offset="95%" stopColor="#059669" stopOpacity={0} />
+                        <stop offset="5%" stopColor="#2563eb" stopOpacity={0.35} />
+                        <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="var(--djoker-border)" vertical={false} />
@@ -698,7 +788,7 @@ export default function DashboardPage() {
                       itemStyle={{ color: "var(--djoker-text)" }}
                       labelStyle={{ color: "var(--djoker-text)" }}
                     />
-                    <Area type="monotone" dataKey="total" stroke="#059669" strokeWidth={2} fill="url(#colorDash)" />
+                    <Area type="monotone" dataKey="total" stroke="#2563eb" strokeWidth={2} fill="url(#colorDash)" />
                   </AreaChart>
                 </ResponsiveContainer>
               )}

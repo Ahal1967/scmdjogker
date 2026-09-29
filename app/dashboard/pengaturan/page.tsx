@@ -37,7 +37,7 @@ export default async function PengaturanPage() {
 
   const ROLE_COLORS: Record<string, string> = {
     admin: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
-    staff: "bg-cyan-100 text-cyan-700 dark:bg-cyan-900/40 dark:text-cyan-300",
+    staff: "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300",
     user: "bg-gray-100 text-gray-600 dark:bg-[#21262d] dark:text-gray-400",
   };
 
@@ -64,29 +64,45 @@ export default async function PengaturanPage() {
 
       <FetchErrorBanner message={fetchErrorMsg} />
 
+      {/* Kartu ringkasan pakai pola .dash-kpi-card senada Dashboard/Retur
+          (badge ikon warna muda + label sebaris di atas, angka besar di
+          bawahnya, hint kecil paling bawah) -- diselaraskan atas permintaan
+          user, isi/angka TIDAK berubah. */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <div className="dash-kpi-card">
-          <div className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#94a3b8,#64748b)" }}>
-            <Users2 size={15} />
+          <div className="dash-kpi-top">
+            <span className="dash-kpi-top-left">
+              <span className="dash-kpi-icon" style={{ background: "#dbeafe", color: "#2563eb" }}>
+                <Users2 size={13} />
+              </span>
+              <span className="dash-kpi-label">Total Pengguna</span>
+            </span>
           </div>
-          <p className="dash-kpi-label">Total Pengguna</p>
-          <p className="dash-kpi-value">{totalPengguna}</p>
+          <p className="dash-kpi-value font-display">{totalPengguna}</p>
           <p className="dash-kpi-hint">Akun terdaftar</p>
         </div>
         <div className="dash-kpi-card">
-          <div className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#3b82f6,#2563eb)" }}>
-            <ShieldCheck size={15} />
+          <div className="dash-kpi-top">
+            <span className="dash-kpi-top-left">
+              <span className="dash-kpi-icon" style={{ background: "#dbeafe", color: "#2563eb" }}>
+                <ShieldCheck size={13} />
+              </span>
+              <span className="dash-kpi-label">Admin</span>
+            </span>
           </div>
-          <p className="dash-kpi-label">Admin</p>
-          <p className="dash-kpi-value">{adminCount}</p>
+          <p className="dash-kpi-value font-display">{adminCount}</p>
           <p className="dash-kpi-hint">Akses penuh</p>
         </div>
         <div className="dash-kpi-card">
-          <div className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#22d3ee,#0891b2)" }}>
-            <User size={15} />
+          <div className="dash-kpi-top">
+            <span className="dash-kpi-top-left">
+              <span className="dash-kpi-icon" style={{ background: "#d1fae5", color: "#059669" }}>
+                <User size={13} />
+              </span>
+              <span className="dash-kpi-label">Staff</span>
+            </span>
           </div>
-          <p className="dash-kpi-label">Staff</p>
-          <p className="dash-kpi-value">{staffCount}</p>
+          <p className="dash-kpi-value font-display">{staffCount}</p>
           <p className="dash-kpi-hint">Akses terbatas</p>
         </div>
       </div>

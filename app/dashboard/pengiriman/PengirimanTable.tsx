@@ -364,24 +364,36 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
           komentar sejenis di app/dashboard/gudang/page.tsx. */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <div className="dash-kpi-card">
-          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#3b82f6,#2563eb)" }}>
-            <Truck size={14} />
-          </span>
-          <p className="dash-kpi-label">TOTAL PENGIRIMAN</p>
+          <div className="dash-kpi-top">
+            <span className="dash-kpi-top-left">
+              <span className="dash-kpi-icon" style={{ background: "#dbeafe", color: "#2563eb" }}>
+                <Truck size={13} />
+              </span>
+              <span className="dash-kpi-label">Total Pengiriman</span>
+            </span>
+          </div>
           <p className="dash-kpi-value font-display">{totalPengiriman}</p>
         </div>
         <div className="dash-kpi-card">
-          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#fbbf24,#d97706)" }}>
-            <Clock size={14} />
-          </span>
-          <p className="dash-kpi-label">DALAM PROSES</p>
+          <div className="dash-kpi-top">
+            <span className="dash-kpi-top-left">
+              <span className="dash-kpi-icon" style={{ background: "#fef3c7", color: "#d97706" }}>
+                <Clock size={13} />
+              </span>
+              <span className="dash-kpi-label">Dalam Proses</span>
+            </span>
+          </div>
           <p className="dash-kpi-value font-display">{totalDiproses}</p>
         </div>
         <div className="dash-kpi-card">
-          <span className="dash-kpi-icon" style={{ background: "linear-gradient(135deg,#34d399,#059669)" }}>
-            <PackageCheck size={14} />
-          </span>
-          <p className="dash-kpi-label">TERKIRIM</p>
+          <div className="dash-kpi-top">
+            <span className="dash-kpi-top-left">
+              <span className="dash-kpi-icon" style={{ background: "#d1fae5", color: "#059669" }}>
+                <PackageCheck size={13} />
+              </span>
+              <span className="dash-kpi-label">Terkirim</span>
+            </span>
+          </div>
           <p className="dash-kpi-value font-display">{totalTerkirim}</p>
         </div>
       </div>
