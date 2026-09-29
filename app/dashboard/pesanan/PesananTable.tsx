@@ -4,16 +4,17 @@ import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
-import { Search, Plus, Minus, ChevronDown, ChevronUp, Wallet, FileText, ShoppingBag, CheckCircle2, TrendingUp, ChevronLeft, ChevronRight, Eye, Trash2, User, Loader2, PackageOpen, ClipboardList, Calendar, Tag, MoreHorizontal, MessageCircle, Download, Shirt, SquareX, Save } from "lucide-react";
+import { Search, Plus, Minus, ChevronDown, ChevronUp, Wallet, FileText, ShoppingBag, CheckCircle2, TrendingUp, ChevronLeft, ChevronRight, Eye, Trash2, User, Loader2, PackageOpen, ClipboardList, Calendar, Tag, MoreHorizontal, MessageCircle, Shirt, SquareX, Save } from "lucide-react";
 import { useConfirm } from "@/components/useConfirm";
 import { useToast } from "@/components/useToast";
 import { createClient } from "@/lib/supabase/client";
 import SortableTh from "@/components/SortableTh";
 import TableIconCell from "@/components/TableIconCell";
 import StatusDropdown from "@/components/StatusDropdown";
+import CollapsibleKpiCards from "@/components/CollapsibleKpiCards";
+import ExportButtons, { type ExportColumn } from "@/components/ExportButtons";
 import { compareValues } from "@/lib/sortUtils";
 import { generateUniqueCode } from "@/lib/generateCode";
-import { exportToExcel } from "@/lib/exportData";
 
 type Customer = {
   id: string;
@@ -938,26 +939,74 @@ export default function PesananTable() {
   }
 
   // Export yang lagi kelihatan (kena filter pencarian & sort), bukan cuma
-  // 1 halaman pagination.
-  function handleExport() {
-    exportToExcel(
-      "pesanan",
-      "Pesanan",
-      sorted.map((o) => ({
-        "No. Pesanan": o.no_pesanan,
-        Pelanggan: o.customers?.nama ?? "-",
-        Tanggal: o.tanggal ? new Date(o.tanggal).toLocaleDateString("id-ID") : "-",
-        Total: Number(o.total) || 0,
-        DP: Number(o.dp) || 0,
-        "Sisa Pembayaran": Number(o.sisa_pembayaran) || 0,
-        Status: o.status ?? "-",
-        "Alamat Pengiriman": o.alamat_pengiriman ?? "-",
-      }))
-    );
-  }
+  // 1 halaman pagination. Dulu cuma Excel lewat helper exportToExcel,
+  // sekarang lewat komponen ExportButtons generik (Excel + PDF) atas
+  // permintaan user supaya pilihan formatnya sama di semua modul.
+  const exportColumns: ExportColumn<Order>[] = [
+    { header: "No. Pesanan", value: (o) => o.no_pesanan ?? "-" },
+    { header: "Pelanggan", value: (o) => o.customers?.nama ?? "-" },
+    { header: "Tanggal", value: (o) => (o.tanggal ? new Date(o.tanggal).toLocaleDateString("id-ID") : "-") },
+    { header: "Total", value: (o) => Number(o.total) || 0 },
+    { header: "DP", value: (o) => Number(o.dp) || 0 },
+    { header: "Sisa Pembayaran", value: (o) => Number(o.sisa_pembayaran) || 0 },
+    { header: "Status", value: (o) => o.status ?? "-" },
+    { header: "Alamat Pengiriman", value: (o) => o.alamat_pengiriman ?? "-" },
+  ];
 
   return (
     <div className="space-y-4">
+      {/* Ringkasan dipindah ke pola .dash-kpi-card (icon chip bergradasi) --
+          dipakai ulang apa adanya dari Dashboard/Gudang/Produksi/Retur/
+          Pelanggan, lihat komentar sejenis di app/dashboard/gudang/page.tsx
+          kenapa ini bukan pelanggaran prinsip "class per halaman". Diletakkan
+          di atas (sebelum toolbar cari/export & tabel) supaya posisinya
+          konsisten dengan semua modul lain -- sebelumnya kartu ini ada di
+          BAWAH tabel. Dibungkus CollapsibleKpiCards (default tersembunyi,
+          klik buat buka) atas permintaan user supaya modul terasa lebih
+          ringkas. */}
+      <CollapsibleKpiCards>
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <div className="dash-kpi-card">
+            <div className="dash-kpi-top">
+              <span className="dash-kpi-top-left">
+                <span className="dash-kpi-icon" style={{ background: "#dbeafe", color: "#2563eb" }}>
+                  <ShoppingBag size={13} />
+                </span>
+                <span className="dash-kpi-label">Total Pesanan</span>
+              </span>
+            </div>
+            <p className="dash-kpi-value font-display">{summaryTotalPesanan}</p>
+            <p className="dash-kpi-hint">Semua waktu</p>
+          </div>
+
+          <div className="dash-kpi-card">
+            <div className="dash-kpi-top">
+              <span className="dash-kpi-top-left">
+                <span className="dash-kpi-icon" style={{ background: "#d1fae5", color: "#059669" }}>
+                  <CheckCircle2 size={13} />
+                </span>
+                <span className="dash-kpi-label">Pesanan Selesai</span>
+              </span>
+            </div>
+            <p className="dash-kpi-value font-display">{summarySelesai}</p>
+            <p className="dash-kpi-hint">{summaryPersenSelesai}% dari total</p>
+          </div>
+
+          <div className="dash-kpi-card">
+            <div className="dash-kpi-top">
+              <span className="dash-kpi-top-left">
+                <span className="dash-kpi-icon" style={{ background: "#ffedd5", color: "#ea580c" }}>
+                  <TrendingUp size={13} />
+                </span>
+                <span className="dash-kpi-label">Total Pendapatan</span>
+              </span>
+            </div>
+            <p className="dash-kpi-value font-display" style={{ fontSize: 15 }}>{formatRupiah(summaryPendapatan)}</p>
+            <p className="dash-kpi-hint">Semua waktu</p>
+          </div>
+        </div>
+      </CollapsibleKpiCards>
+
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative flex-1">
           <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -972,15 +1021,14 @@ export default function PesananTable() {
             style={{ padding: "7px 14px 7px 34px", fontSize: "0.8125rem" }}
           />
         </div>
-        <button
-          type="button"
-          onClick={handleExport}
-          disabled={sorted.length === 0}
-          className="inline-flex items-center justify-center gap-1.5 rounded-full border border-gray-200 dark:border-[#30363d] bg-white dark:bg-[#161b22] px-4 py-2 text-xs font-semibold text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-[#21262d] disabled:cursor-not-allowed disabled:opacity-50 transition-colors whitespace-nowrap"
-        >
-          <Download size={13} />
-          Export
-        </button>
+        <ExportButtons
+          data={sorted}
+          filename="pesanan"
+          sheetName="Pesanan"
+          pdfTitle="Daftar Pesanan"
+          orientation="landscape"
+          columns={exportColumns}
+        />
         <button
           onClick={openAdd}
           className="inline-flex items-center justify-center gap-1.5 rounded-full bg-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-sm shadow-blue-600/30 hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 whitespace-nowrap"
@@ -1144,55 +1192,6 @@ export default function PesananTable() {
             </div>
           </div>
         )}
-      </div>
-
-      {/* Ringkasan dipindah ke pola .dash-kpi-card (icon chip bergradasi) --
-          dipakai ulang apa adanya dari Dashboard/Gudang/Produksi/Retur/
-          Pelanggan, lihat komentar sejenis di app/dashboard/gudang/page.tsx
-          kenapa ini bukan pelanggaran prinsip "class per halaman". Cuma
-          bagian INI (kartu ringkasan) yang disentuh di Fase 1 -- toolbar
-          cari/export & tabel di atas SENGAJA tidak diubah, sudah sesuai
-          standar (table-djoker + StatusDropdown), dan tidak ada logika
-          uang/stok yang tersentuh di sini sama sekali. */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <div className="dash-kpi-card">
-          <div className="dash-kpi-top">
-            <span className="dash-kpi-top-left">
-              <span className="dash-kpi-icon" style={{ background: "#dbeafe", color: "#2563eb" }}>
-                <ShoppingBag size={13} />
-              </span>
-              <span className="dash-kpi-label">Total Pesanan</span>
-            </span>
-          </div>
-          <p className="dash-kpi-value font-display">{summaryTotalPesanan}</p>
-          <p className="dash-kpi-hint">Semua waktu</p>
-        </div>
-
-        <div className="dash-kpi-card">
-          <div className="dash-kpi-top">
-            <span className="dash-kpi-top-left">
-              <span className="dash-kpi-icon" style={{ background: "#d1fae5", color: "#059669" }}>
-                <CheckCircle2 size={13} />
-              </span>
-              <span className="dash-kpi-label">Pesanan Selesai</span>
-            </span>
-          </div>
-          <p className="dash-kpi-value font-display">{summarySelesai}</p>
-          <p className="dash-kpi-hint">{summaryPersenSelesai}% dari total</p>
-        </div>
-
-        <div className="dash-kpi-card">
-          <div className="dash-kpi-top">
-            <span className="dash-kpi-top-left">
-              <span className="dash-kpi-icon" style={{ background: "#ffedd5", color: "#ea580c" }}>
-                <TrendingUp size={13} />
-              </span>
-              <span className="dash-kpi-label">Total Pendapatan</span>
-            </span>
-          </div>
-          <p className="dash-kpi-value font-display" style={{ fontSize: 15 }}>{formatRupiah(summaryPendapatan)}</p>
-          <p className="dash-kpi-hint">Semua waktu</p>
-        </div>
       </div>
 
       {showModal && (

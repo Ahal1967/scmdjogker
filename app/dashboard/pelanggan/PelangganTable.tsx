@@ -8,6 +8,7 @@ import { compareValues } from "@/lib/sortUtils";
 import { createClient } from "@/lib/supabase/client";
 import { useConfirm } from "@/components/useConfirm";
 import { useToast } from "@/components/useToast";
+import ExportButtons, { type ExportColumn } from "@/components/ExportButtons";
 
 type Pelanggan = {
   id: string;
@@ -101,19 +102,39 @@ export default function PelangganTable({ dataPelanggan }: { dataPelanggan: Pelan
   const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize));
   const paginated = sorted.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
+  // exportColumns didefinisikan di sini (bukan di page.tsx yang Server
+  // Component) supaya fungsi value() tidak pernah harus lewat batas
+  // server->client -- lihat komentar RSC di app/dashboard/gudang/GudangTable.tsx
+  // untuk pola yang sama.
+  const exportColumns: ExportColumn<Pelanggan>[] = [
+    { header: "Nama Pelanggan", value: (c) => c.nama },
+    { header: "No. Telepon", value: (c) => c.no_telepon || "-" },
+    { header: "Total Pesanan", value: (c) => c.totalPesanan },
+    { header: "Total Belanja Diterima", value: (c) => c.totalBelanja },
+  ];
+
   return (
     <div className="space-y-4">
-      <div className="relative max-w-md">
-        <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-        <input
-          placeholder="Cari nama / no. telepon..."
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setCurrentPage(1);
-          }}
-          className="input-field rounded-full"
-          style={{ padding: "7px 14px 7px 34px", fontSize: "0.8125rem" }}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative flex-1 max-w-md">
+          <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            placeholder="Cari nama / no. telepon..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="input-field rounded-full"
+            style={{ padding: "7px 14px 7px 34px", fontSize: "0.8125rem" }}
+          />
+        </div>
+        <ExportButtons
+          data={sorted}
+          filename="daftar-pelanggan"
+          sheetName="Daftar Pelanggan"
+          pdfTitle="Daftar Pelanggan"
+          columns={exportColumns}
         />
       </div>
 

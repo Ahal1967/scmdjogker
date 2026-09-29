@@ -3,13 +3,13 @@
 import { useState } from "react";
 import { createPortal } from "react-dom";
 import { createClient } from "@/lib/supabase/client";
-import { Search, Plus, Package, Boxes, AlertTriangle, CheckCircle2, ChevronLeft, ChevronRight, ChevronDown, Pencil, Trash2, Loader2, PackageOpen, Tag, Ruler, Truck, MoreHorizontal, Download, Layers, Wrench, LayoutGrid, X, Cylinder, Scale, Droplet } from "lucide-react";
+import { Search, Plus, Package, Boxes, AlertTriangle, CheckCircle2, ChevronLeft, ChevronRight, ChevronDown, Pencil, Trash2, Loader2, PackageOpen, Tag, Ruler, Truck, MoreHorizontal, Layers, Wrench, LayoutGrid, X, Cylinder, Scale, Droplet } from "lucide-react";
 import { useToast } from "@/components/useToast";
 import { useConfirm } from "@/components/useConfirm";
 import SortableTh from "@/components/SortableTh";
 import TableIconCell from "@/components/TableIconCell";
+import ExportButtons, { type ExportColumn } from "@/components/ExportButtons";
 import { compareValues } from "@/lib/sortUtils";
-import { exportToExcel } from "@/lib/exportData";
 
 type Supplier = { id: string; nama_supplier: string };
 
@@ -117,10 +117,6 @@ export default function GudangTable({
   const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize));
   const paginated = sorted.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
-  const totalJenis = materials.length;
-  const totalAman = materials.filter((m) => m.status === "Aman").length;
-  const totalKritis = materials.filter((m) => m.status === "Kritis").length;
-
   function openAdd() {
     setEditing(null);
     setForm({
@@ -217,21 +213,18 @@ export default function GudangTable({
     }
   }
 
-  function handleExport() {
-    exportToExcel(
-      "stok-bahan-baku",
-      "Gudang",
-      sorted.map((m) => ({
-        "Nama Bahan": m.nama_bahan,
-        Kategori: m.kategori ?? "-",
-        Satuan: m.satuan ?? "-",
-        Stok: m.stok,
-        "Stok Minimum": m.stok_minimum,
-        Supplier: m.suppliers?.nama_supplier ?? "-",
-        Status: m.status,
-      }))
-    );
-  }
+  // Dulu cuma Excel lewat helper exportToExcel, sekarang lewat komponen
+  // ExportButtons generik (Excel + PDF) atas permintaan user supaya
+  // pilihan formatnya sama di semua modul.
+  const exportColumns: ExportColumn<Material>[] = [
+    { header: "Nama Bahan", value: (m) => m.nama_bahan },
+    { header: "Kategori", value: (m) => m.kategori ?? "-" },
+    { header: "Satuan", value: (m) => m.satuan ?? "-" },
+    { header: "Stok", value: (m) => m.stok },
+    { header: "Stok Minimum", value: (m) => m.stok_minimum },
+    { header: "Supplier", value: (m) => m.suppliers?.nama_supplier ?? "-" },
+    { header: "Status", value: (m) => m.status },
+  ];
 
   return (
     <div className="space-y-4">
@@ -249,15 +242,13 @@ export default function GudangTable({
             style={{ padding: "7px 14px 7px 34px", fontSize: "0.8125rem" }}
           />
         </div>
-        <button
-          type="button"
-          onClick={handleExport}
-          disabled={sorted.length === 0}
-          className="inline-flex items-center justify-center gap-1.5 rounded-full border border-gray-200 dark:border-[#30363d] bg-white dark:bg-[#161b22] px-4 py-2 text-xs font-semibold text-gray-700 dark:text-gray-200 shadow-sm hover:bg-gray-50 dark:hover:bg-[#21262d] disabled:cursor-not-allowed disabled:opacity-50 transition-colors whitespace-nowrap"
-        >
-          <Download size={13} />
-          Export
-        </button>
+        <ExportButtons
+          data={sorted}
+          filename="stok-bahan-baku"
+          sheetName="Gudang"
+          pdfTitle="Stok Bahan Baku"
+          columns={exportColumns}
+        />
         <button
           onClick={openAdd}
           className="inline-flex items-center justify-center gap-1.5 rounded-full bg-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-sm shadow-blue-600/30 hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 whitespace-nowrap"
@@ -423,50 +414,14 @@ export default function GudangTable({
         )}
       </div>
 
-      {/* Kartu statistik dipindah ke pola .dash-kpi-card (icon chip
-          bergradasi) -- dipakai ulang apa adanya dari Dashboard, lihat
-          komentar sejenis di app/dashboard/gudang/page.tsx.
-          CATATAN (bukan diperbaiki di sini, cuma dicatat): "Total Jenis
-          Bahan" di kartu pertama itu NILAI/LABELNYA SAMA PERSIS dengan
-          kartu "TOTAL JENIS BAHAN" di atas tabel (app/dashboard/gudang/
-          page.tsx) -- dua kartu berbeda menampilkan info yang sama,
-          sudah begitu dari sebelum sesi ini, di luar cakupan "perluas
-          gaya visual" yang sedang dikerjakan sekarang. */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <div className="dash-kpi-card">
-          <div className="dash-kpi-top">
-            <span className="dash-kpi-top-left">
-              <span className="dash-kpi-icon" style={{ background: "#dbeafe", color: "#2563eb" }}>
-                <Boxes size={13} />
-              </span>
-              <span className="dash-kpi-label">Total Jenis Bahan</span>
-            </span>
-          </div>
-          <p className="dash-kpi-value font-display">{totalJenis}</p>
-        </div>
-        <div className="dash-kpi-card">
-          <div className="dash-kpi-top">
-            <span className="dash-kpi-top-left">
-              <span className="dash-kpi-icon" style={{ background: "#d1fae5", color: "#059669" }}>
-                <CheckCircle2 size={13} />
-              </span>
-              <span className="dash-kpi-label">Stok Aman</span>
-            </span>
-          </div>
-          <p className="dash-kpi-value font-display">{totalAman}</p>
-        </div>
-        <div className="dash-kpi-card">
-          <div className="dash-kpi-top">
-            <span className="dash-kpi-top-left">
-              <span className="dash-kpi-icon" style={{ background: "#fee2e2", color: "#dc2626" }}>
-                <AlertTriangle size={13} />
-              </span>
-              <span className="dash-kpi-label">Stok Kritis</span>
-            </span>
-          </div>
-          <p className="dash-kpi-value font-display">{totalKritis}</p>
-        </div>
-      </div>
+      {/* Baris kartu statistik yang dulu di sini SUDAH DIPINDAH ke atas
+          tabel (app/dashboard/gudang/page.tsx) -- sebelumnya ada 2 baris
+          kartu terpisah di halaman ini (1 di atas tabel, 1 lagi di sini)
+          dan kartu "Total Jenis Bahan" di keduanya nilainya sama persis,
+          kelihatan seperti kartu dobel. "Stok Aman"/"Stok Kritis" yang
+          tadinya cuma ada di baris ini sudah ikut dipindah ke baris atas
+          juga (dihitung dari kolom `status` yang sama), jadi tidak ada
+          info yang hilang -- cuma digabung jadi 1 baris saja. */}
 
       {showModal && (
         <div className="fixed inset-0 bg-black/60 flex items-start justify-center z-50 p-4 overflow-y-auto backdrop-blur-sm">

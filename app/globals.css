@@ -1800,44 +1800,6 @@ body::before {
     z-index: 2;
   }
 
-  /* Badge tanggal hari ini, pojok kanan atas -- cuma dekoratif (lihat
-     komentar showDate di PageHeaderCard.tsx), makanya tidak dikasih
-     cursor:pointer atau hover state seperti tombol beneran. Absolute,
-     bukan flex, supaya tidak perlu ubah struktur .page-hero yang dipakai
-     11 halaman lain yang tidak pakai showDate. */
-  .page-hero-date {
-    position: absolute;
-    top: 12px;
-    right: 16px;
-    z-index: 2;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    color: #6b7280;
-  }
-
-  @media (min-width: 768px) {
-    .page-hero-date {
-      top: 16px;
-      right: 22px;
-    }
-  }
-
-  .dark .page-hero-date {
-    color: #9ca3af;
-  }
-
-  .page-hero-date-icon {
-    color: #9ca3af;
-    flex-shrink: 0;
-  }
-
-  .dark .page-hero-date-icon {
-    color: #6b7280;
-  }
-
   .page-hero-badge {
     display: inline-flex;
     align-items: center;

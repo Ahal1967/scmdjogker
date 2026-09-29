@@ -1,5 +1,12 @@
 "use client";
 
+// SUDAH TIDAK DIPAKAI -- laporan/page.tsx sekarang pakai komponen generik
+// @/components/ExportButtons (1 tombol "Export", pilihan Excel/PDF muncul
+// di dropdown pas diklik) supaya konsisten dengan semua modul lain,
+// bukan lagi versi 2-tombol-berdampingan khusus halaman ini. File ini
+// dibiarkan ada (bukan dihapus) karena keterbatasan tooling sesi ini
+// tidak bisa menghapus file di komputer user -- aman dihapus manual.
+
 import { FileSpreadsheet, FileText } from "lucide-react";
 
 type Order = {

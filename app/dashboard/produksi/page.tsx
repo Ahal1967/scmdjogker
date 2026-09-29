@@ -3,6 +3,7 @@ import { Factory, ClipboardList, Loader2, CheckCircle2 } from "lucide-react";
 import ProduksiTable, { type ProductionRow } from "./ProduksiTable";
 import PageHeaderCard from "@/components/PageHeaderCard";
 import FetchErrorBanner from "@/components/FetchErrorBanner";
+import CollapsibleKpiCards from "@/components/CollapsibleKpiCards";
 
 export default async function ProduksiPage() {
   const supabase = createClient();
@@ -50,42 +51,46 @@ export default async function ProduksiPage() {
 
       {/* Kartu statistik dipindah ke pola .dash-kpi-card (icon chip
           bergradasi) -- dipakai ulang apa adanya dari Dashboard, lihat
-          komentar sejenis di app/dashboard/gudang/page.tsx. */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <div className="dash-kpi-card">
-          <div className="dash-kpi-top">
-            <span className="dash-kpi-top-left">
-              <span className="dash-kpi-icon" style={{ background: "#dbeafe", color: "#2563eb" }}>
-                <ClipboardList size={13} />
+          komentar sejenis di app/dashboard/gudang/page.tsx. Dibungkus
+          CollapsibleKpiCards (default tersembunyi, klik buat buka) atas
+          permintaan user supaya modul terasa lebih ringkas. */}
+      <CollapsibleKpiCards>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className="dash-kpi-card">
+            <div className="dash-kpi-top">
+              <span className="dash-kpi-top-left">
+                <span className="dash-kpi-icon" style={{ background: "#dbeafe", color: "#2563eb" }}>
+                  <ClipboardList size={13} />
+                </span>
+                <span className="dash-kpi-label">Total Produksi</span>
               </span>
-              <span className="dash-kpi-label">Total Produksi</span>
-            </span>
+            </div>
+            <p className="dash-kpi-value font-display">{totalProduksi}</p>
           </div>
-          <p className="dash-kpi-value font-display">{totalProduksi}</p>
-        </div>
-        <div className="dash-kpi-card">
-          <div className="dash-kpi-top">
-            <span className="dash-kpi-top-left">
-              <span className="dash-kpi-icon" style={{ background: "#ffedd5", color: "#ea580c" }}>
-                <Loader2 size={13} />
+          <div className="dash-kpi-card">
+            <div className="dash-kpi-top">
+              <span className="dash-kpi-top-left">
+                <span className="dash-kpi-icon" style={{ background: "#ffedd5", color: "#ea580c" }}>
+                  <Loader2 size={13} />
+                </span>
+                <span className="dash-kpi-label">Sedang Diproses</span>
               </span>
-              <span className="dash-kpi-label">Sedang Diproses</span>
-            </span>
+            </div>
+            <p className="dash-kpi-value font-display">{sedangDiproses}</p>
           </div>
-          <p className="dash-kpi-value font-display">{sedangDiproses}</p>
-        </div>
-        <div className="dash-kpi-card">
-          <div className="dash-kpi-top">
-            <span className="dash-kpi-top-left">
-              <span className="dash-kpi-icon" style={{ background: "#d1fae5", color: "#059669" }}>
-                <CheckCircle2 size={13} />
+          <div className="dash-kpi-card">
+            <div className="dash-kpi-top">
+              <span className="dash-kpi-top-left">
+                <span className="dash-kpi-icon" style={{ background: "#d1fae5", color: "#059669" }}>
+                  <CheckCircle2 size={13} />
+                </span>
+                <span className="dash-kpi-label">Selesai</span>
               </span>
-              <span className="dash-kpi-label">Selesai</span>
-            </span>
+            </div>
+            <p className="dash-kpi-value font-display">{selesai}</p>
           </div>
-          <p className="dash-kpi-value font-display">{selesai}</p>
         </div>
-      </div>
+      </CollapsibleKpiCards>
 
       <ProduksiTable initialProductions={dataProduksi} />
     </div>

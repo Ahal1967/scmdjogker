@@ -5,7 +5,6 @@ import { createClient } from "@/lib/supabase/client";
 import { FileText } from "lucide-react";
 import PageHeaderCard from "@/components/PageHeaderCard";
 import FetchErrorBanner from "@/components/FetchErrorBanner";
-import ExportButtons from "./ExportButtons";
 import LaporanTable from "./LaporanTable";
 
 /* ============================================================
@@ -80,17 +79,19 @@ export default function LaporanPage() {
     setLoading(false);
   }
 
+  // Tombol Export dipindah ke dalam LaporanTable (di samping kolom cari
+  // no. pesanan), bukan sejajar judul halaman lagi -- atas permintaan
+  // user. exportColumns & periodSlug ikut pindah ke sana; page.tsx ini
+  // cuma masih perlu oper `period` (label periode aktif) buat nama file
+  // & judul cetaknya.
   return (
     <div className="space-y-4 md:space-y-6">
-      <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <PageHeaderCard
-          badge="Data Pesanan"
-          icon={FileText}
-          title="Laporan Pesanan"
-          subtitle="Cari, filter periode, dan export daftar pesanan."
-        />
-        <ExportButtons orders={dataOrders} periodLabel={period} />
-      </div>
+      <PageHeaderCard
+        badge="Data Pesanan"
+        icon={FileText}
+        title="Laporan Pesanan"
+        subtitle="Cari, filter periode, dan export daftar pesanan."
+      />
 
       <FetchErrorBanner message={fetchError} />
 
@@ -107,7 +108,7 @@ export default function LaporanPage() {
       {loading ? (
         <div className="card h-40" style={{ border: "none" }} />
       ) : (
-        <LaporanTable dataOrders={dataOrders} />
+        <LaporanTable dataOrders={dataOrders} period={period} />
       )}
     </div>
   );

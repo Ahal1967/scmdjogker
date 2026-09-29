@@ -31,6 +31,8 @@ import { useToast } from "@/components/useToast";
 import { useConfirm } from "@/components/useConfirm";
 import SortableTh from "@/components/SortableTh";
 import TableIconCell from "@/components/TableIconCell";
+import CollapsibleKpiCards from "@/components/CollapsibleKpiCards";
+import ExportButtons, { type ExportColumn } from "@/components/ExportButtons";
 import { compareValues } from "@/lib/sortUtils";
 
 type RawMaterial = { id: string; nama_bahan: string; satuan: string | null; kategori: string | null };
@@ -334,8 +336,42 @@ export default function ProdukTable({
     showToast("Resep bahan berhasil disimpan.", "success");
   }
 
+  // Export yang lagi kelihatan (kena filter pencarian & sort), bukan cuma
+  // 1 halaman pagination -- pola sama seperti Gudang/Pesanan.
+  const exportColumns: ExportColumn<Product>[] = [
+    { header: "Nama Produk", value: (p) => p.nama_produk },
+    { header: "Kategori", value: (p) => p.kategori || "-" },
+    { header: "Harga Default", value: (p) => Number(p.harga_default) || 0 },
+  ];
+
   return (
     <div className="space-y-4">
+      {/* Kartu statistik dipindah ke pola .dash-kpi-card (icon chip
+          bergradasi) -- dipakai ulang apa adanya dari Dashboard, lihat
+          komentar sejenis di app/dashboard/gudang/page.tsx. Cuma 1 kartu
+          (tidak ada grid 3 kolom di sini sebelumnya), dibungkus grid yang
+          sama supaya lebar kartunya konsisten dengan halaman lain.
+          Diletakkan di atas (sebelum search/filter & tabel) supaya
+          posisinya konsisten dengan semua modul lain -- sebelumnya kartu
+          ini ada di BAWAH tabel. Dibungkus CollapsibleKpiCards (default
+          tersembunyi, klik buat buka) atas permintaan user supaya modul
+          terasa lebih ringkas. */}
+      <CollapsibleKpiCards>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className="dash-kpi-card">
+            <div className="dash-kpi-top">
+              <span className="dash-kpi-top-left">
+                <span className="dash-kpi-icon" style={{ background: "#dbeafe", color: "#2563eb" }}>
+                  <Shirt size={13} />
+                </span>
+                <span className="dash-kpi-label">Total Produk di Katalog</span>
+              </span>
+            </div>
+            <p className="dash-kpi-value font-display">{totalProduk}</p>
+          </div>
+        </div>
+      </CollapsibleKpiCards>
+
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative flex-1">
           <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -350,6 +386,13 @@ export default function ProdukTable({
             style={{ padding: "7px 14px 7px 34px", fontSize: "0.8125rem" }}
           />
         </div>
+        <ExportButtons
+          data={sorted}
+          filename="daftar-produk"
+          sheetName="Produk"
+          pdfTitle="Daftar Produk"
+          columns={exportColumns}
+        />
         <button
           onClick={openAdd}
           className="inline-flex items-center justify-center gap-1.5 rounded-full bg-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-sm shadow-blue-600/30 hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 whitespace-nowrap"
@@ -487,25 +530,6 @@ export default function ProdukTable({
             </div>
           </div>
         )}
-      </div>
-
-      {/* Kartu statistik dipindah ke pola .dash-kpi-card (icon chip
-          bergradasi) -- dipakai ulang apa adanya dari Dashboard, lihat
-          komentar sejenis di app/dashboard/gudang/page.tsx. Cuma 1 kartu
-          (tidak ada grid 3 kolom di sini sebelumnya), dibungkus grid yang
-          sama supaya lebar kartunya konsisten dengan halaman lain. */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <div className="dash-kpi-card">
-          <div className="dash-kpi-top">
-            <span className="dash-kpi-top-left">
-              <span className="dash-kpi-icon" style={{ background: "#dbeafe", color: "#2563eb" }}>
-                <Shirt size={13} />
-              </span>
-              <span className="dash-kpi-label">Total Produk di Katalog</span>
-            </span>
-          </div>
-          <p className="dash-kpi-value font-display">{totalProduk}</p>
-        </div>
       </div>
 
       {/* Modal tambah/edit produk */}

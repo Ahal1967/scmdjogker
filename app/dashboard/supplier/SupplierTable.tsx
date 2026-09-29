@@ -7,6 +7,8 @@ import { useToast } from "@/components/useToast";
 import { useConfirm } from "@/components/useConfirm";
 import SortableTh from "@/components/SortableTh";
 import TableIconCell from "@/components/TableIconCell";
+import CollapsibleKpiCards from "@/components/CollapsibleKpiCards";
+import ExportButtons, { type ExportColumn } from "@/components/ExportButtons";
 import { compareValues } from "@/lib/sortUtils";
 
 type Supplier = {
@@ -150,8 +152,65 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
     }
   }
 
+  // Export yang lagi kelihatan (kena filter pencarian & sort), bukan cuma
+  // 1 halaman pagination -- pola sama seperti Gudang/Pesanan.
+  const exportColumns: ExportColumn<Supplier>[] = [
+    { header: "Nama Supplier", value: (s) => s.nama_supplier },
+    { header: "Kontak", value: (s) => s.kontak || "-" },
+    { header: "No. Telepon", value: (s) => s.no_telepon || "-" },
+    { header: "Alamat", value: (s) => s.alamat || "-" },
+    { header: "Status", value: (s) => s.status },
+  ];
+
   return (
     <div className="space-y-4">
+      {/* Kartu statistik dipindah ke pola .dash-kpi-card (icon chip
+          bergradasi) -- dipakai ulang apa adanya dari Dashboard, lihat
+          komentar sejenis di app/dashboard/gudang/page.tsx. Diletakkan di
+          atas (sebelum search/filter & tabel) supaya posisinya konsisten
+          dengan semua modul lain -- sebelumnya kartu ini ada di BAWAH
+          tabel, beda sendiri dari modul lain yang taruh kartu ringkasan
+          di atas. Dibungkus CollapsibleKpiCards (default tersembunyi,
+          klik buat buka) atas permintaan user supaya modul terasa lebih
+          ringkas. */}
+      <CollapsibleKpiCards>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className="dash-kpi-card">
+            <div className="dash-kpi-top">
+              <span className="dash-kpi-top-left">
+                <span className="dash-kpi-icon" style={{ background: "#dbeafe", color: "#2563eb" }}>
+                  <Users2 size={13} />
+                </span>
+                <span className="dash-kpi-label">Total Supplier</span>
+              </span>
+            </div>
+            <p className="dash-kpi-value font-display">{totalSupplier}</p>
+          </div>
+          <div className="dash-kpi-card">
+            <div className="dash-kpi-top">
+              <span className="dash-kpi-top-left">
+                <span className="dash-kpi-icon" style={{ background: "#d1fae5", color: "#059669" }}>
+                  <CheckCircle2 size={13} />
+                </span>
+                <span className="dash-kpi-label">Supplier Aktif</span>
+              </span>
+            </div>
+            <p className="dash-kpi-value font-display">{totalAktif}</p>
+          </div>
+          <div className="dash-kpi-card">
+            <div className="dash-kpi-top">
+              <span className="dash-kpi-top-left">
+                <span className="dash-kpi-icon" style={{ background: "#e5e7eb", color: "#64748b" }}>
+                  <Ban size={13} />
+                </span>
+                <span className="dash-kpi-label">Nonaktif</span>
+              </span>
+            </div>
+            <p className="dash-kpi-value font-display">{totalNonaktif}</p>
+          </div>
+        </div>
+      </CollapsibleKpiCards>
+
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
         <div className="relative flex-1">
           <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -166,6 +225,13 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
             style={{ padding: "7px 14px 7px 34px", fontSize: "0.8125rem" }}
           />
         </div>
+        <ExportButtons
+          data={sorted}
+          filename="daftar-supplier"
+          sheetName="Supplier"
+          pdfTitle="Daftar Supplier"
+          columns={exportColumns}
+        />
         <button
           onClick={openAdd}
           className="inline-flex items-center justify-center gap-1.5 rounded-full bg-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-sm shadow-blue-600/30 hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 whitespace-nowrap"
@@ -312,45 +378,6 @@ export default function SupplierTable({ initialSuppliers }: { initialSuppliers: 
             </div>
           </div>
         )}
-      </div>
-
-      {/* Kartu statistik dipindah ke pola .dash-kpi-card (icon chip
-          bergradasi) -- dipakai ulang apa adanya dari Dashboard, lihat
-          komentar sejenis di app/dashboard/gudang/page.tsx. */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <div className="dash-kpi-card">
-          <div className="dash-kpi-top">
-            <span className="dash-kpi-top-left">
-              <span className="dash-kpi-icon" style={{ background: "#dbeafe", color: "#2563eb" }}>
-                <Users2 size={13} />
-              </span>
-              <span className="dash-kpi-label">Total Supplier</span>
-            </span>
-          </div>
-          <p className="dash-kpi-value font-display">{totalSupplier}</p>
-        </div>
-        <div className="dash-kpi-card">
-          <div className="dash-kpi-top">
-            <span className="dash-kpi-top-left">
-              <span className="dash-kpi-icon" style={{ background: "#d1fae5", color: "#059669" }}>
-                <CheckCircle2 size={13} />
-              </span>
-              <span className="dash-kpi-label">Supplier Aktif</span>
-            </span>
-          </div>
-          <p className="dash-kpi-value font-display">{totalAktif}</p>
-        </div>
-        <div className="dash-kpi-card">
-          <div className="dash-kpi-top">
-            <span className="dash-kpi-top-left">
-              <span className="dash-kpi-icon" style={{ background: "#e5e7eb", color: "#64748b" }}>
-                <Ban size={13} />
-              </span>
-              <span className="dash-kpi-label">Nonaktif</span>
-            </span>
-          </div>
-          <p className="dash-kpi-value font-display">{totalNonaktif}</p>
-        </div>
       </div>
 
       {showModal && (

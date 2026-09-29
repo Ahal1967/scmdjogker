@@ -10,6 +10,7 @@ import SortableTh from "@/components/SortableTh";
 import TableIconCell from "@/components/TableIconCell";
 import StatusDropdown from "@/components/StatusDropdown";
 import ProduksiKanban from "@/components/ProduksiKanban";
+import ExportButtons, { type ExportColumn } from "@/components/ExportButtons";
 import { compareValues } from "@/lib/sortUtils";
 
 export type ProductionRow = {
@@ -262,6 +263,16 @@ export default function ProduksiTable({
     }
   }
 
+  // Export yang lagi kelihatan (kena filter pencarian & sort), bukan cuma
+  // 1 halaman pagination -- pola sama seperti Gudang/Pesanan.
+  const exportColumns: ExportColumn<ProductionRow>[] = [
+    { header: "No. Produksi", value: (p) => p.no_produksi ?? "-" },
+    { header: "No. Pesanan", value: (p) => p.orders?.no_pesanan ?? "-" },
+    { header: "Pelanggan", value: (p) => p.orders?.customers?.nama ?? "-" },
+    { header: "Status", value: (p) => p.status ?? "-" },
+    { header: "Progress", value: (p) => `${p.progress ?? 0}%` },
+  ];
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -274,10 +285,22 @@ export default function ProduksiTable({
               setSearch(e.target.value);
               setCurrentPage(1);
             }}
-            className="input-field rounded-full max-w-md"
+            className="input-field rounded-full"
             style={{ padding: "7px 14px 7px 34px", fontSize: "0.8125rem" }}
           />
         </div>
+        {/* Export dipindah ke sini, langsung nempel kolom cari (sebelum
+            toggle Tabel/Papan) -- disamakan sama penempatan di semua
+            modul lain (Gudang, Supplier, dst) atas permintaan user,
+            sebelumnya ketelan di BELAKANG toggle jadi tidak langsung
+            nempel kolom cari. */}
+        <ExportButtons
+          data={sorted}
+          filename="daftar-produksi"
+          sheetName="Produksi"
+          pdfTitle="Daftar Produksi"
+          columns={exportColumns}
+        />
         {/* Toggle Tabel/Papan -- tampilan tambahan, bukan pengganti tabel
             (keputusan user), jadi defaultnya tetap "table" saat halaman
             dibuka supaya perilaku lama tidak berubah buat yang belum

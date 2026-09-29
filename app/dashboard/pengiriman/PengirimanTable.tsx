@@ -7,6 +7,8 @@ import { Search, Truck, Clock, PackageCheck, ChevronLeft, ChevronRight, Clipboar
 import { useToast } from "@/components/useToast";
 import SortableTh from "@/components/SortableTh";
 import TableIconCell from "@/components/TableIconCell";
+import CollapsibleKpiCards from "@/components/CollapsibleKpiCards";
+import ExportButtons, { type ExportColumn } from "@/components/ExportButtons";
 import { compareValues } from "@/lib/sortUtils";
 
 type Shipment = {
@@ -228,19 +230,85 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
     return <EmptyState />;
   }
 
+  // Export yang lagi kelihatan (kena filter pencarian & sort), bukan cuma
+  // 1 halaman pagination -- pola sama seperti Gudang/Pesanan.
+  const exportColumns: ExportColumn<Shipment>[] = [
+    { header: "No. Pesanan", value: (s) => s.orders?.no_pesanan ?? "-" },
+    { header: "Pelanggan", value: (s) => s.orders?.customers?.nama ?? "-" },
+    { header: "Alamat", value: (s) => s.orders?.alamat_pengiriman ?? "-" },
+    { header: "Kurir", value: (s) => s.kurir || "-" },
+    { header: "No. Resi", value: (s) => s.no_resi || "-" },
+    { header: "Status", value: (s) => s.status },
+  ];
+
   return (
     <div className="space-y-4">
-      <div className="relative">
-        <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-        <input
-          placeholder="Cari no. pesanan / pelanggan..."
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setCurrentPage(1);
-          }}
-          className="input-field rounded-full max-w-md"
-          style={{ padding: "7px 14px 7px 34px", fontSize: "0.8125rem" }}
+      {/* Kartu statistik dipindah ke pola .dash-kpi-card (icon chip
+          bergradasi) -- dipakai ulang apa adanya dari Dashboard, lihat
+          komentar sejenis di app/dashboard/gudang/page.tsx. Diletakkan di
+          atas (sebelum search/filter & tabel) supaya posisinya konsisten
+          dengan semua modul lain -- sebelumnya kartu ini ada di BAWAH
+          tabel. Dibungkus CollapsibleKpiCards (default tersembunyi,
+          klik buat buka) atas permintaan user supaya modul terasa lebih
+          ringkas. */}
+      <CollapsibleKpiCards>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className="dash-kpi-card">
+            <div className="dash-kpi-top">
+              <span className="dash-kpi-top-left">
+                <span className="dash-kpi-icon" style={{ background: "#dbeafe", color: "#2563eb" }}>
+                  <Truck size={13} />
+                </span>
+                <span className="dash-kpi-label">Total Pengiriman</span>
+              </span>
+            </div>
+            <p className="dash-kpi-value font-display">{totalPengiriman}</p>
+          </div>
+          <div className="dash-kpi-card">
+            <div className="dash-kpi-top">
+              <span className="dash-kpi-top-left">
+                <span className="dash-kpi-icon" style={{ background: "#fef3c7", color: "#d97706" }}>
+                  <Clock size={13} />
+                </span>
+                <span className="dash-kpi-label">Dalam Proses</span>
+              </span>
+            </div>
+            <p className="dash-kpi-value font-display">{totalDiproses}</p>
+          </div>
+          <div className="dash-kpi-card">
+            <div className="dash-kpi-top">
+              <span className="dash-kpi-top-left">
+                <span className="dash-kpi-icon" style={{ background: "#d1fae5", color: "#059669" }}>
+                  <PackageCheck size={13} />
+                </span>
+                <span className="dash-kpi-label">Terkirim</span>
+              </span>
+            </div>
+            <p className="dash-kpi-value font-display">{totalTerkirim}</p>
+          </div>
+        </div>
+      </CollapsibleKpiCards>
+
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative flex-1">
+          <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            placeholder="Cari no. pesanan / pelanggan..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="input-field rounded-full"
+            style={{ padding: "7px 14px 7px 34px", fontSize: "0.8125rem" }}
+          />
+        </div>
+        <ExportButtons
+          data={sorted}
+          filename="daftar-pengiriman"
+          sheetName="Pengiriman"
+          pdfTitle="Daftar Pengiriman"
+          columns={exportColumns}
         />
       </div>
 
@@ -357,45 +425,6 @@ export default function PengirimanTable({ initialShipments }: { initialShipments
             </div>
           </div>
         )}
-      </div>
-
-      {/* Kartu statistik dipindah ke pola .dash-kpi-card (icon chip
-          bergradasi) -- dipakai ulang apa adanya dari Dashboard, lihat
-          komentar sejenis di app/dashboard/gudang/page.tsx. */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <div className="dash-kpi-card">
-          <div className="dash-kpi-top">
-            <span className="dash-kpi-top-left">
-              <span className="dash-kpi-icon" style={{ background: "#dbeafe", color: "#2563eb" }}>
-                <Truck size={13} />
-              </span>
-              <span className="dash-kpi-label">Total Pengiriman</span>
-            </span>
-          </div>
-          <p className="dash-kpi-value font-display">{totalPengiriman}</p>
-        </div>
-        <div className="dash-kpi-card">
-          <div className="dash-kpi-top">
-            <span className="dash-kpi-top-left">
-              <span className="dash-kpi-icon" style={{ background: "#fef3c7", color: "#d97706" }}>
-                <Clock size={13} />
-              </span>
-              <span className="dash-kpi-label">Dalam Proses</span>
-            </span>
-          </div>
-          <p className="dash-kpi-value font-display">{totalDiproses}</p>
-        </div>
-        <div className="dash-kpi-card">
-          <div className="dash-kpi-top">
-            <span className="dash-kpi-top-left">
-              <span className="dash-kpi-icon" style={{ background: "#d1fae5", color: "#059669" }}>
-                <PackageCheck size={13} />
-              </span>
-              <span className="dash-kpi-label">Terkirim</span>
-            </span>
-          </div>
-          <p className="dash-kpi-value font-display">{totalTerkirim}</p>
-        </div>
       </div>
 
       {showModal && activeShipment && (

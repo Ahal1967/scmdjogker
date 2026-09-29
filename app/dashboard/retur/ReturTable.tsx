@@ -31,6 +31,7 @@ import { useConfirm } from "@/components/useConfirm";
 import SortableTh from "@/components/SortableTh";
 import TableIconCell from "@/components/TableIconCell";
 import StatusDropdown from "@/components/StatusDropdown";
+import ExportButtons, { type ExportColumn } from "@/components/ExportButtons";
 import { compareValues } from "@/lib/sortUtils";
 import { generateUniqueCode } from "@/lib/generateCode";
 
@@ -276,6 +277,19 @@ export default function ReturTable({ initialReturns, orders }: { initialReturns:
     }
   }
 
+  // Export yang lagi kelihatan (kena filter pencarian & sort), bukan cuma
+  // 1 halaman pagination -- pola sama seperti Gudang/Pesanan.
+  const exportColumns: ExportColumn<ReturnRow>[] = [
+    { header: "No. Retur", value: (r) => r.no_retur },
+    { header: "No. Pesanan", value: (r) => r.orders?.no_pesanan ?? "-" },
+    { header: "Pelanggan", value: (r) => r.orders?.customers?.nama ?? "-" },
+    { header: "Item", value: (r) => r.order_items?.nama_produk ?? "-" },
+    { header: "Alasan", value: (r) => r.alasan },
+    { header: "Jumlah", value: (r) => r.jumlah ?? 0 },
+    { header: "Tanggal", value: (r) => (r.tanggal ? new Date(r.tanggal).toLocaleDateString("id-ID") : "-") },
+    { header: "Status", value: (r) => r.status },
+  ];
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
@@ -292,6 +306,14 @@ export default function ReturTable({ initialReturns, orders }: { initialReturns:
             style={{ padding: "7px 14px 7px 34px", fontSize: "0.8125rem" }}
           />
         </div>
+        <ExportButtons
+          data={sorted}
+          filename="daftar-retur"
+          sheetName="Retur"
+          pdfTitle="Daftar Retur"
+          orientation="landscape"
+          columns={exportColumns}
+        />
         <button
           onClick={openAdd}
           className="inline-flex items-center justify-center gap-1.5 rounded-full bg-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-sm shadow-blue-600/30 hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 whitespace-nowrap"

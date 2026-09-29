@@ -3,6 +3,7 @@ import { Undo2, Clock, RefreshCw, ListChecks } from "lucide-react";
 import ReturTable from "./ReturTable";
 import PageHeaderCard from "@/components/PageHeaderCard";
 import FetchErrorBanner from "@/components/FetchErrorBanner";
+import CollapsibleKpiCards from "@/components/CollapsibleKpiCards";
 
 export default async function ReturPage() {
   const supabase = createClient();
@@ -77,53 +78,57 @@ export default async function ReturPage() {
           Kartu terakhir ("Selesai/Ditolak") sengaja dikasih warna netral
           (slate), bukan hijau -- karena angkanya menggabungkan 2 hasil
           akhir yang berlawanan (selesai = baik, ditolak = tidak), jadi
-          hijau akan menyesatkan seolah semuanya hasil positif. */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-        <div className="dash-kpi-card">
-          <div className="dash-kpi-top">
-            <span className="dash-kpi-top-left">
-              <span className="dash-kpi-icon" style={{ background: "#dbeafe", color: "#2563eb" }}>
-                <Undo2 size={13} />
+          hijau akan menyesatkan seolah semuanya hasil positif. Dibungkus
+          CollapsibleKpiCards (default tersembunyi, klik buat buka) atas
+          permintaan user supaya modul terasa lebih ringkas. */}
+      <CollapsibleKpiCards>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          <div className="dash-kpi-card">
+            <div className="dash-kpi-top">
+              <span className="dash-kpi-top-left">
+                <span className="dash-kpi-icon" style={{ background: "#dbeafe", color: "#2563eb" }}>
+                  <Undo2 size={13} />
+                </span>
+                <span className="dash-kpi-label">Total Retur</span>
               </span>
-              <span className="dash-kpi-label">Total Retur</span>
-            </span>
+            </div>
+            <p className="dash-kpi-value font-display">{totalRetur}</p>
           </div>
-          <p className="dash-kpi-value font-display">{totalRetur}</p>
-        </div>
-        <div className="dash-kpi-card">
-          <div className="dash-kpi-top">
-            <span className="dash-kpi-top-left">
-              <span className="dash-kpi-icon" style={{ background: "#ffedd5", color: "#ea580c" }}>
-                <Clock size={13} />
+          <div className="dash-kpi-card">
+            <div className="dash-kpi-top">
+              <span className="dash-kpi-top-left">
+                <span className="dash-kpi-icon" style={{ background: "#ffedd5", color: "#ea580c" }}>
+                  <Clock size={13} />
+                </span>
+                <span className="dash-kpi-label">Diajukan</span>
               </span>
-              <span className="dash-kpi-label">Diajukan</span>
-            </span>
+            </div>
+            <p className="dash-kpi-value font-display">{totalDiajukan}</p>
           </div>
-          <p className="dash-kpi-value font-display">{totalDiajukan}</p>
-        </div>
-        <div className="dash-kpi-card">
-          <div className="dash-kpi-top">
-            <span className="dash-kpi-top-left">
-              <span className="dash-kpi-icon" style={{ background: "#d1fae5", color: "#059669" }}>
-                <RefreshCw size={13} />
+          <div className="dash-kpi-card">
+            <div className="dash-kpi-top">
+              <span className="dash-kpi-top-left">
+                <span className="dash-kpi-icon" style={{ background: "#d1fae5", color: "#059669" }}>
+                  <RefreshCw size={13} />
+                </span>
+                <span className="dash-kpi-label">Diproses</span>
               </span>
-              <span className="dash-kpi-label">Diproses</span>
-            </span>
+            </div>
+            <p className="dash-kpi-value font-display">{totalDiproses}</p>
           </div>
-          <p className="dash-kpi-value font-display">{totalDiproses}</p>
-        </div>
-        <div className="dash-kpi-card">
-          <div className="dash-kpi-top">
-            <span className="dash-kpi-top-left">
-              <span className="dash-kpi-icon" style={{ background: "#e5e7eb", color: "#64748b" }}>
-                <ListChecks size={13} />
+          <div className="dash-kpi-card">
+            <div className="dash-kpi-top">
+              <span className="dash-kpi-top-left">
+                <span className="dash-kpi-icon" style={{ background: "#e5e7eb", color: "#64748b" }}>
+                  <ListChecks size={13} />
+                </span>
+                <span className="dash-kpi-label">Selesai / Ditolak</span>
               </span>
-              <span className="dash-kpi-label">Selesai / Ditolak</span>
-            </span>
+            </div>
+            <p className="dash-kpi-value font-display">{totalSelesai}</p>
           </div>
-          <p className="dash-kpi-value font-display">{totalSelesai}</p>
         </div>
-      </div>
+      </CollapsibleKpiCards>
 
       <ReturTable initialReturns={returns} orders={orders} />
     </div>

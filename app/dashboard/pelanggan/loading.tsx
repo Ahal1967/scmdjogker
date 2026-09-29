@@ -20,7 +20,15 @@ export default function PelangganLoading() {
         </div>
       </div>
 
-      <div className="h-11 w-full max-w-md rounded-full bg-gray-200 dark:bg-[#21262d]" />
+      {/* Baris cari + tombol Export -- sebelumnya skeleton ini cuma py
+          placeholder cari sendirian, padahal tombol Export sudah lama
+          ada di samping kolom cari di PelangganTable.tsx. Disamakan
+          sekalian biar tidak ada "lompatan" layout pas data selesai
+          dimuat, sama seperti perbaikan di laporan/loading.tsx. */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="h-11 w-full max-w-md rounded-full bg-gray-200 dark:bg-[#21262d]" />
+        <div className="h-9 w-28 rounded-full bg-gray-200 dark:bg-[#21262d]" />
+      </div>
 
       <div className="card p-0 overflow-hidden">
         <div className="h-10 border-b border-gray-100 dark:border-[#30363d]" />

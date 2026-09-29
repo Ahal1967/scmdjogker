@@ -4,6 +4,7 @@ import { Settings, Users2, ShieldCheck, User } from "lucide-react";
 import PengaturanTable from "./PengaturanTable";
 import PageHeaderCard from "@/components/PageHeaderCard";
 import FetchErrorBanner from "@/components/FetchErrorBanner";
+import CollapsibleKpiCards from "@/components/CollapsibleKpiCards";
 
 export default async function PengaturanPage() {
   const supabase = createClient();
@@ -109,45 +110,49 @@ export default async function PengaturanPage() {
       {/* Kartu ringkasan pakai pola .dash-kpi-card senada Dashboard/Retur
           (badge ikon warna muda + label sebaris di atas, angka besar di
           bawahnya, hint kecil paling bawah) -- diselaraskan atas permintaan
-          user, isi/angka TIDAK berubah. */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <div className="dash-kpi-card">
-          <div className="dash-kpi-top">
-            <span className="dash-kpi-top-left">
-              <span className="dash-kpi-icon" style={{ background: "#dbeafe", color: "#2563eb" }}>
-                <Users2 size={13} />
+          user, isi/angka TIDAK berubah. Dibungkus CollapsibleKpiCards
+          (default tersembunyi, klik buat buka) atas permintaan user
+          supaya modul terasa lebih ringkas. */}
+      <CollapsibleKpiCards>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className="dash-kpi-card">
+            <div className="dash-kpi-top">
+              <span className="dash-kpi-top-left">
+                <span className="dash-kpi-icon" style={{ background: "#dbeafe", color: "#2563eb" }}>
+                  <Users2 size={13} />
+                </span>
+                <span className="dash-kpi-label">Total Pengguna</span>
               </span>
-              <span className="dash-kpi-label">Total Pengguna</span>
-            </span>
+            </div>
+            <p className="dash-kpi-value font-display">{totalPengguna}</p>
+            <p className="dash-kpi-hint">Akun terdaftar</p>
           </div>
-          <p className="dash-kpi-value font-display">{totalPengguna}</p>
-          <p className="dash-kpi-hint">Akun terdaftar</p>
-        </div>
-        <div className="dash-kpi-card">
-          <div className="dash-kpi-top">
-            <span className="dash-kpi-top-left">
-              <span className="dash-kpi-icon" style={{ background: "#dbeafe", color: "#2563eb" }}>
-                <ShieldCheck size={13} />
+          <div className="dash-kpi-card">
+            <div className="dash-kpi-top">
+              <span className="dash-kpi-top-left">
+                <span className="dash-kpi-icon" style={{ background: "#dbeafe", color: "#2563eb" }}>
+                  <ShieldCheck size={13} />
+                </span>
+                <span className="dash-kpi-label">Admin</span>
               </span>
-              <span className="dash-kpi-label">Admin</span>
-            </span>
+            </div>
+            <p className="dash-kpi-value font-display">{adminCount}</p>
+            <p className="dash-kpi-hint">Akses penuh</p>
           </div>
-          <p className="dash-kpi-value font-display">{adminCount}</p>
-          <p className="dash-kpi-hint">Akses penuh</p>
-        </div>
-        <div className="dash-kpi-card">
-          <div className="dash-kpi-top">
-            <span className="dash-kpi-top-left">
-              <span className="dash-kpi-icon" style={{ background: "#d1fae5", color: "#059669" }}>
-                <User size={13} />
+          <div className="dash-kpi-card">
+            <div className="dash-kpi-top">
+              <span className="dash-kpi-top-left">
+                <span className="dash-kpi-icon" style={{ background: "#d1fae5", color: "#059669" }}>
+                  <User size={13} />
+                </span>
+                <span className="dash-kpi-label">Staff</span>
               </span>
-              <span className="dash-kpi-label">Staff</span>
-            </span>
+            </div>
+            <p className="dash-kpi-value font-display">{staffCount}</p>
+            <p className="dash-kpi-hint">Akses terbatas</p>
           </div>
-          <p className="dash-kpi-value font-display">{staffCount}</p>
-          <p className="dash-kpi-hint">Akses terbatas</p>
         </div>
-      </div>
+      </CollapsibleKpiCards>
 
       {/* Sebelumnya kartu "kaca" custom (backdrop-blur-xl + blob dekoratif
           blur-3xl di pojok) -- efek itu ditulis manual terpisah dari class

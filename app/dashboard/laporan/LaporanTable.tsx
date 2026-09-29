@@ -5,6 +5,7 @@ import { Search, FileText, ChevronLeft, ChevronRight, ClipboardList, Calendar, W
 import SortableTh from "@/components/SortableTh";
 import TableIconCell from "@/components/TableIconCell";
 import { compareValues } from "@/lib/sortUtils";
+import ExportButtons, { type ExportColumn } from "@/components/ExportButtons";
 
 type Order = {
   id: string;
@@ -38,7 +39,11 @@ function formatTanggal(value: string | null) {
   return date.toLocaleDateString("id-ID", { day: "2-digit", month: "short", year: "numeric" });
 }
 
-export default function LaporanTable({ dataOrders }: { dataOrders: Order[] }) {
+// period dioper dari page.tsx (label periode yang lagi aktif, mis. "Bulan
+// Ini") cuma buat nama file & judul cetak export -- bukan buat filter,
+// filternya sendiri sudah dilakukan di page.tsx lewat query Supabase
+// sebelum dataOrders sampai ke sini.
+export default function LaporanTable({ dataOrders, period }: { dataOrders: Order[]; period: string }) {
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
@@ -85,19 +90,45 @@ export default function LaporanTable({ dataOrders }: { dataOrders: Order[] }) {
   const totalPages = Math.max(1, Math.ceil(sorted.length / pageSize));
   const paginated = sorted.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
+  // exportColumns didefinisikan di sini (bukan di page.tsx) supaya
+  // konsisten sama pola modul lain, meskipun laporan/page.tsx sendiri
+  // sebenarnya sudah "use client" jadi tidak akan kena error RSC seperti
+  // yang sempat terjadi di Pelanggan -- ini murni soal penempatan tombol
+  // di samping kolom cari, bukan soal server/client boundary.
+  const periodSlug = period.toLowerCase().replace(/\s+/g, "-");
+  const exportColumns: ExportColumn<Order>[] = [
+    { header: "No. Pesanan", value: (o) => o.no_pesanan || "-" },
+    { header: "Tanggal", value: (o) => formatTanggal(o.tanggal || o.created_at) },
+    { header: "Total", value: (o) => Number(o.total) || 0 },
+    { header: "DP", value: (o) => Number(o.dp) || 0 },
+    { header: "Sisa", value: (o) => Number(o.sisa_pembayaran) || 0 },
+    { header: "Status", value: (o) => o.status || "-" },
+    { header: "Alamat", value: (o) => o.alamat_pengiriman || "-" },
+  ];
+
   return (
     <div className="space-y-4">
-      <div className="relative max-w-md">
-        <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-        <input
-          placeholder="Cari no. pesanan..."
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setCurrentPage(1);
-          }}
-          className="input-field rounded-full"
-          style={{ padding: "7px 14px 7px 34px", fontSize: "0.8125rem" }}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative flex-1 max-w-md">
+          <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            placeholder="Cari no. pesanan..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="input-field rounded-full"
+            style={{ padding: "7px 14px 7px 34px", fontSize: "0.8125rem" }}
+          />
+        </div>
+        <ExportButtons
+          data={sorted}
+          filename={`laporan-pesanan-${periodSlug}`}
+          sheetName="Laporan Pesanan"
+          pdfTitle={`Laporan Pesanan (${period})`}
+          orientation="landscape"
+          columns={exportColumns}
         />
       </div>
 

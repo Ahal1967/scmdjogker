@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import SortableTh from "@/components/SortableTh";
 import TableIconCell from "@/components/TableIconCell";
+import ExportButtons, { type ExportColumn } from "@/components/ExportButtons";
 import SelectDropdown from "@/components/SelectDropdown";
 import { compareValues } from "@/lib/sortUtils";
 import { useToast } from "@/components/useToast";
@@ -266,19 +267,43 @@ export default function PengaturanTable({
     showToast("Akun berhasil dihapus.");
   }
 
+  // Export daftar pengguna sesuai urutan sort yang lagi aktif -- pola sama
+  // seperti Gudang/Pesanan. Tombolnya sendiri cuma dirender kalau isAdmin
+  // (lihat di JSX), jadi kolom Email di sini aman -- tidak pernah kepanggil
+  // dari sisi viewer non-admin.
+  const exportColumns: ExportColumn<Profile>[] = [
+    { header: "Nama Lengkap", value: (p) => p.full_name || "-" },
+    { header: "Email", value: (p) => p.email || "-" },
+    { header: "Role", value: (p) => p.role },
+    { header: "Dibuat", value: (p) => (p.created_at ? new Date(p.created_at).toLocaleDateString("id-ID") : "-") },
+  ];
+
   return (
     <div>
       <div className="flex flex-col gap-3 p-5 pb-4 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-base font-semibold text-black dark:text-white">Daftar Pengguna</h2>
         {isAdmin && (
-          <button
-            type="button"
-            onClick={openAdd}
-            className="inline-flex items-center justify-center gap-1.5 rounded-full bg-blue-600 px-4 py-2 text-xs md:text-sm font-semibold text-white shadow-sm shadow-blue-600/30 hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 whitespace-nowrap"
-          >
-            <Plus size={15} />
-            Tambah Pengguna
-          </button>
+          <div className="flex gap-2">
+            {/* Export cuma buat admin -- senada aturan kolom Email di
+                tabel ini (page.tsx sengaja tidak kirim email ke viewer
+                non-admin), jadi daftar yang diexport juga tidak boleh
+                bocor ke staff biasa. */}
+            <ExportButtons
+              data={sorted}
+              filename="daftar-pengguna"
+              sheetName="Pengguna"
+              pdfTitle="Daftar Pengguna"
+              columns={exportColumns}
+            />
+            <button
+              type="button"
+              onClick={openAdd}
+              className="inline-flex items-center justify-center gap-1.5 rounded-full bg-blue-600 px-4 py-2 text-xs md:text-sm font-semibold text-white shadow-sm shadow-blue-600/30 hover:bg-blue-700 hover:-translate-y-0.5 hover:shadow-md transition-all duration-200 whitespace-nowrap"
+            >
+              <Plus size={15} />
+              Tambah Pengguna
+            </button>
+          </div>
         )}
       </div>
 

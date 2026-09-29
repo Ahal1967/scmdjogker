@@ -7,6 +7,8 @@ import { Search, Package, Clock, CheckCircle2, ChevronLeft, ChevronRight, Send, 
 import { useToast } from "@/components/useToast";
 import SortableTh from "@/components/SortableTh";
 import TableIconCell from "@/components/TableIconCell";
+import CollapsibleKpiCards from "@/components/CollapsibleKpiCards";
+import ExportButtons, { type ExportColumn } from "@/components/ExportButtons";
 import { compareValues } from "@/lib/sortUtils";
 
 type Packing = {
@@ -170,19 +172,85 @@ export default function PackingTable({ initialPacking }: { initialPacking: Packi
     return <EmptyState />;
   }
 
+  // Export yang lagi kelihatan (kena filter pencarian & sort), bukan cuma
+  // 1 halaman pagination -- pola sama seperti Gudang/Pesanan.
+  const exportColumns: ExportColumn<Packing>[] = [
+    { header: "No. Packing", value: (p) => p.no_packing },
+    { header: "No. Pesanan", value: (p) => p.orders?.no_pesanan ?? "-" },
+    { header: "Pelanggan", value: (p) => p.orders?.customers?.nama ?? "-" },
+    { header: "Tanggal", value: (p) => (p.tanggal ? new Date(p.tanggal).toLocaleDateString("id-ID") : "-") },
+    { header: "Jumlah", value: (p) => p.jumlah },
+    { header: "Status", value: (p) => p.status },
+  ];
+
   return (
     <div className="space-y-4">
-      <div className="relative">
-        <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-        <input
-          placeholder="Cari no. packing / no. pesanan..."
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setCurrentPage(1);
-          }}
-          className="input-field rounded-full max-w-md"
-          style={{ padding: "7px 14px 7px 34px", fontSize: "0.8125rem" }}
+      {/* Kartu ringkasan tadinya pakai gaya sendiri (baris "card divide-x",
+          padding p-5, ikon 44px) yang beda visual dan jauh lebih besar
+          dari kartu modul lain -- diseragamkan ke pola .dash-kpi-card
+          (icon chip 22px + label kecil) yang dipakai ulang apa adanya
+          dari Dashboard/Gudang/dst, lihat komentar sejenis di
+          app/dashboard/gudang/page.tsx. Dibungkus CollapsibleKpiCards
+          (default tersembunyi, klik buat buka) atas permintaan user
+          supaya modul terasa lebih ringkas. */}
+      <CollapsibleKpiCards>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className="dash-kpi-card">
+            <div className="dash-kpi-top">
+              <span className="dash-kpi-top-left">
+                <span className="dash-kpi-icon" style={{ background: "#dbeafe", color: "#2563eb" }}>
+                  <Package size={13} />
+                </span>
+                <span className="dash-kpi-label">Total Packing</span>
+              </span>
+            </div>
+            <p className="dash-kpi-value font-display">{totalPacking}</p>
+          </div>
+          <div className="dash-kpi-card">
+            <div className="dash-kpi-top">
+              <span className="dash-kpi-top-left">
+                <span className="dash-kpi-icon" style={{ background: "#fef3c7", color: "#d97706" }}>
+                  <Clock size={13} />
+                </span>
+                <span className="dash-kpi-label">Sedang Diproses</span>
+              </span>
+            </div>
+            <p className="dash-kpi-value font-display">{totalDiproses}</p>
+          </div>
+          <div className="dash-kpi-card">
+            <div className="dash-kpi-top">
+              <span className="dash-kpi-top-left">
+                <span className="dash-kpi-icon" style={{ background: "#d1fae5", color: "#059669" }}>
+                  <CheckCircle2 size={13} />
+                </span>
+                <span className="dash-kpi-label">Siap Kirim</span>
+              </span>
+            </div>
+            <p className="dash-kpi-value font-display">{totalSiapKirim}</p>
+          </div>
+        </div>
+      </CollapsibleKpiCards>
+
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative flex-1">
+          <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            placeholder="Cari no. packing / no. pesanan..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="input-field rounded-full"
+            style={{ padding: "7px 14px 7px 34px", fontSize: "0.8125rem" }}
+          />
+        </div>
+        <ExportButtons
+          data={sorted}
+          filename="daftar-packing"
+          sheetName="Packing"
+          pdfTitle="Daftar Packing"
+          columns={exportColumns}
         />
       </div>
 
@@ -315,37 +383,6 @@ export default function PackingTable({ initialPacking }: { initialPacking: Packi
         )}
       </div>
 
-      <div className="card p-0 overflow-hidden" style={{ border: "none" }}>
-        <div className="grid grid-cols-1 divide-y divide-gray-100 dark:divide-gray-700 sm:grid-cols-3 sm:divide-y-0 sm:divide-x">
-          <div className="flex items-center gap-3 p-5">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-50 dark:bg-blue-900/40">
-              <Package size={20} className="text-blue-600 dark:text-blue-400" />
-            </span>
-            <div>
-              <p className="font-display text-xl font-bold text-black dark:text-white">{totalPacking}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Total Packing</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 p-5">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-yellow-50 dark:bg-yellow-900/40">
-              <Clock size={20} className="text-yellow-600 dark:text-yellow-400" />
-            </span>
-            <div>
-              <p className="font-display text-xl font-bold text-black dark:text-white">{totalDiproses}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Sedang Diproses</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 p-5">
-            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-green-50 dark:bg-green-900/40">
-              <CheckCircle2 size={20} className="text-green-600 dark:text-green-400" />
-            </span>
-            <div>
-              <p className="font-display text-xl font-bold text-black dark:text-white">{totalSiapKirim}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Siap Kirim</p>
-            </div>
-          </div>
-        </div>
-      </div>
       {ToastBanner}
     </div>
   );

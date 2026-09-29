@@ -22,15 +22,15 @@ import {
 
 // Kartu kedua ini isinya buat PELANGGAN (bukan tim internal) -- makanya
 // tiap poin ditulis dari sudut pandang "apa yang pelanggan dapat", bukan
-// "apa yang bisa dikelola tim". Gradasi tiap chip ikon sengaja dari
-// keluarga warna yang sama dengan .dash-kpi-icon di dashboard (cyan/
-// oranye/biru/violet), supaya bahasa warnanya nyambung walau halaman
-// login ini di luar layout dashboard.
+// "apa yang bisa dikelola tim". Ikon sengaja flat (bg tint muda + ikon
+// warna solid, BUKAN gradasi dua-tone lagi) atas permintaan user, sesuai
+// gaya ikon yang sekarang dipakai di semua halaman dashboard/tabel --
+// warna per item senada sama palet flat yang sama (biru/hijau/violet).
 const FEATURES = [
-  { label: "Bahan Baku Berkualitas", desc: "Kualitas bahan selalu terjaga.", icon: Warehouse, gradient: ["#22d3ee", "#0891b2"] },
-  { label: "Produksi & Quality Control", desc: "Diperiksa ketat sebelum dikirim.", icon: Factory, gradient: ["#fb923c", "#ea580c"] },
-  { label: "Lacak Status Pesanan", desc: "Pantau progres secara real-time.", icon: Truck, gradient: ["#3b82f6", "#2563eb"] },
-  { label: "Bantuan Kapan Saja", desc: "Tim admin siap bantu lewat WhatsApp.", icon: Headset, gradient: ["#a78bfa", "#7c3aed"] },
+  { label: "Bahan Baku Berkualitas", desc: "Kualitas bahan selalu terjaga.", icon: Warehouse, flatBg: "#dbeafe", flatIcon: "#2563eb" },
+  { label: "Produksi & Quality Control", desc: "Diperiksa ketat sebelum dikirim.", icon: Factory, flatBg: "#d1fae5", flatIcon: "#059669" },
+  { label: "Lacak Status Pesanan", desc: "Pantau progres secara real-time.", icon: Truck, flatBg: "#dbeafe", flatIcon: "#2563eb" },
+  { label: "Bantuan Kapan Saja", desc: "Tim admin siap bantu lewat WhatsApp.", icon: Headset, flatBg: "#ede9fe", flatIcon: "#7c3aed" },
 ] as const;
 
 export default function LoginPageClient() {
@@ -274,16 +274,25 @@ export default function LoginPageClient() {
           </p>
         </div>
 
-        <div className="mt-5 space-y-3">
-          {FEATURES.map((f) => (
-            <div key={f.label} className="flex items-start gap-3">
+        {/* List baris penuh + pembatas tipis antar item, sesuai referensi
+            visual yang dikasih user. Chevron kanan sempat ada tapi dicabut
+            lagi -- baris ini memang tidak bisa diklik/tidak membuka
+            apapun, chevron cuma bikin kesan salah kalau ini bisa diklik. */}
+        <div className="mt-5">
+          {FEATURES.map((f, idx) => (
+            <div
+              key={f.label}
+              className={`flex items-center gap-3 py-4 ${
+                idx < FEATURES.length - 1 ? "border-b border-gray-100 dark:border-[#30363d]" : ""
+              }`}
+            >
               <div
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-white"
-                style={{ background: `linear-gradient(135deg, ${f.gradient[0]}, ${f.gradient[1]})` }}
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl"
+                style={{ background: f.flatBg, color: f.flatIcon }}
               >
-                <f.icon size={15} />
+                <f.icon size={20} />
               </div>
-              <div>
+              <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold text-black dark:text-white">{f.label}</p>
                 <p className="text-xs text-gray-500 dark:text-gray-400">{f.desc}</p>
               </div>

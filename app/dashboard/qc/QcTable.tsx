@@ -7,6 +7,8 @@ import { Search, ShieldCheck, ClipboardCheck, CheckCircle2, XCircle, ChevronLeft
 import { useToast } from "@/components/useToast";
 import SortableTh from "@/components/SortableTh";
 import TableIconCell from "@/components/TableIconCell";
+import CollapsibleKpiCards from "@/components/CollapsibleKpiCards";
+import ExportButtons, { type ExportColumn } from "@/components/ExportButtons";
 import { compareValues } from "@/lib/sortUtils";
 import { generateUniqueCode } from "@/lib/generateCode";
 
@@ -279,8 +281,67 @@ export default function QcTable({
     }
   }
 
+  // Export riwayat QC yang lagi kelihatan (kena filter pencarian & sort),
+  // bukan cuma 1 halaman pagination -- pola sama seperti Gudang/Pesanan.
+  // Cuma tabel riwayat yang bisa diexport, bukan antrian (antrian sifatnya
+  // sementara/belum ada hasil, jadi tidak berarti buat direkap).
+  const exportColumns: ExportColumn<QcRecord>[] = [
+    { header: "No. QC", value: (r) => r.no_qc },
+    { header: "No. Produksi", value: (r) => r.production?.no_produksi ?? "-" },
+    { header: "No. Pesanan", value: (r) => r.production?.orders?.no_pesanan ?? "-" },
+    { header: "Tanggal", value: (r) => (r.tanggal ? new Date(r.tanggal).toLocaleDateString("id-ID") : "-") },
+    { header: "Hasil", value: (r) => r.hasil },
+    { header: "Catatan", value: (r) => r.catatan || "-" },
+  ];
+
   return (
     <div className="space-y-4 md:space-y-6">
+      {/* Kartu statistik dipindah ke pola .dash-kpi-card (icon chip
+          bergradasi) -- dipakai ulang apa adanya dari Dashboard, lihat
+          komentar sejenis di app/dashboard/gudang/page.tsx. Diletakkan di
+          atas (sebelum antrian & tabel riwayat) supaya posisinya
+          konsisten dengan semua modul lain -- sebelumnya kartu ini ada
+          di BAWAH kedua tabel. Dibungkus CollapsibleKpiCards (default
+          tersembunyi, klik buat buka) atas permintaan user supaya modul
+          terasa lebih ringkas. */}
+      <CollapsibleKpiCards>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className="dash-kpi-card">
+            <div className="dash-kpi-top">
+              <span className="dash-kpi-top-left">
+                <span className="dash-kpi-icon" style={{ background: "#d1fae5", color: "#059669" }}>
+                  <CheckCircle2 size={13} />
+                </span>
+                <span className="dash-kpi-label">Lolos</span>
+              </span>
+            </div>
+            <p className="dash-kpi-value font-display">{totalLolos}</p>
+          </div>
+          <div className="dash-kpi-card">
+            <div className="dash-kpi-top">
+              <span className="dash-kpi-top-left">
+                <span className="dash-kpi-icon" style={{ background: "#fef3c7", color: "#d97706" }}>
+                  <ShieldCheck size={13} />
+                </span>
+                <span className="dash-kpi-label">Perbaikan</span>
+              </span>
+            </div>
+            <p className="dash-kpi-value font-display">{totalPerbaikan}</p>
+          </div>
+          <div className="dash-kpi-card">
+            <div className="dash-kpi-top">
+              <span className="dash-kpi-top-left">
+                <span className="dash-kpi-icon" style={{ background: "#fee2e2", color: "#dc2626" }}>
+                  <XCircle size={13} />
+                </span>
+                <span className="dash-kpi-label">Gagal</span>
+              </span>
+            </div>
+            <p className="dash-kpi-value font-display">{totalGagal}</p>
+          </div>
+        </div>
+      </CollapsibleKpiCards>
+
       {/* Antrian QC */}
       {pending.length === 0 ? (
         <EmptyState
@@ -331,17 +392,26 @@ export default function QcTable({
       )}
 
       {/* Riwayat QC */}
-      <div className="relative">
-        <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-        <input
-          placeholder="Cari no. QC / no. produksi..."
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setCurrentPage(1);
-          }}
-          className="input-field rounded-full max-w-md"
-          style={{ padding: "7px 14px 7px 34px", fontSize: "0.8125rem" }}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative flex-1">
+          <Search size={14} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <input
+            placeholder="Cari no. QC / no. produksi..."
+            value={search}
+            onChange={(e) => {
+              setSearch(e.target.value);
+              setCurrentPage(1);
+            }}
+            className="input-field rounded-full"
+            style={{ padding: "7px 14px 7px 34px", fontSize: "0.8125rem" }}
+          />
+        </div>
+        <ExportButtons
+          data={sortedRecords}
+          filename="riwayat-qc"
+          sheetName="Riwayat QC"
+          pdfTitle="Riwayat Pemeriksaan QC"
+          columns={exportColumns}
         />
       </div>
 
@@ -445,45 +515,6 @@ export default function QcTable({
             </div>
           </div>
         )}
-      </div>
-
-      {/* Kartu statistik dipindah ke pola .dash-kpi-card (icon chip
-          bergradasi) -- dipakai ulang apa adanya dari Dashboard, lihat
-          komentar sejenis di app/dashboard/gudang/page.tsx. */}
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        <div className="dash-kpi-card">
-          <div className="dash-kpi-top">
-            <span className="dash-kpi-top-left">
-              <span className="dash-kpi-icon" style={{ background: "#d1fae5", color: "#059669" }}>
-                <CheckCircle2 size={13} />
-              </span>
-              <span className="dash-kpi-label">Lolos</span>
-            </span>
-          </div>
-          <p className="dash-kpi-value font-display">{totalLolos}</p>
-        </div>
-        <div className="dash-kpi-card">
-          <div className="dash-kpi-top">
-            <span className="dash-kpi-top-left">
-              <span className="dash-kpi-icon" style={{ background: "#fef3c7", color: "#d97706" }}>
-                <ShieldCheck size={13} />
-              </span>
-              <span className="dash-kpi-label">Perbaikan</span>
-            </span>
-          </div>
-          <p className="dash-kpi-value font-display">{totalPerbaikan}</p>
-        </div>
-        <div className="dash-kpi-card">
-          <div className="dash-kpi-top">
-            <span className="dash-kpi-top-left">
-              <span className="dash-kpi-icon" style={{ background: "#fee2e2", color: "#dc2626" }}>
-                <XCircle size={13} />
-              </span>
-              <span className="dash-kpi-label">Gagal</span>
-            </span>
-          </div>
-          <p className="dash-kpi-value font-display">{totalGagal}</p>
-        </div>
       </div>
 
       {showModal && activeProduction && (
