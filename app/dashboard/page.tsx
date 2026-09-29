@@ -482,6 +482,7 @@ export default function DashboardPage() {
         icon={CalendarDays}
         title="Dashboard"
         subtitle="Ringkasan aktivitas dan tren pesanan SCM Djogker."
+        showDate
       />
 
       <FetchErrorBanner message={fetchError} />
